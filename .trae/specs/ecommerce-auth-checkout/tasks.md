@@ -1,0 +1,35 @@
+# Tasks
+- [x] Task 1: 配置 NextAuth.js 用户认证系统: 安装并配置 next-auth，实现注册/登录功能。
+  - [x] SubTask 1.1: 安装 next-auth 和 bcryptjs 依赖
+  - [x] SubTask 1.2: 创建 NextAuth 配置文件 `src/lib/auth.ts`
+  - [x] SubTask 1.3: 创建用户注册 API `src/app/api/auth/register/route.ts`
+  - [x] SubTask 1.4: 创建 NextAuth API 路由 `src/app/api/auth/[...nextauth]/route.ts`
+  - [x] SubTask 1.5: 创建 `src/middleware.ts` 保护需要认证的路由
+- [x] Task 2: 实现认证表单组件: 创建登录/注册/访客结账表单组件。
+  - [x] SubTask 2.1: 创建 `src/components/auth/LoginForm.tsx`
+  - [x] SubTask 2.2: 创建 `src/components/auth/RegisterForm.tsx`
+  - [x] SubTask 2.3: 创建 `src/components/auth/GuestCheckoutForm.tsx`
+  - [x] SubTask 2.4: 创建 `src/components/auth/AuthModal.tsx` 整合三种表单
+- [x] Task 3: 重构结账弹窗: 创建增强版结账弹窗，集成认证流程。
+  - [x] SubTask 3.1: 创建 `src/components/checkout/EnhancedCheckoutModal.tsx`
+  - [x] SubTask 3.2: 实现 Tab 切换（登录/注册/访客结账）
+  - [x] SubTask 3.3: 添加表单验证（react-hook-form + zod）
+  - [x] SubTask 3.4: 添加加载状态和错误处理
+  - [x] SubTask 3.5: 在商品详情页和购物车页集成新的结账弹窗
+- [x] Task 4: 实现订单管理功能: 创建订单列表和详情页面。
+  - [x] SubTask 4.1: 创建 Prisma Order 数据模型扩展
+  - [x] SubTask 4.2: 创建订单 API `src/app/api/orders/route.ts`
+  - [x] SubTask 4.3: 创建订单列表页 `src/app/orders/page.tsx`
+  - [x] SubTask 4.4: 创建订单详情页 `src/app/orders/[id]/page.tsx`
+  - [x] SubTask 4.5: 实现订单状态时间线组件 `TrackingTimeline.tsx`
+- [x] Task 5: 实现物流追踪功能: 管理端录入物流信息，用户端展示追踪状态。
+  - [x] SubTask 5.1: 创建物流 API `src/app/api/logistics/route.ts`
+  - [x] SubTask 5.2: 在管理端订单页面添加物流信息录入
+  - [x] SubTask 5.3: 创建 `src/components/logistics/LogisticsCard.tsx` 展示物流信息
+  - [x] SubTask 5.4: 集成第三方物流 API（可选）
+
+# Task Dependencies
+- [Task 2] depends on [Task 1]
+- [Task 3] depends on [Task 1] and [Task 2]
+- [Task 4] can be executed in parallel after [Task 1]
+- [Task 5] depends on [Task 4]
