@@ -7,9 +7,9 @@ import { useLanguage } from "@/context/LanguageContext"
 
 const MAX_HISTORY = 3
 
-const hotSearchTerms = {
+const DEFAULT_HOT_TERMS = {
   zh: ["#网红爆款", "#限时秒杀", "#抖音同款", "#ins风"],
-  en: ["#trending", "#flashsale", "#viral", "#mustbuy"]
+  en: ["#trending", "#flashsale", "#viral", "#mustbuy"],
 }
 
 interface SearchBoxProps {
@@ -22,6 +22,7 @@ export function SearchBox({ onSearch }: SearchBoxProps) {
   const [history, setHistory] = useState<string[]>([])
   const [showHistory, setShowHistory] = useState(false)
   const [hotTerms, setHotTerms] = useState<string[]>([])
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     try {
@@ -35,7 +36,20 @@ export function SearchBox({ onSearch }: SearchBoxProps) {
   }, [t])
 
   useEffect(() => {
-    setHotTerms(language === "zh" ? hotSearchTerms.zh : hotSearchTerms.en)
+    const fetchTrending = async () => {
+      setLoading(true)
+      try {
+        const res = await fetch("/api/search/trending")
+        const data = await res.json()
+        const terms = language === "zh" ? data.zh : data.en
+        setHotTerms(terms)
+      } catch {
+        setHotTerms(language === "zh" ? DEFAULT_HOT_TERMS.zh : DEFAULT_HOT_TERMS.en)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchTrending()
   }, [language])
 
   const saveHistory = (newHistory: string[]) => {
