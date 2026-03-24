@@ -1,0 +1,153 @@
+/**
+ * 聚合仪表盘 API (v0.4.1)
+ * 单一端点返回所有仪表盘所需数据
+ * 服务端并行查询，减少网络请求次数
+ */
+
+import { NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma"
+import { cacheGet, cacheSet, CACHE_KEYS, CACHE_TTL } from "@/lib/cache"
+
+// 图表数据点类型
+interface ChartDataPoint {
+  date: string
+  sales: number
+  orders: number
+  revenue: number
+}
+
+// 仪表盘数据类型
+interface DashboardData {
+  stats: {
+    totalRevenue: number
+    revenueChange: number
+    totalOrders: number
+    ordersChange: number
+    activeProducts: number
+    productsChange: number
+    activeUsers: number
+    usersChange: number
+  }
+  recentOrders: Array<{
+    id: string
+    customerName: string
+    customerEmail: string
+    totalAmount: number
+    status: string
+    createdAt: string
+  }>
+  chartData: ChartDataPoint[]
+}
+
+// 生成图表数据（最近30天）
+function generateChartData(orders: { createdAt: Date; totalAmount: number }[]): ChartDataPoint[] {
+  const days = 30
+  const today = new Date()
+  const chartData: ChartDataPoint[] = []
+
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date(today)
+    date.setDate(date.getDate() - i)
+    const dateStr = date.toISOString().split("T")[0]
+
+    // 计算当天订单总额和数量
+    const dayStart = new Date(date)
+    dayStart.setHours(0, 0, 0, 0)
+    const dayEnd = new Date(date)
+    dayEnd.setHours(23, 59, 59, 999)
+
+    const dayOrders = orders.filter((o) => {
+      const orderDate = new Date(o.createdAt)
+      return orderDate >= dayStart && orderDate <= dayEnd
+    })
+
+    chartData.push({
+      date: dateStr,
+      sales: dayOrders.length,
+      orders: dayOrders.length,
+      revenue: dayOrders.reduce((sum, o) => sum + o.totalAmount, 0),
+    })
+  }
+
+  return chartData
+}
+
+export async function GET() {
+  try {
+    // 尝试从缓存获取
+    const cached = await cacheGet<DashboardData>(CACHE_KEYS.ADMIN_DASHBOARD())
+    if (cached) {
+      return NextResponse.json({ ...cached, fromCache: true })
+    }
+
+    // 并行查询所有数据
+    const [orders, products, users, recentOrders] = await Promise.all([
+      // 最近30天的订单
+      prisma.order.findMany({
+        where: { createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } },
+        select: { totalAmount: true, status: true, createdAt: true },
+      }),
+      // 已上架商品数量
+      prisma.product.count({
+        where: { isPublished: true },
+      }),
+      // 普通用户数量
+      prisma.user.count({
+        where: { role: "USER" },
+      }),
+      // 最近5条订单
+      prisma.order.findMany({
+        take: 5,
+        orderBy: { createdAt: "desc" },
+        include: {
+          user: {
+            select: { name: true, email: true },
+          },
+        },
+      }),
+    ])
+
+    // 计算统计数据
+    const totalRevenue = orders.reduce((sum, o) => sum + o.totalAmount, 0)
+    const totalOrders = orders.length
+    const activeProducts = products
+    const activeUsers = users
+
+    // 生成图表数据
+    const chartData = generateChartData(orders)
+
+    // 构建结果
+    const result: DashboardData = {
+      stats: {
+        totalRevenue,
+        revenueChange: 12.5, // 模拟环比增长
+        totalOrders,
+        ordersChange: 180.1,
+        activeProducts,
+        productsChange: 5,
+        activeUsers,
+        usersChange: 201,
+      },
+      recentOrders: recentOrders.map((o) => ({
+        id: o.id,
+        customerName: o.user?.name || "匿名",
+        customerEmail: o.user?.email || "",
+        totalAmount: o.totalAmount,
+        status: o.status,
+        createdAt: o.createdAt.toISOString(),
+      })),
+      chartData,
+    }
+
+    // 缓存 5 分钟
+    await cacheSet(CACHE_KEYS.ADMIN_DASHBOARD(), result, CACHE_TTL.MEDIUM)
+
+    return NextResponse.json({ success: true, data: result })
+  } catch (error) {
+    console.error("获取仪表盘数据失败:", error)
+    return NextResponse.json(
+      { success: false, error: "获取仪表盘数据失败" },
+      { status: 500 }
+    )
+  }
+}

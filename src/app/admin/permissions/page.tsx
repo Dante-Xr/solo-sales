@@ -1,19 +1,18 @@
 /**
  * ============================================
- * 管理员角色管理页面
+ * 管理员权限管理页面
  * ============================================
  * 功能说明：
- *   - 角色列表展示（表格）
- *   - 显示关联权限数量
- *   - 创建/编辑角色 Dialog
- *   - 角色权限复选框列表（分组展示 PAGE 和 ACTION）
- *   - 删除角色确认 Dialog
+ *   - 权限列表展示（表格）
+ *   - 显示关联角色数量
+ *   - 创建/编辑权限 Dialog
+ *   - 删除权限确认 Dialog
  * ============================================
  */
 
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect } from "react"
 import { Shield, Plus, Pencil, Trash2, Check, Loader2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -36,110 +35,92 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useLanguage } from "@/context/LanguageContext"
-import { Checkbox } from "@/components/ui/checkbox"
 
 interface Permission {
   id: string
   name: string
   label: string
-  type: "PAGE" | "ACTION"
-}
-
-interface Role {
-  id: string
-  name: string
-  label: string
   description: string | null
-  permissions: { id: string; name: string; label: string }[]
-  adminCount: number
+  type: "PAGE" | "ACTION" | "DATA"
+  _count?: {
+    roles: number
+  }
+  usedByRoles?: number
 }
 
-export default function RolesPage() {
+const PERMISSION_TYPES = [
+  { value: "PAGE", label: "页面权限" },
+  { value: "ACTION", label: "操作权限" },
+  { value: "DATA", label: "数据权限" },
+] as const
+
+export default function PermissionsPage() {
   const { language } = useLanguage()
   const isZh = language === "zh"
 
-  const [roles, setRoles] = useState<Role[]>([])
   const [permissions, setPermissions] = useState<Permission[]>([])
   const [loading, setLoading] = useState(true)
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [editingRole, setEditingRole] = useState<Role | null>(null)
-  const [deletingRole, setDeletingRole] = useState<Role | null>(null)
+  const [editingPermission, setEditingPermission] = useState<Permission | null>(null)
+  const [deletingPermission, setDeletingPermission] = useState<Permission | null>(null)
 
   const [formData, setFormData] = useState({
     name: "",
     label: "",
     description: "",
-    permissionIds: [] as string[],
+    type: "ACTION" as "PAGE" | "ACTION" | "DATA",
   })
   const [submitting, setSubmitting] = useState(false)
 
-  const pagePermissions = useMemo(
-    () => permissions.filter((p) => p.type === "PAGE"),
-    [permissions]
-  )
-  const actionPermissions = useMemo(
-    () => permissions.filter((p) => p.type === "ACTION"),
-    [permissions]
-  )
-
   useEffect(() => {
-    fetchData()
+    fetchPermissions()
   }, [])
 
-  const fetchData = async () => {
+  const fetchPermissions = async () => {
     try {
       setLoading(true)
-      const [rolesRes, permissionsRes] = await Promise.all([
-        fetch("/api/admin/roles"),
-        fetch("/api/admin/permissions"),
-      ])
-      const rolesData = await rolesRes.json()
-      const permissionsData = await permissionsRes.json()
-      if (rolesData.success) {
-        setRoles(rolesData.data)
-      }
-      if (permissionsData.success) {
-        setPermissions(permissionsData.data.list)
+      const res = await fetch("/api/admin/permissions")
+      const data = await res.json()
+      if (data.success) {
+        setPermissions(data.data.list)
       }
     } catch (error) {
-      console.error("获取数据失败:", error)
+      console.error("获取权限列表失败:", error)
     } finally {
       setLoading(false)
     }
   }
 
   const handleOpenCreate = () => {
-    setEditingRole(null)
-    setFormData({ name: "", label: "", description: "", permissionIds: [] })
+    setEditingPermission(null)
+    setFormData({ name: "", label: "", description: "", type: "ACTION" })
     setDialogOpen(true)
   }
 
-  const handleOpenEdit = (role: Role) => {
-    setEditingRole(role)
+  const handleOpenEdit = (permission: Permission) => {
+    setEditingPermission(permission)
     setFormData({
-      name: role.name,
-      label: role.label,
-      description: role.description || "",
-      permissionIds: role.permissions.map((p) => p.id),
+      name: permission.name,
+      label: permission.label,
+      description: permission.description || "",
+      type: permission.type,
     })
     setDialogOpen(true)
   }
 
-  const handleOpenDelete = (role: Role) => {
-    setDeletingRole(role)
+  const handleOpenDelete = (permission: Permission) => {
+    setDeletingPermission(permission)
     setDeleteDialogOpen(true)
-  }
-
-  const handlePermissionChange = (permissionId: string, checked: boolean) => {
-    setFormData((prev) => ({
-      ...prev,
-      permissionIds: checked
-        ? [...prev.permissionIds, permissionId]
-        : prev.permissionIds.filter((id) => id !== permissionId),
-    }))
   }
 
   const handleSubmit = async () => {
@@ -147,10 +128,10 @@ export default function RolesPage() {
 
     try {
       setSubmitting(true)
-      const url = editingRole
-        ? `/api/admin/roles/${editingRole.id}`
-        : "/api/admin/roles"
-      const method = editingRole ? "PATCH" : "POST"
+      const url = editingPermission
+        ? `/api/admin/permissions/${editingPermission.id}`
+        : "/api/admin/permissions"
+      const method = editingPermission ? "PATCH" : "POST"
 
       const res = await fetch(url, {
         method,
@@ -161,7 +142,7 @@ export default function RolesPage() {
       const data = await res.json()
       if (data.success) {
         setDialogOpen(false)
-        fetchData()
+        fetchPermissions()
       } else {
         alert(data.error || (isZh ? "操作失败" : "Operation failed"))
       }
@@ -173,17 +154,17 @@ export default function RolesPage() {
   }
 
   const handleDelete = async () => {
-    if (!deletingRole) return
+    if (!deletingPermission) return
 
     try {
       setSubmitting(true)
-      const res = await fetch(`/api/admin/roles/${deletingRole.id}`, {
+      const res = await fetch(`/api/admin/permissions/${deletingPermission.id}`, {
         method: "DELETE",
       })
       const data = await res.json()
       if (data.success) {
         setDeleteDialogOpen(false)
-        fetchData()
+        fetchPermissions()
       } else {
         alert(data.error || (isZh ? "删除失败" : "Delete failed"))
       }
@@ -194,30 +175,23 @@ export default function RolesPage() {
     }
   }
 
-  const renderPermissionGroup = (
-    title: string,
-    permList: Permission[]
-  ) => (
-    <div className="space-y-3">
-      <div className="text-sm font-medium text-muted-foreground">{title}</div>
-      <div className="grid grid-cols-2 gap-2">
-        {permList.map((permission) => (
-          <label
-            key={permission.id}
-            className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 rounded-md px-2 py-1.5 transition-colors"
-          >
-            <Checkbox
-              checked={formData.permissionIds.includes(permission.id)}
-              onCheckedChange={(checked) =>
-                handlePermissionChange(permission.id, checked)
-              }
-            />
-            <span className="text-sm">{permission.label}</span>
-          </label>
-        ))}
-      </div>
-    </div>
-  )
+  const getTypeBadgeVariant = (type: string) => {
+    switch (type) {
+      case "PAGE":
+        return "default"
+      case "ACTION":
+        return "secondary"
+      case "DATA":
+        return "outline"
+      default:
+        return "secondary"
+    }
+  }
+
+  const getTypeLabel = (type: string) => {
+    const found = PERMISSION_TYPES.find((t) => t.value === type)
+    return found ? found.label : type
+  }
 
   if (loading) {
     return (
@@ -234,65 +208,65 @@ export default function RolesPage() {
           <div className="flex items-center gap-3">
             <Shield className="w-8 h-8 text-primary" />
             <h1 className="text-2xl font-bold">
-              {isZh ? "角色管理" : "Role Management"}
+              {isZh ? "权限管理" : "Permission Management"}
             </h1>
           </div>
           <Button onClick={handleOpenCreate}>
             <Plus className="w-4 h-4 mr-2" />
-            {isZh ? "创建角色" : "Create Role"}
+            {isZh ? "创建权限" : "Create Permission"}
           </Button>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>{isZh ? "角色列表" : "Role List"}</CardTitle>
+            <CardTitle>{isZh ? "权限列表" : "Permission List"}</CardTitle>
             <CardDescription>
               {isZh
-                ? "管理系统中的角色和权限配置"
-                : "Manage system roles and permission configurations"}
+                ? "管理系统中的所有权限定义"
+                : "Manage all permission definitions in the system"}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{isZh ? "角色名称" : "Role Name"}</TableHead>
+                  <TableHead>{isZh ? "权限名称" : "Permission Name"}</TableHead>
                   <TableHead>{isZh ? "标识" : "Identifier"}</TableHead>
+                  <TableHead>{isZh ? "类型" : "Type"}</TableHead>
                   <TableHead>{isZh ? "描述" : "Description"}</TableHead>
-                  <TableHead>{isZh ? "权限数量" : "Permissions"}</TableHead>
-                  <TableHead>{isZh ? "管理员数" : "Admins"}</TableHead>
+                  <TableHead>{isZh ? "引用角色" : "Used By Roles"}</TableHead>
                   <TableHead className="text-right">
                     {isZh ? "操作" : "Actions"}
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {roles.length === 0 ? (
+                {permissions.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                      {isZh ? "暂无角色数据" : "No roles found"}
+                      {isZh ? "暂无权限数据" : "No permissions found"}
                     </TableCell>
                   </TableRow>
                 ) : (
-                  roles.map((role) => (
-                    <TableRow key={role.id}>
-                      <TableCell className="font-medium">{role.label}</TableCell>
+                  permissions.map((permission) => (
+                    <TableRow key={permission.id}>
+                      <TableCell className="font-medium">{permission.label}</TableCell>
                       <TableCell>
                         <code className="text-xs bg-muted px-2 py-1 rounded">
-                          {role.name}
+                          {permission.name}
                         </code>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {role.description || "-"}
-                      </TableCell>
                       <TableCell>
-                        <Badge variant="secondary">
-                          {role.permissions.length} {isZh ? "个权限" : "permissions"}
+                        <Badge variant={getTypeBadgeVariant(permission.type)}>
+                          {getTypeLabel(permission.type)}
                         </Badge>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {permission.description || "-"}
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline">
-                          {role.adminCount} {isZh ? "人" : "admins"}
+                          {permission.usedByRoles || permission._count?.roles || 0} {isZh ? "个角色" : "roles"}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
@@ -300,14 +274,14 @@ export default function RolesPage() {
                           <Button
                             variant="ghost"
                             size="icon-sm"
-                            onClick={() => handleOpenEdit(role)}
+                            onClick={() => handleOpenEdit(permission)}
                           >
                             <Pencil className="w-4 h-4" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="icon-sm"
-                            onClick={() => handleOpenDelete(role)}
+                            onClick={() => handleOpenDelete(permission)}
                           >
                             <Trash2 className="w-4 h-4 text-destructive" />
                           </Button>
@@ -323,90 +297,96 @@ export default function RolesPage() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editingRole
+              {editingPermission
                 ? isZh
-                  ? "编辑角色"
-                  : "Edit Role"
+                  ? "编辑权限"
+                  : "Edit Permission"
                 : isZh
-                  ? "创建角色"
-                  : "Create Role"}
+                  ? "创建权限"
+                  : "Create Permission"}
             </DialogTitle>
             <DialogDescription>
-              {editingRole
+              {editingPermission
                 ? isZh
-                  ? "修改角色的名称、描述和权限"
-                  : "Modify role name, description and permissions"
+                  ? "修改权限的名称、描述和类型"
+                  : "Modify permission name, description and type"
                 : isZh
-                  ? "创建新角色并配置权限"
-                  : "Create a new role and configure permissions"}
+                  ? "创建新的权限"
+                  : "Create a new permission"}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">
-                  {isZh ? "角色标识" : "Role Identifier"}
-                </Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, name: e.target.value }))
-                  }
-                  placeholder={isZh ? "如: admin" : "e.g., admin"}
-                  disabled={!!editingRole}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="label">
-                  {isZh ? "角色名称" : "Role Name"}
-                </Label>
-                <Input
-                  id="label"
-                  value={formData.label}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, label: e.target.value }))
-                  }
-                  placeholder={isZh ? "如: 管理员" : "e.g., Administrator"}
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="name">
+                {isZh ? "权限标识" : "Permission Identifier"}
+              </Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, name: e.target.value }))
+                }
+                placeholder={isZh ? "如: products.view" : "e.g., products.view"}
+                disabled={!!editingPermission}
+              />
+              <p className="text-xs text-muted-foreground">
+                {isZh ? "权限标识格式：资源.操作，如 products.view" : "Format: resource.action, e.g., products.view"}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="label">
+                {isZh ? "权限名称" : "Permission Name"}
+              </Label>
+              <Input
+                id="label"
+                value={formData.label}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, label: e.target.value }))
+                }
+                placeholder={isZh ? "如: 查看商品" : "e.g., View Products"}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="type">
+                {isZh ? "权限类型" : "Permission Type"}
+              </Label>
+              <Select
+                value={formData.type}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, type: value as "PAGE" | "ACTION" | "DATA" }))
+                }
+              >
+                <SelectTrigger id="type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PERMISSION_TYPES.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="description">
-                {isZh ? "角色描述" : "Description"}
+                {isZh ? "描述" : "Description"}
               </Label>
               <Input
                 id="description"
                 value={formData.description}
                 onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    description: e.target.value,
-                  }))
+                  setFormData((prev) => ({ ...prev, description: e.target.value }))
                 }
-                placeholder={
-                  isZh ? "可选的角色描述" : "Optional role description"
-                }
+                placeholder={isZh ? "可选的权限描述" : "Optional permission description"}
               />
-            </div>
-
-            <div className="space-y-3">
-              <Label>{isZh ? "权限配置" : "Permissions"}</Label>
-              {pagePermissions.length > 0 &&
-                renderPermissionGroup(
-                  isZh ? "页面权限 (PAGE)" : "Page Permissions (PAGE)",
-                  pagePermissions
-                )}
-              {actionPermissions.length > 0 &&
-                renderPermissionGroup(
-                  isZh ? "操作权限 (ACTION)" : "Action Permissions (ACTION)",
-                  actionPermissions
-                )}
             </div>
           </div>
 
@@ -414,7 +394,10 @@ export default function RolesPage() {
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
               {isZh ? "取消" : "Cancel"}
             </Button>
-            <Button onClick={handleSubmit} disabled={submitting || !formData.name || !formData.label}>
+            <Button
+              onClick={handleSubmit}
+              disabled={submitting || !formData.name || !formData.label}
+            >
               {submitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -435,19 +418,30 @@ export default function RolesPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {isZh ? "确认删除角色" : "Confirm Delete Role"}
+              {isZh ? "确认删除权限" : "Confirm Delete Permission"}
             </DialogTitle>
             <DialogDescription>
               {isZh
-                ? `确定要删除角色 "${deletingRole?.label}" 吗？此操作无法撤销。`
-                : `Are you sure you want to delete the role "${deletingRole?.label}"? This action cannot be undone.`}
+                ? `确定要删除权限 "${deletingPermission?.label}" 吗？此操作无法撤销。`
+                : `Are you sure you want to delete the permission "${deletingPermission?.label}"? This action cannot be undone.`}
             </DialogDescription>
           </DialogHeader>
+          {(deletingPermission?.usedByRoles || deletingPermission?._count?.roles || 0) > 0 && (
+            <div className="bg-destructive/10 text-destructive px-4 py-3 rounded-md text-sm">
+              {isZh
+                ? "该权限已被角色使用，无法删除。请先移除所有引用该权限的角色。"
+                : "This permission is used by roles and cannot be deleted. Please remove all role references first."}
+            </div>
+          )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
               {isZh ? "取消" : "Cancel"}
             </Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={submitting}>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={submitting || (deletingPermission?.usedByRoles || deletingPermission?._count?.roles || 0) > 0}
+            >
               {submitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />

@@ -1,7 +1,45 @@
-import redis from "./redis"
+/**
+ * 缓存工具模块 (v0.4.1)
+ * 支持 Redis 缓存和内存缓存降级
+ */
+
+import redis from "@/lib/redis"
 
 const DEFAULT_TTL = 300
 
+// 缓存键常量
+export const CACHE_KEYS = {
+  FEATURED_PRODUCTS: "cache:get:products:featured",
+  CATEGORY_PRODUCTS: (id: string) => `cache:get:products:category:${id}`,
+  PRODUCT: (id: string) => `cache:get:product:${id}`,
+  TRENDING_SEARCHES: "cache:get:search:trending",
+  CART: (userId: string) => `cache:get:cart:${userId}`,
+  ADMIN_DASHBOARD: () => "cache:admin:dashboard",
+  PRODUCT_LIST: (params: string) => `cache:product:list:${params}`,
+  CUSTOMER_LIST: () => "cache:customer:list",
+  ADMIN_PERMISSIONS: (adminId: string) => `admin:permissions:${adminId}`,
+  ROLE_PERMISSIONS: (roleId: string) => `role:permissions:${roleId}`,
+  ALL_PERMISSIONS: "permissions:all",
+} as const
+
+// 缓存 TTL 常量
+export const CACHE_TTL = {
+  FEATURED_PRODUCTS: 300,
+  CATEGORY_PRODUCTS: 300,
+  PRODUCT: 600,
+  TRENDING_SEARCHES: 60,
+  CART: 3600,
+  SHORT: 60,
+  MEDIUM: 300,
+  LONG: 600,
+  ADMIN_PERMISSIONS: 300,
+  ROLE_PERMISSIONS: 600,
+  ALL_PERMISSIONS: 1800,
+} as const
+
+/**
+ * 从缓存获取数据
+ */
 export async function cacheGet<T>(key: string): Promise<T | null> {
   try {
     const data = await redis.get<T>(key)
@@ -12,11 +50,10 @@ export async function cacheGet<T>(key: string): Promise<T | null> {
   }
 }
 
-export async function cacheSet<T>(
-  key: string,
-  value: T,
-  ttl: number = DEFAULT_TTL
-): Promise<boolean> {
+/**
+ * 设置缓存数据
+ */
+export async function cacheSet<T>(key: string, value: T, ttl: number = DEFAULT_TTL): Promise<boolean> {
   try {
     await redis.set(key, value, { ex: ttl })
     return true
@@ -26,6 +63,9 @@ export async function cacheSet<T>(
   }
 }
 
+/**
+ * 删除缓存
+ */
 export async function cacheDel(key: string): Promise<boolean> {
   try {
     await redis.del(key)
@@ -36,31 +76,18 @@ export async function cacheDel(key: string): Promise<boolean> {
   }
 }
 
-export async function cacheDelPattern(pattern: string): Promise<boolean> {
+/**
+ * 批量删除匹配模式的缓存
+ */
+export async function cacheDelPattern(pattern: string): Promise<number> {
   try {
     const keys = await redis.keys(pattern)
     if (keys.length > 0) {
       await redis.del(...keys)
     }
-    return true
+    return keys.length
   } catch (error) {
     console.error(`Cache del pattern error for ${pattern}:`, error)
-    return false
+    return 0
   }
 }
-
-export const CACHE_KEYS = {
-  FEATURED_PRODUCTS: "cache:get:products:featured",
-  CATEGORY_PRODUCTS: (id: string) => `cache:get:products:category:${id}`,
-  PRODUCT: (id: string) => `cache:get:product:${id}`,
-  TRENDING_SEARCHES: "cache:get:search:trending",
-  CART: (userId: string) => `cache:get:cart:${userId}`,
-} as const
-
-export const CACHE_TTL = {
-  FEATURED_PRODUCTS: 300,
-  CATEGORY_PRODUCTS: 300,
-  PRODUCT: 600,
-  TRENDING_SEARCHES: 60,
-  CART: 3600,
-} as const

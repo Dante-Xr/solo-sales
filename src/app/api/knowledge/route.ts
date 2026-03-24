@@ -1,19 +1,18 @@
 /**
  * ============================================
- * RAG 知识库 - 列表和创建 API (Task 1.2)
+ * RAG 知识库 - 列表和创建 API (v0.4.1 优化版)
  * ============================================
  * 功能说明：
  *   - GET: 获取知识库列表，支持分页、分类筛选、关键词搜索
  *   - POST: 创建新的知识条目
+ *   - 支持缓存，提升查询性能
  * ============================================
  */
 
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
-import { PrismaClient } from "@prisma/client"
-
-// Prisma 客户端实例
-const prisma = new PrismaClient()
+import { prisma } from "@/lib/prisma"
+import { cacheGet, cacheSet, cacheDelPattern, CACHE_KEYS, CACHE_TTL } from "@/lib/cache"
 
 /**
  * 创建知识条目的请求体验证 Schema
@@ -42,6 +41,7 @@ const GetKnowledgeSchema = z.object({
 /**
  * GET handler - 获取知识库列表
  * 支持分页、分类筛选、关键词搜索
+ * 支持缓存，相同参数 5 分钟内返回缓存结果
  */
 export async function GET(request: NextRequest) {
   try {
@@ -49,6 +49,19 @@ export async function GET(request: NextRequest) {
     const searchParams = Object.fromEntries(request.nextUrl.searchParams)
     const queryParams = GetKnowledgeSchema.parse(searchParams)
     const { page, pageSize, category, keyword, status } = queryParams
+
+    // 构建缓存键
+    const cacheKey = "cache:knowledge:list:" + JSON.stringify({ page, pageSize, category, keyword, status })
+
+    // 尝试从缓存获取
+    const cached = await cacheGet<{
+      list: unknown[]
+      pagination: { page: number; pageSize: number; total: number; totalPages: number }
+    }>(cacheKey)
+
+    if (cached) {
+      return NextResponse.json({ ...cached, fromCache: true })
+    }
 
     // 构建 where 条件
     const where: Record<string, unknown> = {}
@@ -90,8 +103,7 @@ export async function GET(request: NextRequest) {
       prisma.knowledgeBase.count({ where }),
     ])
 
-    // 返回分页结果
-    return NextResponse.json({
+    const result = {
       success: true,
       data: {
         list: knowledgeList,
@@ -102,7 +114,13 @@ export async function GET(request: NextRequest) {
           totalPages: Math.ceil(total / pageSize),
         },
       },
-    })
+    }
+
+    // 缓存 5 分钟
+    await cacheSet(cacheKey, result, CACHE_TTL.MEDIUM)
+
+    // 返回分页结果
+    return NextResponse.json(result)
   } catch (error) {
     // 错误处理
     console.error("获取知识库列表失败:", error)
@@ -124,6 +142,7 @@ export async function GET(request: NextRequest) {
 /**
  * POST handler - 创建新的知识条目
  * 自动创建第一条历史版本记录
+ * 创建后清除相关缓存
  */
 export async function POST(request: NextRequest) {
   try {
@@ -159,6 +178,9 @@ export async function POST(request: NextRequest) {
 
       return knowledge
     })
+
+    // 清除知识库列表缓存
+    await cacheDelPattern("cache:knowledge:list:*")
 
     // 返回创建结果
     return NextResponse.json(

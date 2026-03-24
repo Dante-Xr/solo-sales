@@ -12,6 +12,9 @@
 
 import { NextRequest, NextResponse } from "next/server"
 import { PrismaClient, PermissionType } from "@prisma/client"
+import { verifyAdminToken, hasPermission, invalidateAllPermissionsCache } from "@/lib/adminAuth"
+import { logCreate } from "@/lib/permissionLog"
+import { TargetType } from "@prisma/client"
 
 const prisma = new PrismaClient()
 
@@ -20,6 +23,16 @@ const prisma = new PrismaClient()
  */
 export async function GET(request: NextRequest) {
   try {
+    const admin = await verifyAdminToken(request)
+    if (!admin) {
+      return NextResponse.json({ success: false, error: "未登录" }, { status: 401 })
+    }
+
+    const hasAccess = await hasPermission(admin.id, "permissions.view")
+    if (!hasAccess) {
+      return NextResponse.json({ success: false, error: "没有访问权限" }, { status: 403 })
+    }
+
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get("page") || "1")
     const pageSize = parseInt(searchParams.get("pageSize") || "50")
@@ -54,10 +67,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error("获取权限列表失败:", error)
-    return NextResponse.json(
-      { success: false, error: "获取权限列表失败" },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: "获取权限列表失败" }, { status: 500 })
   }
 }
 
@@ -66,25 +76,27 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const admin = await verifyAdminToken(request)
+    if (!admin) {
+      return NextResponse.json({ success: false, error: "未登录" }, { status: 401 })
+    }
+
+    const hasAccess = await hasPermission(admin.id, "permissions.create")
+    if (!hasAccess) {
+      return NextResponse.json({ success: false, error: "没有访问权限" }, { status: 403 })
+    }
+
     const body = await request.json()
     const { name, label, description, type } = body
 
     if (!name || !label) {
-      return NextResponse.json(
-        { success: false, error: "权限标识和名称不能为空" },
-        { status: 400 }
-      )
+      return NextResponse.json({ success: false, error: "权限标识和名称不能为空" }, { status: 400 })
     }
 
-    const existing = await prisma.permission.findUnique({
-      where: { name },
-    })
+    const existing = await prisma.permission.findUnique({ where: { name } })
 
     if (existing) {
-      return NextResponse.json(
-        { success: false, error: "该权限标识已存在" },
-        { status: 409 }
-      )
+      return NextResponse.json({ success: false, error: "该权限标识已存在" }, { status: 409 })
     }
 
     const permission = await prisma.permission.create({
@@ -96,12 +108,13 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    await logCreate(request, admin.id, TargetType.PERMISSION, permission.id, permission as unknown as Record<string, unknown>)
+
+    await invalidateAllPermissionsCache()
+
     return NextResponse.json({ success: true, data: permission }, { status: 201 })
   } catch (error) {
     console.error("创建权限失败:", error)
-    return NextResponse.json(
-      { success: false, error: "创建权限失败" },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: "创建权限失败" }, { status: 500 })
   }
 }

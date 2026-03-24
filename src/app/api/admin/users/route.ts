@@ -11,6 +11,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcryptjs"
+import { verifyAdminToken, hasPermission, invalidatePermissionCache } from "@/lib/adminAuth"
+import { logCreate } from "@/lib/permissionLog"
+import { TargetType } from "@prisma/client"
 
 const prisma = new PrismaClient()
 
@@ -19,6 +22,16 @@ const prisma = new PrismaClient()
  */
 export async function GET(request: NextRequest) {
   try {
+    const admin = await verifyAdminToken(request)
+    if (!admin) {
+      return NextResponse.json({ success: false, error: "未登录" }, { status: 401 })
+    }
+
+    const hasAccess = await hasPermission(admin.id, "users.view")
+    if (!hasAccess) {
+      return NextResponse.json({ success: false, error: "没有访问权限" }, { status: 403 })
+    }
+
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get("page") || "1")
     const pageSize = parseInt(searchParams.get("pageSize") || "20")
@@ -79,10 +92,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error("获取用户列表失败:", error)
-    return NextResponse.json(
-      { success: false, error: "获取用户列表失败" },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: "获取用户列表失败" }, { status: 500 })
   }
 }
 
@@ -91,47 +101,39 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const admin = await verifyAdminToken(request)
+    if (!admin) {
+      return NextResponse.json({ success: false, error: "未登录" }, { status: 401 })
+    }
+
+    const hasAccess = await hasPermission(admin.id, "users.create")
+    if (!hasAccess) {
+      return NextResponse.json({ success: false, error: "没有访问权限" }, { status: 403 })
+    }
+
     const body = await request.json()
     const { username, email, password, roleId } = body
 
     if (!username || !email || !password || !roleId) {
-      return NextResponse.json(
-        { success: false, error: "用户名、邮箱、密码和角色不能为空" },
-        { status: 400 }
-      )
+      return NextResponse.json({ success: false, error: "用户名、邮箱、密码和角色不能为空" }, { status: 400 })
     }
 
-    const existingEmail = await prisma.adminUser.findUnique({
-      where: { email },
-    })
+    const existingEmail = await prisma.adminUser.findUnique({ where: { email } })
 
     if (existingEmail) {
-      return NextResponse.json(
-        { success: false, error: "该邮箱已被使用" },
-        { status: 409 }
-      )
+      return NextResponse.json({ success: false, error: "该邮箱已被使用" }, { status: 409 })
     }
 
-    const existingUsername = await prisma.adminUser.findUnique({
-      where: { username },
-    })
+    const existingUsername = await prisma.adminUser.findUnique({ where: { username } })
 
     if (existingUsername) {
-      return NextResponse.json(
-        { success: false, error: "该用户名已被使用" },
-        { status: 409 }
-      )
+      return NextResponse.json({ success: false, error: "该用户名已被使用" }, { status: 409 })
     }
 
-    const role = await prisma.role.findUnique({
-      where: { id: roleId },
-    })
+    const role = await prisma.role.findUnique({ where: { id: roleId } })
 
     if (!role) {
-      return NextResponse.json(
-        { success: false, error: "指定的角色不存在" },
-        { status: 400 }
-      )
+      return NextResponse.json({ success: false, error: "指定的角色不存在" }, { status: 400 })
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
@@ -154,6 +156,19 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    await logCreate(
+      request,
+      admin.id,
+      TargetType.ADMIN_USER,
+      user.id,
+      {
+        username: user.username,
+        email: user.email,
+        roleId: user.roleId,
+        isActive: user.isActive,
+      }
+    )
+
     return NextResponse.json(
       {
         success: true,
@@ -170,9 +185,6 @@ export async function POST(request: NextRequest) {
     )
   } catch (error) {
     console.error("创建用户失败:", error)
-    return NextResponse.json(
-      { success: false, error: "创建用户失败" },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: "创建用户失败" }, { status: 500 })
   }
 }

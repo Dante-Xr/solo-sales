@@ -1,16 +1,18 @@
 /**
  * ============================================
- * 产品管理 API 路由 (Task 2.4)
+ * 产品管理 API 路由 (v0.4.1 优化版)
  * ============================================
  * 功能说明：
  *   - 获取产品列表（支持分页、筛选、搜索）
  *   - 创建新产品
+ *   - 支持缓存，提升查询性能
  * ============================================
  */
 
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
+import { cacheGet, cacheSet, cacheDelPattern, CACHE_KEYS, CACHE_TTL } from "@/lib/cache"
 
 /**
  * 产品列表查询参数校验 schema
@@ -39,6 +41,7 @@ const createProductSchema = z.object({
 
 /**
  * GET /api/products - 获取产品列表
+ * 支持缓存，相同参数 5 分钟内返回缓存结果
  */
 export async function GET(request: NextRequest) {
   try {
@@ -54,6 +57,22 @@ export async function GET(request: NextRequest) {
     }
 
     const { page, pageSize, keyword, category, isPublished } = parsed.data
+
+    // 构建缓存键
+    const cacheKey = CACHE_KEYS.PRODUCT_LIST(
+      JSON.stringify({ page, pageSize, keyword, category, isPublished })
+    )
+
+    // 尝试从缓存获取
+    const cached = await cacheGet<{
+      list: unknown[]
+      pagination: { page: number; pageSize: number; total: number; totalPages: number }
+    }>(cacheKey)
+
+    if (cached) {
+      return NextResponse.json({ ...cached, fromCache: true })
+    }
+
     const skip = (page - 1) * pageSize
 
     // 构建 where 条件
@@ -92,7 +111,7 @@ export async function GET(request: NextRequest) {
 
     const totalPages = Math.ceil(total / pageSize)
 
-    return NextResponse.json({
+    const result = {
       success: true,
       data: {
         list,
@@ -103,7 +122,12 @@ export async function GET(request: NextRequest) {
           totalPages,
         },
       },
-    })
+    }
+
+    // 缓存 5 分钟
+    await cacheSet(cacheKey, result, CACHE_TTL.MEDIUM)
+
+    return NextResponse.json(result)
   } catch (error) {
     console.error("获取产品列表失败:", error)
     return NextResponse.json(
@@ -115,6 +139,7 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST /api/products - 创建产品
+ * 创建后清除相关缓存
  */
 export async function POST(request: NextRequest) {
   try {
@@ -160,6 +185,9 @@ export async function POST(request: NextRequest) {
         },
       },
     })
+
+    // 清除产品列表缓存
+    await cacheDelPattern("cache:product:list:*")
 
     return NextResponse.json({ success: true, data: product }, { status: 201 })
   } catch (error) {
