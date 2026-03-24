@@ -1,8 +1,11 @@
 "use client"
 
-// 2026-03-23: 引入 React useState 钩子，用于管理结账弹窗的打开/关闭状态
+// 2026-03-24: 使用 Next.js dynamic 动态导入 WelcomeModal，首屏不加载此组件
+// 优化目的：减少首屏 JS bundle 体积，提升首次加载速度
 import { useState, useCallback, useEffect } from "react"
+import dynamic from "next/dynamic"
 import Image from "next/image"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -10,10 +13,20 @@ import { ShoppingCart, Globe, Sun, Moon } from "lucide-react"
 import { HomeCarousel, FEATURED_PRODUCTS } from "@/components/storefront/HomeCarousel"
 import { SearchBox } from "@/components/storefront/SearchBox"
 import { UserMenu } from "@/components/storefront/UserMenu"
-import { WelcomeModal } from "@/components/storefront/WelcomeModal"
 import { useCart } from "@/context/CartContext"
 import { useLanguage } from "@/context/LanguageContext"
 import { useTheme } from "@/components/providers/ThemeProvider"
+
+// 2026-03-24: WelcomeModal 改为动态导入，不参与 SSR
+// ssr: false - 避免水合问题，loading: null - 加载时无占位
+// 注意：WelcomeModal 是命名导出，使用 .then 方式导入
+const WelcomeModal = dynamic(
+  () => import("@/components/storefront/WelcomeModal").then(mod => mod.WelcomeModal),
+  {
+    ssr: false,
+    loading: () => null
+  }
+)
 
 export default function Storefront() {
   const router = useRouter()
@@ -102,34 +115,37 @@ export default function Storefront() {
             <h2 className="text-lg font-bold mb-4">{isZh ? "全部商品" : "All Products"}</h2>
             <div className="grid grid-cols-2 gap-4">
               {FEATURED_PRODUCTS.map(product => (
-                <Card
+                <Link
                   key={product.id}
-                  className="cursor-pointer overflow-hidden flex flex-col transition-all duration-200 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
-                  onClick={() => router.push(`/product/${product.id}`)}
+                  href={`/product/${product.id}`}
+                  className="block"
+                  prefetch={true}
                 >
-                  <div className="aspect-square relative">
-                    <Image src={product.image} alt={product.name} fill className="object-cover" sizes="(max-width: 768px) 50vw, 33vw" />
-                    {/* 正在观看人数 - 仅客户端渲染 */}
-                    {mounted && (
-                      <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <span>👀</span>
-                        <span>{viewers}</span>
-                      </div>
-                    )}
-                  </div>
-                  <CardContent className="p-3 flex-1 flex flex-col justify-between">
-                    <h3 className="text-sm font-medium line-clamp-2 mb-1">{product.name}</h3>
-                    {/* 已售数量 - 仅客户端渲染 */}
-                    {mounted && (
-                      <div className="text-xs text-muted-foreground mb-2">
-                        {isZh ? "已售" : "Sold"} {product.sales + soldRandom}
-                      </div>
-                    )}
-                    <div className="flex items-end space-x-1">
-                      <span className="text-lg font-bold text-red-600 dark:text-red-500">${product.price}</span>
+                  <Card className="cursor-pointer overflow-hidden flex flex-col transition-all duration-200 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">
+                    <div className="aspect-square relative">
+                      <Image src={product.image} alt={product.name} fill className="object-cover" sizes="(max-width: 768px) 50vw, 33vw" priority={product.id === FEATURED_PRODUCTS[0].id} />
+                      {/* 正在观看人数 - 仅客户端渲染 */}
+                      {mounted && (
+                        <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <span>👀</span>
+                          <span>{viewers}</span>
+                        </div>
+                      )}
                     </div>
-                  </CardContent>
-                </Card>
+                    <CardContent className="p-3 flex-1 flex flex-col justify-between">
+                      <h3 className="text-sm font-medium line-clamp-2 mb-1">{product.name}</h3>
+                      {/* 已售数量 - 仅客户端渲染 */}
+                      {mounted && (
+                        <div className="text-xs text-muted-foreground mb-2">
+                          {isZh ? "已售" : "Sold"} {product.sales + soldRandom}
+                        </div>
+                      )}
+                      <div className="flex items-end space-x-1">
+                        <span className="text-lg font-bold text-red-600 dark:text-red-500">${product.price}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
           </div>

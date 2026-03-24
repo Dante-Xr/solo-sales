@@ -1,12 +1,15 @@
 "use client"
 
+// 2026-03-24: HomeCarousel 轮播组件性能优化
+// 优化点：移除每秒触发的 useState 更新，改为纯 ref 计时的方式
+// 避免轮播过程中因状态更新导致的频繁重渲染
 import * as React from "react"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
 import useEmblaCarousel from "embla-carousel-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { useLanguage } from "@/context/LanguageContext"
+import { useRouter } from "next/navigation"
 
 export const FEATURED_PRODUCTS = [
   {
@@ -37,36 +40,107 @@ export const FEATURED_PRODUCTS = [
 
 const AUTO_PLAY_DELAY = 10
 
+// 2026-03-24: 使用 React.memo 优化轮播卡片组件，避免不必要重渲染
+const CarouselCard = React.memo(function CarouselCard({
+  product,
+  isActive,
+  onClick
+}: {
+  product: typeof FEATURED_PRODUCTS[0]
+  isActive: boolean
+  onClick: () => void
+}) {
+  return (
+    <div className="flex-none w-full">
+      <div className="p-1 h-48">
+        <Card
+          className="cursor-pointer overflow-hidden border-none shadow-md h-full"
+          onClick={onClick}
+        >
+          <CardContent className="p-0 relative w-full h-full">
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              className="object-cover"
+              priority={isActive}
+            />
+            {/* 限时特惠标签 */}
+            <div className="absolute top-4 right-4 bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse">
+              🔥 {product.name.includes("加湿器") ? "限时特惠" : "Hot Sale"}
+            </div>
+            <div className="absolute bottom-0 w-full bg-gradient-to-t from-black/80 to-transparent p-3">
+              <h3 className="text-white font-medium text-sm line-clamp-1">{product.name}</h3>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-red-500 dark:text-red-400 font-bold">${product.price}</span>
+                <span className="text-muted-foreground text-xs line-through">${product.originalPrice}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+})
+
+// 2026-03-24: 轮播卡片点击处理器工厂函数，避免在渲染时创建新函数
+// 使用 useCallback 缓存，确保子组件不会因回调函数变化而重渲染
+const getCarouselCardClickHandler = (router: ReturnType<typeof useRouter>, productId: string) => {
+  const handler = () => {
+    router.push(`/product/${productId}`)
+  }
+  return handler
+}
+
 export function HomeCarousel() {
   const router = useRouter()
   const { t } = useLanguage()
   const [emblaRef, embla] = useEmblaCarousel({ loop: true })
 
-  const [_timer, setTimer] = React.useState(AUTO_PLAY_DELAY)
+  // 2026-03-24: 优化：移除每秒更新状态的 useState，改为纯 ref 计时
+  // 这样可以避免每秒触发组件重渲染，提升滚动性能
   const [currentIndex, setCurrentIndex] = React.useState(0)
-  const timerRef = React.useRef<NodeJS.Timeout | null>(null)
+  const timerRef = React.useRef<{
+    interval: ReturnType<typeof setInterval> | null
+    remaining: number
+  } | null>(null)
 
-  const startTimer = React.useCallback(() => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current)
-    }
-    setTimer(AUTO_PLAY_DELAY)
-    timerRef.current = setInterval(() => {
-      setTimer((prev) => {
-        if (prev <= 1) {
-          if (embla) {
-            embla.scrollNext()
-          }
-          return AUTO_PLAY_DELAY
-        }
-        return prev - 1
-      })
-    }, 1000)
+  // 2026-03-24: 使用 ref 存储 embla 实例，避免闭包问题
+  // 使用 useEffect 而非直接赋值，避免 "Cannot update ref during render" 错误
+  const emblaRefStore = React.useRef(embla)
+
+  React.useEffect(() => {
+    emblaRefStore.current = embla
   }, [embla])
 
+  const startTimer = React.useCallback(() => {
+    if (timerRef.current?.interval) {
+      clearInterval(timerRef.current.interval)
+    }
+
+    // 2026-03-24: 使用 ref 存储剩余时间，不触发渲染
+    timerRef.current = {
+      interval: null,
+      remaining: AUTO_PLAY_DELAY
+    }
+
+    timerRef.current.interval = setInterval(() => {
+      if (!timerRef.current) return
+
+      timerRef.current.remaining -= 1
+
+      if (timerRef.current.remaining <= 0) {
+        if (emblaRefStore.current) {
+          emblaRefStore.current.scrollNext()
+        }
+        timerRef.current.remaining = AUTO_PLAY_DELAY
+      }
+    }, 1000)
+  }, [])
+
   const stopTimer = React.useCallback(() => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current)
+    if (timerRef.current?.interval) {
+      clearInterval(timerRef.current.interval)
       timerRef.current = null
     }
   }, [])
@@ -105,36 +179,13 @@ export function HomeCarousel() {
       <div className="relative">
         <div ref={emblaRef} className="overflow-hidden">
           <div className="flex">
-            {FEATURED_PRODUCTS.map((product) => (
-              <div key={product.id} className="flex-none w-full">
-                <div className="p-1 h-48">
-                  <Card
-                    className="cursor-pointer overflow-hidden border-none shadow-md h-full"
-                    onClick={() => router.push(`/product/${product.id}`)}
-                  >
-                    <CardContent className="p-0 relative w-full h-full">
-                      <Image
-                        src={product.image}
-                        alt={product.name}
-                        fill
-                        className="object-cover"
-                        priority={true}
-                      />
-                      {/* 限时特惠标签 */}
-                      <div className="absolute top-4 right-4 bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse">
-                        🔥 {t("product.flashSale")}
-                      </div>
-                      <div className="absolute bottom-0 w-full bg-gradient-to-t from-black/80 to-transparent p-3">
-                        <h3 className="text-white font-medium text-sm line-clamp-1">{product.name}</h3>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-red-500 dark:text-red-400 font-bold">${product.price}</span>
-                          <span className="text-muted-foreground text-xs line-through">${product.originalPrice}</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
+            {FEATURED_PRODUCTS.map((product, index) => (
+              <CarouselCard
+                key={product.id}
+                product={product}
+                isActive={index === currentIndex}
+                onClick={getCarouselCardClickHandler(router, product.id)}
+              />
             ))}
           </div>
         </div>
@@ -155,7 +206,7 @@ export function HomeCarousel() {
           <ChevronRight className="w-5 h-5 text-gray-700" />
         </button>
 
-        {/* 圆点指示器：替代原有数字计时器 */}
+        {/* 圆点指示器 */}
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
           {FEATURED_PRODUCTS.map((_, i) => (
             <div

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Search, X, History, Flame } from "lucide-react"
 import { useLanguage } from "@/context/LanguageContext"
@@ -13,10 +14,11 @@ const DEFAULT_HOT_TERMS = {
 }
 
 interface SearchBoxProps {
-  onSearch: (query: string) => void
+  onSearch?: (query: string) => void
 }
 
 export function SearchBox({ onSearch }: SearchBoxProps) {
+  const router = useRouter()
   const { t, language } = useLanguage()
   const [query, setQuery] = useState("")
   const [history, setHistory] = useState<string[]>([])
@@ -61,27 +63,31 @@ export function SearchBox({ onSearch }: SearchBoxProps) {
     }
   }
 
-  const handleSearch = () => {
-    const trimmedQuery = query.trim()
+  // 2026-03-24: 执行搜索，跳转到搜索结果页面
+  const performSearch = (searchQuery: string) => {
+    const trimmedQuery = searchQuery.trim()
     if (!trimmedQuery) return
 
     const newHistory = [trimmedQuery, ...history.filter(h => h !== trimmedQuery)].slice(0, MAX_HISTORY)
     saveHistory(newHistory)
 
-    onSearch(trimmedQuery)
+    // 如果有 onSearch 回调则调用
+    onSearch?.(trimmedQuery)
+
+    // 跳转到搜索结果页面（路由参数方式）
+    router.push(`/search?q=${encodeURIComponent(trimmedQuery)}`)
     setShowHistory(false)
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  // 2026-03-24: 处理回车键搜索
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      handleSearch()
+      performSearch(query)
     }
   }
 
   const selectFromHistory = (item: string) => {
-    setQuery(item)
-    onSearch(item)
-    setShowHistory(false)
+    performSearch(item)
   }
 
   const clearHistory = () => {

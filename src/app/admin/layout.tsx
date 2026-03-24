@@ -20,16 +20,16 @@ export default function AdminLayout({
 }) {
   return (
     <SidebarProvider>
-      {/* 2026-03-23: 左侧可折叠侧边栏导航 */}
+      {/* 左侧可折叠侧边栏导航 */}
       <AppSidebar />
-      {/* 2026-03-23: 右侧主内容区：顶部 Header + 可滚动的页面内容 */}
+      {/* 右侧主内容区：顶部 Header + 可滚动的页面内容 */}
       <main className="w-full h-screen overflow-hidden bg-zinc-50 dark:bg-zinc-950 flex flex-col">
-        {/* 2026-03-23: 顶部固定导航栏，包含菜单展开/收起触发器和系统标题 */}
+        {/* 顶部固定导航栏，包含菜单展开/收起触发器和系统标题 */}
         <header className="flex h-16 items-center border-b px-4 bg-white dark:bg-zinc-900 shadow-sm shrink-0">
           <SidebarTrigger />
           <h1 className="ml-4 text-lg font-semibold">SoloSales 后台管理系统</h1>
         </header>
-        {/* 2026-03-23: 页面内容区，支持内部滚动 */}
+        {/* 页面内容区，支持内部滚动 */}
         <div className="flex-1 overflow-auto p-6">
           {children}
         </div>

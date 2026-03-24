@@ -3,13 +3,13 @@
  * 作用：作为后台系统的全局导航菜单，提供对各功能模块的快速访问入口
  * 逻辑：
  *   1. 使用 Shadcn Sidebar 系列组件构建可折叠侧边栏
- *   2. 预置6个导航项：控制台、商品管理、订单管理、客户管理、客服会话、设置
- *   3. 每个菜单项通过 render 属性传入自定义 <a> 标签以支持 Next.js App Router 的客户端导航
+ *   2. 预置导航项：控制台、商品管理、订单管理、客户管理、知识库、导入管理、客服会话、设置
+ *   3. 系统管理分组：用户管理、角色管理、权限管理
+ *   4. 每个菜单项通过 render 属性传入自定义 <a> 标签以支持 Next.js App Router 的客户端导航
  */
 "use client"
 
-// 2026-03-23: 引入 Lucide 图标库，提供各导航项的图标
-import { Calendar, Home, Inbox, Settings, Package, ShoppingCart, Users, MessageSquare } from "lucide-react"
+import { Calendar, Home, Inbox, Settings, Package, ShoppingCart, Users, MessageSquare, Shield, UserCog, Key, BookOpen, Upload } from "lucide-react"
 
 import {
   Sidebar,
@@ -30,7 +30,7 @@ import {
  *   - url: Next.js 客户端导航的目标路径
  *   - icon: 对应的 Lucide 图标组件
  */
-const items = [
+const mainItems = [
   {
     title: "控制台",
     url: "/admin",
@@ -42,14 +42,24 @@ const items = [
     icon: Package,
   },
   {
-    title: "订单管理",
-    url: "/admin/orders",
-    icon: ShoppingCart,
+    title: "知识库",
+    url: "/admin/knowledge",
+    icon: BookOpen,
   },
   {
     title: "客户管理",
     url: "/admin/customers",
     icon: Users,
+  },
+  {
+    title: "订单管理",
+    url: "/admin/orders",
+    icon: ShoppingCart,
+  },
+  {
+    title: "导入管理",
+    url: "/admin/import",
+    icon: Upload,
   },
   {
     title: "客服会话",
@@ -60,6 +70,27 @@ const items = [
     title: "设置",
     url: "/admin/settings",
     icon: Settings,
+  },
+]
+
+/**
+ * 系统管理菜单分组
+ */
+const systemItems = [
+  {
+    title: "用户管理",
+    url: "/admin/users",
+    icon: UserCog,
+  },
+  {
+    title: "角色管理",
+    url: "/admin/roles",
+    icon: Shield,
+  },
+  {
+    title: "权限管理",
+    url: "/admin/permissions",
+    icon: Key,
   },
 ]
 
@@ -79,9 +110,26 @@ export function AppSidebar() {
           <SidebarGroupLabel>管理后台</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {mainItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  {/* 2026-03-23: 使用 render 属性替代 asChild，将 <a> 标签作为菜单按钮内容渲染 */}
+                  <SidebarMenuButton render={
+                    <a href={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </a>
+                  } />
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>系统管理</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {systemItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton render={
                     <a href={item.url}>
                       <item.icon />

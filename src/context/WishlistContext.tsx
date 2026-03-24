@@ -1,6 +1,11 @@
+/**
+ * 2026-03-24: 收藏夹 Context 模块
+ * 功能：管理用户收藏的商品列表，支持添加、删除、切换收藏状态
+ * 性能优化：使用 useMemo 缓存 wishlist 状态检查结果
+ */
 "use client"
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, useMemo, ReactNode } from "react"
 
 interface WishlistContextType {
   wishlist: string[]
@@ -34,6 +39,11 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     }
   }, [mounted])
 
+  // 2026-03-24: 使用 useMemo 缓存收藏状态检查结果，避免重复计算
+  const wishlistSet = useMemo(() => {
+    return new Set(wishlist)
+  }, [wishlist])
+
   const addToWishlist = (productId: string) => {
     const newWishlist = [...wishlist, productId]
     setWishlist(newWishlist)
@@ -46,8 +56,9 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(newWishlist))
   }
 
+  // 2026-03-24: 使用 Set.has() 代替数组 includes()，提高查找效率
   const isInWishlist = (productId: string) => {
-    return wishlist.includes(productId)
+    return wishlistSet.has(productId)
   }
 
   const toggleWishlist = (productId: string) => {

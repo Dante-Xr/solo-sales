@@ -1,5 +1,9 @@
+// 2026-03-24: Button 组件性能优化
+// 优化点：使用 React.memo 包装 Button 组件，避免在 props 未变化时重渲染
+// Button 组件在列表中频繁使用，memo 可显著减少重渲染次数
 "use client"
 
+import * as React from "react"
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
 
@@ -42,7 +46,8 @@ const buttonVariants = cva(
   }
 )
 
-function Button({
+// 2026-03-24: 使用 React.memo 包装 Button，避免不必要的重渲染
+const Button = React.memo(function Button({
   className,
   variant = "default",
   size = "default",
@@ -55,6 +60,6 @@ function Button({
       {...props}
     />
   )
-}
+})
 
 export { Button, buttonVariants }

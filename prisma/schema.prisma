@@ -18,7 +18,7 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
-  role          Role      @default(USER)
+  role          UserRole  @default(USER)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -26,7 +26,7 @@ model User {
   messages      Message[]
 }
 
-enum Role {
+enum UserRole {
   USER
   ADMIN
 }
@@ -44,6 +44,7 @@ model Category {
 // 商品模型
 model Product {
   id          String      @id @default(cuid())
+  sku         String?     @unique // 商品 SKU，用于批发导入去重
   name        String
   description String
   price       Float
@@ -121,9 +122,156 @@ enum PaymentStatus {
 model Message {
   id        String   @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User    @relation(fields: [userId], references: [id])
   content   String
   isFromAdmin Boolean @default(false)
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+// ============================================
+// RAG 知识库模块 (Task 1.1)
+// 用于存储和管理智能客服所需的各类素材
+// 支持知识库内容的创建、编辑、分类、检索和版本控制
+// ============================================
+
+// 知识库分类模型 - 支持多级分类结构
+model KnowledgeCategory {
+  id       String  @id @default(cuid())
+  name     String  // 分类名称
+  parentId String? // 父分类 ID，支持多级分类
+  order    Int     @default(0) // 排序权重
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联该分类下的所有知识条目
+  articles KnowledgeBase[]
+
+  // 自引用：父分类
+  parent   KnowledgeCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  // 自引用：子分类
+  children KnowledgeCategory[] @relation("CategoryHierarchy")
+}
+
+// 知识库条目模型 - 存储智能客服所需的知识内容
+model KnowledgeBase {
+  id        String   @id @default(cuid())
+  title     String   // 知识条目标题
+  content   String   // 知识条目内容（支持富文本）
+  category  String   // 所属分类名称
+  tags      String[] // 标签数组，用于检索和推荐
+  version   Int      @default(1) // 版本号，更新时自动递增
+  status    KnowledgeStatus @default(DRAFT) // 状态：草稿/已发布/已归档
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String   // 创建者 ID
+
+  // 关联分类
+  categoryRelation KnowledgeCategory? @relation(fields: [category], references: [id])
+
+  // 版本历史记录
+  history   KnowledgeHistory[]
+}
+
+// 知识库状态枚举
+enum KnowledgeStatus {
+  DRAFT    // 草稿
+  PUBLISHED // 已发布
+  ARCHIVED // 已归档
+}
+
+// 知识库历史版本模型 - 记录每次修改的历史
+model KnowledgeHistory {
+  id          String   @id @default(cuid())
+  knowledgeId String   // 对应的知识条目 ID
+  version     Int      // 版本号
+  title       String   // 修改时的标题
+  content     String   // 修改时的内容
+  changedAt   DateTime @default(now())
+  changedBy   String   // 修改者 ID
+
+  // 关联知识条目
+  knowledge   KnowledgeBase @relation(fields: [knowledgeId], references: [id])
+}
+
+// ============================================
+// 批发网站 API 对接模块 (Task 1.1)
+// 用于存储批发商品导入记录和日志
+// ============================================
+
+// 批发商品导入日志模型
+model ImportLog {
+  id            String   @id @default(cuid())
+  wholesaler    String   // 批发商名称 (如: 1866)
+  status        ImportStatus @default(PENDING) // 导入状态
+  totalProducts Int      @default(0) // 总商品数
+  successCount  Int      @default(0) // 成功数
+  failCount     Int      @default(0) // 失败数
+  errorDetails  String[] // 错误详情数组
+  startedAt     DateTime @default(now())
+  completedAt   DateTime? // 完成时间
+  triggeredBy   String   // 触发者 ID
+}
+
+// 导入状态枚举
+enum ImportStatus {
+  PENDING   // 待处理
+  RUNNING   // 运行中
+  COMPLETED // 已完成
+  FAILED    // 失败
+}
+
+// ============================================
+// 后台管理员权限管理模块
+// 支持细粒度的权限控制和角色管理
+// ============================================
+
+// 权限模型 - 定义系统中的所有权限
+model Permission {
+  id          String   @id @default(cuid())
+  name        String   @unique // 权限标识 (如: products.view)
+  label       String   // 显示名称 (如: 查看商品)
+  description String?  // 权限描述
+  type        PermissionType @default(ACTION) // 权限类型: 页面权限 / 操作权限
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 关联角色
+  roles       Role[]   @relation("RolePermissions")
+}
+
+// 权限类型枚举
+enum PermissionType {
+  PAGE    // 页面权限
+  ACTION  // 操作权限
+}
+
+// 角色模型 - 关联权限集合
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique // 角色标识 (如: admin, operator)
+  label       String   // 显示名称 (如: 管理员，运营员)
+  description String?  // 角色描述
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 关联权限
+  permissions Permission[] @relation("RolePermissions")
+
+  // 关联管理员用户
+  admins      AdminUser[]
+}
+
+// 管理员用户模型 - 后台管理系统用户
+model AdminUser {
+  id           String   @id @default(cuid())
+  username     String   @unique // 用户名 (唯一)
+  email        String   @unique // 邮箱 (唯一)
+  password     String   // 加密密码
+  roleId       String   // 关联角色 ID
+  role         Role     @relation(fields: [roleId], references: [id])
+  isActive     Boolean  @default(true) // 是否启用
+  lastLoginAt  DateTime? // 最后登录时间
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
