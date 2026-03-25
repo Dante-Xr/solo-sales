@@ -1,15 +1,17 @@
 /**
  * ============================================
- * 管理后台根布局组件 (v0.4.1 优化版)
+ * 管理后台根布局组件 (v0.4.3)
  * ============================================
  * 功能说明：
  *   - 使用响应式 AdminLayout 组件
  *   - 支持移动端适配 (iPhone 13 Pro Max, Xiaomi 14 Ultra)
  *   - 提供统一的页面布局结构
+ *   - 集成权限 Provider (v0.4.3)
  * ============================================
  */
 
 import { AdminLayout } from "@/components/admin/AdminLayout"
+import { PermissionProvider } from "@/hooks/usePermissions"
 
 /**
  * 管理后台布局组件
@@ -20,5 +22,9 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  return <AdminLayout>{children}</AdminLayout>
+  return (
+    <PermissionProvider>
+      <AdminLayout>{children}</AdminLayout>
+    </PermissionProvider>
+  )
 }

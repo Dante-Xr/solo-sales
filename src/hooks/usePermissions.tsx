@@ -152,3 +152,63 @@ export function useHasAllPermissions(permissions: string[]) {
   const { hasAllPermissions } = usePermissions()
   return hasAllPermissions(permissions)
 }
+
+/**
+ * ============================================
+ * RequirePermission 组件 (v0.4.3)
+ * ============================================
+ * 功能说明：
+ *   - 基于权限条件渲染子组件
+ *   - 支持单个权限或权限组检查
+ *   - 无权限时渲染 fallback UI
+ * ============================================
+ */
+
+interface RequirePermissionProps {
+  /** 需要检查的权限 */
+  permission?: string
+  /** 需要检查的权限组 (满足任一即有权限) */
+  permissions?: string[]
+  /** 需要检查是否拥有所有指定权限 */
+  requireAll?: boolean
+  /** 有权限时渲染的子组件 */
+  children: ReactNode
+  /** 无权限时渲染的 UI，默认为 null */
+  fallback?: ReactNode | null
+}
+
+/**
+ * 权限控制组件
+ * @param permission - 单个权限标识
+ * @param permissions - 权限数组
+ * @param requireAll - true: 需要拥有所有权限; false: 拥有任一权限即可
+ * @param children - 有权限时渲染
+ * @param fallback - 无权限时渲染，默认为 null
+ */
+export function RequirePermission({
+  permission,
+  permissions,
+  requireAll = false,
+  children,
+  fallback = null,
+}: RequirePermissionProps) {
+  const { hasPermission, hasAnyPermission, hasAllPermissions } = usePermissions()
+
+  // 确定是否有权限
+  let hasAccess = false
+
+  if (permission) {
+    hasAccess = hasPermission(permission)
+  } else if (permissions) {
+    hasAccess = requireAll
+      ? hasAllPermissions(permissions)
+      : hasAnyPermission(permissions)
+  }
+
+  // 超级管理员拥有所有权限
+  if (hasAccess) {
+    return <>{children}</>
+  }
+
+  return <>{fallback}</> as React.ReactElement
+}

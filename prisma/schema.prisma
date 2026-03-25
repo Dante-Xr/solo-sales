@@ -57,6 +57,11 @@ model Product {
   updatedAt   DateTime    @updatedAt
 
   orderItems  OrderItem[]
+
+  // v0.4.3 添加数据库索引 - 优化高频查询性能
+  @@index([categoryId])          // 按分类查商品
+  @@index([isPublished])        // 筛选已发布商品
+  @@index([name])               // 按名称搜索优化
 }
 
 // 订单模型
@@ -74,6 +79,12 @@ model Order {
 
   items       OrderItem[]
   payments    Payment[]
+
+  // v0.4.3 添加数据库索引 - 优化订单查询性能
+  @@index([userId])              // 按用户查订单
+  @@index([status])              // 按状态筛选订单
+  @@index([createdAt])           // 按时间排序查询
+  @@index([userId, status])      // 复合索引：用户+状态
 }
 
 enum OrderStatus {
@@ -109,6 +120,11 @@ model Payment {
   transactionId String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  // v0.4.3 添加数据库索引 - 优化支付查询性能
+  @@index([orderId])              // 按订单查支付记录
+  @@index([transactionId])         // 按支付流水号查询
+  @@index([status])               // 按状态筛选
 }
 
 enum PaymentStatus {
@@ -127,6 +143,10 @@ model Message {
   isFromAdmin Boolean @default(false)
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
+
+  // v0.4.3 添加数据库索引 - 优化消息查询
+  @@index([userId])               // 按用户查消息
+  @@index([isRead])               // 筛选未读消息
 }
 
 // ============================================
@@ -278,6 +298,10 @@ model AdminUser {
 
   // 关联操作日志
   permissionLogs PermissionLog[]
+
+  // v0.4.3 添加数据库索引 - 优化管理员查询
+  @@index([roleId])               // 按角色查管理员
+  @@index([isActive])             // 筛选启用的管理员
 }
 
 // ============================================
