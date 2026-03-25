@@ -4,12 +4,15 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  DATABASE_URL = "${NETLIFY_DATABASE_URL}"
+  UPSTASH_REDIS_REST_URL = "${UPSTASH_REDIS_REST_URL}"
+  UPSTASH_REDIS_REST_TOKEN = "${UPSTASH_REDIS_REST_TOKEN}"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
 # ============================================
-# Netlify Headers 配置 (v0.4.3)
+# Netlify Headers 配置 (v0.5.5)
 # 用于配置静态资源的缓存策略和安全头
 # ============================================
 
@@ -62,7 +65,7 @@
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
 
 # ============================================
-# Netlify Redirects 配置 (v0.4.3)
+# Netlify Redirects 配置 (v0.5.5)
 # 用于配置路由重定向规则
 # ============================================
 

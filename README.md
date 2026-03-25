@@ -476,4 +476,4 @@ MIT License - 详见 [LICENSE](LICENSE) 文件
 ## 项目地址
 
 - GitHub: https://github.com/Dante-Xr/solo-sales
-- 演示地址: （部署后更新）
+- 演示地址: https://solo-shop-xxx.netlify.app
