@@ -7,6 +7,7 @@ import { WishlistProvider } from "@/context/WishlistContext";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 import { ReactNode } from "react";
 
 const geistSans = Geist({
@@ -50,7 +51,9 @@ export default function RootLayout({
           <LanguageProvider>
             <WishlistProvider>
               <CartProvider>
-                <TooltipProvider>{children}</TooltipProvider>
+                <TooltipProvider>
+                  <QueryProvider>{children}</QueryProvider>
+                </TooltipProvider>
               </CartProvider>
             </WishlistProvider>
           </LanguageProvider>

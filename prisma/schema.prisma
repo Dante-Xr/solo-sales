@@ -24,6 +24,7 @@ model User {
 
   orders        Order[]
   messages      Message[]
+  reviews       Review[]
 }
 
 enum UserRole {
@@ -57,6 +58,7 @@ model Product {
   updatedAt   DateTime    @updatedAt
 
   orderItems  OrderItem[]
+  reviews     Review[]
 
   // v0.4.3 添加数据库索引 - 优化高频查询性能
   @@index([categoryId])          // 按分类查商品
@@ -302,6 +304,65 @@ model AdminUser {
   // v0.4.3 添加数据库索引 - 优化管理员查询
   @@index([roleId])               // 按角色查管理员
   @@index([isActive])             // 筛选启用的管理员
+}
+
+// ============================================
+// 商品评价模块 (v0.5.0)
+// 用于用户对商品进行评价和评分
+// ============================================
+
+// 商品评价模型
+model Review {
+  id          String   @id @default(cuid())
+  productId   String
+  userId      String
+  rating      Int      // 1-5 星评分
+  title       String?  // 评价标题
+  content     String?  // 评价内容
+  images      ReviewImage[]
+  replies     ReviewReply[]
+  isApproved  Boolean  @default(false)  // 是否审核通过
+  isFeatured  Boolean  @default(false)  // 是否精选
+  helpfulCount Int     @default(0)      // 点赞数
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 关联关系
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // v0.5.0 添加数据库索引 - 优化评价查询
+  @@index([productId])              // 按商品查评价
+  @@index([userId])                // 按用户查评价
+  @@index([rating])                // 按评分筛选
+  @@index([isApproved])            // 筛选已审核
+  @@index([createdAt])             // 按时间排序
+}
+
+// 评价图片模型
+model ReviewImage {
+  id        String  @id @default(cuid())
+  reviewId  String
+  url       String  // 图片 URL
+  position  Int     @default(0)  // 图片顺序
+
+  review    Review  @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@index([reviewId])              // 按评价查图片
+}
+
+// 评价回复模型 (支持商家回复)
+model ReviewReply {
+  id        String   @id @default(cuid())
+  reviewId  String
+  userId    String?  // 回复用户 ID (可为 null 表示商家回复)
+  adminId   String?  // 管理员 ID (商家回复)
+  content   String   // 回复内容
+  createdAt DateTime @default(now())
+
+  review    Review  @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@index([reviewId])              // 按评价查回复
 }
 
 // ============================================

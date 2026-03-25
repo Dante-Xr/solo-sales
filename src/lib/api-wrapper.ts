@@ -33,7 +33,7 @@ interface ApiResponse<T = unknown> {
  */
 type ApiHandler<T = unknown> = (
   request: NextRequest,
-  context: ApiContext
+  context?: ApiContext
 ) => Promise<NextResponse<ApiResponse<T>>>
 
 /**
@@ -203,7 +203,7 @@ export function withApiHandler<T = unknown>(
  * 快速创建 GET 处理器
  */
 export function withGet<T = unknown>(
-  handler: (request: NextRequest, context: ApiContext) => Promise<NextResponse<ApiResponse<T>>>
+  handler: (request: NextRequest, context?: ApiContext) => Promise<NextResponse<ApiResponse<T>>>
 ) {
   return withApiHandler(handler, { allowGetOnly: true })
 }
@@ -212,7 +212,7 @@ export function withGet<T = unknown>(
  * 快速创建需要认证的 GET 处理器
  */
 export function withAuthGet<T = unknown>(
-  handler: (request: NextRequest, context: ApiContext) => Promise<NextResponse<ApiResponse<T>>>,
+  handler: (request: NextRequest, context?: ApiContext) => Promise<NextResponse<ApiResponse<T>>>,
   options?: { permissions?: string[] }
 ) {
   return withApiHandler(handler, {
@@ -226,7 +226,7 @@ export function withAuthGet<T = unknown>(
  * 快速创建需要认证的 POST 处理器
  */
 export function withAuthPost<T = unknown>(
-  handler: (request: NextRequest, context: ApiContext) => Promise<NextResponse<ApiResponse<T>>>,
+  handler: (request: NextRequest, context?: ApiContext) => Promise<NextResponse<ApiResponse<T>>>,
   options?: { permissions?: string[] }
 ) {
   return withApiHandler(handler, { requireAuth: true, ...options })
@@ -237,7 +237,7 @@ export function withAuthPost<T = unknown>(
  */
 export function withPermission<T = unknown>(
   permissions: string[],
-  handler: (request: NextRequest, context: ApiContext) => Promise<NextResponse<ApiResponse<T>>>
+  handler: (request: NextRequest, context?: ApiContext) => Promise<NextResponse<ApiResponse<T>>>
 ) {
   return withApiHandler(handler, { requireAuth: true, permissions })
 }
