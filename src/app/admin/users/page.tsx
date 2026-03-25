@@ -16,6 +16,7 @@ import { useState, useEffect, useCallback } from "react"
 import { Users, UserPlus, Search, Pencil, Trash2, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { PasswordInput } from "@/components/ui/password-input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
@@ -392,9 +393,8 @@ export default function UsersPage() {
                 {isZh ? "密码" : "Password"}
                 {editingUser && <span className="text-xs text-muted-foreground ml-1">({isZh ? "留空则不修改" : "Leave empty to keep unchanged"})</span>}
               </Label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 placeholder={editingUser ? (isZh ? "输入新密码" : "Enter new password") : (isZh ? "输入密码" : "Enter password")}

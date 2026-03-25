@@ -21,7 +21,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SoloSales Shop v0.2.1",
+  title: "SoloSales Shop v0.5.5",
   description: "High conversion independent store for TikTok",
 };
 

@@ -16,6 +16,8 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { useTheme } from "@/components/providers/ThemeProvider"
+import { useLanguage } from "@/context/LanguageContext"
 import {
   LayoutDashboard,
   Package,
@@ -30,6 +32,9 @@ import {
   UserCog,
   Shield,
   Key,
+  Sun,
+  Moon,
+  Globe,
 } from "lucide-react"
 
 /**
@@ -63,6 +68,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const { resolvedTheme, setTheme } = useTheme()
+  const { language, setLanguage, toggleLanguage } = useLanguage()
+  const isZh = language === "zh"
 
   // 检测移动端
   useEffect(() => {
@@ -93,7 +101,22 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             <Menu className="w-6 h-6" />
           </button>
           <span className="font-semibold text-base">SoloSales</span>
-          <div className="w-10" />
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => toggleLanguage()}
+              className="p-2 rounded-md hover:bg-muted"
+              aria-label="切换语言"
+            >
+              <Globe className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+              className="p-2 rounded-md hover:bg-muted"
+              aria-label="切换主题"
+            >
+              {resolvedTheme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+          </div>
         </header>
       )}
 
@@ -164,8 +187,24 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       {/* PC 端侧边栏 */}
       {!isMobile && (
         <aside className="fixed left-0 top-0 bottom-0 w-64 bg-background border-r z-30">
-          <div className="h-16 border-b flex items-center px-6">
+          <div className="h-16 border-b flex items-center justify-between px-6">
             <span className="font-semibold text-lg">SoloSales</span>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => toggleLanguage()}
+                className="p-2 rounded-md hover:bg-muted"
+                aria-label="切换语言"
+              >
+                <Globe className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+                className="p-2 rounded-md hover:bg-muted"
+                aria-label="切换主题"
+              >
+                {resolvedTheme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
           <nav className="p-3 overflow-y-auto h-[calc(100vh-64px)]">
             <div className="mb-2 px-2 text-xs font-medium text-muted-foreground">管理后台</div>

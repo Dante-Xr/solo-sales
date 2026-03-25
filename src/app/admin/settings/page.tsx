@@ -16,6 +16,7 @@ import { Settings, Bell, Key, Globe, Save, RefreshCw } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { PasswordInput } from "@/components/ui/password-input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -324,9 +325,8 @@ export default function SettingsPage() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="wholesaler1866Key">1866 {isZh ? "API 密钥" : "API Key"}</Label>
-                  <Input
+                  <PasswordInput
                     id="wholesaler1866Key"
-                    type="password"
                     placeholder={isZh ? "输入 1866 API 密钥" : "Enter 1866 API Key"}
                     value={apiSettings.wholesaler1866Key}
                     onChange={(e) =>
@@ -340,9 +340,8 @@ export default function SettingsPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="openaiKey">OpenAI {isZh ? "API 密钥" : "API Key"}</Label>
-                  <Input
+                  <PasswordInput
                     id="openaiKey"
-                    type="password"
                     placeholder={isZh ? "输入 OpenAI API 密钥" : "Enter OpenAI API Key"}
                     value={apiSettings.openaiKey}
                     onChange={(e) =>
@@ -356,9 +355,8 @@ export default function SettingsPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="stripeKey">Stripe {isZh ? "API 密钥" : "API Key"}</Label>
-                  <Input
+                  <PasswordInput
                     id="stripeKey"
-                    type="password"
                     placeholder={isZh ? "输入 Stripe API 密钥" : "Enter Stripe API Key"}
                     value={apiSettings.stripeKey}
                     onChange={(e) =>
