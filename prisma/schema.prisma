@@ -25,6 +25,7 @@ model User {
   orders        Order[]
   messages      Message[]
   reviews       Review[]
+  customerPoints CustomerPoints?
 }
 
 enum UserRole {
@@ -81,6 +82,7 @@ model Order {
 
   items       OrderItem[]
   payments    Payment[]
+  couponUsages CouponUsage[]
 
   // v0.4.3 添加数据库索引 - 优化订单查询性能
   @@index([userId])              // 按用户查订单
@@ -399,4 +401,126 @@ model PermissionLog {
 
   // 关联操作人
   operator    AdminUser @relation(fields: [operatorId], references: [id])
+}
+
+// ============================================
+// 优惠券模块 (v0.5.5)
+// ============================================
+
+// 优惠券类型枚举
+enum CouponType {
+  PERCENTAGE  // 百分比折扣 (如: 20% off)
+  FIXED       // 固定金额折扣 (如: $10 off)
+}
+
+// 优惠券模型
+model Coupon {
+  id            String      @id @default(cuid())
+  code          String      @unique
+  name          String
+  description   String?
+  type          CouponType
+  value         Float       // 折扣值或百分比
+  minAmount     Float?      // 最低消费金额
+  maxDiscount   Float?      // 最高折扣金额
+  maxUses       Int?        // 最大使用次数
+  usedCount     Int         @default(0)
+  perUserLimit  Int         @default(1)
+  startsAt      DateTime?
+  expiresAt     DateTime?
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  usages        CouponUsage[]
+
+  @@index([code])
+  @@index([isActive])
+  @@index([expiresAt])
+}
+
+// 优惠券使用记录模型
+model CouponUsage {
+  id          String   @id @default(cuid())
+  couponId    String
+  userId      String
+  orderId     String
+  discount    Float    // 实际折扣金额
+  usedAt      DateTime @default(now())
+
+  coupon      Coupon   @relation(fields: [couponId], references: [id])
+  order       Order    @relation(fields: [orderId], references: [id])
+
+  @@index([couponId])
+  @@index([userId])
+}
+
+// ============================================
+// 会员积分模块 (v0.5.5)
+// ============================================
+
+// 会员等级枚举
+enum MemberTier {
+  BRONZE     // 青铜
+  SILVER     // 白银
+  GOLD       // 黄金
+  PLATINUM   // 白金
+}
+
+// 积分类型枚举
+enum PointType {
+  EARN       // 消费获得
+  REDEEM     // 兑换抵扣
+  BONUS      // 奖励
+  EXPIRE     // 过期作废
+  ADJUST     // 后台调整
+  REFUND     // 退款扣回
+}
+
+// 积分计划模型
+model LoyaltyProgram {
+  id            String   @id @default(cuid())
+  name          String   @default("默认积分计划")
+  pointsRate    Float    @default(1.0)  // 每消费1元得积分
+  pointsToYuan  Float    @default(0.01) // 100积分=1元
+  minRedemption Int      @default(100) // 最低兑换积分
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// 客户积分模型
+model CustomerPoints {
+  id            String      @id @default(cuid())
+  userId        String      @unique
+  balance       Int         @default(0)
+  totalEarned   Int         @default(0)
+  totalRedeemed Int         @default(0)
+  tier          MemberTier  @default(BRONZE)
+  updatedAt     DateTime    @updatedAt
+
+  user          User        @relation(fields: [userId], references: [id])
+  transactions  PointTransaction[]
+
+  @@index([userId])
+}
+
+// 积分交易记录模型
+model PointTransaction {
+  id                String       @id @default(cuid())
+  customerPointsId  String
+  userId            String
+  amount            Int          // 正数=获得，负数=消耗
+  type              PointType
+  orderId           String?
+  description        String
+  expiresAt          DateTime?    // 积分过期时间
+  createdAt         DateTime     @default(now())
+
+  customerPoints     CustomerPoints @relation(fields: [customerPointsId], references: [id])
+
+  @@index([userId])
+  @@index([customerPointsId])
+  @@index([type])
+  @@index([expiresAt])
 }
