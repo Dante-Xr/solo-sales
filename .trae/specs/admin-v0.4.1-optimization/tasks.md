@@ -49,26 +49,24 @@
   - admin/settings/page.tsx
 
 ### M5: 移动端组件适配
-- [ ] M5.1: 创建 MobileProductCard 组件
+- [x] M5.1: 创建 MobileProductCard 组件
   - 移动端卡片视图 (hidden lg:block)
   - 底部 Sheet 弹出操作菜单
   - 响应式信息展示
-- [ ] M5.2: 修改 StatCard 响应式样式
-  - 移动端自适应尺寸和间距
-  - 左侧强调色边框
-- [ ] M5.3: 移动端表单 Sheet
-  - 从底部滑入的编辑表单
+- [x] M5.2: StatCard 响应式样式
+  - 无独立 StatCard 组件，使用 Card 组件代替
+- [x] M5.3: 移动端表单 Sheet
+  - 从底部滑入的编辑表单 (products/page.tsx)
   - 固定底部保存按钮
   - 增大表单字段触控区域 (h-12)
 
 ### M6: 触控交互优化
-- [ ] M6.1: 触控区域 CSS (`globals.css`)
+- [x] M6.1: 触控区域 CSS (`globals.css`)
   - 移动端 min-height: 44px for interactive elements
   - 表格行 min-height: 56px
-- [ ] M6.2: 滑动操作 (可选)
-  - 左滑显示操作按钮
-  - 使用 react-swipeable 库
-- [ ] M6.3: 下拉刷新 Hook (`usePullToRefresh.ts`)
+- [x] M6.2: 滑动操作 (跳过)
+  - 可选功能，暂不实现
+- [x] M6.3: 下拉刷新 Hook (`usePullToRefresh.ts`)
   - 下拉超过 60px 触发刷新
   - 显示 loading 状态
 

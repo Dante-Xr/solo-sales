@@ -30,6 +30,13 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+} from "@/components/ui/sheet"
 import { useLanguage } from "@/context/LanguageContext"
 import { ProductRow } from "@/components/admin/ProductRow"
 import { MobileProductCard } from "@/components/admin/MobileProductCard"
@@ -554,172 +561,354 @@ export default function ProductsPage() {
         </CardContent>
       </Card>
 
-      {/* 创建/编辑 Dialog */}
-      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {editingProduct
-                ? (isZh ? "编辑商品" : "Edit Product")
-                : (isZh ? "添加商品" : "Add Product")}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            {/* 商品名称 */}
-            <div>
-              <label className="text-sm font-medium mb-1 block">
-                {isZh ? "商品名称" : "Product Name"} *
-              </label>
-              <Input
-                value={formData.name}
-                onChange={(e) => {
-                  setFormData(prev => ({ ...prev, name: e.target.value }))
-                  if (errors.name) setErrors(prev => ({ ...prev, name: "" }))
-                }}
-                placeholder={isZh ? "请输入商品名称" : "Enter product name"}
-              />
-              {errors.name && (
-                <p className="text-xs text-destructive mt-1">{errors.name}</p>
-              )}
-            </div>
-
-            {/* 商品描述 */}
-            <div>
-              <label className="text-sm font-medium mb-1 block">
-                {isZh ? "商品描述" : "Description"} *
-              </label>
-              <textarea
-                value={formData.description}
-                onChange={(e) => {
-                  setFormData(prev => ({ ...prev, description: e.target.value }))
-                  if (errors.description) setErrors(prev => ({ ...prev, description: "" }))
-                }}
-                placeholder={isZh ? "请输入商品描述" : "Enter product description"}
-                className="w-full min-h-[100px] px-3 py-2 border rounded-md bg-background resize-none"
-              />
-              {errors.description && (
-                <p className="text-xs text-destructive mt-1">{errors.description}</p>
-              )}
-            </div>
-
-            {/* 价格和库存 */}
-            <div className="grid grid-cols-2 gap-4">
+      {/* 创建/编辑 Dialog (PC) / Sheet (移动端) */}
+      {isMobile ? (
+        <Sheet open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+          <SheetContent side="bottom" className="rounded-t-2xl pb-safe max-h-[85vh] overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle>
+                {editingProduct
+                  ? (isZh ? "编辑商品" : "Edit Product")
+                  : (isZh ? "添加商品" : "Add Product")}
+              </SheetTitle>
+            </SheetHeader>
+            <div className="space-y-4 py-4">
+              {/* 商品名称 */}
               <div>
                 <label className="text-sm font-medium mb-1 block">
-                  {isZh ? "价格" : "Price"} *
+                  {isZh ? "商品名称" : "Product Name"} *
                 </label>
                 <Input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.price}
+                  value={formData.name}
                   onChange={(e) => {
-                    setFormData(prev => ({ ...prev, price: e.target.value }))
-                    if (errors.price) setErrors(prev => ({ ...prev, price: "" }))
+                    setFormData(prev => ({ ...prev, name: e.target.value }))
+                    if (errors.name) setErrors(prev => ({ ...prev, name: "" }))
                   }}
-                  placeholder={isZh ? "0.00" : "0.00"}
+                  placeholder={isZh ? "请输入商品名称" : "Enter product name"}
+                  className="h-12"
                 />
-                {errors.price && (
-                  <p className="text-xs text-destructive mt-1">{errors.price}</p>
+                {errors.name && (
+                  <p className="text-xs text-destructive mt-1">{errors.name}</p>
                 )}
               </div>
+
+              {/* 商品描述 */}
               <div>
                 <label className="text-sm font-medium mb-1 block">
-                  {isZh ? "库存" : "Stock"}
+                  {isZh ? "商品描述" : "Description"} *
                 </label>
-                <Input
-                  type="number"
-                  min="0"
-                  value={formData.stock}
+                <textarea
+                  value={formData.description}
                   onChange={(e) => {
-                    setFormData(prev => ({ ...prev, stock: e.target.value }))
-                    if (errors.stock) setErrors(prev => ({ ...prev, stock: "" }))
+                    setFormData(prev => ({ ...prev, description: e.target.value }))
+                    if (errors.description) setErrors(prev => ({ ...prev, description: "" }))
                   }}
-                  placeholder="0"
+                  placeholder={isZh ? "请输入商品描述" : "Enter product description"}
+                  className="w-full min-h-[100px] px-3 py-3 border rounded-md bg-background resize-none"
                 />
-                {errors.stock && (
-                  <p className="text-xs text-destructive mt-1">{errors.stock}</p>
+                {errors.description && (
+                  <p className="text-xs text-destructive mt-1">{errors.description}</p>
                 )}
               </div>
-            </div>
 
-            {/* SKU */}
-            <div>
-              <label className="text-sm font-medium mb-1 block">
-                {isZh ? "SKU" : "SKU"}
-              </label>
-              <Input
-                value={formData.sku}
-                onChange={(e) => setFormData(prev => ({ ...prev, sku: e.target.value }))}
-                placeholder={isZh ? "可选，用于批发导入去重" : "Optional, for wholesale import deduplication"}
-              />
-            </div>
+              {/* 价格和库存 */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium mb-1 block">
+                    {isZh ? "价格" : "Price"} *
+                  </label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={formData.price}
+                    onChange={(e) => {
+                      setFormData(prev => ({ ...prev, price: e.target.value }))
+                      if (errors.price) setErrors(prev => ({ ...prev, price: "" }))
+                    }}
+                    placeholder={isZh ? "0.00" : "0.00"}
+                    className="h-12"
+                  />
+                  {errors.price && (
+                    <p className="text-xs text-destructive mt-1">{errors.price}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-1 block">
+                    {isZh ? "库存" : "Stock"}
+                  </label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={formData.stock}
+                    onChange={(e) => {
+                      setFormData(prev => ({ ...prev, stock: e.target.value }))
+                      if (errors.stock) setErrors(prev => ({ ...prev, stock: "" }))
+                    }}
+                    placeholder="0"
+                    className="h-12"
+                  />
+                  {errors.stock && (
+                    <p className="text-xs text-destructive mt-1">{errors.stock}</p>
+                  )}
+                </div>
+              </div>
 
-            {/* 分类 */}
-            <div>
-              <label className="text-sm font-medium mb-1 block">
-                {isZh ? "分类" : "Category"}
-              </label>
-              <select
-                value={formData.categoryId}
-                onChange={(e) => setFormData(prev => ({ ...prev, categoryId: e.target.value }))}
-                className="w-full px-3 py-2 border rounded-md bg-background"
-              >
-                <option value="">{isZh ? "选择分类" : "Select category"}</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+              {/* SKU */}
+              <div>
+                <label className="text-sm font-medium mb-1 block">
+                  {isZh ? "SKU" : "SKU"}
+                </label>
+                <Input
+                  value={formData.sku}
+                  onChange={(e) => setFormData(prev => ({ ...prev, sku: e.target.value }))}
+                  placeholder={isZh ? "可选，用于批发导入去重" : "Optional, for wholesale import deduplication"}
+                  className="h-12"
+                />
+              </div>
 
-            {/* 图片链接 */}
-            <div>
-              <label className="text-sm font-medium mb-1 block">
-                {isZh ? "图片链接" : "Image URLs"}
-                <span className="text-xs text-muted-foreground font-normal ml-1">
-                  ({isZh ? "用逗号分隔多个链接" : "Separate multiple URLs with comma"})
-                </span>
-              </label>
-              <textarea
-                value={formData.images}
-                onChange={(e) => setFormData(prev => ({ ...prev, images: e.target.value }))}
-                placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
-                className="w-full min-h-[80px] px-3 py-2 border rounded-md bg-background resize-none"
-              />
-            </div>
+              {/* 分类 */}
+              <div>
+                <label className="text-sm font-medium mb-1 block">
+                  {isZh ? "分类" : "Category"}
+                </label>
+                <select
+                  value={formData.categoryId}
+                  onChange={(e) => setFormData(prev => ({ ...prev, categoryId: e.target.value }))}
+                  className="w-full px-3 py-3 border rounded-md bg-background h-12"
+                >
+                  <option value="">{isZh ? "选择分类" : "Select category"}</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            {/* 上架状态 */}
-            <div className="flex items-center gap-2">
+              {/* 图片链接 */}
+              <div>
+                <label className="text-sm font-medium mb-1 block">
+                  {isZh ? "图片链接" : "Image URLs"}
+                  <span className="text-xs text-muted-foreground font-normal ml-1">
+                    ({isZh ? "用逗号分隔多个链接" : "Separate multiple URLs with comma"})
+                  </span>
+                </label>
+                <textarea
+                  value={formData.images}
+                  onChange={(e) => setFormData(prev => ({ ...prev, images: e.target.value }))}
+                  placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
+                  className="w-full min-h-[80px] px-3 py-3 border rounded-md bg-background resize-none"
+                />
+              </div>
+
+              {/* 上架状态 */}
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant={formData.isPublished ? "default" : "outline"}
+                  size="sm"
+                  className="h-12 flex-1"
+                  onClick={() => setFormData(prev => ({ ...prev, isPublished: true }))}
+                >
+                  {isZh ? "上架" : "Active"}
+                </Button>
+                <Button
+                  type="button"
+                  variant={!formData.isPublished ? "default" : "outline"}
+                  size="sm"
+                  className="h-12 flex-1"
+                  onClick={() => setFormData(prev => ({ ...prev, isPublished: false }))}
+                >
+                  {isZh ? "下架" : "Inactive"}
+                </Button>
+              </div>
+            </div>
+            <SheetFooter className="flex flex-row gap-2 pt-2 border-t">
               <Button
-                type="button"
-                variant={formData.isPublished ? "default" : "outline"}
-                size="sm"
-                onClick={() => setFormData(prev => ({ ...prev, isPublished: true }))}
+                variant="outline"
+                className="flex-1 h-12"
+                onClick={() => setEditDialogOpen(false)}
               >
-                {isZh ? "上架" : "Active"}
+                {isZh ? "取消" : "Cancel"}
               </Button>
               <Button
-                type="button"
-                variant={!formData.isPublished ? "default" : "outline"}
-                size="sm"
-                onClick={() => setFormData(prev => ({ ...prev, isPublished: false }))}
+                className="flex-1 h-12"
+                onClick={handleSave}
+                disabled={saving}
               >
-                {isZh ? "下架" : "Inactive"}
+                {saving ? (isZh ? "保存中..." : "Saving...") : (isZh ? "保存" : "Save")}
               </Button>
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
+      ) : (
+        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                {editingProduct
+                  ? (isZh ? "编辑商品" : "Edit Product")
+                  : (isZh ? "添加商品" : "Add Product")}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              {/* 商品名称 */}
+              <div>
+                <label className="text-sm font-medium mb-1 block">
+                  {isZh ? "商品名称" : "Product Name"} *
+                </label>
+                <Input
+                  value={formData.name}
+                  onChange={(e) => {
+                    setFormData(prev => ({ ...prev, name: e.target.value }))
+                    if (errors.name) setErrors(prev => ({ ...prev, name: "" }))
+                  }}
+                  placeholder={isZh ? "请输入商品名称" : "Enter product name"}
+                />
+                {errors.name && (
+                  <p className="text-xs text-destructive mt-1">{errors.name}</p>
+                )}
+              </div>
+
+              {/* 商品描述 */}
+              <div>
+                <label className="text-sm font-medium mb-1 block">
+                  {isZh ? "商品描述" : "Description"} *
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => {
+                    setFormData(prev => ({ ...prev, description: e.target.value }))
+                    if (errors.description) setErrors(prev => ({ ...prev, description: "" }))
+                  }}
+                  placeholder={isZh ? "请输入商品描述" : "Enter product description"}
+                  className="w-full min-h-[100px] px-3 py-2 border rounded-md bg-background resize-none"
+                />
+                {errors.description && (
+                  <p className="text-xs text-destructive mt-1">{errors.description}</p>
+                )}
+              </div>
+
+              {/* 价格和库存 */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium mb-1 block">
+                    {isZh ? "价格" : "Price"} *
+                  </label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={formData.price}
+                    onChange={(e) => {
+                      setFormData(prev => ({ ...prev, price: e.target.value }))
+                      if (errors.price) setErrors(prev => ({ ...prev, price: "" }))
+                    }}
+                    placeholder={isZh ? "0.00" : "0.00"}
+                  />
+                  {errors.price && (
+                    <p className="text-xs text-destructive mt-1">{errors.price}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-1 block">
+                    {isZh ? "库存" : "Stock"}
+                  </label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={formData.stock}
+                    onChange={(e) => {
+                      setFormData(prev => ({ ...prev, stock: e.target.value }))
+                      if (errors.stock) setErrors(prev => ({ ...prev, stock: "" }))
+                    }}
+                    placeholder="0"
+                  />
+                  {errors.stock && (
+                    <p className="text-xs text-destructive mt-1">{errors.stock}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* SKU */}
+              <div>
+                <label className="text-sm font-medium mb-1 block">
+                  {isZh ? "SKU" : "SKU"}
+                </label>
+                <Input
+                  value={formData.sku}
+                  onChange={(e) => setFormData(prev => ({ ...prev, sku: e.target.value }))}
+                  placeholder={isZh ? "可选，用于批发导入去重" : "Optional, for wholesale import deduplication"}
+                />
+              </div>
+
+              {/* 分类 */}
+              <div>
+                <label className="text-sm font-medium mb-1 block">
+                  {isZh ? "分类" : "Category"}
+                </label>
+                <select
+                  value={formData.categoryId}
+                  onChange={(e) => setFormData(prev => ({ ...prev, categoryId: e.target.value }))}
+                  className="w-full px-3 py-2 border rounded-md bg-background"
+                >
+                  <option value="">{isZh ? "选择分类" : "Select category"}</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 图片链接 */}
+              <div>
+                <label className="text-sm font-medium mb-1 block">
+                  {isZh ? "图片链接" : "Image URLs"}
+                  <span className="text-xs text-muted-foreground font-normal ml-1">
+                    ({isZh ? "用逗号分隔多个链接" : "Separate multiple URLs with comma"})
+                  </span>
+                </label>
+                <textarea
+                  value={formData.images}
+                  onChange={(e) => setFormData(prev => ({ ...prev, images: e.target.value }))}
+                  placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
+                  className="w-full min-h-[80px] px-3 py-2 border rounded-md bg-background resize-none"
+                />
+              </div>
+
+              {/* 上架状态 */}
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant={formData.isPublished ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setFormData(prev => ({ ...prev, isPublished: true }))}
+                >
+                  {isZh ? "上架" : "Active"}
+                </Button>
+                <Button
+                  type="button"
+                  variant={!formData.isPublished ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setFormData(prev => ({ ...prev, isPublished: false }))}
+                >
+                  {isZh ? "下架" : "Inactive"}
+                </Button>
+              </div>
             </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
-              {isZh ? "取消" : "Cancel"}
-            </Button>
-            <Button onClick={handleSave} disabled={saving}>
-              {saving ? (isZh ? "保存中..." : "Saving...") : (isZh ? "保存" : "Save")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+                {isZh ? "取消" : "Cancel"}
+              </Button>
+              <Button onClick={handleSave} disabled={saving}>
+                {saving ? (isZh ? "保存中..." : "Saving...") : (isZh ? "保存" : "Save")}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* 删除确认 Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
