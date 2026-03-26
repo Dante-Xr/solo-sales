@@ -199,8 +199,8 @@ export function AsyncErrorBoundary({
   errorComponent?: ReactNode
   loadingComponent?: ReactNode
 }) {
-  const [hasError, setHasError] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
+  const [hasError, _setHasError] = useState(false)
+  const [isLoading, _setIsLoading] = useState(true)
 
   // 使用 useEffect 处理异步操作
   // children 如果是 React 元素而非 promise，直接显示

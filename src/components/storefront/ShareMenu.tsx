@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect, ReactNode } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Share2, X, Twitter, Facebook, Instagram, Link2, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -21,7 +21,7 @@ const SOCIAL_PLATFORMS = [
   {
     name: "Twitter",
     icon: Twitter,
-    getUrl: (url: string, title: string) =>
+    getUrl: (_url: string, _title: string) =>
       `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
     color: "hover:bg-[#1DA1F2]/10",
     iconColor: "text-[#1DA1F2]",
@@ -44,7 +44,7 @@ const SOCIAL_PLATFORMS = [
   {
     name: "TikTok",
     icon: TikTokIcon,
-    getUrl: (url: string, title: string) =>
+    getUrl: () =>
       `https://www.tiktok.com/@user/video/${Date.now()}`,
     color: "hover:bg-black/10",
     iconColor: "text-black dark:text-white",
@@ -72,7 +72,7 @@ export function ShareMenu({ title, text, url, isZh }: ShareMenuProps) {
       try {
         await navigator.share({ title, text, url })
         setIsOpen(false)
-      } catch (_err) {
+      } catch {
       }
     } else {
       setIsOpen(!isOpen)
@@ -87,7 +87,7 @@ export function ShareMenu({ title, text, url, isZh }: ShareMenuProps) {
         setCopied(false)
         setIsOpen(false)
       }, 1500)
-    } catch (_err) {
+    } catch {
       console.error("Failed to copy link")
     }
   }

@@ -18,14 +18,10 @@ import {
   Search,
   Edit,
   Trash2,
-  X,
   BookOpen,
   Tag,
   FolderOpen,
   History,
-  Eye,
-  EyeOff,
-  Check,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -38,7 +34,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useLanguage } from "@/context/LanguageContext"
 
 // ============================================
@@ -87,7 +82,7 @@ interface KnowledgeFormData {
 }
 
 /** 分页结果 */
-interface PaginatedResponse {
+interface _PaginatedResponse {
   list: KnowledgeItem[]
   pagination: {
     page: number
@@ -114,7 +109,7 @@ const DEFAULT_FORM_DATA: KnowledgeFormData = {
 // ============================================
 
 export default function KnowledgePage() {
-  const router = useRouter()
+  const _router = useRouter()
   const { language } = useLanguage()
   const isZh = language === "zh"
 

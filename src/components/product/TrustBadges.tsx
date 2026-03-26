@@ -12,7 +12,7 @@
 
 "use client"
 
-import { ShieldCheck, Truck, RotateCcw, Lock, Globe, Check } from "lucide-react"
+import { ShieldCheck, Truck, RotateCcw, Lock, Globe } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 
 interface TrustBadge {

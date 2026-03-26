@@ -38,16 +38,59 @@ interface SalesChartProps {
   loading?: boolean
 }
 
+interface TooltipPayload {
+  name: string
+  value: number
+  color: string
+}
+
+function CustomTooltip({
+  active,
+  payload,
+  label,
+  isZh
+}: {
+  active?: boolean
+  payload?: TooltipPayload[]
+  label?: string
+  isZh: boolean
+}) {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-background border rounded-lg shadow-lg p-3">
+        <p className="font-medium mb-2">{label}</p>
+        {payload.map((entry, index) => (
+          <div key={index} className="flex items-center gap-2 text-sm">
+            <div
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="text-muted-foreground">
+              {entry.name === "sales" ? (isZh ? "销量" : "Sales") + ":" : ""}
+            </span>
+            <span className="font-medium">
+              {entry.name === "revenue"
+                ? `$${entry.value.toLocaleString()}`
+                : entry.value}
+            </span>
+          </div>
+        ))}
+      </div>
+    )
+  }
+  return null
+}
+
 export function SalesChart({ data: propData, loading: propLoading }: SalesChartProps) {
   const { language } = useLanguage()
   const isZh = language === "zh"
   const [period, setPeriod] = useState<7 | 30>(7)
-  const [data, setData] = useState<SalesData[]>([])
-  const [loading, setLoading] = useState(true)
+  const [data, setData] = useState<SalesData[]>(propData || [])
+  const [loading, setLoading] = useState(propLoading ?? true)
 
   // 模拟销售数据
   useEffect(() => {
-    if (propData) {
+    if (propData && propData.length > 0) {
       setData(propData)
       setLoading(false)
       return
@@ -76,47 +119,16 @@ export function SalesChart({ data: propData, loading: propLoading }: SalesChartP
     }
 
     setLoading(true)
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setData(generateMockData())
       setLoading(false)
     }, 500)
-  }, [period, isZh, propData])
+    return () => clearTimeout(timer)
+  }, [period, isZh])
 
   // 格式化货币
   const formatCurrency = (value: number) => {
     return `$${value.toLocaleString()}`
-  }
-
-  // 自定义 Tooltip
-  const CustomTooltip = ({ active, payload, label }: {
-    active?: boolean
-    payload?: Array<{ name: string; value: number; color: string }>
-    label?: string
-  }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-background border rounded-lg shadow-lg p-3">
-          <p className="font-medium mb-2">{label}</p>
-          {payload.map((entry, index) => (
-            <div key={index} className="flex items-center gap-2 text-sm">
-              <div
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: entry.color }}
-              />
-              <span className="text-muted-foreground">
-                {entry.name === "sales" ? (isZh ? "销量" : "Sales") + ":" : ""}
-              </span>
-              <span className="font-medium">
-                {entry.name === "revenue"
-                  ? formatCurrency(entry.value)
-                  : entry.value}
-              </span>
-            </div>
-          ))}
-        </div>
-      )
-    }
-    return null
   }
 
   return (
@@ -179,7 +191,7 @@ export function SalesChart({ data: propData, loading: propLoading }: SalesChartP
                 axisLine={{ stroke: "var(--border)" }}
                 tickFormatter={(value) => formatCurrency(value)}
               />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<CustomTooltip isZh={isZh} />} />
               <Legend
                 formatter={(value) =>
                   value === "sales"

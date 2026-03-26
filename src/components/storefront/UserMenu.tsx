@@ -11,12 +11,12 @@ import { AuthModal } from "@/components/auth/AuthModal"
 export function UserMenu() {
   const { data: session } = useSession()
   const router = useRouter()
-  const { t, language } = useLanguage()
+  const { t } = useLanguage()
   const [isOpen, setIsOpen] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [authMode, setAuthMode] = useState<"login" | "register">("login")
 
-  const isAdmin = (session?.user as any)?.role === "ADMIN"
+  const isAdmin = (session?.user as { role?: string })?.role === "ADMIN"
 
   const handleMenuClick = (action: string) => {
     setIsOpen(false)

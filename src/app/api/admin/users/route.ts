@@ -11,7 +11,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcryptjs"
-import { verifyAdminToken, hasPermission, invalidatePermissionCache } from "@/lib/adminAuth"
+import { verifyAdminToken, hasPermission, invalidatePermissionCache as _invalidatePermissionCache } from "@/lib/adminAuth"
 import { logCreate } from "@/lib/permissionLog"
 import { TargetType } from "@prisma/client"
 

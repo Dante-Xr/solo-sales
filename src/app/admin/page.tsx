@@ -47,7 +47,7 @@ interface ChartDataPoint {
   revenue: number
 }
 
-interface DashboardData {
+interface _DashboardData {
   stats: DashboardStats
   recentOrders: RecentOrder[]
   chartData: ChartDataPoint[]
@@ -83,7 +83,7 @@ export default function AdminDashboard() {
   /**
    * 获取控制台数据（使用聚合 API）
    */
-  const fetchDashboardData = useCallback(async (isRefresh = false) => {
+  const fetchDashboardData = useCallback(async (_isRefresh = false) => {
     try {
       const response = await fetch("/api/admin/dashboard")
       const result = await response.json()

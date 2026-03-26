@@ -42,7 +42,7 @@ export async function PATCH(request: Request) {
       )
     }
 
-    const updateData: any = {}
+    const updateData: Record<string, string> = {}
 
     if (trackingNumber !== undefined) {
       updateData.trackingNumber = trackingNumber

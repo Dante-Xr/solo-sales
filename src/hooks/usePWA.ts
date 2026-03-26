@@ -8,8 +8,13 @@ interface PWAInstallPrompt {
   isInstalled: boolean
 }
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
+}
+
 export function usePWA(): PWAInstallPrompt & { isLoading: boolean } {
-  const [installPrompt, setInstallPrompt] = useState<any>(null)
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [needsReload, setNeedsReload] = useState(false)
   const [isInstalled, setIsInstalled] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -19,7 +24,7 @@ export function usePWA(): PWAInstallPrompt & { isLoading: boolean } {
 
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault()
-      setInstallPrompt(e)
+      setInstallPrompt(e as BeforeInstallPromptEvent)
     }
 
     const handleAppInstalled = () => {
@@ -80,8 +85,6 @@ export function useOnlineStatus(): boolean {
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-
-    setIsOnline(navigator.onLine)
 
     const handleOnline = () => setIsOnline(true)
     const handleOffline = () => setIsOnline(false)

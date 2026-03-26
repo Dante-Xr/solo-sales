@@ -75,7 +75,7 @@ async function cacheFirst(request, cacheName) {
       cache.put(request, response.clone())
     }
     return response
-  } catch (error) {
+  } catch {
     return new Response('Offline', { status: 503 })
   }
 }
@@ -88,7 +88,7 @@ async function networkFirst(request, cacheName) {
       cache.put(request, response.clone())
     }
     return response
-  } catch (error) {
+  } catch {
     const cached = await caches.match(request)
     if (cached) {
       return cached

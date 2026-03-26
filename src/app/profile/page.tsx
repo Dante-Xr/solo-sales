@@ -67,7 +67,7 @@ export default function ProfilePage() {
                 {(session?.user?.name || session?.user?.email || "U").charAt(0).toUpperCase()}
               </div>
               <p className="font-medium text-lg">{session?.user?.name || session?.user?.email}</p>
-              <p className="text-sm text-gray-500">{(session?.user as any)?.role || "USER"}</p>
+              <p className="text-sm text-gray-500">{(session?.user as { role?: string })?.role || "USER"}</p>
             </CardContent>
           </Card>
 

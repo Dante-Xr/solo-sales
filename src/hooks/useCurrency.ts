@@ -4,8 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import {
   CurrencyCode,
   SUPPORTED_CURRENCIES,
-  CURRENCY_SYMBOLS,
-  ConvertedPrice
+  CURRENCY_SYMBOLS
 } from '@/lib/currency/types'
 
 interface CurrencyState {
@@ -17,22 +16,22 @@ interface CurrencyState {
 const STORAGE_KEY = 'solo_currency'
 
 export function useCurrency() {
-  const [state, setState] = useState<CurrencyState>({
-    currency: 'USD',
-    rates: { USD: 1 },
-    isLoading: true
-  })
-
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) {
-      const { currency } = JSON.parse(saved)
-      if (SUPPORTED_CURRENCIES.includes(currency)) {
-        setState(prev => ({ ...prev, currency }))
+  const [state, setState] = useState<CurrencyState>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY)
+        if (saved) {
+          const { currency } = JSON.parse(saved) as { currency: CurrencyCode }
+          if (SUPPORTED_CURRENCIES.includes(currency)) {
+            return { currency, rates: { USD: 1 }, isLoading: false }
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load currency preference:', error)
       }
     }
-    setState(prev => ({ ...prev, isLoading: false }))
-  }, [])
+    return { currency: 'USD' as CurrencyCode, rates: { USD: 1 }, isLoading: true }
+  })
 
   useEffect(() => {
     async function fetchRates() {

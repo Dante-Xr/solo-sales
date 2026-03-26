@@ -139,7 +139,6 @@ export function ReviewManagement({ isZh = false }: ReviewManagementProps) {
   }
 
   const pendingReviews = reviews.filter((r) => !r.isApproved)
-  const approvedReviews = reviews.filter((r) => r.isApproved)
 
   return (
     <div className="space-y-6">

@@ -139,7 +139,7 @@ async function sendSecondEmail(
     const recoveryUrl = `${baseUrl}/cart?ref=abandoned&cartId=${cartId}`
 
     const isZh = locale === "zh"
-    const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+    const _totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
     const subject = isZh ? "您的购物车还在等您... 🎁" : "Still waiting for you... 🎁"
     const html = `

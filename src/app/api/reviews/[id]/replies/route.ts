@@ -16,7 +16,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: reviewId } = await params
+    const { id: _reviewId } = await params
     const body = await request.json()
     const { content, userId, adminId } = body
 
@@ -69,7 +69,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: reviewId } = await params
+    const { id: _reviewId } = await params
     const { searchParams } = new URL(request.url)
     const replyId = searchParams.get("replyId")
 

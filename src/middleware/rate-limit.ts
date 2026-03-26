@@ -105,7 +105,7 @@ async function checkRateLimitAsync(
 
   timestamps = cleanExpiredTimestamps(timestamps, config.windowMs)
 
-  const remaining = config.maxRequests - timestamps.length
+  const _remaining = config.maxRequests - timestamps.length
 
   if (timestamps.length >= config.maxRequests) {
     const oldestTimestamp = Math.min(...timestamps)
@@ -142,7 +142,7 @@ function checkRateLimit(ip: string, config: RateLimitConfig): { allowed: boolean
   timestamps = cleanExpiredTimestamps(timestamps, config.windowMs)
 
   const now = Date.now()
-  const remaining = config.maxRequests - timestamps.length
+  const _remaining = config.maxRequests - timestamps.length
 
   if (timestamps.length >= config.maxRequests) {
     const oldestTimestamp = Math.min(...timestamps)

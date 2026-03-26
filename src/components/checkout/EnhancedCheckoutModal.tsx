@@ -73,7 +73,7 @@ export function EnhancedCheckoutModal({
 
   // 处理继续结账流程
   // 未登录用户先弹出认证弹窗
-  const handleProceedToCheckout = () => {
+  const _handleProceedToCheckout = () => {
     if (!session) {
       setShowAuthModal(true)
       return
@@ -116,7 +116,7 @@ export function EnhancedCheckoutModal({
       const order = await res.json()
       alert(isZh ? `订单创建成功！订单号: ${order.id}` : `Order created! Order ID: ${order.id}`)
       onClose()
-    } catch (err) {
+    } catch {
       setError(isZh ? "订单创建失败，请稍后重试" : "Order creation failed, please try again")
     } finally {
       setLoading(false)
@@ -163,7 +163,7 @@ export function EnhancedCheckoutModal({
       const order = await res.json()
       alert(isZh ? `订单创建成功！订单号: ${order.id}` : `Order created! Order ID: ${order.id}`)
       onClose()
-    } catch (err) {
+    } catch {
       setError(isZh ? "订单创建失败，请稍后重试" : "Order creation failed, please try again")
     } finally {
       setLoading(false)
@@ -171,7 +171,7 @@ export function EnhancedCheckoutModal({
   }
 
   // 认证成功后的回调
-  const handleAuthSuccess = () => {
+  const _handleAuthSuccess = () => {
     setShowAuthModal(false)
   }
 

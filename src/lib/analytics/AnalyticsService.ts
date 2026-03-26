@@ -17,14 +17,6 @@ import {
   DateRange,
   SalesOverview,
   SalesTrend,
-  SalesReport,
-  CustomerReport,
-  ProductReport,
-  InventoryReport,
-  TopProduct,
-  TopCustomer,
-  CategoryStats,
-  Segmentation,
   StockAlert
 } from "./types"
 
@@ -121,7 +113,7 @@ export class AnalyticsService {
 
     // 获取唯一购买用户数
     const uniqueUsers = new Set(orders.map(o => o.userId))
-    const returningCustomers = uniqueUsers.size - newCustomers
+    const _returningCustomers = uniqueUsers.size - newCustomers
 
     // 获取热销商品
     const orderItems = await prisma.orderItem.findMany({

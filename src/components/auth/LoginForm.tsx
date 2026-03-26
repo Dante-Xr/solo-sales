@@ -48,7 +48,7 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
         onSuccess?.()
         router.refresh()
       }
-    } catch (err) {
+    } catch {
       setError(isZh ? "登录失败，请稍后重试" : "Login failed, please try again")
     } finally {
       setLoading(false)

@@ -51,7 +51,7 @@ export default function DemoPage() {
     }
 
     return () => clearInterval(viewerInterval)
-  }, [])
+  }, [getRandomSold, getRandomViewers])
 
   const handleClaimCoupon = (code: string) => {
     console.log("Demo coupon claimed:", code)

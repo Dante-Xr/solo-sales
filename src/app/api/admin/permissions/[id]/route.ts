@@ -10,7 +10,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server"
-import { PrismaClient, PermissionType } from "@prisma/client"
+import { PrismaClient } from "@prisma/client"
 import { verifyAdminToken, hasPermission, invalidateAllPermissionsCache } from "@/lib/adminAuth"
 import { logUpdate, logDelete } from "@/lib/permissionLog"
 import { TargetType } from "@prisma/client"

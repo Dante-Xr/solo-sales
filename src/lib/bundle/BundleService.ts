@@ -7,7 +7,7 @@ import {
   UpdateBundleInput,
   BundleValidationResult
 } from './types'
-import { safeErrorLog } from '../safeLog'
+import { safeErrorLog as _safeErrorLog } from '../safeLog'
 
 const CACHE_TTL = 300
 
@@ -339,7 +339,9 @@ class BundleService {
     await cacheDel('solo:bundles:list:*')
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private calculateBundlePricing(bundle: any): BundleData {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const items: BundleItemData[] = bundle.items.map((item: any) => ({
       id: item.id,
       productId: item.productId,

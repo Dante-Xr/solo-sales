@@ -5,7 +5,7 @@ import { usePWA, useOnlineStatus } from '@/hooks/usePWA'
 
 export function PWAProvider({ children }: { children: React.ReactNode }) {
   const isOnline = useOnlineStatus()
-  const { isLoading } = usePWA()
+  const { isLoading: _isLoading } = usePWA()
 
   useEffect(() => {
     if (!isOnline) {

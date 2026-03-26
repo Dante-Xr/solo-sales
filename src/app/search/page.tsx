@@ -4,7 +4,6 @@ import { Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useEffect, useState, useCallback } from "react"
 import Image from "next/image"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowLeft, ShoppingCart } from "lucide-react"
@@ -74,30 +73,31 @@ function SearchPageContent() {
   const [results, setResults] = useState<SearchProduct[]>([])
   const [loading, setLoading] = useState(true)
 
-  const searchProducts = useCallback((searchQuery: string) => {
-    setLoading(true)
-    setTimeout(() => {
-      if (!searchQuery.trim()) {
-        setResults([])
-        setLoading(false)
-        return
-      }
-      const filtered = MOCK_PRODUCTS.filter(p =>
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        searchQuery.toLowerCase().includes("#trending") ||
-        searchQuery.toLowerCase().includes("#flashsale") ||
-        searchQuery.toLowerCase().includes("#viral") ||
-        searchQuery.toLowerCase().includes("#网红") ||
-        searchQuery.toLowerCase().includes("#限时")
-      )
-      setResults(filtered)
+  const performSearch = useCallback((searchQuery: string) => {
+    if (!searchQuery.trim()) {
+      setResults([])
       setLoading(false)
-    }, 300)
+      return
+    }
+    const filtered = MOCK_PRODUCTS.filter(p =>
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      searchQuery.toLowerCase().includes("#trending") ||
+      searchQuery.toLowerCase().includes("#flashsale") ||
+      searchQuery.toLowerCase().includes("#viral") ||
+      searchQuery.toLowerCase().includes("#网红") ||
+      searchQuery.toLowerCase().includes("#限时")
+    )
+    setResults(filtered)
+    setLoading(false)
   }, [])
 
   useEffect(() => {
-    searchProducts(query)
-  }, [query, searchProducts])
+    const timer = setTimeout(() => {
+      setLoading(true)
+      performSearch(query)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [query, performSearch])
 
   const handleAddToCart = (product: SearchProduct) => {
     addToCart({

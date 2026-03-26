@@ -42,7 +42,7 @@ export async function GET(request: Request) {
     }
 
     const orders = await prisma.order.findMany({
-      where: { userId: (session.user as any).id },
+      where: { userId: (session.user as { id: string }).id },
       include: {
         items: {
           include: {
@@ -66,7 +66,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { items, totalAmount, shippingAddress, contactInfo, isGuest } = body
+    const { items, totalAmount, shippingAddress, contactInfo } = body
 
     if (!items || items.length === 0) {
       return NextResponse.json(
@@ -93,7 +93,7 @@ export async function POST(request: Request) {
     const session = await getServerSession(authOptions)
 
     if (session) {
-      userId = (session.user as any).id
+      userId = (session.user as { id?: string }).id
     }
 
     // 使用事务和乐观锁防止并发库存超卖
@@ -137,7 +137,7 @@ export async function POST(request: Request) {
           status: "PENDING",
           shippingAddress,
           items: {
-            create: items.map((item: any) => ({
+            create: items.map((item: { productId: string; quantity: number; price: number }) => ({
               productId: item.productId,
               quantity: item.quantity,
               price: item.price,

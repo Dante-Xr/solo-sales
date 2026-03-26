@@ -78,7 +78,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
         onSuccess?.()
         router.refresh()
       }
-    } catch (err) {
+    } catch {
       setError(isZh ? "注册失败，请稍后重试" : "Registration failed, please try again")
     } finally {
       setLoading(false)

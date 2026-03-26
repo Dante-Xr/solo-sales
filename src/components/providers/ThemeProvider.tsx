@@ -15,24 +15,29 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 const THEME_STORAGE_KEY = "solo_theme"
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("system")
-  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light")
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-    try {
-      const saved = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null
-      if (saved && ["light", "dark", "system"].includes(saved)) {
-        setThemeState(saved)
+  const [theme, setThemeState] = useState<Theme>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null
+        if (saved && ["light", "dark", "system"].includes(saved)) {
+          return saved
+        }
+      } catch (e) {
+        console.error("Failed to load theme preference", e)
       }
-    } catch (e) {
-      console.error("Failed to load theme preference", e)
     }
-  }, [])
+    return "system" as Theme
+  })
+  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">(() => {
+    if (typeof window !== "undefined") {
+      const isDark = theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)
+      return isDark ? "dark" : "light"
+    }
+    return "light" as "light" | "dark"
+  })
 
   useEffect(() => {
-    if (!mounted) return
+    if (typeof window === "undefined") return
 
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
 
@@ -46,7 +51,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
     mediaQuery.addEventListener("change", updateResolvedTheme)
     return () => mediaQuery.removeEventListener("change", updateResolvedTheme)
-  }, [theme, mounted])
+  }, [theme])
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme)

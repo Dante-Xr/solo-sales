@@ -24,7 +24,7 @@ export function SearchBox({ onSearch }: SearchBoxProps) {
   const [history, setHistory] = useState<string[]>([])
   const [showHistory, setShowHistory] = useState(false)
   const [hotTerms, setHotTerms] = useState<string[]>([])
-  const [loading, setLoading] = useState(false)
+  const [_loading, setLoading] = useState(false)
 
   useEffect(() => {
     try {

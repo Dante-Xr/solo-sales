@@ -16,7 +16,7 @@ import {
   CreateAffiliateLinkInput,
   RequestPayoutInput
 } from './types'
-import { safeErrorLog } from '../safeLog'
+import { safeErrorLog as _safeErrorLog } from '../safeLog'
 
 const CACHE_TTL = 300
 
@@ -368,6 +368,7 @@ class AffiliateService {
     return this.mapCommissionData(commission)
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private mapAffiliateData(a: any): AffiliateData {
     return {
       id: a.id,
@@ -384,6 +385,7 @@ class AffiliateService {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private mapAffiliateLinkData(l: any): AffiliateLinkData {
     return {
       id: l.id,
@@ -398,6 +400,7 @@ class AffiliateService {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private mapCommissionData(c: any): CommissionData {
     return {
       id: c.id,
@@ -414,6 +417,7 @@ class AffiliateService {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private mapPayoutData(p: any): PayoutData {
     return {
       id: p.id,

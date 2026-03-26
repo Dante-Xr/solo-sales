@@ -14,7 +14,6 @@ import type {
   MappingConfig,
   PricingStrategy,
 } from "../types"
-import type { I1866Product } from "./types"
 
 /**
  * 默认价格计算策略

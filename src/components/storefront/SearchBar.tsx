@@ -1,10 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Search, X, History } from "lucide-react"
-import { cn } from "@/lib/utils"
 
 interface SearchBarProps {
   onSearch: (query: string) => void
@@ -12,22 +11,21 @@ interface SearchBarProps {
 
 export function SearchBar({ onSearch }: SearchBarProps) {
   const [query, setQuery] = useState("")
-  const [history, setHistory] = useState<string[]>([])
+  const [history, setHistory] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("solo_search_history")
+        if (saved) {
+          return JSON.parse(saved) as string[]
+        }
+      } catch (e) {
+        console.error("Failed to load search history", e)
+      }
+    }
+    return [] as string[]
+  })
   const [showHistory, setShowHistory] = useState(false)
 
-  // 从 localStorage 读取搜索历史
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("solo_search_history")
-      if (saved) {
-        setHistory(JSON.parse(saved))
-      }
-    } catch (e) {
-      console.error("Failed to load search history", e)
-    }
-  }, [])
-
-  // 保存搜索历史到 localStorage
   const saveHistory = (newHistory: string[]) => {
     try {
       localStorage.setItem("solo_search_history", JSON.stringify(newHistory))

@@ -19,7 +19,7 @@ interface PasswordInputProps extends Omit<React.ComponentProps<"input">, "type">
   error?: boolean
 }
 
-export function PasswordInput({ className, error, disabled, ...props }: PasswordInputProps) {
+export function PasswordInput({ className, error: _error, disabled, ...props }: PasswordInputProps) {
   const [showPassword, setShowPassword] = React.useState(false)
 
   return (

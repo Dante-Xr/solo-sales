@@ -22,7 +22,7 @@ export async function OPTIONS() {
 /**
  * GET /api/analytics/inventory - 获取库存报表
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const analytics = getAnalyticsService()
     const inventoryReport = await analytics.getInventoryReport()

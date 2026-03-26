@@ -5,7 +5,7 @@
  */
 "use client"
 
-import { createContext, useContext, useState, useEffect, useMemo, ReactNode } from "react"
+import { createContext, useContext, useState, useMemo, ReactNode } from "react"
 
 interface WishlistContextType {
   wishlist: string[]
@@ -20,24 +20,19 @@ const WishlistContext = createContext<WishlistContextType | undefined>(undefined
 const WISHLIST_STORAGE_KEY = "solo_wishlist"
 
 export function WishlistProvider({ children }: { children: ReactNode }) {
-  const [wishlist, setWishlist] = useState<string[]>([])
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  useEffect(() => {
-    if (!mounted) return
-    try {
-      const saved = localStorage.getItem(WISHLIST_STORAGE_KEY)
-      if (saved) {
-        setWishlist(JSON.parse(saved))
+  const [wishlist, setWishlist] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem(WISHLIST_STORAGE_KEY)
+        if (saved) {
+          return JSON.parse(saved) as string[]
+        }
+      } catch (e) {
+        console.error("Failed to load wishlist", e)
       }
-    } catch (e) {
-      console.error("Failed to load wishlist", e)
     }
-  }, [mounted])
+    return [] as string[]
+  })
 
   // 2026-03-24: 使用 useMemo 缓存收藏状态检查结果，避免重复计算
   const wishlistSet = useMemo(() => {

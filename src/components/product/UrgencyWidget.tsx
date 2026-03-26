@@ -59,7 +59,7 @@ export function UrgencyWidget({
 
   // 判断紧迫程度
   const isCritical = stockCount <= criticalStockThreshold
-  const isLow = stockCount <= lowStockThreshold
+  const _isLow = stockCount <= lowStockThreshold
 
   // 计算预计售完天数
   const daysUntilSoldOut =

@@ -41,7 +41,7 @@ interface Order {
 export default function OrderDetailPage() {
   const params = useParams()
   const router = useRouter()
-  const { data: session, status } = useSession()
+  const { data: _session, status } = useSession()
   const { t, language } = useLanguage()
   const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)

@@ -234,18 +234,18 @@ export type WelcomeKey = keyof typeof translations.welcome
 
 export function t(key: string, lang: Language = "zh"): string {
   const keys = key.split(".")
-  let result: any = translations
+  let result: Record<string, unknown> = translations
 
   for (const k of keys) {
     if (result && typeof result === "object" && k in result) {
-      result = result[k]
+      result = result[k] as Record<string, unknown>
     } else {
       return key
     }
   }
 
   if (result && typeof result === "object" && "zh" in result && "en" in result) {
-    return result[lang] || result.zh || key
+    return (result[lang] || result.zh || key) as string
   }
 
   return key

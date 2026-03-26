@@ -13,7 +13,6 @@ import type { WholesalerConfig, WholesalerProduct, GetProductsParams } from "../
 import type {
   I1866ProductListResponse,
   I1866StockResponse,
-  transformI1866Product,
 } from "./types"
 
 export { type I1866Product } from "./types"

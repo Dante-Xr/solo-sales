@@ -17,7 +17,7 @@ export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, cartTotal } = useCart()
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
 
-  const checkoutProduct = {
+  const _checkoutProduct = {
     id: "cart_checkout",
     name: isZh ? `购物车商品 (共 ${cart.length} 件)` : `Cart Items (Total ${cart.length})`,
     price: cartTotal,

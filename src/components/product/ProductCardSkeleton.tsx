@@ -18,7 +18,7 @@ interface ProductCardSkeletonProps {
 /**
  * 商品卡片骨架屏
  */
-export function ProductCardSkeleton({ showHeader = false }: ProductCardSkeletonProps) {
+export function ProductCardSkeleton({ showHeader: _showHeader = false }: ProductCardSkeletonProps) {
   return (
     <div className="space-y-3">
       {/* 图片 */}

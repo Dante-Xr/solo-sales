@@ -58,7 +58,7 @@ export function ReviewList({
   initialStats = { averageRating: 0, totalReviews: 0, ratingDistribution: {} },
 }: ReviewListProps) {
   const [reviews, setReviews] = useState<Review[]>(initialReviews)
-  const [stats, setStats] = useState(initialStats)
+  const [_stats, setStats] = useState(initialStats)
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(initialReviews.length >= 10)
   const [isLoading, setIsLoading] = useState(false)

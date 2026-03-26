@@ -68,7 +68,7 @@ export function CouponInput({ onApply, onRemove, isZh = false }: CouponInputProp
       } else {
         setError(result.data?.error || (isZh ? "优惠券无效" : "Invalid coupon"))
       }
-    } catch (err) {
+    } catch {
       setError(isZh ? "校验失败，请重试" : "Validation failed, please retry")
     } finally {
       setLoading(false)

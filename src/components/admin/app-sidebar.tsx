@@ -9,7 +9,7 @@
  */
 "use client"
 
-import { Calendar, Home, Inbox, Settings, Package, ShoppingCart, Users, MessageSquare, Shield, UserCog, Key, BookOpen, Upload } from "lucide-react"
+import { Home, Settings, Package, ShoppingCart, Users, MessageSquare, Shield, UserCog, Key, BookOpen, Upload } from "lucide-react"
 
 import {
   Sidebar,

@@ -12,20 +12,10 @@ import { Redis } from "@upstash/redis"
 import { validateRedisConfig } from "./env-validator"
 
 /**
- * Redis 客户端单例
- */
-let redis: Redis
-
-/**
  * 检测是否在构建阶段
  * Next.js 构建时 NEXT_RUNTIME 不存在或为 "nodejs"
  */
 const isBuildTime = process.env.NEXT_RUNTIME === undefined
-
-/**
- * 检测是否在 Serverless 运行时
- */
-const isServerless = process.env.NEXT_RUNTIME === "edge" || process.env.NEXT_RUNTIME === "nodejs"
 
 /**
  * 初始化 Redis 客户端
@@ -63,6 +53,9 @@ function initRedis(): Redis {
   }
 }
 
-redis = initRedis()
+/**
+ * Redis 客户端单例
+ */
+const redis: Redis = initRedis()
 
 export default redis

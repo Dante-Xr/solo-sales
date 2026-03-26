@@ -12,7 +12,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
-import { cacheGet, cacheSet, cacheDelPattern, CACHE_KEYS, CACHE_TTL } from "@/lib/cache"
+import { cacheGet, cacheSet, cacheDelPattern, CACHE_TTL } from "@/lib/cache"
 
 /**
  * 创建知识条目的请求体验证 Schema

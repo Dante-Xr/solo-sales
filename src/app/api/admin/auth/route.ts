@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
 /**
  * POST /api/admin/auth/logout - 管理员登出
  */
-export async function PUT(request: NextRequest) {
+export async function PUT(_request: NextRequest) {
   const response = NextResponse.json({ success: true, message: "登出成功" })
   response.cookies.delete(ADMIN_COOKIE_NAME)
   return response

@@ -153,7 +153,7 @@ export default function EnhancedChatbot({
       } else {
         throw new Error(data.error)
       }
-    } catch (error) {
+    } catch {
       const errorMessage: ChatMessage = {
         id: `error-${Date.now()}`,
         role: "assistant",

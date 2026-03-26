@@ -29,7 +29,7 @@ interface CrosssellRecommendationProps {
 }
 
 export function CrosssellRecommendation({
-  currentProductId,
+  currentProductId: _currentProductId,
   isZh = false,
 }: CrosssellRecommendationProps) {
   const [wishlist, setWishlist] = useState<string[]>([])

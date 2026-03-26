@@ -16,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
-import { ShoppingCart, Plus, Sparkles } from "lucide-react"
+import { Plus, Sparkles } from "lucide-react"
 
 interface Product {
   id: string

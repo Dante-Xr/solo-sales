@@ -8,8 +8,8 @@ const engine = new EmailSequenceEngine(prisma)
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
-    const trigger = searchParams.get('trigger') as any
-    const status = searchParams.get('status') as any
+    const trigger = searchParams.get('trigger') as string | null
+    const status = searchParams.get('status') as string | null
 
     const sequences = await engine.getSequences({
       trigger: trigger || undefined,

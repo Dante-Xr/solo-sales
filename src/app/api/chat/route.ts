@@ -13,7 +13,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getIntentDetectionService } from "@/lib/rag/IntentDetection"
 import { getRAGService } from "@/lib/rag/RAGService"
 import { getConversationManager } from "@/lib/rag/ConversationManager"
-import { RAGResponse, SatisfactionRating } from "@/lib/rag/types"
+import { RAGResponse } from "@/lib/rag/types"
 
 export const runtime = "edge"
 

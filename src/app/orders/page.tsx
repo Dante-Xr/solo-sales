@@ -32,7 +32,7 @@ interface Order {
 
 export default function OrdersPage() {
   const router = useRouter()
-  const { data: session, status } = useSession()
+  const { data: _session, status } = useSession()
   const { t, language } = useLanguage()
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)

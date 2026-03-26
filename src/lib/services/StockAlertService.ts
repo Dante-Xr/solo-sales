@@ -136,7 +136,7 @@ export async function deleteStockAlert(productId: string): Promise<void> {
   console.log("StockAlert model not available, deleteStockAlert called for:", productId)
 }
 
-export async function getStockAlertConfig(productId: string): Promise<{
+export async function getStockAlertConfig(_productId: string): Promise<{
   threshold: number
   isEnabled: boolean
   notifyEmails: string[]

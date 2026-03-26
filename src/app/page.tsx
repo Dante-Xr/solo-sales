@@ -43,7 +43,6 @@ export default function Storefront() {
 
   useEffect(() => {
     setMounted(true)
-    setViewers(getRandomViewers())
     setSoldRandom(getRandomSold())
     const viewerInterval = setInterval(() => {
       setViewers(getRandomViewers())
@@ -64,7 +63,7 @@ export default function Storefront() {
     }
 
     return () => clearInterval(viewerInterval)
-  }, [])
+  }, [getRandomSold, getRandomViewers])
 
   const handleClaimCoupon = (code: string) => {
     console.log("Coupon claimed:", code)

@@ -43,7 +43,6 @@ import {
 } from "@/components/ui/sheet"
 import { BatchActionBar } from "@/components/admin/BatchActionBar"
 import { useLanguage } from "@/context/LanguageContext"
-import { ProductRow } from "@/components/admin/ProductRow"
 import { MobileProductCard } from "@/components/admin/MobileProductCard"
 
 // ============================================
@@ -89,7 +88,7 @@ interface ProductFormData {
 }
 
 /** 分页结果 */
-interface PaginatedResponse {
+interface _PaginatedResponse {
   list: Product[]
   pagination: {
     page: number

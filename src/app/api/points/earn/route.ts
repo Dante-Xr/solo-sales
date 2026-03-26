@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     })
 
     const pointsRate = program?.pointsRate || 1.0
-    const pointsToYuan = program?.pointsToYuan || 0.01
+    const _pointsToYuan = program?.pointsToYuan || 0.01
 
     let pointsToEarn = 0
     let earnDescription = ""

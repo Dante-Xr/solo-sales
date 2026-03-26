@@ -107,7 +107,7 @@ export default function AnalyticsDashboard({ locale = "zh" }: AnalyticsDashboard
 
   useEffect(() => {
     fetchAnalytics()
-  }, [timeRange])
+  }, [timeRange, fetchAnalytics])
 
   const fetchAnalytics = async () => {
     setLoading(true)
@@ -141,7 +141,7 @@ export default function AnalyticsDashboard({ locale = "zh" }: AnalyticsDashboard
     return new Intl.NumberFormat(locale === "zh" ? "zh-CN" : "en-US").format(value)
   }
 
-  const formatPercent = (value: number) => {
+  const _formatPercent = (value: number) => {
     return `${(value * 100).toFixed(2)}%`
   }
 

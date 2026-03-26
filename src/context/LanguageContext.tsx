@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from "react"
+import { createContext, useContext, useState, useCallback, ReactNode } from "react"
 import { Language, t as translate } from "@/i18n/translations"
 
 interface LanguageContextType {
@@ -15,24 +15,19 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 const LANGUAGE_STORAGE_KEY = "solo_language_preference"
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>("zh")
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  useEffect(() => {
-    if (!mounted) return
-    try {
-      const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY) as Language | null
-      if (saved === "zh" || saved === "en") {
-        setLanguageState(saved)
+  const [language, setLanguageState] = useState<Language>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY) as Language | null
+        if (saved === "zh" || saved === "en") {
+          return saved
+        }
+      } catch (e) {
+        console.error("Failed to load language preference", e)
       }
-    } catch (e) {
-      console.error("Failed to load language preference", e)
     }
-  }, [mounted])
+    return "zh" as Language
+  })
 
   const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang)

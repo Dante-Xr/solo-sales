@@ -1,12 +1,13 @@
 /**
  * ============================================
- * 管理后台响应式布局组件 (v0.4.1)
+ * 管理后台响应式布局组件 (v0.6.1)
  * ============================================
  * 功能说明：
  *   - PC 端：固定左侧边栏 + 右侧内容区
  *   - 移动端：顶部导航栏 + 可折叠侧边栏
  *   - 响应式断点：1024px (lg)
  *   - 目标设备：iPhone 13 Pro Max (428px), Xiaomi 14 Ultra (393px)
+ *   - v0.6.1: 右上角添加管理员用户菜单
  * ============================================
  */
 
@@ -14,7 +15,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { useTheme } from "@/components/providers/ThemeProvider"
 import { useLanguage } from "@/context/LanguageContext"
@@ -35,6 +36,9 @@ import {
   Sun,
   Moon,
   Globe,
+  User,
+  UserCircle,
+  LogOut,
 } from "lucide-react"
 
 /**
@@ -64,15 +68,48 @@ interface AdminLayoutProps {
   children: React.ReactNode
 }
 
+interface AdminUser {
+  id: string
+  username: string
+  email: string
+  role: {
+    id: string
+    name: string
+    label: string
+  }
+  lastLoginAt?: string
+}
+
 export function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const { resolvedTheme, setTheme } = useTheme()
-  const { language, setLanguage, toggleLanguage } = useLanguage()
+  const { language, toggleLanguage } = useLanguage()
   const isZh = language === "zh"
 
-  // 检测移动端
+  const [adminUser, setAdminUser] = useState<AdminUser | null>(null)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchAdminUser = async () => {
+      try {
+        const res = await fetch("/api/admin/auth/me")
+        const data = await res.json()
+        if (data.success) {
+          setAdminUser(data.data)
+        }
+      } catch (error) {
+        console.error("获取管理员信息失败:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchAdminUser()
+  }, [])
+
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024)
@@ -85,8 +122,29 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     return () => window.removeEventListener("resize", checkMobile)
   }, [])
 
-  // 关闭侧边栏
   const closeSidebar = () => setSidebarOpen(false)
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/admin/auth", { method: "PUT" })
+      router.push("/admin/login")
+    } catch (error) {
+      console.error("登出失败:", error)
+      router.push("/admin/login")
+    }
+  }
+
+  const handleMenuClick = (action: string) => {
+    setUserMenuOpen(false)
+    switch (action) {
+      case "profile":
+        router.push("/admin/profile")
+        break
+      case "logout":
+        handleLogout()
+        break
+    }
+  }
 
   return (
     <div className="min-h-screen bg-muted/50">
@@ -102,6 +160,13 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           </button>
           <span className="font-semibold text-base">SoloSales</span>
           <div className="flex items-center gap-1">
+            <button
+              onClick={() => setUserMenuOpen(!userMenuOpen)}
+              className="p-2 rounded-md hover:bg-muted"
+              aria-label="用户菜单"
+            >
+              <User className="w-5 h-5" />
+            </button>
             <button
               onClick={() => toggleLanguage()}
               className="p-2 rounded-md hover:bg-muted"
@@ -187,7 +252,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       {/* PC 端侧边栏 */}
       {!isMobile && (
         <aside className="fixed left-0 top-0 bottom-0 w-64 bg-background border-r z-30">
-          <div className="h-16 border-b flex items-center justify-between px-6">
+          <div className="h-16 border-b flex items-center justify-between px-4">
             <span className="font-semibold text-lg">SoloSales</span>
             <div className="flex items-center gap-1">
               <button
@@ -204,6 +269,53 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               >
                 {resolvedTheme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </button>
+              <div className="relative">
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="p-2 rounded-md hover:bg-muted flex items-center gap-2"
+                  aria-label="用户菜单"
+                >
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-primary-foreground font-medium text-xs">
+                    {loading ? "..." : (adminUser?.username?.charAt(0).toUpperCase() || "A")}
+                  </div>
+                </button>
+                {userMenuOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setUserMenuOpen(false)}
+                    />
+                    <div className="absolute right-0 top-full mt-1 w-56 bg-card rounded-lg shadow-lg border border-border z-50 overflow-hidden">
+                      {!loading && adminUser && (
+                        <div className="px-4 py-3 border-b border-border bg-muted">
+                          <p className="font-medium text-sm truncate text-foreground">{adminUser.username}</p>
+                          <p className="text-xs text-muted-foreground truncate">{adminUser.email}</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {isZh ? "角色：" : "Role: "}{adminUser.role.label}
+                          </p>
+                        </div>
+                      )}
+                      <div className="py-1">
+                        <button
+                          onClick={() => handleMenuClick("profile")}
+                          className="w-full px-4 py-2.5 text-left text-sm hover:bg-accent flex items-center gap-3 text-foreground"
+                        >
+                          <UserCircle className="w-4 h-4 text-muted-foreground" />
+                          {isZh ? "个人资料" : "Profile"}
+                        </button>
+                        <div className="border-t border-border my-1" />
+                        <button
+                          onClick={() => handleMenuClick("logout")}
+                          className="w-full px-4 py-2.5 text-left text-sm hover:bg-accent flex items-center gap-3 text-destructive"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          {isZh ? "登出" : "Logout"}
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </div>
           <nav className="p-3 overflow-y-auto h-[calc(100vh-64px)]">
@@ -247,6 +359,44 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             })}
           </nav>
         </aside>
+      )}
+
+      {/* 移动端用户菜单 */}
+      {isMobile && userMenuOpen && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/50 z-40 animate-in fade-in duration-200"
+            onClick={() => setUserMenuOpen(false)}
+          />
+          <div className="fixed right-0 top-14 w-56 bg-card rounded-bl-lg shadow-lg border border-border z-50 overflow-hidden">
+            {!loading && adminUser && (
+              <div className="px-4 py-3 border-b border-border bg-muted">
+                <p className="font-medium text-sm truncate text-foreground">{adminUser.username}</p>
+                <p className="text-xs text-muted-foreground truncate">{adminUser.email}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {isZh ? "角色：" : "Role: "}{adminUser.role.label}
+                </p>
+              </div>
+            )}
+            <div className="py-1">
+              <button
+                onClick={() => handleMenuClick("profile")}
+                className="w-full px-4 py-2.5 text-left text-sm hover:bg-accent flex items-center gap-3 text-foreground"
+              >
+                <UserCircle className="w-4 h-4 text-muted-foreground" />
+                {isZh ? "个人资料" : "Profile"}
+              </button>
+              <div className="border-t border-border my-1" />
+              <button
+                onClick={() => handleMenuClick("logout")}
+                className="w-full px-4 py-2.5 text-left text-sm hover:bg-accent flex items-center gap-3 text-destructive"
+              >
+                <LogOut className="w-4 h-4" />
+                {isZh ? "登出" : "Logout"}
+              </button>
+            </div>
+          </div>
+        </>
       )}
 
       {/* 主内容区 */}

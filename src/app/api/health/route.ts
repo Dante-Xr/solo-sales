@@ -42,7 +42,7 @@ interface HealthCheckItem {
  * 返回服务健康状况
  */
 export async function GET(): Promise<NextResponse<HealthCheckResponse>> {
-  const startTime = Date.now()
+  const _startTime = Date.now()
   const response: HealthCheckResponse = {
     status: "healthy",
     timestamp: new Date().toISOString(),
