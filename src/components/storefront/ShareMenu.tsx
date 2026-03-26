@@ -21,7 +21,7 @@ const SOCIAL_PLATFORMS = [
   {
     name: "Twitter",
     icon: Twitter,
-    getUrl: (_url: string, _title: string) =>
+    getUrl: (url: string, title: string) =>
       `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
     color: "hover:bg-[#1DA1F2]/10",
     iconColor: "text-[#1DA1F2]",

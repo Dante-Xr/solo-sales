@@ -93,7 +93,7 @@ export async function POST(request: Request) {
     const session = await getServerSession(authOptions)
 
     if (session) {
-      userId = (session.user as { id?: string }).id
+      userId = (session.user as { id?: string }).id ?? null
     }
 
     // 使用事务和乐观锁防止并发库存超卖

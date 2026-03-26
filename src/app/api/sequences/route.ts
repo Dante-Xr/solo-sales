@@ -2,14 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import EmailSequenceEngine from '@/lib/marketing/EmailSequenceEngine'
 import { safeErrorLog } from '@/lib/safeLog'
+import { TriggerType, SequenceStatus } from '@prisma/client'
 
 const engine = new EmailSequenceEngine(prisma)
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
-    const trigger = searchParams.get('trigger') as string | null
-    const status = searchParams.get('status') as string | null
+    const trigger = searchParams.get('trigger') as TriggerType | null
+    const status = searchParams.get('status') as SequenceStatus | null
 
     const sequences = await engine.getSequences({
       trigger: trigger || undefined,

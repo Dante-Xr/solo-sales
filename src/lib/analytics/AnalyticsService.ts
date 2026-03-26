@@ -17,7 +17,15 @@ import {
   DateRange,
   SalesOverview,
   SalesTrend,
-  StockAlert
+  CustomerReport,
+  TopCustomer,
+  Segmentation,
+  CategoryStats,
+  StockAlert,
+  SalesReport,
+  TopProduct,
+  ProductReport,
+  InventoryReport
 } from "./types"
 
 const ANALYTICS_CACHE_TTL = 5 * 60 // 5 分钟

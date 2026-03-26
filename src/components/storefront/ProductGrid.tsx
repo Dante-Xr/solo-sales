@@ -5,6 +5,7 @@ import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { ShoppingCart, Flame } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useLanguage } from "@/context/LanguageContext"
 import { FEATURED_PRODUCTS } from "./HomeCarousel"
 
 const formatSales = (sales: number) => {

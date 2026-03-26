@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useLanguage } from "@/context/LanguageContext"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Facebook, Instagram, Twitter, TikTok, Mail, ArrowRight } from "lucide-react"
+import { Facebook, Instagram, Twitter, Mail, ArrowRight, Video } from "lucide-react"
 
 export function StorefrontFooter() {
   const { t } = useLanguage()
@@ -39,7 +39,7 @@ export function StorefrontFooter() {
     { icon: Facebook, href: "https://facebook.com", label: "Facebook" },
     { icon: Instagram, href: "https://instagram.com", label: "Instagram" },
     { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
-    { icon: TikTok, href: "https://tiktok.com", label: "TikTok" },
+    { icon: Video, href: "https://tiktok.com", label: "TikTok" },
   ]
 
   return (

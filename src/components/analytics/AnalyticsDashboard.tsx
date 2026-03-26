@@ -6,7 +6,7 @@
  * ============================================
  */
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { TimeRange } from "@/lib/analytics/types"
 
 interface OverviewData {
@@ -107,9 +107,9 @@ export default function AnalyticsDashboard({ locale = "zh" }: AnalyticsDashboard
 
   useEffect(() => {
     fetchAnalytics()
-  }, [timeRange, fetchAnalytics])
+  }, [timeRange])
 
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     setLoading(true)
     setError(null)
 
@@ -127,7 +127,7 @@ export default function AnalyticsDashboard({ locale = "zh" }: AnalyticsDashboard
     } finally {
       setLoading(false)
     }
-  }
+  }, [timeRange])
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat(locale === "zh" ? "zh-CN" : "en-US", {

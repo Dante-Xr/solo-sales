@@ -16,7 +16,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: _reviewId } = await params
+    const { id: reviewId } = await params
     const body = await request.json()
     const { content, userId, adminId } = body
 
