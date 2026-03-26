@@ -1,11 +1,14 @@
 /**
- * 2026-03-24: 购物车 Context 模块
+ * 购物车 Context 模块 (v0.5.9)
  * 功能：管理购物车状态，包括添加、删除、更新商品数量
- * 性能优化：使用 useMemo 缓存 cartTotal 和 cartCount，减少不必要的重渲染
+ * 性能优化：使用 useMemo 缓存 cartTotal 和 cartCount
+ * 持久化：使用 localStorage 保存购物车数据
  */
 "use client"
 
-import { createContext, useContext, useState, useMemo, ReactNode } from "react"
+import { createContext, useContext, useState, useMemo, useEffect, ReactNode } from "react"
+
+const CART_STORAGE_KEY = "solo:cart"
 
 export interface CartItem {
   id: string
@@ -30,12 +33,33 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([])
 
-  // 2026-03-24: 使用 useMemo 缓存购物车总价，避免每次渲染都重新计算
+  // 从 localStorage 加载购物车数据
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedCart = localStorage.getItem(CART_STORAGE_KEY)
+      if (savedCart) {
+        try {
+          setCart(JSON.parse(savedCart))
+        } catch (e) {
+          console.error("Failed to parse cart from localStorage:", e)
+        }
+      }
+    }
+  }, [])
+
+  // 保存购物车到 localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart))
+    }
+  }, [cart])
+
+  // 缓存购物车总价
   const cartTotal = useMemo(() => {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0)
   }, [cart])
 
-  // 2026-03-24: 使用 useMemo 缓存购物车商品总数量
+  // 缓存购物车商品总数量
   const cartCount = useMemo(() => {
     return cart.reduce((count, item) => count + item.quantity, 0)
   }, [cart])

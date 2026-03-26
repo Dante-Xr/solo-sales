@@ -22,6 +22,12 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  // v0.5.9 添加登录安全字段
+  failedLoginAttempts  Int       @default(0)   // 连续登录失败次数
+  lockoutUntil        DateTime?              // 账户锁定截止时间
+  lastLoginAt         DateTime?              // 最后登录时间
+  lastLoginIp         String?                // 最后登录 IP
+
   orders        Order[]
   messages      Message[]
   reviews       Review[]
@@ -49,7 +55,7 @@ model Product {
   sku         String?     @unique // 商品 SKU，用于批发导入去重
   name        String
   description String
-  price       Float
+  price       Decimal     @db.Decimal(10, 2) // 使用 Decimal 避免浮点数精度问题
   stock       Int         @default(0)
   images      String[]
   categoryId  String?
@@ -60,11 +66,13 @@ model Product {
 
   orderItems  OrderItem[]
   reviews     Review[]
+  stockAlert  StockAlert?
 
   // v0.4.3 添加数据库索引 - 优化高频查询性能
   @@index([categoryId])          // 按分类查商品
   @@index([isPublished])        // 筛选已发布商品
   @@index([name])               // 按名称搜索优化
+  @@index([categoryId, isPublished, createdAt]) // 复合索引：分类+发布状态+时间
 }
 
 // 订单模型
@@ -72,7 +80,7 @@ model Order {
   id          String      @id @default(cuid())
   userId      String
   user        User        @relation(fields: [userId], references: [id])
-  totalAmount Float
+  totalAmount Decimal     @db.Decimal(10, 2) // 使用 Decimal 避免浮点数精度问题
   status      OrderStatus @default(PENDING)
   paymentMethod String?
   shippingAddress String?
@@ -107,7 +115,7 @@ model OrderItem {
   productId String
   product   Product  @relation(fields: [productId], references: [id])
   quantity  Int
-  price     Float
+  price     Decimal  @db.Decimal(10, 2) // 使用 Decimal 避免浮点数精度问题
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -117,7 +125,7 @@ model Payment {
   id            String   @id @default(cuid())
   orderId       String
   order         Order    @relation(fields: [orderId], references: [id])
-  amount        Float
+  amount        Decimal  @db.Decimal(10, 2) // 使用 Decimal 避免浮点数精度问题
   currency      String   @default("USD")
   status        PaymentStatus @default(PENDING)
   provider      String
@@ -420,9 +428,9 @@ model Coupon {
   name          String
   description   String?
   type          CouponType
-  value         Float       // 折扣值或百分比
-  minAmount     Float?      // 最低消费金额
-  maxDiscount   Float?      // 最高折扣金额
+  value         Decimal     @db.Decimal(10, 2) // 折扣值或百分比
+  minAmount     Decimal?    @db.Decimal(10, 2) // 最低消费金额
+  maxDiscount   Decimal?    @db.Decimal(10, 2) // 最高折扣金额
   maxUses       Int?        // 最大使用次数
   usedCount     Int         @default(0)
   perUserLimit  Int         @default(1)
@@ -445,12 +453,13 @@ model CouponUsage {
   couponId    String
   userId      String
   orderId     String
-  discount    Float    // 实际折扣金额
+  discount    Decimal  @db.Decimal(10, 2) // 实际折扣金额
   usedAt      DateTime @default(now())
 
   coupon      Coupon   @relation(fields: [couponId], references: [id])
   order       Order    @relation(fields: [orderId], references: [id])
 
+  @@unique([couponId, userId]) // 防止重复使用
   @@index([couponId])
   @@index([userId])
 }
@@ -523,4 +532,75 @@ model PointTransaction {
   @@index([customerPointsId])
   @@index([type])
   @@index([expiresAt])
+}
+
+// ============================================
+// 废弃购物车模块 (v0.5.8)
+// 用于追踪废弃购物车并发送挽回邮件
+// ============================================
+
+// 废弃购物车状态枚举
+enum AbandonedCartStatus {
+  PENDING     // 待发送
+  SENT        // 已发送第一封
+  SENT_SECOND // 已发送第二封
+  RECOVERED   // 已恢复（用户完成购买）
+  EXPIRED     // 已过期（不再发送）
+}
+
+// 废弃购物车模型
+model AbandonedCart {
+  id            String               @id @default(cuid())
+  userId        String
+  userEmail     String
+  userName      String?
+  cartData      Json                 // 购物车内容
+  totalAmount   Decimal              @db.Decimal(10, 2) // 使用 Decimal 避免浮点数精度问题
+  locale        String               @default("en")
+  status        AbandonedCartStatus  @default(PENDING)
+  lastEmailAt   DateTime?
+  emailCount    Int                  @default(0)
+  recoveredAt   DateTime?            // 恢复购买时间
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([status, createdAt]) // 复合索引：状态+时间（废弃购物车查询）
+  @@index([userId, status])   // 复合索引：用户+状态
+}
+
+// ============================================
+// 库存预警模块 (v0.5.8)
+// ============================================
+
+// 库存预警配置模型
+model StockAlert {
+  id          String   @id @default(cuid())
+  productId   String   @unique
+  threshold   Int      @default(10)  // 预警阈值
+  isEnabled   Boolean  @default(true)
+  notifyEmails String[] // 通知邮箱列表
+  lastAlertAt DateTime?
+
+  product     Product  @relation(fields: [productId], references: [id])
+
+  @@index([productId])
+  @@index([isEnabled])
+}
+
+// 库存预警日志模型
+model StockAlertLog {
+  id          String   @id @default(cuid())
+  productId   String
+  productName String
+  oldStock    Int
+  newStock    Int
+  threshold   Int
+  notifiedEmails String[]
+  createdAt   DateTime @default(now())
+
+  @@index([productId])
+  @@index([createdAt])
 }

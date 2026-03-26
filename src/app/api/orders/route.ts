@@ -96,34 +96,69 @@ export async function POST(request: Request) {
       userId = (session.user as any).id
     }
 
-    const order = await prisma.order.create({
-      data: {
-        userId: userId || "guest",
-        totalAmount,
-        status: "PENDING",
-        shippingAddress,
-        items: {
-          create: items.map((item: any) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.price,
-          })),
-        },
-      },
-      include: {
-        items: {
-          include: {
-            product: true,
+    // 使用事务和乐观锁防止并发库存超卖
+    const order = await prisma.$transaction(async (tx) => {
+      // 验证并扣减每个商品的库存
+      for (const item of items) {
+        const product = await tx.product.findUnique({
+          where: { id: item.productId },
+          select: { stock: true, name: true },
+        })
+
+        if (!product) {
+          throw new Error(`商品不存在: ${item.productId}`)
+        }
+
+        if (product.stock < item.quantity) {
+          throw new Error(`商品「${product.name}」库存不足，当前库存: ${product.stock}`)
+        }
+
+        // 使用乐观锁扣减库存
+        const updated = await tx.product.updateMany({
+          where: {
+            id: item.productId,
+            stock: { gte: item.quantity }, // 乐观锁条件
+          },
+          data: {
+            stock: { decrement: item.quantity },
+          },
+        })
+
+        if (updated.count === 0) {
+          throw new Error(`商品「${product.name}」库存不足，请重试`)
+        }
+      }
+
+      // 创建订单
+      return tx.order.create({
+        data: {
+          userId: userId || "guest",
+          totalAmount,
+          status: "PENDING",
+          shippingAddress,
+          items: {
+            create: items.map((item: any) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              price: item.price,
+            })),
           },
         },
-      },
+        include: {
+          items: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      })
     })
 
     return NextResponse.json(order)
   } catch (error) {
-    console.error("创建订单错误:", error)
+    console.error("创建订单错误:", error instanceof Error ? error.message : "Unknown")
     return NextResponse.json(
-      { error: "创建订单失败" },
+      { error: "创建订单失败，请稍后重试" },
       { status: 500 }
     )
   }

@@ -78,9 +78,13 @@ export async function GET(request: NextRequest) {
     // 构建 where 条件
     const where: Record<string, unknown> = {}
     if (keyword) {
+      // 防止 SQL 注入：转义 LIKE 特殊字符并限制长度
+      const sanitizedKeyword = keyword
+        .replace(/[%_\\]/g, "\\$&")
+        .slice(0, 100)
       where.OR = [
-        { name: { contains: keyword, mode: "insensitive" } },
-        { description: { contains: keyword, mode: "insensitive" } },
+        { name: { contains: sanitizedKeyword, mode: "insensitive" } },
+        { description: { contains: sanitizedKeyword, mode: "insensitive" } },
       ]
     }
     if (category) {

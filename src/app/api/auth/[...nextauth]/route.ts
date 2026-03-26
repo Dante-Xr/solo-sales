@@ -7,7 +7,7 @@ const DEV_USERS: Array<{ id: string; email: string; password: string; name: stri
   {
     id: "dev_user_1",
     email: "test@example.com",
-    password: "$2a$10$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4r0mMX德拉0tLQv3c", // password: test123
+    password: "$2b$10$UP/EqP1bn4Xj5iOIgj54zOBZq//SAizcrl0NLRj7p0E0cB8wppwx6", // password: test123
     name: "测试用户",
     role: "USER",
   },
@@ -33,9 +33,8 @@ export const authOptions: NextAuthOptions = {
           throw new Error("邮箱或密码错误")
         }
 
-        // 简单密码验证（开发环境）
-        // 注意：这里简化了验证，生产环境请使用 bcrypt
-        const isValid = credentials.password === "test123"
+        // 使用 bcrypt 验证密码（生产级别安全）
+        const isValid = await bcrypt.compare(credentials.password, user.password)
 
         if (!isValid) {
           throw new Error("邮箱或密码错误")

@@ -19,9 +19,13 @@ import {
   Search,
   Package,
   ImageIcon,
+  Trash2,
+  ToggleLeft,
+  ToggleRight,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
@@ -37,6 +41,7 @@ import {
   SheetTitle,
   SheetFooter,
 } from "@/components/ui/sheet"
+import { BatchActionBar } from "@/components/admin/BatchActionBar"
 import { useLanguage } from "@/context/LanguageContext"
 import { ProductRow } from "@/components/admin/ProductRow"
 import { MobileProductCard } from "@/components/admin/MobileProductCard"
@@ -124,6 +129,11 @@ export default function ProductsPage() {
   const [searchKeyword, setSearchKeyword] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("")
   const [pagination, setPagination] = useState({ page: 1, pageSize: 10, total: 0, totalPages: 0 })
+
+  // 批量选择状态
+  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set())
+  const [batchDialogOpen, setBatchDialogOpen] = useState(false)
+  const [batchAction, setBatchAction] = useState<"publish" | "unpublish" | "delete" | null>(null)
 
   // Dialog 状态
   const [editDialogOpen, setEditDialogOpen] = useState(false)
@@ -335,6 +345,75 @@ export default function ProductsPage() {
     }
   }
 
+  // 全选/取消全选
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedProducts(new Set(productList.map(p => p.id)))
+    } else {
+      setSelectedProducts(new Set())
+    }
+  }
+
+  // 选择/取消选择单个商品
+  const handleSelectProduct = (productId: string, checked: boolean) => {
+    setSelectedProducts(prev => {
+      const newSet = new Set(prev)
+      if (checked) {
+        newSet.add(productId)
+      } else {
+        newSet.delete(productId)
+      }
+      return newSet
+    })
+  }
+
+  // 打开批量操作确认 Dialog
+  const handleOpenBatchAction = (action: "publish" | "unpublish" | "delete") => {
+    setBatchAction(action)
+    setBatchDialogOpen(true)
+  }
+
+  // 执行批量操作
+  const handleExecuteBatch = async () => {
+    if (selectedProducts.size === 0 || !batchAction) return
+
+    try {
+      const ids = Array.from(selectedProducts)
+      let url = "/api/products/batch?"
+      let method = "PATCH"
+      let body: Record<string, unknown> = {}
+
+      if (batchAction === "delete") {
+        url += "ids=" + ids.join("&ids=")
+        method = "DELETE"
+      } else {
+        body = {
+          ids,
+          isPublished: batchAction === "publish",
+        }
+      }
+
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: method !== "DELETE" ? JSON.stringify(body) : undefined,
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        setBatchDialogOpen(false)
+        setSelectedProducts(new Set())
+        fetchProductList()
+      } else {
+        alert(result.error || (isZh ? "批量操作失败" : "Batch operation failed"))
+      }
+    } catch (error) {
+      console.error("批量操作失败:", error)
+      alert(isZh ? "批量操作失败" : "Batch operation failed")
+    }
+  }
+
   // useMemo 优化：格式化后的产品列表
   const formattedProducts = useMemo(() => {
     return productList.map(product => ({
@@ -407,11 +486,44 @@ export default function ProductsPage() {
       {/* 商品列表 */}
       <Card>
         <CardHeader>
-          <CardTitle>
-            {isZh ? "商品列表" : "Products"}
-            <span className="text-sm font-normal text-muted-foreground ml-2">
-              ({pagination.total} {isZh ? "件商品" : "items"})
-            </span>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {isZh ? "商品列表" : "Products"}
+              <span className="text-sm font-normal text-muted-foreground ml-2">
+                ({pagination.total} {isZh ? "件商品" : "items"})
+              </span>
+            </div>
+            {selectedProducts.size > 0 && (
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-muted-foreground">
+                  {isZh ? "已选择" : "Selected"} {selectedProducts.size} {isZh ? "项" : "items"}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleOpenBatchAction("publish")}
+                >
+                  <ToggleRight className="w-4 h-4 mr-1" />
+                  {isZh ? "批量上架" : "Batch Publish"}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleOpenBatchAction("unpublish")}
+                >
+                  <ToggleLeft className="w-4 h-4 mr-1" />
+                  {isZh ? "批量下架" : "Batch Unpublish"}
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => handleOpenBatchAction("delete")}
+                >
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  {isZh ? "批量删除" : "Batch Delete"}
+                </Button>
+              </div>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -443,6 +555,12 @@ export default function ProductsPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
+                    <th className="w-12 py-3 px-4">
+                      <Checkbox
+                        checked={productList.length > 0 && selectedProducts.size === productList.length}
+                        onCheckedChange={handleSelectAll}
+                      />
+                    </th>
                     <th className="text-left py-3 px-4 font-medium">{isZh ? "商品名称" : "Product Name"}</th>
                     <th className="text-left py-3 px-4 font-medium">{isZh ? "分类" : "Category"}</th>
                     <th className="text-left py-3 px-4 font-medium">{isZh ? "价格" : "Price"}</th>
@@ -455,6 +573,12 @@ export default function ProductsPage() {
                 <tbody>
                   {productList.map((product) => (
                     <tr key={product.id} className="border-b hover:bg-muted/50">
+                      <td className="py-3 px-4">
+                        <Checkbox
+                          checked={selectedProducts.has(product.id)}
+                          onCheckedChange={(checked) => handleSelectProduct(product.id, !!checked)}
+                        />
+                      </td>
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-3">
                           {product.images && product.images.length > 0 ? (
@@ -931,6 +1055,56 @@ export default function ProductsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* 批量操作确认 Dialog */}
+      <Dialog open={batchDialogOpen} onOpenChange={setBatchDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {batchAction === "publish" && (isZh ? "确认批量上架" : "Confirm Batch Publish")}
+              {batchAction === "unpublish" && (isZh ? "确认批量下架" : "Confirm Batch Unpublish")}
+              {batchAction === "delete" && (isZh ? "确认批量删除" : "Confirm Batch Delete")}
+            </DialogTitle>
+          </DialogHeader>
+          <p className="py-4">
+            {batchAction === "publish" && (isZh
+              ? "确定要上架所选的 " + selectedProducts.size + " 个商品吗？"
+              : "Are you sure you want to publish the selected " + selectedProducts.size + " products?")}
+            {batchAction === "unpublish" && (isZh
+              ? "确定要下架所选的 " + selectedProducts.size + " 个商品吗？"
+              : "Are you sure you want to unpublish the selected " + selectedProducts.size + " products?")}
+            {batchAction === "delete" && (isZh
+              ? "确定要删除所选的 " + selectedProducts.size + " 个商品吗？此操作不可撤销。"
+              : "Are you sure you want to delete the selected " + selectedProducts.size + " products? This action cannot be undone.")}
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBatchDialogOpen(false)}>
+              {isZh ? "取消" : "Cancel"}
+            </Button>
+            {batchAction === "delete" ? (
+              <Button variant="destructive" onClick={handleExecuteBatch}>
+                {isZh ? "删除" : "Delete"}
+              </Button>
+            ) : (
+              <Button onClick={handleExecuteBatch}>
+                {isZh ? "确认" : "Confirm"}
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 批量操作栏 */}
+      {selectedProducts.size > 0 && !isMobile && (
+        <BatchActionBar
+          selectedCount={selectedProducts.size}
+          onPublish={() => handleOpenBatchAction("publish")}
+          onUnpublish={() => handleOpenBatchAction("unpublish")}
+          onDelete={() => handleOpenBatchAction("delete")}
+          onClear={() => setSelectedProducts(new Set())}
+          isZh={isZh}
+        />
+      )}
     </div>
   )
 }

@@ -7,19 +7,19 @@ import redis from "@/lib/redis"
 
 const DEFAULT_TTL = 300
 
-// 缓存键常量
+// 缓存键常量（使用 "solo:" 前缀避免与其他系统冲突）
 export const CACHE_KEYS = {
-  FEATURED_PRODUCTS: "cache:get:products:featured",
-  CATEGORY_PRODUCTS: (id: string) => `cache:get:products:category:${id}`,
-  PRODUCT: (id: string) => `cache:get:product:${id}`,
-  TRENDING_SEARCHES: "cache:get:search:trending",
-  CART: (userId: string) => `cache:get:cart:${userId}`,
-  ADMIN_DASHBOARD: () => "cache:admin:dashboard",
-  PRODUCT_LIST: (params: string) => `cache:product:list:${params}`,
-  CUSTOMER_LIST: () => "cache:customer:list",
-  ADMIN_PERMISSIONS: (adminId: string) => `admin:permissions:${adminId}`,
-  ROLE_PERMISSIONS: (roleId: string) => `role:permissions:${roleId}`,
-  ALL_PERMISSIONS: "permissions:all",
+  FEATURED_PRODUCTS: "solo:products:featured",
+  CATEGORY_PRODUCTS: (id: string) => `solo:products:category:${id}`,
+  PRODUCT: (id: string) => `solo:products:${id}`,
+  TRENDING_SEARCHES: "solo:search:trending",
+  CART: (userId: string) => `solo:cart:${userId}`,
+  ADMIN_DASHBOARD: () => "solo:admin:dashboard",
+  PRODUCT_LIST: (params: string) => `solo:products:list:${params}`,
+  CUSTOMER_LIST: () => "solo:admin:customers",
+  ADMIN_PERMISSIONS: (adminId: string) => `solo:admin:permissions:${adminId}`,
+  ROLE_PERMISSIONS: (roleId: string) => `solo:admin:role:${roleId}`,
+  ALL_PERMISSIONS: "solo:admin:permissions:all",
 } as const
 
 // 缓存 TTL 常量

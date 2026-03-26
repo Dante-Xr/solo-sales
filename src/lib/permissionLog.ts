@@ -1,6 +1,6 @@
 /**
  * ============================================
- * 权限变更日志模块 (v0.5.0)
+ * 权限变更日志模块 (v0.5.9)
  * ============================================
  * 功能说明：
  *   - 记录权限变更日志
@@ -10,10 +10,9 @@
  * ============================================
  */
 
-import { PrismaClient, LogAction, TargetType } from "@prisma/client"
+import { LogAction, TargetType } from "@prisma/client"
 import { NextRequest } from "next/server"
-
-const prisma = new PrismaClient()
+import { prisma } from "./prisma"
 
 export interface LogEntry {
   action: LogAction

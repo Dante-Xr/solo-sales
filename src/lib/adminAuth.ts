@@ -1,6 +1,6 @@
 /**
  * ============================================
- * 管理员权限校验核心库 (v0.5.0)
+ * 管理员权限校验核心库 (v0.5.9)
  * ============================================
  * 功能说明：
  *   - 验证管理员 Token
@@ -12,10 +12,8 @@
  */
 
 import { NextRequest, NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
-import { cacheGet, cacheSet, cacheDel, cacheDelPattern } from "./cache"
-
-const prisma = new PrismaClient()
+import { prisma } from "./prisma"
+import { cacheGet, cacheSet, cacheDel, cacheDelPattern, CACHE_KEYS } from "./cache"
 
 const ADMIN_COOKIE_NAME = "admin_token"
 
@@ -109,7 +107,7 @@ export async function verifyAdminToken(request: NextRequest): Promise<AdminInfo 
 }
 
 export async function getAdminPermissions(adminId: string): Promise<string[]> {
-  const cacheKey = `admin:permissions:${adminId}`
+  const cacheKey = CACHE_KEYS.ADMIN_PERMISSIONS(adminId)
 
   const cached = await cacheGet<string[]>(cacheKey)
   if (cached) {
@@ -189,12 +187,12 @@ export async function hasAllPermissions(
 }
 
 export async function invalidatePermissionCache(adminId: string): Promise<void> {
-  const cacheKey = `admin:permissions:${adminId}`
+  const cacheKey = CACHE_KEYS.ADMIN_PERMISSIONS(adminId)
   await cacheDel(cacheKey)
 }
 
 export async function invalidateRoleCache(roleId: string): Promise<void> {
-  const cacheKey = `role:permissions:${roleId}`
+  const cacheKey = CACHE_KEYS.ROLE_PERMISSIONS(roleId)
   await cacheDel(cacheKey)
 
   const admins = await prisma.adminUser.findMany({
@@ -206,9 +204,9 @@ export async function invalidateRoleCache(roleId: string): Promise<void> {
 }
 
 export async function invalidateAllPermissionsCache(): Promise<void> {
-  await cacheDel("permissions:all")
-  await cacheDelPattern("admin:permissions:*")
-  await cacheDelPattern("role:permissions:*")
+  await cacheDel(CACHE_KEYS.ALL_PERMISSIONS)
+  await cacheDelPattern("solo:admin:permissions:*")
+  await cacheDelPattern("solo:admin:role:*")
 }
 
 export type AuthenticatedHandler<T = unknown> = (
