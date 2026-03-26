@@ -65,7 +65,7 @@ function generateChartData(orders: { createdAt: Date; totalAmount: number }[]): 
       date: dateStr,
       sales: dayOrders.length,
       orders: dayOrders.length,
-      revenue: dayOrders.reduce((sum, o) => sum + o.totalAmount, 0),
+      revenue: dayOrders.reduce((sum, o) => sum + Number(o.totalAmount), 0),
     })
   }
 
@@ -108,7 +108,7 @@ export async function GET() {
     ])
 
     // 计算统计数据
-    const totalRevenue = orders.reduce((sum, o) => sum + o.totalAmount, 0)
+    const totalRevenue = orders.reduce((sum, o) => sum + Number(o.totalAmount), 0)
     const totalOrders = orders.length
     const activeProducts = products
     const activeUsers = users
