@@ -114,7 +114,12 @@ export async function GET() {
     const activeUsers = users
 
     // 生成图表数据
-    const chartData = generateChartData(orders)
+    const ordersForChart = orders.map((o) => ({
+      createdAt: o.createdAt,
+      totalAmount: Number(o.totalAmount),
+      status: o.status,
+    }))
+    const chartData = generateChartData(ordersForChart)
 
     // 构建结果
     const result: DashboardData = {
