@@ -20,6 +20,13 @@ export const CACHE_KEYS = {
   ADMIN_PERMISSIONS: (adminId: string) => `solo:admin:permissions:${adminId}`,
   ROLE_PERMISSIONS: (roleId: string) => `solo:admin:role:${roleId}`,
   ALL_PERMISSIONS: "solo:admin:permissions:all",
+  CONVERSATION: (sessionId: string) => `solo:conversation:${sessionId}`,
+  RAG_KNOWLEDGE: "solo:rag:knowledge",
+  ANALYTICS_SALES_OVERVIEW: "solo:analytics:sales:overview",
+  ANALYTICS_SALES_TRENDS: "solo:analytics:sales:trends",
+  ANALYTICS_CUSTOMER: "solo:analytics:customer",
+  ANALYTICS_PRODUCT: "solo:analytics:product",
+  ANALYTICS_INVENTORY: "solo:analytics:inventory",
 } as const
 
 // 缓存 TTL 常量

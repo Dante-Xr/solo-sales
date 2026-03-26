@@ -32,6 +32,7 @@ model User {
   messages      Message[]
   reviews       Review[]
   customerPoints CustomerPoints?
+  affiliate     Affiliate?
 }
 
 enum UserRole {
@@ -66,7 +67,7 @@ model Product {
 
   orderItems  OrderItem[]
   reviews     Review[]
-  stockAlert  StockAlert?
+  bundleItems BundleItem[]
 
   // v0.4.3 添加数据库索引 - 优化高频查询性能
   @@index([categoryId])          // 按分类查商品
@@ -91,6 +92,7 @@ model Order {
   items       OrderItem[]
   payments    Payment[]
   couponUsages CouponUsage[]
+  currency    OrderCurrency?
 
   // v0.4.3 添加数据库索引 - 优化订单查询性能
   @@index([userId])              // 按用户查订单
@@ -224,6 +226,114 @@ model KnowledgeHistory {
 
   // 关联知识条目
   knowledge   KnowledgeBase @relation(fields: [knowledgeId], references: [id])
+}
+
+// ============================================
+// 智能客服 RAG 模块 (v0.6.0)
+// ============================================
+
+// RAG 对话会话模型
+model Conversation {
+  id            String            @id @default(cuid())
+  userId        String?           // 用户 ID（可为空）
+  userEmail     String?           // 用户邮箱
+  status        ConversationStatus @default(ACTIVE) // 会话状态
+  currentIntent String?           // 当前意图
+  rating        SatisfactionRating? // 用户满意度
+  feedbackComment String?         // 用户反馈
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  // 关联消息
+  messages      ChatMessage[]
+}
+
+// 会话状态枚举
+enum ConversationStatus {
+  ACTIVE    // 进行中
+  COMPLETED // 已完成
+  EXPIRED   // 已过期
+  ESCALATED // 已转人工
+}
+
+// 满意度枚举
+enum SatisfactionRating {
+  SATISFIED    // 满意
+  NEUTRAL      // 一般
+  DISSATISFIED // 不满意
+}
+
+// RAG 聊天消息模型
+model ChatMessage {
+  id            String   @id @default(cuid())
+  conversationId String   // 关联的会话 ID
+  role          MessageRole // 角色：用户/助手/系统
+  content       String   @db.Text // 消息内容
+  intent        String?  // 识别的意图
+  confidence    Float?   // 置信度
+  createdAt     DateTime @default(now())
+
+  // 关联会话
+  conversation  Conversation @relation(fields: [conversationId], references: [id])
+
+  @@index([conversationId])
+  @@index([createdAt])
+}
+
+// 消息角色枚举
+enum MessageRole {
+  USER     // 用户
+  ASSISTANT // 助手
+  SYSTEM  // 系统
+}
+
+// ============================================
+// 数据分析报表模块 (v0.6.0)
+// ============================================
+
+// 每日数据快照模型
+model DailySnapshot {
+  id                String   @id @default(cuid())
+  date              DateTime @db.Date // 日期（不含时间）
+  totalRevenue      Decimal  @db.Decimal(12, 2) @default(0) // 总收入
+  totalOrders      Int      @default(0) // 总订单数
+  totalVisitors    Int      @default(0) // 访问人数
+  newCustomers     Int      @default(0) // 新客户数
+  returningCustomers Int    @default(0) // 回头客数
+  avgOrderValue    Decimal  @db.Decimal(10, 2) @default(0) // 平均订单金额
+  conversionRate   Decimal  @db.Decimal(5, 4) @default(0) // 转化率
+  topProducts      Json?    // 热销商品 [{"productId": "x", "count": 10}]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([date])
+  @@index([date])
+}
+
+// 报表定时任务模型
+model ReportSchedule {
+  id          String     @id @default(cuid())
+  name        String     // 任务名称
+  type        ReportType // 报表类型
+  cron        String     // cron 表达式
+  recipients  String[]   // 邮件接收者列表
+  isActive    Boolean    @default(true) // 是否启用
+  lastRun     DateTime?  // 上次运行时间
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([isActive])
+  @@index([type])
+}
+
+// 报表类型枚举
+enum ReportType {
+  DAILY_SALES        // 日销售报表
+  WEEKLY_SALES       // 周销售报表
+  MONTHLY_SALES      // 月销售报表
+  INVENTORY          // 库存报表
+  CUSTOMER_ANALYSIS  // 客户分析报表
+  PRODUCT_PERFORMANCE // 商品表现报表
 }
 
 // ============================================
@@ -572,23 +682,376 @@ model AbandonedCart {
 }
 
 // ============================================
-// 库存预警模块 (v0.5.8)
+// 多币种支持模块 (v0.6.0 P1)
 // ============================================
 
-// 库存预警配置模型
-model StockAlert {
-  id          String   @id @default(cuid())
-  productId   String   @unique
-  threshold   Int      @default(10)  // 预警阈值
-  isEnabled   Boolean  @default(true)
-  notifyEmails String[] // 通知邮箱列表
-  lastAlertAt DateTime?
+// 货币配置模型
+model Currency {
+  code      String   @id // ISO 4217 代码 (USD, EUR, GBP, JPY)
+  name      String   // 货币名称
+  symbol    String   // 货币符号 ($ , € , £ , ¥)
+  decimals  Int      @default(2) // 小数位数
+  isDefault Boolean  @default(false) // 是否为默认货币
+  isActive  Boolean  @default(true) // 是否启用
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  product     Product  @relation(fields: [productId], references: [id])
-
-  @@index([productId])
-  @@index([isEnabled])
+  exchangeRates ExchangeRate[]
 }
+
+// 汇率记录模型
+model ExchangeRate {
+  id          String   @id @default(cuid())
+  baseCurrency String   // 基准货币代码
+  targetCurrency String // 目标货币代码
+  rate        Decimal  @db.Decimal(12, 6) // 汇率（基准货币 : 目标货币）
+  fetchedAt   DateTime @default(now()) // 汇率获取时间
+  expiresAt   DateTime // 汇率过期时间
+  source      String   @default("exchangerate-api.com") // 汇率数据源
+
+  currency    Currency @relation(fields: [baseCurrency], references: [code])
+
+  @@unique([baseCurrency, targetCurrency])
+  @@index([baseCurrency])
+  @@index([targetCurrency])
+  @@index([expiresAt])
+}
+
+// 订单多币种记录（用于追踪原始币种和转换后金额）
+model OrderCurrency {
+  id                String   @id @default(cuid())
+  orderId           String   @unique
+  baseCurrency      String   @default("USD") // 订单原始币种
+  displayCurrency   String   @default("USD") // 显示币种
+  exchangeRate      Decimal  @db.Decimal(12, 6) @default(1) // 结算时的汇率
+  baseAmount        Decimal  @db.Decimal(10, 2) // 原始金额
+  displayAmount     Decimal  @db.Decimal(10, 2) // 转换后显示金额
+
+  order             Order    @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
+}
+
+// ============================================
+// 自动化营销序列模块 (v0.6.0 P1)
+// ============================================
+
+// 触发器类型枚举
+enum TriggerType {
+  ORDER_PLACED      // 订单创建
+  ORDER_PAID        // 订单支付
+  ORDER_SHIPPED     // 订单发货
+  ORDER_DELIVERED   // 订单送达
+  CART_ABANDONED    // 购物车废弃
+  PRODUCT_VIEWED    // 商品浏览
+  CUSTOMER_INACTIVE // 客户沉睡
+  BIRTHDAY         // 生日
+  FIRST_PURCHASE   // 首次购买
+  MEMBERSHIP_TIER  // 会员等级变更
+}
+
+// 序列状态枚举
+enum SequenceStatus {
+  DRAFT     // 草稿
+  ACTIVE    // 启用
+  PAUSED    // 暂停
+  COMPLETED // 已完成
+}
+
+// 邮件序列模型
+model EmailSequence {
+  id          String         @id @default(cuid())
+  name        String         // 序列名称
+  description String?        // 描述
+  trigger     TriggerType    // 触发器类型
+  status      SequenceStatus @default(DRAFT)
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  steps       EmailSequenceStep[]
+  enrollments EmailSequenceEnrollment[]
+
+  @@index([trigger])
+  @@index([status])
+  @@index([isActive])
+}
+
+// 邮件序列步骤模型
+model EmailSequenceStep {
+  id            String   @id @default(cuid())
+  sequenceId    String
+  name          String   // 步骤名称
+  order         Int      // 执行顺序
+  templateId    String   // 邮件模板 ID
+  delayHours    Int      @default(0) // 延迟时间（小时）
+  condition     Json?   // 触发条件（如：订单金额 > 100）
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sequence      EmailSequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+
+  @@index([sequenceId])
+  @@index([order])
+  @@index([isActive])
+}
+
+// 邮件序列参与记录模型
+model EmailSequenceEnrollment {
+  id            String            @id @default(cuid())
+  sequenceId    String
+  userId        String
+  currentStep   Int               @default(0) // 当前步骤
+  status        EnrollmentStatus @default(ACTIVE)
+  enrolledAt    DateTime          @default(now())
+  completedAt   DateTime?
+  pausedAt      DateTime?
+  lastTriggerAt DateTime?         // 最后触发时间
+  triggerData   Json?             // 触发时的数据（如：订单 ID）
+
+  sequence      EmailSequence @relation(fields: [sequenceId], references: [id])
+
+  @@unique([sequenceId, userId])
+  @@index([sequenceId])
+  @@index([userId])
+  @@index([status])
+}
+
+// 参与状态枚举
+enum EnrollmentStatus {
+  ACTIVE     // 进行中
+  COMPLETED  // 已完成
+  UNENROLLED // 已取消
+  FAILED     // 失败
+  PAUSED     // 已暂停
+}
+
+// 邮件发送日志模型
+model EmailSequenceLog {
+  id            String   @id @default(cuid())
+  sequenceId    String
+  stepId        String
+  userId        String
+  enrollmentId  String
+  email         String
+  status        EmailSendStatus @default(PENDING)
+  sentAt        DateTime?
+  deliveredAt   DateTime?
+  openedAt      DateTime?
+  clickedAt     DateTime?
+  bouncedAt     DateTime?
+  errorMessage  String?
+  createdAt     DateTime @default(now())
+
+  @@index([sequenceId])
+  @@index([userId])
+  @@index([status])
+  @@index([sentAt])
+}
+
+// 邮件发送状态枚举
+enum EmailSendStatus {
+  PENDING   // 待发送
+  SENT      // 已发送
+  DELIVERED // 已送达
+  OPENED    // 已打开
+  CLICKED   // 已点击
+  BOUNCED   // 退回
+  FAILED    // 失败
+}
+
+// ============================================
+// Bundle 套餐销售模块 (v0.6.0 P2)
+// ============================================
+
+// 套餐状态枚举
+enum BundleStatus {
+  DRAFT     // 草稿
+  ACTIVE    // 启用
+  INACTIVE  // 停用
+  ARCHIVED  // 已归档
+}
+
+// 套餐模型
+model Bundle {
+  id            String       @id @default(cuid())
+  name          String       // 套餐名称
+  description   String?      // 套餐描述
+  slug          String       @unique // URL slug
+  status        BundleStatus @default(DRAFT)
+  discountType  DiscountType // 折扣类型
+  discountValue Decimal      @db.Decimal(10, 2) // 折扣值
+  startDate     DateTime?    // 开始日期
+  endDate       DateTime?    // 结束日期
+  maxUsage      Int?         // 最大使用次数
+  usedCount     Int          @default(0)
+  minItems      Int          @default(2) // 最少商品数
+  maxItems      Int?         // 最大商品数
+  isStackable   Boolean      @default(false) // 是否可与其他优惠叠加
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  items         BundleItem[]
+
+  @@index([status])
+  @@index([slug])
+}
+
+// 折扣类型枚举
+enum DiscountType {
+  PERCENTAGE // 百分比折扣
+  FIXED      // 固定金额折扣
+  BUY_X_GET_Y // 买 X 送 Y
+}
+
+// 套餐商品项模型
+model BundleItem {
+  id          String   @id @default(cuid())
+  bundleId    String
+  productId   String
+  quantity    Int      @default(1) // 套餐中该商品的数量
+  isRequired  Boolean  @default(true) // 是否必选
+  bonusQuantity Int    @default(0) // 赠送数量
+
+  bundle      Bundle  @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  product     Product @relation(fields: [productId], references: [id])
+
+  @@unique([bundleId, productId])
+  @@index([bundleId])
+  @@index([productId])
+}
+
+// 套餐订单记录模型
+model BundleOrder {
+  id            String   @id @default(cuid())
+  bundleId      String
+  orderId       String
+  discount      Decimal  @db.Decimal(10, 2) // 实际折扣金额
+  createdAt     DateTime @default(now())
+
+  @@unique([bundleId, orderId])
+  @@index([bundleId])
+  @@index([orderId])
+}
+
+// ============================================
+// 联盟分销系统模块 (v0.6.0 P2)
+// ============================================
+
+// 分销商状态枚举
+enum AffiliateStatus {
+  PENDING   // 待审核
+  ACTIVE    // 启用
+  SUSPENDED // 暂停
+  REJECTED  // 已拒绝
+}
+
+// 分销商模型
+model Affiliate {
+  id            String          @id @default(cuid())
+  userId        String          @unique
+  status        AffiliateStatus @default(PENDING)
+  commissionRate Decimal        @db.Decimal(5, 2) @default(10) // 佣金比例 %
+  balance       Decimal         @db.Decimal(12, 2) @default(0) // 可用余额
+  totalEarned   Decimal         @db.Decimal(12, 2) @default(0) // 累计收益
+  totalPaid     Decimal         @db.Decimal(12, 2) @default(0) // 已支付
+  payoutMethod  String?         // 支付方式
+  payoutInfo    Json?           // 支付信息详情
+  approvedAt    DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  user          User    @relation(fields: [userId], references: [id])
+  links         AffiliateLink[]
+  commissions   AffiliateCommission[]
+  payouts       AffiliatePayout[]
+
+  @@index([status])
+  @@index([userId])
+}
+
+// 分销链接模型
+model AffiliateLink {
+  id          String   @id @default(cuid())
+  affiliateId String
+  code        String   @unique // 分销码
+  productId   String?  // 可指定商品
+  campaign    String?  // 活动名称
+  clicks      Int      @default(0)
+  conversions Int      @default(0)
+  createdAt   DateTime @default(now())
+  expiresAt  DateTime?
+
+  affiliate   Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+
+  commissions AffiliateCommission[]
+
+  @@index([affiliateId])
+  @@index([code])
+}
+
+// 佣金记录模型
+model AffiliateCommission {
+  id            String            @id @default(cuid())
+  affiliateId   String
+  linkId        String
+  orderId       String
+  userId        String
+  amount        Decimal           @db.Decimal(12, 2) // 订单金额
+  commission    Decimal           @db.Decimal(12, 2) // 佣金金额
+  rate          Decimal           @db.Decimal(5, 2)  // 佣金比例
+  status        CommissionStatus   @default(PENDING)
+  paidAt        DateTime?
+  createdAt     DateTime          @default(now())
+
+  affiliate     Affiliate         @relation(fields: [affiliateId], references: [id])
+  link          AffiliateLink     @relation(fields: [linkId], references: [id])
+
+  @@index([affiliateId])
+  @@index([orderId])
+  @@index([status])
+}
+
+// 佣金状态枚举
+enum CommissionStatus {
+  PENDING   // 待确认
+  APPROVED  // 已确认
+  PAID      // 已支付
+  CANCELLED // 已取消
+  REJECTED  // 已拒绝
+}
+
+// 佣金提现模型
+model AffiliatePayout {
+  id          String         @id @default(cuid())
+  affiliateId String
+  amount      Decimal        @db.Decimal(12, 2)
+  method      String         // 支付方式
+  status      PayoutStatus   @default(PENDING)
+  transactionId String?       // 外部交易号
+  notes       String?
+  processedAt DateTime?
+  createdAt   DateTime       @default(now())
+
+  affiliate   Affiliate      @relation(fields: [affiliateId], references: [id])
+
+  @@index([affiliateId])
+  @@index([status])
+}
+
+// 提现状态枚举
+enum PayoutStatus {
+  PENDING   // 待处理
+  PROCESSING // 处理中
+  COMPLETED // 已完成
+  FAILED    // 失败
+  CANCELLED // 已取消
+}
+
+// ============================================
+// 库存预警日志模块 (v0.5.8)
+// ============================================
 
 // 库存预警日志模型
 model StockAlertLog {
