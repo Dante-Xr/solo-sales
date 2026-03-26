@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ results })
   } catch (error) {
-    safeErrorLog(error, 'Failed to process trigger')
+    safeErrorLog(Failed to process trigger, error)
     return NextResponse.json(
       { error: 'Failed to process trigger' },
       { status: 500 }

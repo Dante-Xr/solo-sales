@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ sequences })
   } catch (error) {
-    safeErrorLog(error, 'Failed to get sequences')
+    safeErrorLog(Failed to get sequences, error)
     return NextResponse.json(
       { error: 'Failed to get sequences' },
       { status: 500 }
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ sequence }, { status: 201 })
   } catch (error) {
-    safeErrorLog(error, 'Failed to create sequence')
+    safeErrorLog(Failed to create sequence, error)
     return NextResponse.json(
       { error: 'Failed to create sequence' },
       { status: 500 }

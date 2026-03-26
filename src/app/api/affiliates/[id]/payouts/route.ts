@@ -15,7 +15,7 @@ export async function GET(
 
     return NextResponse.json({ payouts })
   } catch (error) {
-    safeErrorLog(error, 'Failed to get payouts')
+    safeErrorLog('Failed to get payouts', error)
     return NextResponse.json(
       { error: 'Failed to get payouts' },
       { status: 500 }
@@ -48,7 +48,7 @@ export async function POST(
 
     return NextResponse.json({ payout }, { status: 201 })
   } catch (error) {
-    safeErrorLog(error, 'Failed to request payout')
+    safeErrorLog('Failed to request payout', error)
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to request payout' },
       { status: 500 }

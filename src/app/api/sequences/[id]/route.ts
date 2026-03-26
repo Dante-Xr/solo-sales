@@ -24,7 +24,7 @@ export async function GET(
 
     return NextResponse.json({ sequence, stats })
   } catch (error) {
-    safeErrorLog(error, 'Failed to get sequence')
+    safeErrorLog('Failed to get sequence', error)
     return NextResponse.json(
       { error: 'Failed to get sequence' },
       { status: 500 }
@@ -44,7 +44,7 @@ export async function PUT(
 
     return NextResponse.json({ sequence })
   } catch (error) {
-    safeErrorLog(error, 'Failed to update sequence')
+    safeErrorLog('Failed to update sequence', error)
     return NextResponse.json(
       { error: 'Failed to update sequence' },
       { status: 500 }
@@ -62,7 +62,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    safeErrorLog(error, 'Failed to delete sequence')
+    safeErrorLog('Failed to delete sequence', error)
     return NextResponse.json(
       { error: 'Failed to delete sequence' },
       { status: 500 }

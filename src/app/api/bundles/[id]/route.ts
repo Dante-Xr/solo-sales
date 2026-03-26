@@ -19,7 +19,7 @@ export async function GET(
 
     return NextResponse.json({ bundle })
   } catch (error) {
-    safeErrorLog(error, 'Failed to get bundle')
+    safeErrorLog('Failed to get bundle', error)
     return NextResponse.json(
       { error: 'Failed to get bundle' },
       { status: 500 }
@@ -39,7 +39,7 @@ export async function PUT(
 
     return NextResponse.json({ bundle })
   } catch (error) {
-    safeErrorLog(error, 'Failed to update bundle')
+    safeErrorLog('Failed to update bundle', error)
     return NextResponse.json(
       { error: 'Failed to update bundle' },
       { status: 500 }
@@ -57,7 +57,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    safeErrorLog(error, 'Failed to delete bundle')
+    safeErrorLog('Failed to delete bundle', error)
     return NextResponse.json(
       { error: 'Failed to delete bundle' },
       { status: 500 }

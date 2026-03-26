@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    safeErrorLog(error, 'Failed to record conversion')
+    safeErrorLog(Failed to record conversion, error)
     return NextResponse.json(
       { error: 'Failed to record conversion' },
       { status: 500 }

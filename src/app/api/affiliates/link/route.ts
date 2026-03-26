@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ link })
   } catch (error) {
-    safeErrorLog(error, 'Failed to get affiliate link by code')
+    safeErrorLog(Failed to get affiliate link by code, error)
     return NextResponse.json(
       { error: 'Failed to get affiliate link' },
       { status: 500 }

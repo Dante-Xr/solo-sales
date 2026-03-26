@@ -49,7 +49,7 @@ export async function POST(
       totalOriginal: itemsWithPrices.reduce((sum, item) => sum + item.price * item.quantity, 0)
     })
   } catch (error) {
-    safeErrorLog(error, 'Failed to validate bundle for order')
+    safeErrorLog('Failed to validate bundle for order', error)
     return NextResponse.json(
       { error: 'Failed to validate bundle' },
       { status: 500 }

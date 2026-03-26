@@ -15,7 +15,7 @@ export async function GET(
 
     return NextResponse.json({ links })
   } catch (error) {
-    safeErrorLog(error, 'Failed to get affiliate links')
+    safeErrorLog('Failed to get affiliate links', error)
     return NextResponse.json(
       { error: 'Failed to get affiliate links' },
       { status: 500 }
@@ -41,7 +41,7 @@ export async function POST(
 
     return NextResponse.json({ link }, { status: 201 })
   } catch (error) {
-    safeErrorLog(error, 'Failed to create affiliate link')
+    safeErrorLog('Failed to create affiliate link', error)
     return NextResponse.json(
       { error: 'Failed to create affiliate link' },
       { status: 500 }

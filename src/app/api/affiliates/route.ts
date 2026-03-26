@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ affiliates })
   } catch (error) {
-    safeErrorLog(error, 'Failed to get affiliates')
+    safeErrorLog(Failed to get affiliates, error)
     return NextResponse.json(
       { error: 'Failed to get affiliates' },
       { status: 500 }
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ affiliate }, { status: 201 })
   } catch (error) {
-    safeErrorLog(error, 'Failed to create affiliate')
+    safeErrorLog(Failed to create affiliate, error)
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to create affiliate' },
       { status: 500 }

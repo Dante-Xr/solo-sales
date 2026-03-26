@@ -22,7 +22,7 @@ export async function GET(
 
     return NextResponse.json({ affiliate, stats })
   } catch (error) {
-    safeErrorLog(error, 'Failed to get affiliate')
+    safeErrorLog('Failed to get affiliate', error)
     return NextResponse.json(
       { error: 'Failed to get affiliate' },
       { status: 500 }
@@ -54,7 +54,7 @@ export async function PUT(
 
     return NextResponse.json({ affiliate })
   } catch (error) {
-    safeErrorLog(error, 'Failed to update affiliate')
+    safeErrorLog('Failed to update affiliate', error)
     return NextResponse.json(
       { error: 'Failed to update affiliate' },
       { status: 500 }

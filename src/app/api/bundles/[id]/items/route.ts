@@ -31,7 +31,7 @@ export async function POST(
 
     return NextResponse.json({ bundle })
   } catch (error) {
-    safeErrorLog(error, 'Failed to add bundle item')
+    safeErrorLog('Failed to add bundle item', error)
     return NextResponse.json(
       { error: 'Failed to add bundle item' },
       { status: 500 }
@@ -59,7 +59,7 @@ export async function DELETE(
 
     return NextResponse.json({ bundle })
   } catch (error) {
-    safeErrorLog(error, 'Failed to remove bundle item')
+    safeErrorLog('Failed to remove bundle item', error)
     return NextResponse.json(
       { error: 'Failed to remove bundle item' },
       { status: 500 }

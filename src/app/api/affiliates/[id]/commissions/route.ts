@@ -21,7 +21,7 @@ export async function GET(
 
     return NextResponse.json({ commissions })
   } catch (error) {
-    safeErrorLog(error, 'Failed to get commissions')
+    safeErrorLog('Failed to get commissions', error)
     return NextResponse.json(
       { error: 'Failed to get commissions' },
       { status: 500 }

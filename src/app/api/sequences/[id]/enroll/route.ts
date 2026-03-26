@@ -32,7 +32,7 @@ export async function POST(
 
     return NextResponse.json({ enrollment }, { status: 201 })
   } catch (error) {
-    safeErrorLog(error, 'Failed to enroll user')
+    safeErrorLog('Failed to enroll user', error)
     return NextResponse.json(
       { error: 'Failed to enroll user' },
       { status: 500 }
@@ -60,7 +60,7 @@ export async function DELETE(
 
     return NextResponse.json({ enrollment })
   } catch (error) {
-    safeErrorLog(error, 'Failed to unenroll user')
+    safeErrorLog('Failed to unenroll user', error)
     return NextResponse.json(
       { error: 'Failed to unenroll user' },
       { status: 500 }
@@ -99,7 +99,7 @@ export async function PATCH(
 
     return NextResponse.json({ enrollment })
   } catch (error) {
-    safeErrorLog(error, 'Failed to update enrollment')
+    safeErrorLog('Failed to update enrollment', error)
     return NextResponse.json(
       { error: 'Failed to update enrollment' },
       { status: 500 }
