@@ -132,7 +132,7 @@ export async function GET() {
         id: o.id,
         customerName: o.user?.name || "匿名",
         customerEmail: o.user?.email || "",
-        totalAmount: o.totalAmount,
+        totalAmount: Number(o.totalAmount),
         status: o.status,
         createdAt: o.createdAt.toISOString(),
       })),
