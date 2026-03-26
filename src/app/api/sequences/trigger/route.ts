@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import prisma from '@/lib/prisma'
+import { prisma } from '@/lib/prisma'
 import EmailSequenceEngine from '@/lib/marketing/EmailSequenceEngine'
 import { TriggerType } from '@prisma/client'
 import { safeErrorLog } from '@/lib/safeLog'

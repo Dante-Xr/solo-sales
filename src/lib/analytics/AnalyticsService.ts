@@ -415,7 +415,7 @@ export class AnalyticsService {
     const totalProducts = await prisma.product.count()
     const inStock = await prisma.product.count({ where: { stock: { gt: 10 } } })
     const lowStock = await prisma.product.count({ where: { stock: { gt: 0, lte: 10 } } })
-    const outOfStock = await prisma.product.count({ where: { stock: 0 } } })
+    const outOfStock = await prisma.product.count({ where: { stock: 0 } })
 
     const products = await prisma.product.findMany({
       where: { stock: { gt: 0 } },

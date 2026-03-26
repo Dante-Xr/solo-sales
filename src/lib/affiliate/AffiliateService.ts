@@ -4,7 +4,7 @@ import {
   CommissionStatus,
   PayoutStatus
 } from '@prisma/client'
-import { getCache, setCache, deleteCache } from '../cache'
+import { cacheGet, cacheSet, cacheDel } from '../cache'
 import {
   AffiliateData,
   AffiliateLinkData,
@@ -228,7 +228,7 @@ class AffiliateService {
 
   async getAffiliateStats(affiliateId: string): Promise<AffiliateStats> {
     const cacheKey = `solo:affiliate:stats:${affiliateId}`
-    const cached = await getCache(cacheKey)
+    const cached = await cacheGet(cacheKey)
 
     if (cached) {
       return JSON.parse(cached)
@@ -264,7 +264,7 @@ class AffiliateService {
       totalEarned: pendingCommission + approvedCommission + paidCommission
     }
 
-    await setCache(cacheKey, JSON.stringify(stats), CACHE_TTL)
+    await cacheSet(cacheKey, JSON.stringify(stats), CACHE_TTL)
     return stats
   }
 
@@ -295,7 +295,7 @@ class AffiliateService {
       data: { balance: { decrement: data.amount } }
     })
 
-    await deleteCache(`solo:affiliate:stats:${data.affiliateId}`)
+    await cacheDel(`solo:affiliate:stats:${data.affiliateId}`)
 
     return this.mapPayoutData(payout)
   }
@@ -339,7 +339,7 @@ class AffiliateService {
         data: { status: CommissionStatus.PAID, paidAt: new Date() }
       })
 
-      await deleteCache(`solo:affiliate:stats:${payout.affiliateId}`)
+      await cacheDel(`solo:affiliate:stats:${payout.affiliateId}`)
     }
 
     return this.mapPayoutData(payout)
@@ -362,7 +362,7 @@ class AffiliateService {
       })
     }
 
-    await deleteCache(`solo:affiliate:stats:${commission.affiliateId}`)
+    await cacheDel(`solo:affiliate:stats:${commission.affiliateId}`)
 
     return this.mapCommissionData(commission)
   }

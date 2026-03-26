@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import prisma from '@/lib/prisma'
+import { prisma } from '@/lib/prisma'
 import CurrencyService from '@/lib/currency/CurrencyService'
 import { safeErrorLog } from '@/lib/safeLog'
 

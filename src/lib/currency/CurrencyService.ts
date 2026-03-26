@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import { getCache, setCache, deleteCache } from '../cache'
+import { cacheGet, cacheSet, cacheDel } from '../cache'
 import {
   CurrencyInfo,
   ConvertedPrice,
@@ -21,7 +21,7 @@ class CurrencyService {
 
   async getSupportedCurrencies(): Promise<CurrencyInfo[]> {
     const cacheKey = `${RATES_CACHE_KEY}:supported`
-    const cached = await getCache(cacheKey)
+    const cached = await cacheGet(cacheKey)
 
     if (cached) {
       return JSON.parse(cached)
@@ -41,7 +41,7 @@ class CurrencyService {
       isActive: c.isActive
     }))
 
-    await setCache(cacheKey, JSON.stringify(result), 300)
+    await cacheSet(cacheKey, JSON.stringify(result), 300)
     return result
   }
 
@@ -73,7 +73,7 @@ class CurrencyService {
 
   async getExchangeRates(baseCurrency: string = 'USD'): Promise<Record<string, number>> {
     const cacheKey = `${RATES_CACHE_KEY}:${baseCurrency}`
-    const cached = await getCache(cacheKey)
+    const cached = await cacheGet(cacheKey)
 
     if (cached) {
       return JSON.parse(cached)
@@ -98,7 +98,7 @@ class CurrencyService {
       }
     }
 
-    await setCache(cacheKey, JSON.stringify(result), CACHE_TTL)
+    await cacheSet(cacheKey, JSON.stringify(result), CACHE_TTL)
     return result
   }
 
@@ -220,7 +220,7 @@ class CurrencyService {
         }
       }
 
-      await deleteCache(`${RATES_CACHE_KEY}:USD`)
+      await cacheDel(`${RATES_CACHE_KEY}:USD`)
 
       return true
     } catch (error) {

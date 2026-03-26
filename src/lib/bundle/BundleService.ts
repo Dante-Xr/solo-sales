@@ -1,5 +1,5 @@
 import { PrismaClient, DiscountType, BundleStatus } from '@prisma/client'
-import { getCache, setCache, deleteCache } from '../cache'
+import { cacheGet, cacheSet, cacheDel } from '../cache'
 import {
   BundleData,
   BundleItemData,
@@ -23,7 +23,7 @@ class BundleService {
     includeExpired?: boolean
   }): Promise<BundleData[]> {
     const cacheKey = `solo:bundles:list:${JSON.stringify(filters || {})}`
-    const cached = await getCache(cacheKey)
+    const cached = await cacheGet(cacheKey)
 
     if (cached) {
       return JSON.parse(cached)
@@ -58,13 +58,13 @@ class BundleService {
 
     const result = bundles.map(b => this.calculateBundlePricing(b))
 
-    await setCache(cacheKey, JSON.stringify(result), CACHE_TTL)
+    await cacheSet(cacheKey, JSON.stringify(result), CACHE_TTL)
     return result
   }
 
   async getBundleBySlug(slug: string): Promise<BundleData | null> {
     const cacheKey = `solo:bundles:slug:${slug}`
-    const cached = await getCache(cacheKey)
+    const cached = await cacheGet(cacheKey)
 
     if (cached) {
       return JSON.parse(cached)
@@ -87,7 +87,7 @@ class BundleService {
 
     const result = this.calculateBundlePricing(bundle)
 
-    await setCache(cacheKey, JSON.stringify(result), CACHE_TTL)
+    await cacheSet(cacheKey, JSON.stringify(result), CACHE_TTL)
     return result
   }
 
@@ -149,7 +149,7 @@ class BundleService {
       }
     })
 
-    await deleteCache('solo:bundles:list:*')
+    await cacheDel('solo:bundles:list:*')
 
     return this.calculateBundlePricing(bundle)
   }
@@ -174,8 +174,8 @@ class BundleService {
       }
     })
 
-    await deleteCache('solo:bundles:list:*')
-    await deleteCache(`solo:bundles:slug:${bundle.slug}`)
+    await cacheDel('solo:bundles:list:*')
+    await cacheDel(`solo:bundles:slug:${bundle.slug}`)
 
     return this.calculateBundlePricing(bundle)
   }
@@ -196,7 +196,7 @@ class BundleService {
       }
     })
 
-    await deleteCache('solo:bundles:list:*')
+    await cacheDel('solo:bundles:list:*')
 
     const bundle = await this.getBundleById(bundleId)
     if (!bundle) throw new Error('Bundle not found')
@@ -210,7 +210,7 @@ class BundleService {
       }
     })
 
-    await deleteCache('solo:bundles:list:*')
+    await cacheDel('solo:bundles:list:*')
 
     const bundle = await this.getBundleById(bundleId)
     if (!bundle) throw new Error('Bundle not found')
@@ -221,8 +221,8 @@ class BundleService {
     const bundle = await this.prisma.bundle.findUnique({ where: { id } })
     await this.prisma.bundle.delete({ where: { id } })
 
-    await deleteCache('solo:bundles:list:*')
-    if (bundle) await deleteCache(`solo:bundles:slug:${bundle.slug}`)
+    await cacheDel('solo:bundles:list:*')
+    if (bundle) await cacheDel(`solo:bundles:slug:${bundle.slug}`)
   }
 
   async validateBundleForOrder(bundleId: string, selectedItems: Array<{
@@ -336,7 +336,7 @@ class BundleService {
       data: { usedCount: { increment: 1 } }
     })
 
-    await deleteCache('solo:bundles:list:*')
+    await cacheDel('solo:bundles:list:*')
   }
 
   private calculateBundlePricing(bundle: any): BundleData {

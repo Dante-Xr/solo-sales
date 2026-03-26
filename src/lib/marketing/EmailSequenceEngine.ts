@@ -1,5 +1,5 @@
 import { PrismaClient, TriggerType, SequenceStatus, EnrollmentStatus } from '@prisma/client'
-import { getCache, setCache } from '../cache'
+import { cacheGet, cacheSet } from '../cache'
 import { safeErrorLog } from '../safeLog'
 
 const CACHE_TTL = 300
@@ -22,7 +22,7 @@ class EmailSequenceEngine {
     status?: SequenceStatus
   }) {
     const cacheKey = `solo:sequences:list:${JSON.stringify(filters || {})}`
-    const cached = await getCache(cacheKey)
+    const cached = await cacheGet(cacheKey)
 
     if (cached) {
       return JSON.parse(cached)
@@ -52,7 +52,7 @@ class EmailSequenceEngine {
       orderBy: { createdAt: 'desc' }
     })
 
-    await setCache(cacheKey, JSON.stringify(sequences), CACHE_TTL)
+    await cacheSet(cacheKey, JSON.stringify(sequences), CACHE_TTL)
     return sequences
   }
 
