@@ -2,7 +2,8 @@ import {
   PrismaClient,
   AffiliateStatus,
   CommissionStatus,
-  PayoutStatus
+  PayoutStatus,
+  Prisma
 } from '@prisma/client'
 import { cacheGet, cacheSet, cacheDel } from '../cache'
 import {
@@ -81,7 +82,7 @@ class AffiliateService {
         userId: data.userId,
         commissionRate: data.commissionRate ?? 10,
         payoutMethod: data.payoutMethod,
-        payoutInfo: data.payoutInfo,
+        payoutInfo: data.payoutInfo as Prisma.InputJsonValue,
         status: AffiliateStatus.PENDING
       }
     })
@@ -111,7 +112,7 @@ class AffiliateService {
   }): Promise<AffiliateData> {
     const affiliate = await this.prisma.affiliate.update({
       where: { id },
-      data
+      data: data as Prisma.AffiliateUpdateInput
     })
 
     return this.mapAffiliateData(affiliate)
@@ -228,10 +229,10 @@ class AffiliateService {
 
   async getAffiliateStats(affiliateId: string): Promise<AffiliateStats> {
     const cacheKey = `solo:affiliate:stats:${affiliateId}`
-    const cached = await cacheGet(cacheKey)
+    const cached = await cacheGet<AffiliateStats>(cacheKey)
 
     if (cached) {
-      return JSON.parse(cached)
+      return cached
     }
 
     const [links, commissions] = await Promise.all([
@@ -315,7 +316,7 @@ class AffiliateService {
       data: {
         status,
         transactionId,
-        processedAt: [PayoutStatus.COMPLETED, PayoutStatus.FAILED].includes(status) ? new Date() : null
+        processedAt: status === PayoutStatus.COMPLETED || status === PayoutStatus.FAILED ? new Date() : null
       }
     })
 

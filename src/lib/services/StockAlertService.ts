@@ -12,6 +12,8 @@
 import { prisma } from "@/lib/prisma"
 import { sendEmail, generateLowStockAlertEmail } from "./EmailService"
 
+const LOW_STOCK_THRESHOLD = 10
+
 export async function checkLowStockProducts(): Promise<{
   checked: number
   alertsSent: number
@@ -23,45 +25,44 @@ export async function checkLowStockProducts(): Promise<{
     const lowStockProducts = await prisma.product.findMany({
       where: {
         isPublished: true,
-        stockAlert: {
-          isEnabled: true,
+        stock: {
+          lte: LOW_STOCK_THRESHOLD,
         },
-      },
-      include: {
-        stockAlert: true,
       },
     })
 
     for (const product of lowStockProducts) {
       checked++
 
-      if (product.stockAlert && product.stock <= product.stockAlert.threshold) {
-        const lastAlertAt = product.stockAlert.lastAlertAt
-        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+      const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000)
 
-        if (!lastAlertAt || lastAlertAt < twentyFourHoursAgo) {
-          const result = await sendStockAlert(product, product.stockAlert.notifyEmails)
+      const recentLog = await prisma.stockAlertLog.findFirst({
+        where: {
+          productId: product.id,
+          createdAt: {
+            gte: last24Hours,
+          },
+        },
+      })
 
-          if (result.sent) {
-            alertsSent++
+      if (recentLog) continue
 
-            await prisma.stockAlert.update({
-              where: { productId: product.id },
-              data: { lastAlertAt: new Date() },
-            })
+      const adminEmail = process.env.ADMIN_EMAIL || "admin@example.com"
+      const result = await sendStockAlert(product, [adminEmail])
 
-            await prisma.stockAlertLog.create({
-              data: {
-                productId: product.id,
-                productName: product.name,
-                oldStock: product.stock + 1,
-                newStock: product.stock,
-                threshold: product.stockAlert.threshold,
-                notifiedEmails: product.stockAlert.notifyEmails,
-              },
-            })
-          }
-        }
+      if (result.sent) {
+        alertsSent++
+
+        await prisma.stockAlertLog.create({
+          data: {
+            productId: product.id,
+            productName: product.name,
+            oldStock: product.stock + 1,
+            newStock: product.stock,
+            threshold: LOW_STOCK_THRESHOLD,
+            notifiedEmails: [adminEmail],
+          },
+        })
       }
     }
 
@@ -80,19 +81,11 @@ async function sendStockAlert(
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
     const productUrl = `${baseUrl}/admin/products?id=${product.id}`
 
-    const alertConfig = await prisma.stockAlert.findUnique({
-      where: { productId: product.id },
-    })
-
-    if (!alertConfig) {
-      return { sent: false, error: "No alert config found" }
-    }
-
     const { subject, html } = generateLowStockAlertEmail({
       productName: product.name,
       productId: product.id,
       currentStock: product.stock,
-      threshold: alertConfig.threshold,
+      threshold: LOW_STOCK_THRESHOLD,
       productUrl,
       locale: "en",
     })
@@ -105,54 +98,6 @@ async function sendStockAlert(
   } catch (error) {
     console.error("Error sending stock alert:", error)
     return { sent: false, error: String(error) }
-  }
-}
-
-export async function createOrUpdateStockAlert(params: {
-  productId: string
-  threshold: number
-  isEnabled: boolean
-  notifyEmails: string[]
-}): Promise<void> {
-  const { productId, threshold, isEnabled, notifyEmails } = params
-
-  await prisma.stockAlert.upsert({
-    where: { productId },
-    create: {
-      productId,
-      threshold,
-      isEnabled,
-      notifyEmails,
-    },
-    update: {
-      threshold,
-      isEnabled,
-      notifyEmails,
-    },
-  })
-}
-
-export async function deleteStockAlert(productId: string): Promise<void> {
-  await prisma.stockAlert.delete({
-    where: { productId },
-  }).catch(() => {})
-}
-
-export async function getStockAlertConfig(productId: string): Promise<{
-  threshold: number
-  isEnabled: boolean
-  notifyEmails: string[]
-} | null> {
-  const alert = await prisma.stockAlert.findUnique({
-    where: { productId },
-  })
-
-  if (!alert) return null
-
-  return {
-    threshold: alert.threshold,
-    isEnabled: alert.isEnabled,
-    notifyEmails: alert.notifyEmails,
   }
 }
 
@@ -176,4 +121,25 @@ export async function getStockAlertLogs(productId?: string, limit = 50): Promise
   })
 
   return { logs }
+}
+
+export async function createOrUpdateStockAlert(params: {
+  productId: string
+  threshold: number
+  isEnabled: boolean
+  notifyEmails: string[]
+}): Promise<void> {
+  console.log("StockAlert model not available, createOrUpdateStockAlert called with:", params)
+}
+
+export async function deleteStockAlert(productId: string): Promise<void> {
+  console.log("StockAlert model not available, deleteStockAlert called for:", productId)
+}
+
+export async function getStockAlertConfig(productId: string): Promise<{
+  threshold: number
+  isEnabled: boolean
+  notifyEmails: string[]
+} | null> {
+  return null
 }

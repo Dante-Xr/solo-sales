@@ -46,19 +46,16 @@ export async function checkAbandonedCarts(): Promise<{
           lt: oneHourAgo,
         },
       },
-      include: {
-        // No relations needed, cartData is stored as JSON
-      },
     })
 
     for (const cart of abandonedCarts) {
       processed++
 
       if (cart.status === "PENDING") {
-        const result = await sendAbandonedCartEmail(cart.id, cart.userEmail, cart.cartData as CartItem[], cart.locale)
+        const result = await sendAbandonedCartEmail(cart.id, cart.userEmail, cart.cartData as unknown as CartItem[], cart.locale)
         if (result.sent) emailsSent++
       } else if (cart.status === "SENT" && cart.lastEmailAt && cart.lastEmailAt < twentyFourHoursAgo) {
-        const result = await sendSecondEmail(cart.id, cart.userEmail, cart.cartData as CartItem[], cart.locale)
+        const result = await sendSecondEmail(cart.id, cart.userEmail, cart.cartData as unknown as CartItem[], cart.locale)
         if (result.sent) emailsSent++
       }
     }

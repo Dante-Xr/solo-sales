@@ -84,12 +84,12 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    if (coupon.minAmount && cartTotal < coupon.minAmount) {
+    if (coupon.minAmount && cartTotal < Number(coupon.minAmount)) {
       return NextResponse.json({
         success: true,
         data: {
           valid: false,
-          error: `订单金额需满 ¥${coupon.minAmount} 才能使用此优惠券`,
+          error: `订单金额需满 ¥${Number(coupon.minAmount)} 才能使用此优惠券`,
         },
       })
     }
@@ -113,12 +113,12 @@ export async function POST(request: NextRequest) {
 
     let discount = 0
     if (coupon.type === "PERCENTAGE") {
-      discount = (cartTotal * coupon.value) / 100
+      discount = (cartTotal * Number(coupon.value)) / 100
       if (coupon.maxDiscount) {
-        discount = Math.min(discount, coupon.maxDiscount)
+        discount = Math.min(discount, Number(coupon.maxDiscount))
       }
     } else {
-      discount = coupon.value
+      discount = Number(coupon.value)
     }
 
     discount = Math.min(discount, cartTotal)
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
           code: coupon.code,
           name: coupon.name,
           type: coupon.type,
-          value: coupon.value,
+          value: Number(coupon.value),
         },
       },
     })

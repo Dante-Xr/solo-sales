@@ -27,13 +27,12 @@ export class RAGService {
     const k = topK || this.config.topK
 
     // 并行检索多个来源
-    const [knowledgeResults, faqResults] = await Promise.all([
-      this.searchKnowledge(query, k),
-      this.searchFAQ(query, k)
+    const [knowledgeResults] = await Promise.all([
+      this.searchKnowledge(query, k)
     ])
 
     // 合并结果并排序
-    const allResults = [...knowledgeResults, ...faqResults]
+    const allResults = [...knowledgeResults]
       .sort((a, b) => b.similarity - a.similarity)
       .slice(0, k)
 
@@ -54,7 +53,7 @@ export class RAGService {
     }
 
     // 搜索知识库
-    const knowledgeArticles = await prisma.knowledgeArticle.findMany({
+    const knowledgeArticles = await prisma.knowledgeBase.findMany({
       where: {
         status: "PUBLISHED",
         OR: [
@@ -92,37 +91,6 @@ export class RAGService {
     }
 
     return results.slice(0, topK)
-  }
-
-  /**
-   * 搜索 FAQ
-   */
-  private async searchFAQ(query: string, topK: number): Promise<RAGResult[]> {
-    // 搜索 FAQ 集合
-    const faqResults = await prisma.fAQ.findMany({
-      where: {
-        OR: [
-          { question: { contains: query, mode: "insensitive" } },
-          { answer: { contains: query, mode: "insensitive" } }
-        ]
-      },
-      select: {
-        id: true,
-        question: true,
-        answer: true,
-        category: true
-      },
-      take: topK
-    })
-
-    return faqResults.map(faq => ({
-      id: faq.id,
-      title: faq.question,
-      content: faq.answer.slice(0, 500),
-      category: faq.category || "FAQ",
-      similarity: this.calculateSimilarity(query, `${faq.question} ${faq.answer}`),
-      source: "faq" as const
-    }))
   }
 
   /**

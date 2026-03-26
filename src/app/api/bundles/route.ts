@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ bundles })
   } catch (error) {
-    safeErrorLog(Failed to get bundles, error)
+    safeErrorLog('Failed to get bundles', error)
     return NextResponse.json(
       { error: 'Failed to get bundles' },
       { status: 500 }
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ bundle }, { status: 201 })
   } catch (error) {
-    safeErrorLog(Failed to create bundle, error)
+    safeErrorLog('Failed to create bundle', error)
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to create bundle' },
       { status: 500 }

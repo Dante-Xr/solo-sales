@@ -145,7 +145,7 @@ export interface RAGResponse {
 /**
  * 对话满意度评价
  */
-export type SatisfactionRating = "satisfied" | "neutral" | "dissatisfied"
+export type SatisfactionRating = "SATISFIED" | "NEUTRAL" | "DISSATISFIED"
 
 /**
  * 对话满意度评价

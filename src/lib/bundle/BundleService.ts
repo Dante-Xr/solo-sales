@@ -23,10 +23,10 @@ class BundleService {
     includeExpired?: boolean
   }): Promise<BundleData[]> {
     const cacheKey = `solo:bundles:list:${JSON.stringify(filters || {})}`
-    const cached = await cacheGet(cacheKey)
+    const cached = await cacheGet<BundleData[]>(cacheKey)
 
     if (cached) {
-      return JSON.parse(cached)
+      return cached
     }
 
     const where: Record<string, unknown> = {}
@@ -64,10 +64,10 @@ class BundleService {
 
   async getBundleBySlug(slug: string): Promise<BundleData | null> {
     const cacheKey = `solo:bundles:slug:${slug}`
-    const cached = await cacheGet(cacheKey)
+    const cached = await cacheGet<BundleData | null>(cacheKey)
 
     if (cached) {
-      return JSON.parse(cached)
+      return cached
     }
 
     const bundle = await this.prisma.bundle.findUnique({

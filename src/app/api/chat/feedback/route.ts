@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const validRatings: SatisfactionRating[] = ["satisfied", "neutral", "dissatisfied"]
+    const validRatings: SatisfactionRating[] = ["SATISFIED", "NEUTRAL", "DISSATISFIED"]
     if (!validRatings.includes(rating)) {
       return NextResponse.json(
         { error: "无效的评分值" },

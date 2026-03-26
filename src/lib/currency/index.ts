@@ -1,11 +1,6 @@
-export type {
-  CurrencyInfo,
-  ConvertedPrice,
-  CurrencyConfig
-}
+export type { CurrencyInfo, ConvertedPrice, CurrencyConfig, CurrencyCode } from './types'
 
 export {
-  CurrencyCode,
   SUPPORTED_CURRENCIES,
   DEFAULT_CURRENCY,
   CURRENCY_SYMBOLS,

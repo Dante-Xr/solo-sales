@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     })
   } catch (error) {
-    safeErrorLog(Currency rates refresh error, error)
+    safeErrorLog('Currency rates refresh error', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

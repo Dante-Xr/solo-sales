@@ -72,7 +72,7 @@ export function useCurrency() {
 
   const format = useCallback((amount: number, currency?: string): string => {
     const curr = currency || state.currency
-    const symbol = CURRENCY_SYMBOLS[curr] || curr
+    const symbol = CURRENCY_SYMBOLS[curr as CurrencyCode] || curr
     const decimals = curr === 'JPY' ? 0 : 2
     return `${symbol}${amount.toLocaleString('en-US', {
       minimumFractionDigits: decimals,

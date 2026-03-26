@@ -21,10 +21,10 @@ class CurrencyService {
 
   async getSupportedCurrencies(): Promise<CurrencyInfo[]> {
     const cacheKey = `${RATES_CACHE_KEY}:supported`
-    const cached = await cacheGet(cacheKey)
+    const cached = await cacheGet<CurrencyInfo[]>(cacheKey)
 
     if (cached) {
-      return JSON.parse(cached)
+      return cached
     }
 
     const currencies = await this.prisma.currency.findMany({
@@ -73,10 +73,10 @@ class CurrencyService {
 
   async getExchangeRates(baseCurrency: string = 'USD'): Promise<Record<string, number>> {
     const cacheKey = `${RATES_CACHE_KEY}:${baseCurrency}`
-    const cached = await cacheGet(cacheKey)
+    const cached = await cacheGet<Record<string, number>>(cacheKey)
 
     if (cached) {
-      return JSON.parse(cached)
+      return cached
     }
 
     const rates = await this.prisma.exchangeRate.findMany({

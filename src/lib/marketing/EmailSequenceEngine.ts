@@ -1,4 +1,4 @@
-import { PrismaClient, TriggerType, SequenceStatus, EnrollmentStatus } from '@prisma/client'
+import { PrismaClient, TriggerType, SequenceStatus, EnrollmentStatus, Prisma } from '@prisma/client'
 import { cacheGet, cacheSet } from '../cache'
 import { safeErrorLog } from '../safeLog'
 
@@ -22,10 +22,10 @@ class EmailSequenceEngine {
     status?: SequenceStatus
   }) {
     const cacheKey = `solo:sequences:list:${JSON.stringify(filters || {})}`
-    const cached = await cacheGet(cacheKey)
+    const cached = await cacheGet<typeof sequences>(cacheKey)
 
     if (cached) {
-      return JSON.parse(cached)
+      return cached
     }
 
     const where: Record<string, unknown> = {}
@@ -91,7 +91,7 @@ class EmailSequenceEngine {
             order: step.order ?? index,
             templateId: step.templateId,
             delayHours: step.delayHours ?? 0,
-            condition: step.condition
+            condition: step.condition as Prisma.InputJsonValue
           }))
         } : undefined
       },
@@ -146,7 +146,7 @@ class EmailSequenceEngine {
         order: (maxOrder._max.order ?? -1) + 1,
         templateId: data.templateId,
         delayHours: data.delayHours ?? 0,
-        condition: data.condition
+        condition: data.condition as Prisma.InputJsonValue
       }
     })
   }
@@ -172,7 +172,7 @@ class EmailSequenceEngine {
           status: EnrollmentStatus.ACTIVE,
           currentStep: 0,
           pausedAt: null,
-          triggerData
+          triggerData: triggerData as Prisma.InputJsonValue
         }
       })
     }
@@ -191,7 +191,7 @@ class EmailSequenceEngine {
         sequenceId,
         userId,
         status: EnrollmentStatus.ACTIVE,
-        triggerData
+        triggerData: triggerData as Prisma.InputJsonValue
       }
     })
   }
@@ -270,7 +270,7 @@ class EmailSequenceEngine {
           results.push({ sequenceId: sequence.id, enrolled: true })
         }
       } catch (error) {
-        safeErrorLog(error, `Trigger processing error for sequence ${sequence.id}`)
+        safeErrorLog(`Trigger processing error for sequence ${sequence.id}`, error)
         results.push({
           sequenceId: sequence.id,
           enrolled: false,

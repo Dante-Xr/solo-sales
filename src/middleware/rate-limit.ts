@@ -95,9 +95,9 @@ async function checkRateLimitAsync(
   let timestamps: number[] = []
 
   if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
-    const cached = await cacheGet(cacheKey)
+    const cached = await cacheGet<number[]>(cacheKey)
     if (cached) {
-      timestamps = JSON.parse(cached)
+      timestamps = cached
     }
   } else {
     timestamps = memoryStore.get(ip) || []
