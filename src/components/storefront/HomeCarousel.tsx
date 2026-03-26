@@ -52,7 +52,7 @@ const CarouselCard = React.memo(function CarouselCard({
 }) {
   return (
     <div className="flex-none w-full">
-      <div className="p-1 h-48">
+      <div className="p-1 h-[250px] md:h-[350px] lg:h-[450px]">
         <Card
           className="cursor-pointer overflow-hidden border-none shadow-md h-full"
           onClick={onClick}
@@ -65,15 +65,14 @@ const CarouselCard = React.memo(function CarouselCard({
               className="object-cover"
               priority={isActive}
             />
-            {/* 限时特惠标签 */}
             <div className="absolute top-4 right-4 bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse">
               🔥 {product.name.includes("加湿器") ? "限时特惠" : "Hot Sale"}
             </div>
-            <div className="absolute bottom-0 w-full bg-gradient-to-t from-black/80 to-transparent p-3">
-              <h3 className="text-white font-medium text-sm line-clamp-1">{product.name}</h3>
+            <div className="absolute bottom-0 w-full bg-gradient-to-t from-black/80 to-transparent p-4 lg:p-6">
+              <h3 className="text-white font-medium text-sm lg:text-base line-clamp-1">{product.name}</h3>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-red-500 dark:text-red-400 font-bold">${product.price}</span>
-                <span className="text-muted-foreground text-xs line-through">${product.originalPrice}</span>
+                <span className="text-red-500 dark:text-red-400 font-bold text-sm lg:text-base">${product.price}</span>
+                <span className="text-muted-foreground text-xs lg:text-sm line-through">${product.originalPrice}</span>
               </div>
             </div>
           </CardContent>
@@ -174,7 +173,7 @@ export function HomeCarousel() {
   }, [embla, startTimer, stopTimer])
 
   return (
-    <div className="w-full relative px-4 pt-4 pb-2">
+    <div className="w-full relative pt-4 pb-2">
       <h2 className="text-lg font-bold mb-3">{t("product.featured")}</h2>
       <div className="relative">
         <div ref={emblaRef} className="overflow-hidden">
@@ -192,27 +191,26 @@ export function HomeCarousel() {
 
         <button
           onClick={scrollPrev}
-          className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-md z-10 transition-opacity opacity-60 hover:opacity-100"
+          className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg z-10 transition-opacity opacity-60 hover:opacity-100"
           aria-label={t("common.back")}
         >
-          <ChevronLeft className="w-5 h-5 text-gray-700" />
+          <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
         </button>
 
         <button
           onClick={scrollNext}
-          className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-md z-10 transition-opacity opacity-60 hover:opacity-100"
+          className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg z-10 transition-opacity opacity-60 hover:opacity-100"
           aria-label={t("common.search")}
         >
-          <ChevronRight className="w-5 h-5 text-gray-700" />
+          <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
         </button>
 
-        {/* 圆点指示器 */}
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+        <div className="absolute bottom-3 md:bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 md:gap-2 z-10">
           {FEATURED_PRODUCTS.map((_, i) => (
             <div
               key={i}
-              className={`h-1 rounded-full transition-all duration-300 ${
-                i === currentIndex ? 'w-6 bg-white' : 'w-1 bg-white/50'
+              className={`h-1.5 md:h-2 rounded-full transition-all duration-300 ${
+                i === currentIndex ? 'w-6 md:w-8 bg-white' : 'w-1.5 md:w-2 bg-white/50'
               }`}
             />
           ))}

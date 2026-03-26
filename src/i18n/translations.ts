@@ -216,6 +216,17 @@ export const translations = {
     couponCode: { zh: "优惠码", en: "Coupon Code" },
     validity: { zh: "* 有效期30天，不可与其他优惠叠加", en: "* Valid for 30 days, cannot be combined with other offers" },
   },
+
+  feature: {
+    fastResponse: { zh: "快速响应", en: "Fast Response" },
+    fastResponseDesc: { zh: "闪电发货，快速物流", en: "Lightning delivery, fast shipping" },
+    securePayment: { zh: "安全支付", en: "Secure Payment" },
+    securePaymentDesc: { zh: "多重加密，保障交易安全", en: "Multi-layer encryption ensures transaction security" },
+    freeReturns: { zh: "免费退货", en: "Free Returns" },
+    freeReturnsDesc: { zh: "7天无理由退货，运费险保障", en: "7-day hassle-free returns with shipping insurance" },
+    support247: { zh: "24/7 支持", en: "24/7 Support" },
+    support247Desc: { zh: "全天候在线客服，随时为您服务", en: "Round-the-clock support, always here for you" },
+  },
 }
 
 export type TranslationKey = keyof typeof translations

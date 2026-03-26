@@ -1,25 +1,21 @@
 "use client"
 
-// 2026-03-24: 使用 Next.js dynamic 动态导入 WelcomeModal，首屏不加载此组件
-// 优化目的：减少首屏 JS bundle 体积，提升首次加载速度
-import { useState, useCallback, useEffect } from "react"
+import { useState, useEffect } from "react"
 import dynamic from "next/dynamic"
-import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { ShoppingCart, Globe, Sun, Moon } from "lucide-react"
-import { HomeCarousel, FEATURED_PRODUCTS } from "@/components/storefront/HomeCarousel"
+import { ShoppingCart, Globe, Sun, Moon, Search, X } from "lucide-react"
+import { HomeCarousel } from "@/components/storefront/HomeCarousel"
 import { SearchBox } from "@/components/storefront/SearchBox"
 import { UserMenu } from "@/components/storefront/UserMenu"
+import { ProductGrid } from "@/components/storefront/ProductGrid"
+import { FeatureSection } from "@/components/storefront/FeatureSection"
+import { StorefrontFooter } from "@/components/storefront/StorefrontFooter"
 import { useCart } from "@/context/CartContext"
 import { useLanguage } from "@/context/LanguageContext"
 import { useTheme } from "@/components/providers/ThemeProvider"
 
-// 2026-03-24: WelcomeModal 改为动态导入，不参与 SSR
-// ssr: false - 避免水合问题，loading: null - 加载时无占位
-// 注意：WelcomeModal 是命名导出，使用 .then 方式导入
 const WelcomeModal = dynamic(
   () => import("@/components/storefront/WelcomeModal").then(mod => mod.WelcomeModal),
   {
@@ -28,26 +24,24 @@ const WelcomeModal = dynamic(
   }
 )
 
+const navItems = [
+  { labelKey: "nav.home", href: "/" },
+  { labelKey: "nav.shop", href: "/products" },
+  { labelKey: "nav.about", href: "/about" },
+  { labelKey: "nav.contact", href: "/contact" },
+]
+
 export default function Storefront() {
   const router = useRouter()
   const { cartCount } = useCart()
   const { language, toggleLanguage } = useLanguage()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  const [viewers, setViewers] = useState(0)
-  const [soldRandom, setSoldRandom] = useState(0)
   const [showWelcome, setShowWelcome] = useState(false)
-
-  const getRandomViewers = useCallback(() => Math.floor(Math.random() * 100) + 50, [])
-  const getRandomSold = useCallback(() => Math.floor(Math.random() * 50), [])
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-    setSoldRandom(getRandomSold())
-    const viewerInterval = setInterval(() => {
-      setViewers(getRandomViewers())
-    }, 30000)
-
     const hasVisited = localStorage.getItem("solo_has_visited")
     const couponClaimed = localStorage.getItem("solo_coupon_claimed")
 
@@ -56,14 +50,9 @@ export default function Storefront() {
         setShowWelcome(true)
         localStorage.setItem("solo_has_visited", "true")
       }, 2000)
-      return () => {
-        clearInterval(viewerInterval)
-        clearTimeout(timer)
-      }
+      return () => clearTimeout(timer)
     }
-
-    return () => clearInterval(viewerInterval)
-  }, [getRandomSold, getRandomViewers])
+  }, [])
 
   const handleClaimCoupon = (code: string) => {
     console.log("Coupon claimed:", code)
@@ -72,93 +61,129 @@ export default function Storefront() {
   const isZh = language === "zh"
 
   return (
-    <div className="min-h-screen bg-muted flex justify-center">
-      <main className="w-full max-w-md bg-card text-card-foreground min-h-screen shadow-xl flex flex-col relative pb-16">
-        <header className="flex items-center justify-between p-4 border-b sticky top-0 bg-card z-50">
-          <h1 className="text-xl font-bold tracking-tight">{isZh ? "SoloSales Shop" : "SoloSales Shop"}</h1>
-          <div className="flex items-center gap-1">
-            {/* 暗色模式切换按钮 */}
-            {mounted && (
-              <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} title={theme === "dark" ? "Switch to Light" : "切换到暗色"}>
-                {theme === "dark" ? <Sun className="w-5 h-5 text-foreground" /> : <Moon className="w-5 h-5 text-foreground" />}
-              </Button>
+    <div className="min-h-screen bg-background">
+      <div className="w-full max-w-[1440px] mx-auto">
+        <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+          <div className="px-4 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              <div className="flex items-center gap-8">
+                <Link href="/" className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">S</span>
+                  </div>
+                  <span className="text-xl font-bold text-foreground hidden sm:block">SoloSales</span>
+                </Link>
+
+                <nav className="hidden lg:flex items-center gap-6">
+                  {navItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {isZh ? item.labelKey.replace("nav.", "") : item.labelKey.replace("nav.", "")}
+                    </Link>
+                  ))}
+                </nav>
+              </div>
+
+              <div className="hidden lg:flex items-center gap-3 flex-1 max-w-xl px-8">
+                <SearchBox onSearch={(query) => console.log("Search:", query)} />
+              </div>
+
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden"
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                >
+                  {mobileMenuOpen ? <X className="w-5 h-5" /> : <Search className="w-5 h-5" />}
+                </Button>
+
+                {mounted && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                  >
+                    {theme === "dark" ? (
+                      <Sun className="w-5 h-5 text-foreground" />
+                    ) : (
+                      <Moon className="w-5 h-5 text-foreground" />
+                    )}
+                  </Button>
+                )}
+
+                <Button variant="ghost" size="icon" onClick={toggleLanguage}>
+                  <Globe className="w-5 h-5 text-foreground" />
+                </Button>
+
+                <UserMenu />
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative"
+                  onClick={() => router.push("/cart")}
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                      {cartCount}
+                    </span>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {mobileMenuOpen && (
+              <div className="lg:hidden py-4 border-t border-border">
+                <SearchBox onSearch={(query) => console.log("Search:", query)} />
+                <nav className="flex flex-col gap-2 mt-4">
+                  {navItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {isZh ? item.labelKey.replace("nav.", "") : item.labelKey.replace("nav.", "")}
+                    </Link>
+                  ))}
+                </nav>
+              </div>
             )}
-            {/* 语言切换按钮 */}
-            <Button variant="ghost" size="icon" onClick={toggleLanguage} title={isZh ? "Switch to English" : "切换到中文"}>
-              <Globe className="w-5 h-5 text-foreground" />
-            </Button>
-            {/* 用户菜单 */}
-            <UserMenu />
-            {/* 购物车 */}
-            <Button variant="ghost" size="icon" className="relative" onClick={() => router.push('/cart')}>
-              <ShoppingCart className="w-6 h-6" />
-              {cartCount > 0 && (
-                <span className="absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
-            </Button>
           </div>
         </header>
 
-        <div className="overflow-y-auto">
-          {/* 首页轮播图组件：展示热卖商品，每10秒自动切换 */}
-          <HomeCarousel />
-
-          {/* 商品搜索框：支持搜索历史记忆功能 */}
-          <div className="px-4 pb-2">
-            <SearchBox onSearch={(query) => console.log("Search:", query)} />
-          </div>
-
-          <div className="p-4">
-            <h2 className="text-lg font-bold mb-4">{isZh ? "全部商品" : "All Products"}</h2>
-            <div className="grid grid-cols-2 gap-4">
-              {FEATURED_PRODUCTS.map(product => (
-                <Link
-                  key={product.id}
-                  href={`/product/${product.id}`}
-                  className="block"
-                  prefetch={true}
-                >
-                  <Card className="cursor-pointer overflow-hidden flex flex-col transition-all duration-200 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">
-                    <div className="aspect-square relative">
-                      <Image src={product.image} alt={product.name} fill className="object-cover" sizes="(max-width: 768px) 50vw, 33vw" priority={product.id === FEATURED_PRODUCTS[0].id} />
-                      {/* 正在观看人数 - 仅客户端渲染 */}
-                      {mounted && (
-                        <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
-                          <span>👀</span>
-                          <span>{viewers}</span>
-                        </div>
-                      )}
-                    </div>
-                    <CardContent className="p-3 flex-1 flex flex-col justify-between">
-                      <h3 className="text-sm font-medium line-clamp-2 mb-1">{product.name}</h3>
-                      {/* 已售数量 - 仅客户端渲染 */}
-                      {mounted && (
-                        <div className="text-xs text-muted-foreground mb-2">
-                          {isZh ? "已售" : "Sold"} {product.sales + soldRandom}
-                        </div>
-                      )}
-                      <div className="flex items-end space-x-1">
-                        <span className="text-lg font-bold text-red-600 dark:text-red-500">${product.price}</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
+        <main className="flex flex-col">
+          <section className="w-full" style={{ height: "450px" }}>
+            <div className="h-full">
+              <HomeCarousel />
             </div>
-          </div>
-        </div>
-      </main>
+          </section>
 
-      {/* 新用户欢迎弹窗 */}
-      {showWelcome && (
-        <WelcomeModal
-          onClose={() => setShowWelcome(false)}
-          onClaim={handleClaimCoupon}
-        />
-      )}
+          <section className="w-full">
+            <ProductGrid />
+          </section>
+
+          <section className="w-full">
+            <FeatureSection />
+          </section>
+
+          <section className="w-full">
+            <StorefrontFooter />
+          </section>
+        </main>
+
+        {showWelcome && (
+          <WelcomeModal
+            onClose={() => setShowWelcome(false)}
+            onClaim={handleClaimCoupon}
+          />
+        )}
+      </div>
     </div>
   )
 }
-
