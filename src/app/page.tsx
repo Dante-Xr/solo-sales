@@ -41,12 +41,14 @@ export default function Storefront() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
+    console.log("Storefront mounted")
     setMounted(true)
     const hasVisited = localStorage.getItem("solo_has_visited")
     const couponClaimed = localStorage.getItem("solo_coupon_claimed")
 
     if (!hasVisited || !couponClaimed) {
       const timer = setTimeout(() => {
+        console.log("Showing welcome modal")
         setShowWelcome(true)
         localStorage.setItem("solo_has_visited", "true")
       }, 2000)
@@ -56,6 +58,21 @@ export default function Storefront() {
 
   const handleClaimCoupon = (code: string) => {
     console.log("Coupon claimed:", code)
+  }
+
+  const handleCartClick = () => {
+    console.log("Cart clicked, navigating to /cart")
+    router.push("/cart")
+  }
+
+  const handleThemeClick = () => {
+    console.log("Theme clicked, current theme:", theme)
+    setTheme(theme === "dark" ? "light" : "dark")
+  }
+
+  const handleLanguageClick = () => {
+    console.log("Language clicked, current language:", language)
+    toggleLanguage()
   }
 
   const isZh = language === "zh"
@@ -96,7 +113,10 @@ export default function Storefront() {
                   variant="ghost"
                   size="icon"
                   className="lg:hidden"
-                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  onClick={() => {
+                    console.log("Mobile menu toggle clicked")
+                    setMobileMenuOpen(!mobileMenuOpen)
+                  }}
                 >
                   {mobileMenuOpen ? <X className="w-5 h-5" /> : <Search className="w-5 h-5" />}
                 </Button>
@@ -105,7 +125,7 @@ export default function Storefront() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                    onClick={handleThemeClick}
                   >
                     {theme === "dark" ? (
                       <Sun className="w-5 h-5 text-foreground" />
@@ -115,7 +135,7 @@ export default function Storefront() {
                   </Button>
                 )}
 
-                <Button variant="ghost" size="icon" onClick={toggleLanguage}>
+                <Button variant="ghost" size="icon" onClick={handleLanguageClick}>
                   <Globe className="w-5 h-5 text-foreground" />
                 </Button>
 
@@ -125,10 +145,10 @@ export default function Storefront() {
                   variant="ghost"
                   size="icon"
                   className="relative"
-                  onClick={() => router.push("/cart")}
+                  onClick={handleCartClick}
                 >
                   <ShoppingCart className="w-5 h-5" />
-                  {cartCount > 0 && (
+                  {mounted && cartCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                       {cartCount}
                     </span>

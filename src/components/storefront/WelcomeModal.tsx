@@ -23,11 +23,11 @@ export function WelcomeModal({ onClose, onClaim }: WelcomeModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4">
-      <div className="bg-card text-card-foreground rounded-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-300">
+      <div className="relative bg-card text-card-foreground rounded-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-300">
         {/* 关闭按钮 */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
+          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground z-10"
         >
           <X className="w-6 h-6" />
         </button>

@@ -31,25 +31,28 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [cart, setCart] = useState<CartItem[]>(() => {
+  const [cart, setCart] = useState<CartItem[]>([])
+  const [isInitialized, setIsInitialized] = useState(false)
+
+  useEffect(() => {
     if (typeof window !== "undefined") {
       try {
         const savedCart = localStorage.getItem(CART_STORAGE_KEY)
         if (savedCart) {
-          return JSON.parse(savedCart) as CartItem[]
+          setCart(JSON.parse(savedCart) as CartItem[])
         }
       } catch (e) {
         console.error("Failed to parse cart from localStorage:", e)
       }
     }
-    return [] as CartItem[]
-  })
+    setIsInitialized(true)
+  }, [])
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== "undefined" && isInitialized) {
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart))
     }
-  }, [cart])
+  }, [cart, isInitialized])
 
   // 缓存购物车总价
   const cartTotal = useMemo(() => {
