@@ -1,18 +1,22 @@
 /**
  * ============================================
- * 批发商品导入管理页面 (Task 1.11)
+ * 批发商品导入管理页面 (Phase 5 管理后台重构)
  * ============================================
  * 功能说明：
  *   - 展示导入历史记录
  *   - 显示导入状态和结果
  *   - 手动触发导入任务
+ *   - 使用 Refine useList hook 获取导入日志
+ *   - 使用 Refine useCustom hook 触发导入
  * ============================================
- * 2026-04-13: 迁移到 next-intl 国际化方案
+ * 2026-04-13: 集成 Refine useList/useCustom hook
+ * 2026-04-13 23:35: 迁移到 Refine 数据获取方案
  */
 
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useMemo } from "react"
+import { useList, useCustom } from "@refinedev/core"
 import {
   RefreshCw,
   CheckCircle,
@@ -64,36 +68,26 @@ export default function ImportPage() {
   const t = useTranslations('admin.import')
   const locale = useLocale()
 
-  const [logs, setLogs] = useState<ImportLog[]>([])
-  const [loading, setLoading] = useState(true)
   const [importing, setImporting] = useState(false)
   const [selectedLog, setSelectedLog] = useState<ImportLog | null>(null)
   const [importDialogOpen, setImportDialogOpen] = useState(false)
   const [resultDialogOpen, setResultDialogOpen] = useState(false)
   const [importResult, setImportResult] = useState<ImportResult | null>(null)
 
-  // 获取导入历史
-  const fetchLogs = useCallback(async () => {
-    try {
-      const response = await fetch("/api/import/logs")
-      const result = await response.json()
+  const { query: { data: logsData, isLoading: loading, refetch } } = useList({
+    resource: "import-logs",
+    pagination: { currentPage: 1, pageSize: 100 },
+    queryOptions: {
+      enabled: true,
+    },
+  })
 
-      if (result.success) {
-        setLogs(result.data.logs)
-      }
-    } catch (error) {
-      console.error("获取导入日志失败:", error)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  const logs = useMemo(() => {
+    const raw = logsData?.data as any
+    if (Array.isArray(raw)) return raw
+    return raw?.list || []
+  }, [logsData])
 
-  // 初始加载
-  useEffect(() => {
-    fetchLogs()
-  }, [fetchLogs])
-
-  // 触发导入
   const handleImport = async () => {
     setImporting(true)
     setImportDialogOpen(false)
@@ -114,9 +108,7 @@ export default function ImportPage() {
       const result = await response.json()
       setImportResult(result)
       setResultDialogOpen(true)
-
-      // 刷新日志列表
-      fetchLogs()
+      refetch()
     } catch (error) {
       console.error("导入失败:", error)
       setImportResult({
@@ -129,12 +121,10 @@ export default function ImportPage() {
     }
   }
 
-  // 格式化日期
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleString(locale === "zh" ? "zh-CN" : "en-US")
   }
 
-  // 获取状态图标和颜色
   const getStatusBadge = (status: ImportLog["status"]) => {
     const config: Record<
       ImportLog["status"],
@@ -170,7 +160,6 @@ export default function ImportPage() {
     )
   }
 
-  // 计算导入耗时
   const getDuration = (log: ImportLog) => {
     if (!log.completedAt) return "-"
     const start = new Date(log.startedAt).getTime()
@@ -249,7 +238,7 @@ export default function ImportPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {logs.map((log) => (
+                {logs.map((log: any) => (
                   <div
                     key={log.id}
                     className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"

@@ -1,6 +1,6 @@
 /**
  * ============================================
- * 管理员角色管理页面
+ * 管理员角色管理页面 (Phase 5 管理后台重构)
  * ============================================
  * 功能说明：
  *   - 角色列表展示（表格）
@@ -8,13 +8,15 @@
  *   - 创建/编辑角色 Dialog
  *   - 角色权限复选框列表（分组展示 PAGE 和 ACTION）
  *   - 删除角色确认 Dialog
+ *   - 使用 Refine useList hook
  * ============================================
- * 2026-04-13: 迁移到 next-intl 国际化方案
+ * 2026-04-13: 集成 Refine useList hook
  */
 
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useMemo } from "react"
+import { useList } from "@refinedev/core"
 import { Shield, Plus, Pencil, Trash2, Check, Loader2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -59,9 +61,30 @@ interface Role {
 export default function RolesPage() {
   const t = useTranslations('admin.roles')
 
-  const [roles, setRoles] = useState<Role[]>([])
-  const [permissions, setPermissions] = useState<Permission[]>([])
-  const [loading, setLoading] = useState(true)
+  const { query: { data: rolesData, isLoading: loading, refetch: refetchRoles } } = useList({
+    resource: "roles",
+    pagination: { currentPage: 1, pageSize: 100 },
+  })
+
+  const { query: { data: permissionsData, refetch: refetchPermissions } } = useList({
+    resource: "permissions",
+    pagination: { currentPage: 1, pageSize: 100 },
+  })
+
+  const roles = useMemo(() => {
+    const raw = rolesData?.data as any
+    return Array.isArray(raw) ? raw : (raw?.list || [])
+  }, [rolesData])
+
+  const permissions = useMemo(() => {
+    const raw = permissionsData?.data as any
+    return raw?.list || []
+  }, [permissionsData])
+
+  const refetchAll = () => {
+    refetchRoles()
+    refetchPermissions()
+  }
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -77,39 +100,13 @@ export default function RolesPage() {
   const [submitting, setSubmitting] = useState(false)
 
   const pagePermissions = useMemo(
-    () => permissions.filter((p) => p.type === "PAGE"),
+    () => permissions.filter((p: any) => p.type === "PAGE"),
     [permissions]
   )
   const actionPermissions = useMemo(
-    () => permissions.filter((p) => p.type === "ACTION"),
+    () => permissions.filter((p: any) => p.type === "ACTION"),
     [permissions]
   )
-
-  useEffect(() => {
-    fetchData()
-  }, [])
-
-  const fetchData = async () => {
-    try {
-      setLoading(true)
-      const [rolesRes, permissionsRes] = await Promise.all([
-        fetch("/api/admin/roles"),
-        fetch("/api/admin/permissions"),
-      ])
-      const rolesData = await rolesRes.json()
-      const permissionsData = await permissionsRes.json()
-      if (rolesData.success) {
-        setRoles(rolesData.data)
-      }
-      if (permissionsData.success) {
-        setPermissions(permissionsData.data.list)
-      }
-    } catch (error) {
-      console.error("获取数据失败:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handleOpenCreate = () => {
     setEditingRole(null)
@@ -161,7 +158,7 @@ export default function RolesPage() {
       const data = await res.json()
       if (data.success) {
         setDialogOpen(false)
-        fetchData()
+        refetchAll()
       } else {
         alert(data.error || t('operationFailed'))
       }
@@ -183,7 +180,7 @@ export default function RolesPage() {
       const data = await res.json()
       if (data.success) {
         setDeleteDialogOpen(false)
-        fetchData()
+        refetchAll()
       } else {
         alert(data.error || t('deleteFailed'))
       }
@@ -272,7 +269,7 @@ export default function RolesPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  roles.map((role) => (
+                  roles.map((role: any) => (
                     <TableRow key={role.id}>
                       <TableCell className="font-medium">{role.label}</TableCell>
                       <TableCell>

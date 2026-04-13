@@ -1,27 +1,29 @@
 /**
  * ============================================
- * 后台管理控制台页面 (v0.4.1 优化版)
+ * 后台管理控制台页面 (Phase 5 管理后台重构)
  * ============================================
  * 功能说明：
  *   - 使用聚合 Dashboard API，单次请求获取所有数据
- *   - 支持缓存，提升加载速度
- *   - 集成销售趋势图表组件
+ *   - 使用 Refine useCustom hook 获取数据
+ *   - 集成 Tremor KPI 卡片组件
+ *   - 集成 Tremor AreaChart 销售趋势图表
  *   - 最近订单列表
  * ============================================
+ * 2026-04-13: 集成 Refine + Tremor 组件
+ * 2026-04-13 23:50: 迁移到 Refine useCustom hook
  */
-
-// 2026-04-13: 更新为使用 next-intl 国际化
 
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { useState, useMemo } from "react"
+import { useCustom } from "@refinedev/core"
 import { DollarSign, Package, ShoppingCart, Users, RefreshCw } from "lucide-react"
 import { useTranslations, useLocale } from "next-intl"
 import { SalesChart } from "@/components/admin/SalesChart"
+import { KpiGrid } from "@/components/admin/KpiCard"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 
-// 仪表盘数据类型
 interface DashboardStats {
   totalRevenue: number
   revenueChange: number
@@ -49,7 +51,7 @@ interface ChartDataPoint {
   revenue: number
 }
 
-interface _DashboardData {
+interface DashboardData {
   stats: DashboardStats
   recentOrders: RecentOrder[]
   chartData: ChartDataPoint[]
@@ -60,72 +62,41 @@ export default function AdminDashboard() {
   const locale = useLocale()
   const isZh = locale === "zh"
 
-  // 控制台统计数据
-  const [stats, setStats] = useState<DashboardStats>({
-    totalRevenue: 0,
-    revenueChange: 0,
-    totalOrders: 0,
-    ordersChange: 0,
-    activeProducts: 0,
-    productsChange: 0,
-    activeUsers: 0,
-    usersChange: 0,
+  const { query: { data: dashboardResponse, isLoading: loading, refetch, isRefetching } } = useCustom({
+    url: "/api/admin/dashboard",
+    method: "get",
+    queryOptions: {
+      enabled: true,
+    },
   })
 
-  // 最近订单
-  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([])
-
-  // 图表数据
-  const [chartData, setChartData] = useState<ChartDataPoint[]>([])
-
-  // 加载状态
-  const [loading, setLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
-  const [fromCache, setFromCache] = useState(false)
-
-  /**
-   * 获取控制台数据（使用聚合 API）
-   */
-  const fetchDashboardData = useCallback(async (_isRefresh = false) => {
-    try {
-      const response = await fetch("/api/admin/dashboard")
-      const result = await response.json()
-
-      if (result.success) {
-        setStats(result.data.stats)
-        setRecentOrders(result.data.recentOrders)
-        setChartData(result.data.chartData)
-        setFromCache(result.fromCache || false)
-      }
-    } catch (error) {
-      console.error("获取控制台数据失败:", error)
+  const dashboardData = useMemo<DashboardData | null>(() => {
+    const result = dashboardResponse?.data as any
+    if (result?.success && result?.data) {
+      return result.data
     }
-  }, [])
+    return null
+  }, [dashboardResponse])
 
-  /**
-   * 初始加载数据
-   */
-  useEffect(() => {
-    const loadData = async () => {
-      setLoading(true)
-      await fetchDashboardData()
-      setLoading(false)
-    }
-    loadData()
-  }, [fetchDashboardData])
+  const fromCache = useMemo(() => {
+    const result = dashboardResponse?.data as any
+    return result?.fromCache || false
+  }, [dashboardResponse])
 
-  /**
-   * 刷新数据
-   */
-  const handleRefresh = async () => {
-    setRefreshing(true)
-    await fetchDashboardData(true)
-    setRefreshing(false)
+  const stats = dashboardData?.stats || {
+    totalRevenue: 0, revenueChange: 0,
+    totalOrders: 0, ordersChange: 0,
+    activeProducts: 0, productsChange: 0,
+    activeUsers: 0, usersChange: 0,
   }
 
-  /**
-   * 格式化金额
-   */
+  const recentOrders = dashboardData?.recentOrders || []
+  const chartData = dashboardData?.chartData || []
+
+  const handleRefresh = () => {
+    refetch()
+  }
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -133,9 +104,6 @@ export default function AdminDashboard() {
     }).format(value)
   }
 
-  /**
-   * 格式化日期
-   */
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleString(isZh ? "zh-CN" : "en-US", {
       month: "short",
@@ -145,16 +113,13 @@ export default function AdminDashboard() {
     })
   }
 
-  /**
-   * 获取订单状态标签
-   */
   const getOrderStatusBadge = (status: string) => {
     const config: Record<string, { color: string; label: string }> = {
-      PENDING: { color: "bg-yellow-500", label: isZh ? "待处理" : "Pending" },
-      PAID: { color: "bg-blue-500", label: isZh ? "已支付" : "Paid" },
-      SHIPPED: { color: "bg-purple-500", label: isZh ? "已发货" : "Shipped" },
-      DELIVERED: { color: "bg-green-500", label: isZh ? "已完成" : "Delivered" },
-      CANCELLED: { color: "bg-red-500", label: isZh ? "已取消" : "Cancelled" },
+      PENDING: { color: "bg-yellow-500", label: t('orderStatus.pending') || "待处理" },
+      PAID: { color: "bg-blue-500", label: t('orderStatus.paid') || "已支付" },
+      SHIPPED: { color: "bg-purple-500", label: t('orderStatus.shipped') || "已发货" },
+      DELIVERED: { color: "bg-green-500", label: t('orderStatus.delivered') || "已完成" },
+      CANCELLED: { color: "bg-red-500", label: t('orderStatus.cancelled') || "已取消" },
     }
     const { color, label } = config[status] || { color: "bg-gray-500", label: status }
     return (
@@ -164,9 +129,45 @@ export default function AdminDashboard() {
     )
   }
 
+  const getDeltaType = (change: number): "increase" | "decrease" | "unchanged" => {
+    if (change > 0) return "increase"
+    if (change < 0) return "decrease"
+    return "unchanged"
+  }
+
+  const kpiCards = [
+    {
+      title: t("totalRevenue"),
+      value: loading ? "..." : formatCurrency(stats.totalRevenue),
+      delta: `${stats.revenueChange > 0 ? "+" : ""}${stats.revenueChange}%`,
+      deltaType: getDeltaType(stats.revenueChange) as "increase" | "decrease" | "unchanged",
+      icon: DollarSign,
+    },
+    {
+      title: t("totalOrders"),
+      value: loading ? "..." : String(stats.totalOrders),
+      delta: `${stats.ordersChange > 0 ? "+" : ""}${stats.ordersChange}%`,
+      deltaType: getDeltaType(stats.ordersChange) as "increase" | "decrease" | "unchanged",
+      icon: ShoppingCart,
+    },
+    {
+      title: t("activeProducts"),
+      value: loading ? "..." : String(stats.activeProducts),
+      delta: `+${stats.productsChange}`,
+      deltaType: getDeltaType(stats.productsChange) as "increase" | "decrease" | "unchanged",
+      icon: Package,
+    },
+    {
+      title: t("activeUsers"),
+      value: loading ? "..." : String(stats.activeUsers),
+      delta: `+${stats.usersChange}`,
+      deltaType: getDeltaType(stats.usersChange) as "increase" | "decrease" | "unchanged",
+      icon: Users,
+    },
+  ]
+
   return (
     <div className="flex flex-col gap-6">
-      {/* 页面标题 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h2 className="text-2xl font-bold tracking-tight">{t("dashboard")}</h2>
@@ -176,90 +177,15 @@ export default function AdminDashboard() {
             </span>
           )}
         </div>
-        <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
-          <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
-          {refreshing ? (isZh ? "刷新中..." : "Refreshing...") : (isZh ? "刷新数据" : "Refresh")}
+        <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefetching}>
+          <RefreshCw className={`w-4 h-4 mr-2 ${isRefetching ? "animate-spin" : ""}`} />
+          {isRefetching ? t('updating') : t('refreshData') || (isZh ? "刷新数据" : "Refresh")}
         </Button>
       </div>
 
-      {/* 统计卡片 */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {/* 总营收卡片 */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t("totalRevenue")}</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="h-8 w-24 bg-muted animate-pulse rounded" />
-            ) : (
-              <div className="text-2xl font-bold">{formatCurrency(stats.totalRevenue)}</div>
-            )}
-            <p className="text-xs text-muted-foreground">
-              {stats.revenueChange > 0 ? "+" : ""}{stats.revenueChange}% {t("fromLastMonth")}
-            </p>
-          </CardContent>
-        </Card>
+      <KpiGrid cards={kpiCards} />
 
-        {/* 总订单卡片 */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t("totalOrders")}</CardTitle>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="h-8 w-24 bg-muted animate-pulse rounded" />
-            ) : (
-              <div className="text-2xl font-bold">+{stats.totalOrders}</div>
-            )}
-            <p className="text-xs text-muted-foreground">
-              +{stats.ordersChange}% {t("fromLastMonth")}
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* 活跃商品卡片 */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t("activeProducts")}</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="h-8 w-24 bg-muted animate-pulse rounded" />
-            ) : (
-              <div className="text-2xl font-bold">+{stats.activeProducts}</div>
-            )}
-            <p className="text-xs text-muted-foreground">
-              +{stats.productsChange} {t("newThisWeek")}
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* 活跃用户卡片 */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t("activeUsers")}</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="h-8 w-24 bg-muted animate-pulse rounded" />
-            ) : (
-              <div className="text-2xl font-bold">+{stats.activeUsers}</div>
-            )}
-            <p className="text-xs text-muted-foreground">
-              +{stats.usersChange} {t("inLastHour")}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* 图表和最近订单区域 */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        {/* 销售趋势图表 */}
         <Card className="col-span-4">
           <CardHeader>
             <CardTitle>{t("salesTrend")}</CardTitle>
@@ -269,7 +195,6 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* 最近订单列表 */}
         <Card className="col-span-3">
           <CardHeader>
             <CardTitle>{t("recentOrders")}</CardTitle>

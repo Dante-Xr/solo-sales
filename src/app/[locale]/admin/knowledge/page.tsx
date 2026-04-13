@@ -1,19 +1,21 @@
 /**
  * ============================================
- * RAG 知识库管理页面 (Task 1.4)
+ * RAG 知识库管理页面 (Phase 5 管理后台重构)
  * ============================================
  * 功能说明：
  *   - 知识库列表展示（支持分页、筛选、搜索）
  *   - 知识内容创建、编辑、删除
  *   - 分类管理
+ *   - 使用 Refine useList hook 获取知识列表和分类
  * ============================================
- * 2026-04-13: 迁移到 next-intl 国际化方案
+ * 2026-04-13: 集成 Refine useList hook
+ * 2026-04-13 23:40: 迁移到 Refine 数据获取方案
  */
 
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useMemo } from "react"
+import { useList } from "@refinedev/core"
 import {
   Plus,
   Search,
@@ -37,14 +39,8 @@ import {
 } from "@/components/ui/dialog"
 import { useTranslations, useLocale } from "next-intl"
 
-// ============================================
-// 类型定义
-// ============================================
-
-/** 知识库条目状态 */
 type KnowledgeStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED"
 
-/** 知识库条目 */
 interface KnowledgeItem {
   id: string
   title: string
@@ -64,7 +60,6 @@ interface KnowledgeItem {
   }>
 }
 
-/** 知识分类 */
 interface KnowledgeCategory {
   id: string
   name: string
@@ -73,7 +68,6 @@ interface KnowledgeCategory {
   _count?: { articles: number }
 }
 
-/** 创建/编辑知识的表单数据 */
 interface KnowledgeFormData {
   title: string
   content: string
@@ -81,21 +75,6 @@ interface KnowledgeFormData {
   tags: string
   status: KnowledgeStatus
 }
-
-/** 分页结果 */
-interface _PaginatedResponse {
-  list: KnowledgeItem[]
-  pagination: {
-    page: number
-    pageSize: number
-    total: number
-    totalPages: number
-  }
-}
-
-// ============================================
-// 默认表单数据
-// ============================================
 
 const DEFAULT_FORM_DATA: KnowledgeFormData = {
   title: "",
@@ -105,25 +84,15 @@ const DEFAULT_FORM_DATA: KnowledgeFormData = {
   status: "DRAFT",
 }
 
-// ============================================
-// 主组件
-// ============================================
-
 export default function KnowledgePage() {
-  const _router = useRouter()
   const t = useTranslations('admin.knowledge')
   const locale = useLocale()
 
-  // 状态定义
-  const [knowledgeList, setKnowledgeList] = useState<KnowledgeItem[]>([])
-  const [categories, setCategories] = useState<KnowledgeCategory[]>([])
-  const [loading, setLoading] = useState(true)
   const [searchKeyword, setSearchKeyword] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("")
   const [selectedStatus, setSelectedStatus] = useState<KnowledgeStatus | "">("")
   const [pagination, setPagination] = useState({ page: 1, pageSize: 10, total: 0, totalPages: 0 })
 
-  // Dialog 状态
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false)
@@ -133,58 +102,55 @@ export default function KnowledgePage() {
   const [selectedHistory, setSelectedHistory] = useState<KnowledgeItem | null>(null)
   const [saving, setSaving] = useState(false)
 
-  // 获取知识列表
-  const fetchKnowledgeList = useCallback(async () => {
-    setLoading(true)
-    try {
-      const params = new URLSearchParams({
-        page: pagination.page.toString(),
-        pageSize: pagination.pageSize.toString(),
-      })
-      if (searchKeyword) params.append("keyword", searchKeyword)
-      if (selectedCategory) params.append("category", selectedCategory)
-      if (selectedStatus) params.append("status", selectedStatus)
+  const { query: { data: knowledgeData, isLoading: loading, refetch: refetchKnowledge } } = useList({
+    resource: "knowledge",
+    pagination: {
+      currentPage: pagination.page,
+      pageSize: pagination.pageSize,
+    },
+    filters: [
+      ...(searchKeyword ? [{ field: "keyword", operator: "eq" as const, value: searchKeyword }] : []),
+      ...(selectedCategory ? [{ field: "category", operator: "eq" as const, value: selectedCategory }] : []),
+      ...(selectedStatus ? [{ field: "status", operator: "eq" as const, value: selectedStatus }] : []),
+    ],
+    queryOptions: {
+      enabled: true,
+    },
+  })
 
-      const response = await fetch(`/api/knowledge?${params}`)
-      const result = await response.json()
+  const { query: { data: categoriesData, refetch: refetchCategories } } = useList({
+    resource: "knowledge-categories",
+    pagination: { currentPage: 1, pageSize: 100 },
+    queryOptions: {
+      enabled: true,
+    },
+  })
 
-      if (result.success) {
-        setKnowledgeList(result.data.list)
-        setPagination(result.data.pagination)
-      }
-    } catch (error) {
-      console.error("获取知识列表失败:", error)
-    } finally {
-      setLoading(false)
+  const knowledgeList = useMemo(() => {
+    const raw = knowledgeData?.data as any
+    const list = raw?.list || []
+    if (raw?.pagination) {
+      setPagination(raw.pagination)
     }
-  }, [pagination.page, pagination.pageSize, searchKeyword, selectedCategory, selectedStatus])
+    return list
+  }, [knowledgeData])
 
-  // 获取分类列表
-  const fetchCategories = useCallback(async () => {
-    try {
-      const response = await fetch("/api/knowledge/categories")
-      const result = await response.json()
-      if (result.success) {
-        setCategories(result.data)
-      }
-    } catch (error) {
-      console.error("获取分类失败:", error)
-    }
-  }, [])
+  const categories = useMemo(() => {
+    const raw = categoriesData?.data as any
+    if (Array.isArray(raw)) return raw
+    return raw?.list || []
+  }, [categoriesData])
 
-  // 初始加载
-  useEffect(() => {
-    fetchKnowledgeList()
-    fetchCategories()
-  }, [fetchKnowledgeList, fetchCategories])
-
-  // 搜索处理
-  const handleSearch = () => {
-    setPagination(prev => ({ ...prev, page: 1 }))
-    fetchKnowledgeList()
+  const refetchAll = () => {
+    refetchKnowledge()
+    refetchCategories()
   }
 
-  // 打开编辑 Dialog
+  const handleSearch = () => {
+    setPagination(prev => ({ ...prev, page: 1 }))
+    refetchKnowledge()
+  }
+
   const handleOpenEdit = (item?: KnowledgeItem) => {
     if (item) {
       setEditingItem(item)
@@ -202,11 +168,9 @@ export default function KnowledgePage() {
     setEditDialogOpen(true)
   }
 
-  // 保存知识（创建或更新）
   const handleSave = async () => {
     setSaving(true)
     try {
-      // 构建请求 payload
       const payload: Record<string, unknown> = {
         ...formData,
         tags: formData.tags.split(",").map(t => t.trim()).filter(Boolean),
@@ -231,8 +195,7 @@ export default function KnowledgePage() {
 
       if (result.success) {
         setEditDialogOpen(false)
-        fetchKnowledgeList()
-        fetchCategories()
+        refetchAll()
       } else {
         alert(result.error || t('saveFailed'))
       }
@@ -244,13 +207,11 @@ export default function KnowledgePage() {
     }
   }
 
-  // 打开删除确认 Dialog
   const handleOpenDelete = (item: KnowledgeItem) => {
     setDeletingItem(item)
     setDeleteDialogOpen(true)
   }
 
-  // 确认删除
   const handleConfirmDelete = async () => {
     if (!deletingItem) return
 
@@ -263,7 +224,7 @@ export default function KnowledgePage() {
 
       if (result.success) {
         setDeleteDialogOpen(false)
-        fetchKnowledgeList()
+        refetchKnowledge()
       } else {
         alert(result.error || t('deleteFailed'))
       }
@@ -273,7 +234,6 @@ export default function KnowledgePage() {
     }
   }
 
-  // 查看历史
   const handleViewHistory = async (item: KnowledgeItem) => {
     try {
       const response = await fetch(`/api/knowledge/${item.id}`)
@@ -288,7 +248,6 @@ export default function KnowledgePage() {
     }
   }
 
-  // 状态标签颜色
   const getStatusBadge = (status: KnowledgeStatus) => {
     const config: Record<KnowledgeStatus, { color: string; key: string }> = {
       DRAFT: { color: "bg-gray-500", key: 'status.draft' },
@@ -299,7 +258,6 @@ export default function KnowledgePage() {
     return <Badge className={`${color} text-white`}>{t(key)}</Badge>
   }
 
-  // 格式化日期
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleString(locale === "zh" ? "zh-CN" : "en-US")
   }
@@ -323,7 +281,6 @@ export default function KnowledgePage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4">
-              {/* 关键词搜索 */}
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -337,7 +294,6 @@ export default function KnowledgePage() {
                 </div>
               </div>
 
-              {/* 分类筛选 */}
               <select
                 value={selectedCategory}
                 onChange={(e) => {
@@ -347,14 +303,13 @@ export default function KnowledgePage() {
                 className="px-3 py-2 border rounded-md bg-background"
               >
                 <option value="">{t('allCategories')}</option>
-                {categories.map((cat) => (
+                {categories.map((cat: any) => (
                   <option key={cat.id} value={cat.name}>
                     {cat.name}
                   </option>
                 ))}
               </select>
 
-              {/* 状态筛选 */}
               <select
                 value={selectedStatus}
                 onChange={(e) => {
@@ -398,7 +353,7 @@ export default function KnowledgePage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {knowledgeList.map((item) => (
+                {knowledgeList.map((item: any) => (
                   <div
                     key={item.id}
                     className="flex items-start justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
@@ -439,7 +394,6 @@ export default function KnowledgePage() {
                   </div>
                 ))}
 
-                {/* 分页 */}
                 {pagination.totalPages > 1 && (
                   <div className="flex items-center justify-center gap-2 mt-4">
                     <Button
@@ -510,7 +464,7 @@ export default function KnowledgePage() {
                   className="w-full px-3 py-2 border rounded-md bg-background"
                 >
                   <option value="">{t('form.selectCategory')}</option>
-                  {categories.map((cat) => (
+                  {categories.map((cat: any) => (
                     <option key={cat.id} value={cat.name}>
                       {cat.name}
                     </option>

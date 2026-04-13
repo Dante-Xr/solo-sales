@@ -1,20 +1,21 @@
 /**
  * ============================================
- * 管理员用户管理页面
+ * 管理员用户管理页面 (Phase 5 管理后台重构)
  * ============================================
  * 功能说明：
  *   - 用户列表展示
  *   - 创建/编辑用户
  *   - 启用/禁用用户
  *   - 删除用户
+ *   - 使用 Refine useList hook
  * ============================================
+ * 2026-04-13: 集成 Refine useList hook
  */
-
-// 2026-04-13: 更新为使用 next-intl 国际化
 
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
+import { useList } from "@refinedev/core"
 import { Users, UserPlus, Search, Pencil, Trash2, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -76,11 +77,51 @@ export default function UsersPage() {
   const locale = useLocale()
   const isZh = locale === "zh"
 
-  const [users, setUsers] = useState<AdminUser[]>([])
-  const [roles, setRoles] = useState<Role[]>([])
-  const [loading, setLoading] = useState(true)
   const [searchKeyword, setSearchKeyword] = useState("")
   const [pagination, setPagination] = useState({ page: 1, pageSize: 20, total: 0, totalPages: 0 })
+
+  const { query: { data: usersData, isLoading: loading, refetch: refetchUsers } } = useList({
+    resource: "users",
+    pagination: {
+      currentPage: pagination.page,
+      pageSize: pagination.pageSize,
+    },
+    filters: [
+      ...(searchKeyword ? [{ field: "keyword", operator: "eq" as const, value: searchKeyword }] : []),
+    ],
+  })
+
+  const { query: { data: rolesData, refetch: refetchRoles } } = useList({
+    resource: "roles",
+    pagination: {
+      currentPage: 1,
+      pageSize: 100,
+    },
+  })
+
+  const users = useMemo(() => {
+    const raw = usersData?.data as any
+    return raw?.list || []
+  }, [usersData])
+
+  const roles = useMemo(() => {
+    const raw = rolesData?.data as any
+    const list = Array.isArray(raw) ? raw : (raw?.list || [])
+    return list.map((role: Role & { permissions?: unknown[]; adminCount?: number }) => ({
+      id: role.id,
+      name: role.name,
+      label: role.label,
+    }))
+  }, [rolesData])
+
+  useEffect(() => {
+    if (usersData?.total !== undefined) {
+      const raw = usersData?.data as any
+      if (raw?.pagination) {
+        setPagination(raw.pagination)
+      }
+    }
+  }, [usersData])
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -90,52 +131,10 @@ export default function UsersPage() {
   const [formLoading, setFormLoading] = useState(false)
   const [switchLoading, setSwitchLoading] = useState<string | null>(null)
 
-  const fetchUsers = useCallback(async () => {
-    setLoading(true)
-    try {
-      const params = new URLSearchParams()
-      params.append("page", pagination.page.toString())
-      params.append("pageSize", pagination.pageSize.toString())
-      if (searchKeyword) params.append("keyword", searchKeyword)
-
-      const response = await fetch(`/api/admin/users?${params}`)
-      const result = await response.json()
-
-      if (result.success) {
-        setUsers(result.data.list)
-        setPagination(result.data.pagination)
-      }
-    } catch (error) {
-      console.error("获取用户列表失败:", error)
-    } finally {
-      setLoading(false)
-    }
-  }, [pagination.page, pagination.pageSize, searchKeyword])
-
-  const fetchRoles = useCallback(async () => {
-    try {
-      const response = await fetch("/api/admin/roles")
-      const result = await response.json()
-
-      if (result.success) {
-        setRoles(result.data.map((role: Role & { permissions?: unknown[]; adminCount?: number }) => ({
-          id: role.id,
-          name: role.name,
-          label: role.label,
-        })))
-      }
-    } catch (error) {
-      console.error("获取角色列表失败:", error)
-    }
-  }, [])
-
-  useEffect(() => {
-    fetchUsers()
-  }, [fetchUsers])
-
-  useEffect(() => {
-    fetchRoles()
-  }, [fetchRoles])
+  const handleSearch = () => {
+    setPagination(prev => ({ ...prev, page: 1 }))
+    refetchUsers()
+  }
 
   const handleOpenCreateDialog = () => {
     setEditingUser(null)
@@ -186,7 +185,7 @@ export default function UsersPage() {
 
       if (result.success) {
         setDialogOpen(false)
-        fetchUsers()
+        refetchUsers()
       } else {
         alert(result.error || (isZh ? "操作失败" : "Operation failed"))
       }
@@ -208,7 +207,7 @@ export default function UsersPage() {
       const result = await response.json()
 
       if (result.success) {
-        setUsers(users.map((u) => (u.id === user.id ? { ...u, isActive: !u.isActive } : u)))
+        refetchUsers()
       }
     } catch (error) {
       console.error("更新用户状态失败:", error)
@@ -230,7 +229,7 @@ export default function UsersPage() {
       if (result.success) {
         setDeleteDialogOpen(false)
         setDeletingUser(null)
-        fetchUsers()
+        refetchUsers()
       } else {
         alert(result.error || (isZh ? "删除失败" : "Delete failed"))
       }
@@ -308,7 +307,7 @@ export default function UsersPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.map((user) => (
+                  {users.map((user: any) => (
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">{user.username}</TableCell>
                       <TableCell>{user.email}</TableCell>
@@ -411,7 +410,7 @@ export default function UsersPage() {
                   <SelectValue placeholder={t("selectRole")} />
                 </SelectTrigger>
                 <SelectContent>
-                  {roles.map((role) => (
+                  {roles.map((role: any) => (
                     <SelectItem key={role.id} value={role.id}>
                       {role.label}
                     </SelectItem>

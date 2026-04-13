@@ -1,18 +1,20 @@
 /**
  * ============================================
- * 客户管理页面 (Task 2.1)
+ * 客户管理页面 (Phase 5 管理后台重构)
  * ============================================
  * 功能说明：
  *   - 客户列表展示
  *   - 客户搜索和筛选
  *   - 客户详情查看
+ *   - 使用 Refine useList hook
  * ============================================
- * 2026-04-13: 迁移到 next-intl 国际化方案
+ * 2026-04-13: 集成 Refine useList hook
  */
 
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useMemo } from "react"
+import { useList } from "@refinedev/core"
 import {
   Users,
   Search,
@@ -57,44 +59,34 @@ export default function CustomersPage() {
   const t = useTranslations('admin.customers')
   const locale = useLocale()
 
-  const [customers, setCustomers] = useState<Customer[]>([])
-  const [loading, setLoading] = useState(true)
   const [searchKeyword, setSearchKeyword] = useState("")
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailDialogOpen, setDetailDialogOpen] = useState(false)
 
-  // 获取客户列表
-  const fetchCustomers = useCallback(async () => {
-    setLoading(true)
-    try {
-      const params = new URLSearchParams()
-      if (searchKeyword) params.append("keyword", searchKeyword)
+  const { query: { data: customersData, isLoading: loading, refetch } } = useList({
+    resource: "customers",
+    pagination: { currentPage: 1, pageSize: 100 },
+    filters: [
+      ...(searchKeyword ? [{ field: "keyword", operator: "eq" as const, value: searchKeyword }] : []),
+    ],
+  })
 
-      const response = await fetch(`/api/customers?${params}`)
-      const result = await response.json()
+  const customers = useMemo(() => {
+    const raw = customersData?.data as any
+    return raw?.list || []
+  }, [customersData])
 
-      if (result.success) {
-        setCustomers(result.data.list)
-      }
-    } catch (error) {
-      console.error("获取客户列表失败:", error)
-    } finally {
-      setLoading(false)
-    }
-  }, [searchKeyword])
+  const handleSearch = () => {
+    refetch()
+  }
 
-  useEffect(() => {
-    fetchCustomers()
-  }, [fetchCustomers])
-
-  // 查看客户详情
-  const handleViewDetail = async (customer: Customer) => {
+  const handleViewDetail = async (id: string) => {
     setDetailLoading(true)
     setDetailDialogOpen(true)
 
     try {
-      const response = await fetch(`/api/customers/${customer.id}`)
+      const response = await fetch(`/api/customers/${id}`)
       const result = await response.json()
 
       if (result.success) {
@@ -150,7 +142,7 @@ export default function CustomersPage() {
                 placeholder={t('searchPlaceholder')}
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && fetchCustomers()}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                 className="pl-10"
               />
             </div>
@@ -173,7 +165,7 @@ export default function CustomersPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {customers.map((customer) => (
+                {customers.map((customer: any) => (
                   <div
                     key={customer.id}
                     className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"

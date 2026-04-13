@@ -1,6 +1,6 @@
 /**
  * ============================================
- * 商品管理页面 (v0.4.1 优化版)
+ * 商品管理页面 (Phase 5 管理后台重构)
  * ============================================
  * 功能说明：
  *   - 商品列表展示（支持分页、筛选、搜索）
@@ -8,10 +8,10 @@
  *   - 分类管理
  *   - 移动端卡片视图 + PC 端表格视图
  *   - React.memo 和 useMemo 优化渲染性能
+ *   - 使用 Refine useList/useOne hook
  * ============================================
+ * 2026-04-13: 集成 Refine useList/useOne hook
  */
-
-// 2026-04-13: 更新为使用 next-intl 国际化
 
 "use client"
 
@@ -25,6 +25,7 @@ import {
   ToggleLeft,
   ToggleRight,
 } from "lucide-react"
+import { useList, useOne } from "@refinedev/core"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -125,13 +126,51 @@ export default function ProductsPage() {
   const locale = useLocale()
   const isZh = locale === "zh"
 
-  // 状态定义
-  const [productList, setProductList] = useState<Product[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
-  const [loading, setLoading] = useState(true)
   const [searchKeyword, setSearchKeyword] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("")
   const [pagination, setPagination] = useState({ page: 1, pageSize: 10, total: 0, totalPages: 0 })
+
+  const { query: { data: productListData, isLoading: loading, refetch } } = useList({
+    resource: "products",
+    pagination: {
+      currentPage: pagination.page,
+      pageSize: pagination.pageSize,
+    },
+    filters: [
+      ...(searchKeyword ? [{ field: "keyword", operator: "eq" as const, value: searchKeyword }] : []),
+      ...(selectedCategory ? [{ field: "category", operator: "eq" as const, value: selectedCategory }] : []),
+    ],
+    queryOptions: {
+      enabled: true,
+    },
+  })
+
+  const { query: { data: categoryData } } = useOne({
+    resource: "categories",
+    id: "list",
+    queryOptions: {
+      enabled: true,
+    },
+  })
+
+  const productList = useMemo(() => {
+    const raw = productListData?.data as any
+    return raw?.list || []
+  }, [productListData])
+
+  const categories = useMemo(() => {
+    const raw = categoryData?.data as any
+    return Array.isArray(raw) ? raw : []
+  }, [categoryData])
+
+  useEffect(() => {
+    if (productListData?.total !== undefined) {
+      const raw = productListData?.data as any
+      if (raw?.pagination) {
+        setPagination(raw.pagination)
+      }
+    }
+  }, [productListData])
 
   // 批量选择状态
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set())
@@ -159,54 +198,9 @@ export default function ProductsPage() {
     return () => window.removeEventListener("resize", checkMobile)
   }, [])
 
-  // 获取商品列表
-  const fetchProductList = useCallback(async () => {
-    setLoading(true)
-    try {
-      const params = new URLSearchParams({
-        page: pagination.page.toString(),
-        pageSize: pagination.pageSize.toString(),
-      })
-      if (searchKeyword) params.append("keyword", searchKeyword)
-      if (selectedCategory) params.append("category", selectedCategory)
-
-      const response = await fetch("/api/products?" + params.toString())
-      const result = await response.json()
-
-      if (result.success) {
-        setProductList(result.data.list)
-        setPagination(result.data.pagination)
-      }
-    } catch (error) {
-      console.error("获取商品列表失败:", error)
-    } finally {
-      setLoading(false)
-    }
-  }, [pagination.page, pagination.pageSize, searchKeyword, selectedCategory])
-
-  // 获取分类列表
-  const fetchCategories = useCallback(async () => {
-    try {
-      const response = await fetch("/api/categories")
-      const result = await response.json()
-      if (result.success) {
-        setCategories(result.data)
-      }
-    } catch (error) {
-      console.error("获取分类失败:", error)
-    }
-  }, [])
-
-  // 初始加载
-  useEffect(() => {
-    fetchProductList()
-    fetchCategories()
-  }, [fetchProductList, fetchCategories])
-
-  // 搜索处理
   const handleSearch = () => {
     setPagination(prev => ({ ...prev, page: 1 }))
-    fetchProductList()
+    refetch()
   }
 
   // 表单验证
@@ -282,10 +276,7 @@ export default function ProductsPage() {
 
       if (result.success) {
         setEditDialogOpen(false)
-        fetchProductList()
-        if (formData.categoryId) {
-          fetchCategories()
-        }
+        refetch()
       } else {
         alert(result.error || (isZh ? "保存失败" : "Save failed"))
       }
@@ -316,7 +307,7 @@ export default function ProductsPage() {
 
       if (result.success) {
         setDeleteDialogOpen(false)
-        fetchProductList()
+        refetch()
       } else {
         alert(result.error || (isZh ? "删除失败" : "Delete failed"))
       }
@@ -338,7 +329,7 @@ export default function ProductsPage() {
       const result = await response.json()
 
       if (result.success) {
-        fetchProductList()
+        refetch()
       } else {
         alert(result.error || (isZh ? "操作失败" : "Operation failed"))
       }
@@ -351,7 +342,7 @@ export default function ProductsPage() {
   // 全选/取消全选
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedProducts(new Set(productList.map(p => p.id)))
+      setSelectedProducts(new Set(productList.map((p: any) => p.id)))
     } else {
       setSelectedProducts(new Set())
     }
@@ -407,7 +398,7 @@ export default function ProductsPage() {
       if (result.success) {
         setBatchDialogOpen(false)
         setSelectedProducts(new Set())
-        fetchProductList()
+        refetch()
       } else {
         alert(result.error || (isZh ? "批量操作失败" : "Batch operation failed"))
       }
@@ -419,7 +410,7 @@ export default function ProductsPage() {
 
   // useMemo 优化：格式化后的产品列表
   const formattedProducts = useMemo(() => {
-    return productList.map(product => ({
+    return productList.map((product: any) => ({
       ...product,
       formattedPrice: new Intl.NumberFormat("en-US", {
         style: "currency",
@@ -541,7 +532,7 @@ export default function ProductsPage() {
           ) : isMobile ? (
             // 移动端卡片视图
             <div className="md:hidden">
-              {productList.map((product) => (
+              {productList.map((product:any) => (
                 <MobileProductCard
                   key={product.id}
                   product={product}
@@ -574,7 +565,7 @@ export default function ProductsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {productList.map((product) => (
+                  {productList.map((product:any) => (
                     <tr key={product.id} className="border-b hover:bg-muted/50">
                       <td className="py-3 px-4">
                         <Checkbox
@@ -613,7 +604,7 @@ export default function ProductsPage() {
                         )}
                       </td>
                       <td className="py-3 px-4 font-medium">
-                        {formattedProducts.find(p => p.id === product.id)?.formattedPrice}
+                        {formattedProducts.find((p: any) => p.id === product.id)?.formattedPrice}
                       </td>
                       <td className="py-3 px-4">
                         <span className={product.stock <= 10 ? "text-orange-500" : ""}>
@@ -633,7 +624,7 @@ export default function ProductsPage() {
                         </button>
                       </td>
                       <td className="py-3 px-4 text-muted-foreground text-sm">
-                        {formattedProducts.find(p => p.id === product.id)?.formattedDate}
+                        {formattedProducts.find((p: any) => p.id === product.id)?.formattedDate}
                       </td>
                       <td className="py-3 px-4 text-right">
                         <div className="flex items-center justify-end gap-2">

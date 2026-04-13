@@ -1,8 +1,20 @@
+/**
+ * ============================================
+ * 订单管理页面 (Phase 5 管理后台重构)
+ * ============================================
+ * 功能说明：
+ *   - 订单列表展示
+ *   - 物流信息更新
+ *   - 订单状态管理
+ *   - 使用 Refine useList hook
+ * ============================================
+ * 2026-04-13: 集成 Refine useList hook
+ */
+
 "use client"
 
-// 2026-04-13: 更新为使用 next-intl 国际化
-
-import { useEffect, useState } from "react"
+import { useState } from "react"
+import { useList } from "@refinedev/core"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -48,11 +60,19 @@ export default function AdminOrdersPage() {
   const ordersT = useTranslations('orders')
   const commonT = useTranslations('common')
   const locale = useLocale()
-  const [orders, setOrders] = useState<Order[]>([])
-  const [loading, setLoading] = useState(true)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [trackingNumber, setTrackingNumber] = useState("")
   const [updating, setUpdating] = useState(false)
+
+  const { query: { data: ordersData, isLoading: loading, refetch } } = useList({
+    resource: "orders",
+    pagination: {
+      currentPage: 1,
+      pageSize: 100,
+    },
+  })
+
+  const orders = (ordersData?.data as any) || []
 
   const statusLabels: Record<string, { label: string; color: string }> = {
     PENDING: { label: ordersT("pending"), color: "bg-yellow-500" },
@@ -60,24 +80,6 @@ export default function AdminOrdersPage() {
     SHIPPED: { label: ordersT("shipped"), color: "bg-purple-500" },
     DELIVERED: { label: ordersT("delivered"), color: "bg-green-500" },
     CANCELLED: { label: ordersT("cancelled"), color: "bg-gray-500" },
-  }
-
-  useEffect(() => {
-    fetchOrders()
-  }, [])
-
-  const fetchOrders = async () => {
-    try {
-      const res = await fetch("/api/admin/orders")
-      if (res.ok) {
-        const data = await res.json()
-        setOrders(data)
-      }
-    } catch (error) {
-      console.error(t("fetchingOrders"), error)
-    } finally {
-      setLoading(false)
-    }
   }
 
   const handleUpdateTracking = async () => {
@@ -96,7 +98,7 @@ export default function AdminOrdersPage() {
       })
 
       if (res.ok) {
-        await fetchOrders()
+        refetch()
         setSelectedOrder(null)
       }
     } catch (error) {
@@ -118,7 +120,7 @@ export default function AdminOrdersPage() {
       })
 
       if (res.ok) {
-        await fetchOrders()
+        refetch()
       }
     } catch (error) {
       console.error(t("updateStatusFailed"), error)
@@ -156,7 +158,7 @@ export default function AdminOrdersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {orders.map((order) => (
+              {orders.map((order: any) => (
                 <TableRow key={order.id}>
                   <TableCell className="font-mono text-sm">
                     {order.id.slice(0, 8)}...

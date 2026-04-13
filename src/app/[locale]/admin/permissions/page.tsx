@@ -1,19 +1,21 @@
 /**
  * ============================================
- * 管理员权限管理页面
+ * 管理员权限管理页面 (Phase 5 管理后台重构)
  * ============================================
  * 功能说明：
  *   - 权限列表展示（表格）
  *   - 显示关联角色数量
  *   - 创建/编辑权限 Dialog
  *   - 删除权限确认 Dialog
+ *   - 使用 Refine useList hook
  * ============================================
- * 2026-04-13: 迁移到 next-intl 国际化方案
+ * 2026-04-13: 集成 Refine useList hook
  */
 
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useMemo } from "react"
+import { useList } from "@refinedev/core"
 import { Shield, Plus, Pencil, Trash2, Check, Loader2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -66,8 +68,15 @@ const PERMISSION_TYPES = [
 export default function PermissionsPage() {
   const t = useTranslations('admin.permissions')
 
-  const [permissions, setPermissions] = useState<Permission[]>([])
-  const [loading, setLoading] = useState(true)
+  const { query: { data: permissionsData, isLoading: loading, refetch } } = useList({
+    resource: "permissions",
+    pagination: { currentPage: 1, pageSize: 100 },
+  })
+
+  const permissions = useMemo(() => {
+    const raw = permissionsData?.data as any
+    return raw?.list || []
+  }, [permissionsData])
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -81,25 +90,6 @@ export default function PermissionsPage() {
     type: "ACTION" as "PAGE" | "ACTION" | "DATA",
   })
   const [submitting, setSubmitting] = useState(false)
-
-  useEffect(() => {
-    fetchPermissions()
-  }, [])
-
-  const fetchPermissions = async () => {
-    try {
-      setLoading(true)
-      const res = await fetch("/api/admin/permissions")
-      const data = await res.json()
-      if (data.success) {
-        setPermissions(data.data.list)
-      }
-    } catch (error) {
-      console.error("获取权限列表失败:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handleOpenCreate = () => {
     setEditingPermission(null)
@@ -142,7 +132,7 @@ export default function PermissionsPage() {
       const data = await res.json()
       if (data.success) {
         setDialogOpen(false)
-        fetchPermissions()
+        refetch()
       } else {
         alert(data.error || t('operationFailed'))
       }
@@ -164,7 +154,7 @@ export default function PermissionsPage() {
       const data = await res.json()
       if (data.success) {
         setDeleteDialogOpen(false)
-        fetchPermissions()
+        refetch()
       } else {
         alert(data.error || t('deleteFailed'))
       }
@@ -246,7 +236,7 @@ export default function PermissionsPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  permissions.map((permission) => (
+                  permissions.map((permission: any) => (
                     <TableRow key={permission.id}>
                       <TableCell className="font-medium">{permission.label}</TableCell>
                       <TableCell>

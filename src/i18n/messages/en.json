@@ -195,6 +195,21 @@
     "fetchingOrders": "Failed to fetch orders",
     "updateFailed": "Update failed",
     "updateStatusFailed": "Failed to update status",
+    "7days": "7 Days",
+    "30days": "30 Days",
+    "totalSales": "Total Sales",
+    "revenue": "Revenue",
+    "loading": "Loading...",
+    "refreshData": "Refresh",
+    "roleManagement": "Role Management",
+    "permissionManagement": "Permission Management",
+    "orderStatus": {
+      "pending": "Pending",
+      "paid": "Paid",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
     "login": {
       "adminDashboard": "Admin Dashboard",
       "adminLogin": "Admin Login",
@@ -236,7 +251,108 @@
       "saved": "Saved!",
       "save": "Save",
       "retry": "Retry",
-      "loading": "Loading..."
+      "loading": "Loading...",
+      "networkError": "Network error, please try again"
+    },
+    "chat": {
+      "pageTitle": "Chat Messages",
+      "searchPlaceholder": "Search conversations...",
+      "loading": "Loading...",
+      "noMessages": "No messages",
+      "support": "Support",
+      "messagePlaceholder": "Type a message...",
+      "selectConversation": "Select a conversation"
+    },
+    "import": {
+      "pageTitle": "Product Import",
+      "manualImport": "Manual Import",
+      "importing": "Importing...",
+      "importFailed": "Import failed",
+      "importInstructions": "Import Instructions",
+      "instruction1": "1. Fetch product data from wholesaler 1866",
+      "instruction2": "2. Duplicate products will be automatically skipped",
+      "instruction3": "3. View detailed results after import completes",
+      "importHistory": "Import History",
+      "loading": "Loading...",
+      "noImportRecords": "No import records",
+      "triggeredBy": "Triggered by",
+      "successFailed": "Success/Failed",
+      "duration": "Duration",
+      "status": {
+        "pending": "Pending",
+        "running": "Running",
+        "completed": "Completed",
+        "failed": "Failed"
+      },
+      "confirmImport": "Confirm Import",
+      "confirmImportDescription": "Are you sure you want to import products from wholesaler 1866?",
+      "wholesaler": "Wholesaler",
+      "skipDuplicates": "Skip Duplicates",
+      "yes": "Yes",
+      "startImport": "Start Import",
+      "importCompleted": "Import Completed",
+      "imported": "Imported",
+      "skipped": "Skipped",
+      "unknownError": "Unknown error",
+      "importDetails": "Import Details",
+      "total": "Total",
+      "success": "Success",
+      "failed": "Failed",
+      "errorDetails": "Error Details",
+      "started": "Started",
+      "completed": "Completed",
+      "buttons": {
+        "cancel": "Cancel",
+        "close": "Close"
+      }
+    },
+    "knowledge": {
+      "pageTitle": "Knowledge Base",
+      "newArticle": "New Article",
+      "searchPlaceholder": "Search knowledge...",
+      "allCategories": "All Categories",
+      "allStatus": "All Status",
+      "search": "Search",
+      "articles": "Articles",
+      "items": "items",
+      "loading": "Loading...",
+      "noData": "No data",
+      "previous": "Previous",
+      "next": "Next",
+      "editArticle": "Edit Article",
+      "versionHistory": "Version History",
+      "changedBy": "Changed by",
+      "noHistory": "No history",
+      "saveFailed": "Save failed",
+      "deleteFailed": "Delete failed",
+      "confirmDelete": {
+        "title": "Confirm Delete",
+        "description": "Are you sure you want to delete this article? This action cannot be undone."
+      },
+      "status": {
+        "draft": "Draft",
+        "published": "Published",
+        "archived": "Archived"
+      },
+      "form": {
+        "title": "Title",
+        "titlePlaceholder": "Enter article title",
+        "content": "Content",
+        "contentPlaceholder": "Enter article content...",
+        "category": "Category",
+        "selectCategory": "Select category",
+        "status": "Status",
+        "tags": "Tags",
+        "separatedByComma": "separated by comma",
+        "tagsPlaceholder": "Enter tags, separated by comma"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving...",
+        "delete": "Delete",
+        "close": "Close"
+      }
     }
   },
   "search": {

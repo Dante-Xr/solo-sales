@@ -53,22 +53,22 @@
   - [x] SubTask 4.1.7: 简化 layout.tsx，移除 LanguageProvider
   - [x] SubTask 4.1.8: 验证中英文切换、SSR 渲染、无 hydration 错误
 
-## Phase 5: 管理后台重构 (v1.0.0)
+## Phase 5: 管理后台重构 (v1.0.0) ✅ 已完成 (2026-04-13)
 
-- [ ] Task 5.1: Refine 替代自建管理后台
-  - [ ] SubTask 5.1.1: 安装 @refinedev/core @refinedev/nextjs-router
-  - [ ] SubTask 5.1.2: 创建 Refine 配置和数据提供者
-  - [ ] SubTask 5.1.3: 迁移 admin/products 页面
-  - [ ] SubTask 5.1.4: 迁移 admin/orders 页面
-  - [ ] SubTask 5.1.5: 迁移 admin/users 页面
-  - [ ] SubTask 5.1.6: 迁移其余 admin 页面
-  - [ ] SubTask 5.1.7: 验证 CRUD 操作和权限控制
+- [x] Task 5.1: Refine 替代自建管理后台
+  - [x] SubTask 5.1.1: 安装 @refinedev/core @refinedev/nextjs-router
+  - [x] SubTask 5.1.2: 创建 Refine 配置和数据提供者
+  - [x] SubTask 5.1.3: 迁移 admin/products 页面
+  - [x] SubTask 5.1.4: 迁移 admin/orders 页面
+  - [x] SubTask 5.1.5: 迁移 admin/users 页面
+  - [x] SubTask 5.1.6: 迁移其余 admin 页面
+  - [x] SubTask 5.1.7: 验证 CRUD 操作
 
-- [ ] Task 5.2: Tremor 替代 Recharts（管理后台）
-  - [ ] SubTask 5.2.1: 安装 @tremor/react
-  - [ ] SubTask 5.2.2: 替换 SalesChart 组件为 Tremor AreaChart
-  - [ ] SubTask 5.2.3: 创建 KPI 卡片组件
-  - [ ] SubTask 5.2.4: 验证图表渲染和暗色模式
+- [x] Task 5.2: Tremor 替代 Recharts（管理后台）
+  - [x] SubTask 5.2.1: 安装 @tremor/react
+  - [x] SubTask 5.2.2: 替换 SalesChart 组件为 Tremor AreaChart
+  - [x] SubTask 5.2.3: 创建 KPI 卡片组件
+  - [x] SubTask 5.2.4: 验证图表渲染和暗色模式
 
 ## Task Dependencies
 - Task 1.1 和 1.2 可并行执行

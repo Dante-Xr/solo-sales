@@ -1,28 +1,20 @@
 /**
  * ============================================
- * 销售趋势图表组件 (Task 2.2)
+ * 销售趋势图表组件 (Phase 5 管理后台重构)
  * ============================================
  * 功能说明：
- *   - 展示 7天/30天 销售趋势折线图
- *   - 使用 Recharts 库绘制
+ *   - 展示 7天/30天 销售趋势面积图
+ *   - 使用 Tremor AreaChart 替代 Recharts
  *   - 响应式设计
- *   - 2026-04-13: 更新为使用 next-intl 国际化
+ *   - 支持暗色模式
  * ============================================
+ * 2026-04-13: 从 Recharts 迁移到 Tremor AreaChart
  */
 
 "use client"
 
 import { useState, useEffect } from "react"
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from "recharts"
+import { AreaChart } from "@tremor/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useTranslations, useLocale } from "next-intl"
@@ -39,49 +31,6 @@ interface SalesChartProps {
   loading?: boolean
 }
 
-interface TooltipPayload {
-  name: string
-  value: number
-  color: string
-}
-
-function CustomTooltip({
-  active,
-  payload,
-  label,
-  t
-}: {
-  active?: boolean
-  payload?: TooltipPayload[]
-  label?: string
-  t: ReturnType<typeof useTranslations>
-}) {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-background border rounded-lg shadow-lg p-3">
-        <p className="font-medium mb-2">{label}</p>
-        {payload.map((entry, index) => (
-          <div key={index} className="flex items-center gap-2 text-sm">
-            <div
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: entry.color }}
-            />
-            <span className="text-muted-foreground">
-              {entry.name === "sales" ? t('sales') + ":" : ""}
-            </span>
-            <span className="font-medium">
-              {entry.name === "revenue"
-                ? `$${entry.value.toLocaleString()}`
-                : entry.value}
-            </span>
-          </div>
-        ))}
-      </div>
-    )
-  }
-  return null
-}
-
 export function SalesChart({ data: propData, loading: propLoading }: SalesChartProps) {
   const t = useTranslations('admin')
   const locale = useLocale()
@@ -89,7 +38,6 @@ export function SalesChart({ data: propData, loading: propLoading }: SalesChartP
   const [data, setData] = useState<SalesData[]>(propData || [])
   const [loading, setLoading] = useState(propLoading ?? true)
 
-  // 模拟销售数据
   useEffect(() => {
     if (propData && propData.length > 0) {
       setData(propData)
@@ -127,10 +75,15 @@ export function SalesChart({ data: propData, loading: propLoading }: SalesChartP
     return () => clearTimeout(timer)
   }, [period, locale])
 
-  // 格式化货币
   const formatCurrency = (value: number) => {
     return `$${value.toLocaleString()}`
   }
+
+  const chartData = data.map((d) => ({
+    date: d.date,
+    [t('sales')]: d.sales,
+    [t('revenue')]: d.revenue,
+  }))
 
   return (
     <Card>
@@ -165,68 +118,23 @@ export function SalesChart({ data: propData, loading: propLoading }: SalesChartP
             </div>
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart
-              data={data}
-              margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis
-                dataKey="date"
-                tick={{ fontSize: 12 }}
-                tickLine={false}
-                axisLine={{ stroke: "var(--border)" }}
-              />
-              <YAxis
-                yAxisId="left"
-                tick={{ fontSize: 12 }}
-                tickLine={false}
-                axisLine={{ stroke: "var(--border)" }}
-                tickFormatter={(value) => `${value}`}
-              />
-              <YAxis
-                yAxisId="right"
-                orientation="right"
-                tick={{ fontSize: 12 }}
-                tickLine={false}
-                axisLine={{ stroke: "var(--border)" }}
-                tickFormatter={(value) => formatCurrency(value)}
-              />
-              <Tooltip content={<CustomTooltip t={t} />} />
-              <Legend
-                formatter={(value) =>
-                  value === "sales"
-                    ? t('sales')
-                    : value === "revenue"
-                      ? t('revenue')
-                      : value
-                }
-              />
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="sales"
-                name="sales"
-                stroke="#2563eb"
-                strokeWidth={2}
-                dot={false}
-                activeDot={{ r: 4 }}
-              />
-              <Line
-                yAxisId="right"
-                type="monotone"
-                dataKey="revenue"
-                name="revenue"
-                stroke="#16a34a"
-                strokeWidth={2}
-                dot={false}
-                activeDot={{ r: 4 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          <AreaChart
+            className="h-[300px] mt-4"
+            data={chartData}
+            index="date"
+            categories={[t('sales'), t('revenue')]}
+            colors={["blue", "green"]}
+            yAxisWidth={48}
+            valueFormatter={(value) =>
+              typeof value === "number" && value > 100
+                ? formatCurrency(value)
+                : String(value)
+            }
+            showLegend={true}
+            showAnimation={true}
+          />
         )}
 
-        {/* 统计摘要 */}
         {!loading && !propLoading && data.length > 0 && (
           <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t">
             <div className="text-center">
