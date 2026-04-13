@@ -1,14 +1,17 @@
 "use client"
 
-import { Suspense } from "react"
+import { Suspense, useState } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useCallback } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ArrowLeft, ShoppingCart } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { ArrowLeft, Search, ShoppingCart, ShoppingBag } from "lucide-react"
 import { useCart } from "@/context/CartContext"
 import { useLanguage } from "@/context/LanguageContext"
+import { useTheme } from "next-themes"
 
 interface SearchProduct {
   id: string
@@ -65,13 +68,22 @@ const MOCK_PRODUCTS: SearchProduct[] = [
 function SearchPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { cartCount, addToCart } = useCart()
   const { language } = useLanguage()
+  const { theme, setTheme } = useTheme()
   const isZh = language === "zh"
+  const { cartCount, addToCart } = useCart()
 
   const query = searchParams.get("q") || ""
+  const [searchInput, setSearchInput] = useState(query)
   const [results, setResults] = useState<SearchProduct[]>([])
   const [loading, setLoading] = useState(true)
+
+  const navItems = [
+    { labelKey: "nav.home", href: "/" },
+    { labelKey: "nav.shop", href: "/products" },
+    { labelKey: "nav.about", href: "/about" },
+    { labelKey: "nav.contact", href: "/contact" },
+  ]
 
   const performSearch = useCallback((searchQuery: string) => {
     if (!searchQuery.trim()) {
@@ -99,6 +111,11 @@ function SearchPageContent() {
     return () => clearTimeout(timer)
   }, [query, performSearch])
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    router.push(`/search?q=${encodeURIComponent(searchInput)}`)
+  }
+
   const handleAddToCart = (product: SearchProduct) => {
     addToCart({
       id: product.id,
@@ -109,33 +126,97 @@ function SearchPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-muted flex justify-center">
-      <main className="w-full max-w-md bg-card text-card-foreground min-h-screen shadow-xl flex flex-col">
-        <header className="flex items-center justify-between p-4 border-b sticky top-0 bg-card z-50">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
-            <ArrowLeft className="w-6 h-6" />
-          </Button>
-          <h1 className="text-lg font-bold truncate px-2">
-            {query ? "\"" + query + "\" " + (isZh ? "搜索结果" : "Search Results") : (isZh ? "全部商品" : "All Products")}
-          </h1>
-          <Button variant="ghost" size="icon" className="relative">
-            <ShoppingCart className="w-6 h-6" />
-            {cartCount > 0 && (
-              <span className="absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                {cartCount}
-              </span>
-            )}
-          </Button>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 relative">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-red-500/5 to-pink-500/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/3 -left-20 w-72 h-72 bg-gradient-to-br from-purple-500/5 to-blue-500/5 rounded-full blur-3xl" />
+      </div>
+
+      <div className="w-full max-w-[1440px] mx-auto relative">
+        <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+          <div className="px-4 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              <div className="flex items-center gap-8">
+                <Link href="/" className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">S</span>
+                  </div>
+                  <span className="text-xl font-bold text-foreground hidden sm:block">SoloSales</span>
+                </Link>
+                <nav className="hidden lg:flex items-center gap-6">
+                  {navItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {isZh ? item.labelKey.replace("nav.", "") : item.labelKey.replace("nav.", "")}
+                    </Link>
+                  ))}
+                </nav>
+              </div>
+
+              <div className="flex-1 max-w-xl px-8 hidden lg:block">
+                <form onSubmit={handleSearch} className="relative">
+                  <Input
+                    type="search"
+                    placeholder={isZh ? "搜索商品..." : "Search products..."}
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    className="w-full pr-12"
+                  />
+                  <Button type="submit" variant="ghost" size="icon" className="absolute right-0 top-0">
+                    <Search className="w-5 h-5" />
+                  </Button>
+                </form>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+                  {theme === "dark" ? "☀️" : "🌙"}
+                </Button>
+                <Button variant="ghost" size="icon" className="relative" onClick={() => router.push("/cart")}>
+                  <ShoppingBag className="w-5 h-5" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                      {cartCount}
+                    </span>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-4">
+        <main className="p-4 lg:p-8">
+          <div className="flex items-center gap-4 mb-6 lg:hidden">
+            <Button variant="ghost" size="icon" onClick={() => router.back()}>
+              <ArrowLeft className="w-6 h-6" />
+            </Button>
+            <h1 className="text-xl font-bold">
+              {query ? `"${query}" ` + (isZh ? "搜索结果" : "Search Results") : (isZh ? "全部商品" : "All Products")}
+            </h1>
+          </div>
+
+          <div className="hidden lg:flex items-center gap-4 mb-6">
+            <h1 className="text-2xl font-bold">
+              {query ? `"${query}" ` + (isZh ? "的搜索结果" : "Search Results") : (isZh ? "全部商品" : "All Products")}
+            </h1>
+            {!loading && (
+              <span className="text-muted-foreground">
+                {results.length} {isZh ? "个商品" : "products found"}
+              </span>
+            )}
+          </div>
+
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <div className="text-muted-foreground">{isZh ? "搜索中..." : "Searching..."}</div>
+              <div className="text-muted-foreground text-lg">{isZh ? "搜索中..." : "Searching..."}</div>
             </div>
           ) : results.length === 0 ? (
             <div className="text-center py-20">
-              <div className="text-muted-foreground mb-4">
+              <Search className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
+              <div className="text-muted-foreground mb-4 text-lg">
                 {isZh ? "未找到相关商品" : "No products found"}
               </div>
               <Button variant="outline" onClick={() => router.push("/")}>
@@ -143,61 +224,63 @@ function SearchPageContent() {
               </Button>
             </div>
           ) : (
-            <div className="space-y-4">
-              <div className="text-sm text-muted-foreground mb-2">
-                {isZh ? "找到" : "Found"} {results.length} {isZh ? "个商品" : "products"}
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {results.map((product) => (
-                <Card key={product.id} className="overflow-hidden">
-                  <div className="flex">
-                    <div className="relative w-24 h-24 flex-shrink-0">
-                      <Image
-                        src={product.image}
-                        alt={product.name}
-                        fill
-                        className="object-cover"
-                        sizes="96px"
-                      />
-                    </div>
-                    <CardContent className="flex-1 p-3 flex flex-col justify-between">
-                      <h3 className="text-sm font-medium line-clamp-2">{product.name}</h3>
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold text-red-600 dark:text-red-500">${product.price}</span>
-                        <span className="text-xs text-muted-foreground line-through">${product.originalPrice}</span>
-                      </div>
-                      <div className="flex gap-2 mt-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="flex-1"
-                          onClick={() => router.push("/product/" + product.id)}
-                        >
-                          {isZh ? "查看详情" : "Details"}
-                        </Button>
-                        <Button
-                          size="sm"
-                          className="bg-red-600 hover:bg-red-700 text-white"
-                          onClick={() => handleAddToCart(product)}
-                        >
-                          <ShoppingCart className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
+                <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push("/product/" + product.id)}>
+                  <div className="relative aspect-square bg-muted">
+                    <Image
+                      src={product.image}
+                      alt={product.name}
+                      fill
+                      className="object-cover hover:scale-105 transition-transform duration-300"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    />
                   </div>
+                  <CardContent className="p-4">
+                    <h3 className="font-medium text-sm line-clamp-2 mb-2">{product.name}</h3>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-lg font-bold text-red-600 dark:text-red-500">${product.price}</span>
+                      <span className="text-sm text-muted-foreground line-through">${product.originalPrice}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleAddToCart(product)
+                        }}
+                      >
+                        <ShoppingCart className="w-4 h-4 mr-1" />
+                        {isZh ? "加入购物车" : "Add"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          router.push("/product/" + product.id)
+                        }}
+                      >
+                        {isZh ? "查看" : "Details"}
+                      </Button>
+                    </div>
+                  </CardContent>
                 </Card>
               ))}
             </div>
           )}
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   )
 }
 
 function SearchLoading() {
   return (
-    <div className="min-h-screen bg-muted flex justify-center items-center">
-      <div className="text-muted-foreground">Loading...</div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center">
+      <div className="text-muted-foreground text-lg">Loading...</div>
     </div>
   )
 }

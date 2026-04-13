@@ -14,14 +14,13 @@ import { UserMenu } from "@/components/storefront/UserMenu"
 import { WelcomeModal } from "@/components/storefront/WelcomeModal"
 import { useCart } from "@/context/CartContext"
 import { useLanguage } from "@/context/LanguageContext"
-import { useTheme } from "@/components/providers/ThemeProvider"
+import { useTheme } from "next-themes"
 
 export default function DemoPage() {
   const router = useRouter()
   const { cartCount, addToCart } = useCart()
   const { language, toggleLanguage } = useLanguage()
   const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
   const [viewers, setViewers] = useState(0)
   const [soldRandom, setSoldRandom] = useState(0)
   const [showWelcome, setShowWelcome] = useState(false)
@@ -31,7 +30,6 @@ export default function DemoPage() {
   const getRandomSold = useCallback(() => Math.floor(Math.random() * 50), [])
 
   useEffect(() => {
-    setMounted(true)
     setViewers(getRandomViewers())
     setSoldRandom(getRandomSold())
     const viewerInterval = setInterval(() => {
@@ -86,11 +84,9 @@ export default function DemoPage() {
           <h1 className="text-xl font-bold tracking-tight">SoloSales Shop</h1>
           <div className="flex items-center gap-1">
             {/* 暗色模式切换按钮 */}
-            {mounted && (
-              <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} title={theme === "dark" ? "Switch to Light" : "切换到暗色"}>
-                {theme === "dark" ? <Sun className="w-5 h-5 text-foreground" /> : <Moon className="w-5 h-5 text-foreground" />}
-              </Button>
-            )}
+            <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} title={theme === "dark" ? "Switch to Light" : "切换到暗色"}>
+              {theme === "dark" ? <Sun className="w-5 h-5 text-foreground" /> : <Moon className="w-5 h-5 text-foreground" />}
+            </Button>
             {/* 语言切换按钮 */}
             <Button variant="ghost" size="icon" onClick={toggleLanguage} title={isZh ? "Switch to English" : "切换到中文"}>
               <Globe className="w-5 h-5 text-foreground" />
@@ -130,21 +126,17 @@ export default function DemoPage() {
                   <div className="aspect-square relative">
                     <Image src={product.image} alt={product.name} fill className="object-cover" sizes="(max-width: 768px) 50vw, 33vw" />
                     {/* 正在观看人数 */}
-                    {mounted && (
-                      <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <span>👀</span>
-                        <span>{viewers}</span>
-                      </div>
-                    )}
+                    <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <span>👀</span>
+                      <span>{viewers}</span>
+                    </div>
                   </div>
                   <CardContent className="p-3 flex-1 flex flex-col justify-between">
                     <h3 className="text-sm font-medium line-clamp-2 mb-1">{product.name}</h3>
                     {/* 已售数量 */}
-                    {mounted && (
-                      <div className="text-xs text-muted-foreground mb-2">
-                        {isZh ? "已售" : "Sold"} {product.sales + soldRandom}
-                      </div>
-                    )}
+                    <div className="text-xs text-muted-foreground mb-2">
+                      {isZh ? "已售" : "Sold"} {product.sales + soldRandom}
+                    </div>
                     <div className="flex items-end justify-between">
                       <span className="text-lg font-bold text-red-600 dark:text-red-500">${product.price}</span>
                       <Button

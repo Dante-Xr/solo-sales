@@ -14,7 +14,7 @@ import { FeatureSection } from "@/components/storefront/FeatureSection"
 import { StorefrontFooter } from "@/components/storefront/StorefrontFooter"
 import { useCart } from "@/context/CartContext"
 import { useLanguage } from "@/context/LanguageContext"
-import { useTheme } from "@/components/providers/ThemeProvider"
+import { useTheme } from "next-themes"
 
 const WelcomeModal = dynamic(
   () => import("@/components/storefront/WelcomeModal").then(mod => mod.WelcomeModal),
@@ -36,19 +36,15 @@ export default function Storefront() {
   const { cartCount } = useCart()
   const { language, toggleLanguage } = useLanguage()
   const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
   const [showWelcome, setShowWelcome] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
-    console.log("Storefront mounted")
-    setMounted(true)
     const hasVisited = localStorage.getItem("solo_has_visited")
     const couponClaimed = localStorage.getItem("solo_coupon_claimed")
 
     if (!hasVisited || !couponClaimed) {
       const timer = setTimeout(() => {
-        console.log("Showing welcome modal")
         setShowWelcome(true)
         localStorage.setItem("solo_has_visited", "true")
       }, 2000)
@@ -61,26 +57,38 @@ export default function Storefront() {
   }
 
   const handleCartClick = () => {
-    console.log("Cart clicked, navigating to /cart")
     router.push("/cart")
   }
 
   const handleThemeClick = () => {
-    console.log("Theme clicked, current theme:", theme)
     setTheme(theme === "dark" ? "light" : "dark")
   }
 
   const handleLanguageClick = () => {
-    console.log("Language clicked, current language:", language)
     toggleLanguage()
   }
 
   const isZh = language === "zh"
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="w-full max-w-[1440px] mx-auto">
-        <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-red-500/5 to-pink-500/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/3 -left-20 w-72 h-72 bg-gradient-to-br from-purple-500/5 to-blue-500/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-1/4 w-64 h-64 bg-gradient-to-br from-orange-500/5 to-yellow-500/5 rounded-full blur-3xl" />
+        <svg className="absolute top-20 left-1/4 w-16 h-16 text-muted-foreground/5" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="12" cy="12" r="10" />
+        </svg>
+        <svg className="absolute bottom-40 right-20 w-12 h-12 text-muted-foreground/5" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+        </svg>
+        <svg className="absolute top-1/2 right-1/3 w-8 h-8 text-muted-foreground/5 rotate-45" viewBox="0 0 24 24" fill="currentColor">
+          <polygon points="12,2 22,22 2,22" />
+        </svg>
+      </div>
+
+      <div className="w-full max-w-[1440px] mx-auto relative">
+        <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
           <div className="px-4 lg:px-8">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center gap-8">
@@ -104,7 +112,7 @@ export default function Storefront() {
                 </nav>
               </div>
 
-              <div className="hidden lg:flex items-center gap-3 flex-1 max-w-xl px-8">
+              <div className="flex items-center gap-3 flex-1 max-w-xl">
                 <SearchBox onSearch={(query) => console.log("Search:", query)} />
               </div>
 
@@ -112,28 +120,23 @@ export default function Storefront() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="lg:hidden"
-                  onClick={() => {
-                    console.log("Mobile menu toggle clicked")
-                    setMobileMenuOpen(!mobileMenuOpen)
-                  }}
+                  className="md:hidden"
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 >
                   {mobileMenuOpen ? <X className="w-5 h-5" /> : <Search className="w-5 h-5" />}
                 </Button>
 
-                {mounted && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleThemeClick}
-                  >
-                    {theme === "dark" ? (
-                      <Sun className="w-5 h-5 text-foreground" />
-                    ) : (
-                      <Moon className="w-5 h-5 text-foreground" />
-                    )}
-                  </Button>
-                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleThemeClick}
+                >
+                  {theme === "dark" ? (
+                    <Sun className="w-5 h-5 text-foreground" />
+                  ) : (
+                    <Moon className="w-5 h-5 text-foreground" />
+                  )}
+                </Button>
 
                 <Button variant="ghost" size="icon" onClick={handleLanguageClick}>
                   <Globe className="w-5 h-5 text-foreground" />
@@ -148,7 +151,7 @@ export default function Storefront() {
                   onClick={handleCartClick}
                 >
                   <ShoppingCart className="w-5 h-5" />
-                  {mounted && cartCount > 0 && (
+                  {cartCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                       {cartCount}
                     </span>
@@ -158,8 +161,7 @@ export default function Storefront() {
             </div>
 
             {mobileMenuOpen && (
-              <div className="lg:hidden py-4 border-t border-border">
-                <SearchBox onSearch={(query) => console.log("Search:", query)} />
+              <div className="md:hidden py-4 border-t border-border">
                 <nav className="flex flex-col gap-2 mt-4">
                   {navItems.map((item) => (
                     <Link
@@ -198,10 +200,12 @@ export default function Storefront() {
         </main>
 
         {showWelcome && (
-          <WelcomeModal
-            onClose={() => setShowWelcome(false)}
-            onClaim={handleClaimCoupon}
-          />
+          <div id="welcome-modal-container">
+            <WelcomeModal
+              onClose={() => setShowWelcome(false)}
+              onClaim={handleClaimCoupon}
+            />
+          </div>
         )}
       </div>
     </div>

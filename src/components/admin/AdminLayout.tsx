@@ -17,7 +17,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { useTheme } from "@/components/providers/ThemeProvider"
+import { useTheme } from "next-themes"
 import { useLanguage } from "@/context/LanguageContext"
 import {
   LayoutDashboard,

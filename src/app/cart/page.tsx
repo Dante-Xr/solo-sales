@@ -3,113 +3,179 @@
 import { useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { ChevronLeft, Trash2, Minus, Plus } from "lucide-react"
+import { ChevronLeft, Trash2, Minus, Plus, ShoppingBag } from "lucide-react"
 import { useCart } from "@/context/CartContext"
 import { useLanguage } from "@/context/LanguageContext"
+import { useTheme } from "next-themes"
 import { EnhancedCheckoutModal } from "@/components/checkout/EnhancedCheckoutModal"
 
 export default function CartPage() {
   const router = useRouter()
   const { language } = useLanguage()
+  const { theme, setTheme } = useTheme()
   const isZh = language === "zh"
-  const { cart, removeFromCart, updateQuantity, cartTotal } = useCart()
+  const { cart, removeFromCart, updateQuantity, cartTotal, cartCount } = useCart()
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
 
-  const _checkoutProduct = {
-    id: "cart_checkout",
-    name: isZh ? `购物车商品 (共 ${cart.length} 件)` : `Cart Items (Total ${cart.length})`,
-    price: cartTotal,
-  }
+  const navItems = [
+    { labelKey: "nav.home", href: "/" },
+    { labelKey: "nav.shop", href: "/products" },
+    { labelKey: "nav.about", href: "/about" },
+    { labelKey: "nav.contact", href: "/contact" },
+  ]
 
   return (
-    <div className="min-h-screen bg-muted flex justify-center">
-      <main className="w-full max-w-md bg-card text-card-foreground min-h-screen shadow-xl flex flex-col relative pb-24">
-        {/* 顶部导航 */}
-        <header className="flex items-center p-4 border-b sticky top-0 bg-card z-50">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
-            <ChevronLeft className="w-6 h-6" />
-          </Button>
-          <h1 className="text-lg font-bold ml-2">{isZh ? "购物车" : "Shopping Cart"}</h1>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 relative">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-red-500/5 to-pink-500/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/3 -left-20 w-72 h-72 bg-gradient-to-br from-purple-500/5 to-blue-500/5 rounded-full blur-3xl" />
+      </div>
+
+      <div className="w-full max-w-[1440px] mx-auto relative">
+        <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+          <div className="px-4 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              <div className="flex items-center gap-8">
+                <Link href="/" className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">S</span>
+                  </div>
+                  <span className="text-xl font-bold text-foreground hidden sm:block">SoloSales</span>
+                </Link>
+                <nav className="hidden lg:flex items-center gap-6">
+                  {navItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {isZh ? item.labelKey.replace("nav.", "") : item.labelKey.replace("nav.", "")}
+                    </Link>
+                  ))}
+                </nav>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+                  {theme === "dark" ? "☀️" : "🌙"}
+                </Button>
+                <Button variant="ghost" size="icon" className="relative" onClick={() => router.push("/cart")}>
+                  <ShoppingBag className="w-5 h-5" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                      {cartCount}
+                    </span>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {cart.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
-              <p className="mb-4">{isZh ? "您的购物车是空的" : "Your cart is empty"}</p>
-              <Button onClick={() => router.push('/')}>{isZh ? "去逛逛" : "Browse"}</Button>
+        <main className="flex flex-col lg:flex-row gap-6 p-4 lg:p-8">
+          <div className="flex-1">
+            <div className="flex items-center gap-4 mb-6">
+              <Button variant="ghost" size="icon" onClick={() => router.back()}>
+                <ChevronLeft className="w-6 h-6" />
+              </Button>
+              <h1 className="text-2xl font-bold">{isZh ? "购物车" : "Shopping Cart"}</h1>
+              <span className="text-muted-foreground">({cart.length} {isZh ? "件商品" : "items"})</span>
             </div>
-          ) : (
-            cart.map((item) => (
-              <Card key={item.id} className="overflow-hidden">
-                <CardContent className="p-3 flex gap-4">
-                  <div className="w-24 h-24 bg-muted rounded-md overflow-hidden flex-shrink-0 relative">
-                    <Image src={item.image} alt={item.name} fill className="object-cover" />
-                  </div>
-                  <div className="flex-1 flex flex-col justify-between">
-                    <div>
-                      <h3 className="font-medium text-sm line-clamp-2">{item.name}</h3>
-                      <p className="text-red-600 dark:text-red-500 font-bold mt-1">${item.price}</p>
-                    </div>
-                    <div className="flex items-center justify-between mt-2">
-                      <div className="flex items-center border rounded-md">
-                        <button
-                          className="px-2 py-1 hover:bg-accent text-muted-foreground"
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="px-3 text-sm font-medium">{item.quantity}</span>
-                        <button
-                          className="px-2 py-1 hover:bg-accent text-muted-foreground"
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
+
+            <div className="bg-card rounded-xl border shadow-sm">
+              {cart.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
+                  <ShoppingBag className="w-16 h-16 mb-4 text-muted-foreground/50" />
+                  <p className="mb-4 text-lg">{isZh ? "您的购物车是空的" : "Your cart is empty"}</p>
+                  <Button onClick={() => router.push('/')} size="lg">{isZh ? "去逛逛" : "Browse"}</Button>
+                </div>
+              ) : (
+                <div className="divide-y">
+                  {cart.map((item) => (
+                    <div key={item.id} className="p-4 flex items-center gap-4 hover:bg-muted/50 transition-colors">
+                      <div className="w-24 h-24 bg-muted rounded-lg overflow-hidden flex-shrink-0 relative">
+                        <Image src={item.image} alt={item.name} fill className="object-cover" />
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-muted-foreground hover:text-destructive"
-                        onClick={() => removeFromCart(item.id)}
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </Button>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-sm line-clamp-2">{item.name}</h3>
+                        <p className="text-red-600 dark:text-red-500 font-bold mt-1">${item.price}</p>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center border rounded-lg">
+                          <button
+                            className="px-3 py-2 hover:bg-accent text-muted-foreground transition-colors"
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          >
+                            <Minus className="w-4 h-4" />
+                          </button>
+                          <span className="px-4 text-sm font-medium">{item.quantity}</span>
+                          <button
+                            className="px-3 py-2 hover:bg-accent text-muted-foreground transition-colors"
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-muted-foreground hover:text-destructive"
+                          onClick={() => removeFromCart(item.id)}
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
-
-        {/* 底部结算栏 */}
-        {cart.length > 0 && (
-          <div className="fixed bottom-0 w-full max-w-md bg-card border-t p-4 flex items-center justify-between shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)] z-50">
-            <div>
-              <p className="text-sm text-muted-foreground">{isZh ? "合计:" : "Total:"}</p>
-              <p className="text-2xl font-black text-red-600 dark:text-red-500">${cartTotal.toFixed(2)}</p>
+                  ))}
+                </div>
+              )}
             </div>
-            <Button
-              size="lg"
-              className="rounded-full bg-red-600 hover:bg-red-700 text-white px-8 shadow-lg shadow-red-200"
-              onClick={() => setIsCheckoutOpen(true)}
-            >
-              {isZh ? "去结算" : "Checkout"}
-            </Button>
           </div>
-        )}
 
-        <EnhancedCheckoutModal
-          isOpen={isCheckoutOpen}
-          onClose={() => setIsCheckoutOpen(false)}
-          product={{ name: isZh ? `购物车商品 (共 ${cart.length} 件)` : `Cart Items (Total ${cart.length})`, price: cartTotal }}
-          isCart={true}
-          cartItems={cart.map(item => ({ id: item.id, name: item.name, price: item.price, quantity: item.quantity }))}
-          cartTotal={cartTotal}
-        />
-      </main>
+          {cart.length > 0 && (
+            <div className="lg:w-96">
+              <div className="bg-card rounded-xl border shadow-sm p-6 sticky top-24">
+                <h2 className="text-lg font-bold mb-4">{isZh ? "订单摘要" : "Order Summary"}</h2>
+                <div className="space-y-3 mb-6">
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>{isZh ? "商品小计" : "Subtotal"}</span>
+                    <span>${cartTotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>{isZh ? "运费" : "Shipping"}</span>
+                    <span className="text-green-600">{isZh ? "免费" : "Free"}</span>
+                  </div>
+                  <div className="border-t pt-3 flex justify-between font-bold text-lg">
+                    <span>{isZh ? "合计" : "Total"}</span>
+                    <span className="text-red-600 dark:text-red-500">${cartTotal.toFixed(2)}</span>
+                  </div>
+                </div>
+                <Button
+                  size="lg"
+                  className="w-full rounded-full bg-red-600 hover:bg-red-700 text-white shadow-lg"
+                  onClick={() => setIsCheckoutOpen(true)}
+                >
+                  {isZh ? "去结算" : "Proceed to Checkout"}
+                </Button>
+                <p className="text-xs text-center text-muted-foreground mt-4">
+                  {isZh ? "结账时自动应用优惠码" : "Coupons applied at checkout"}
+                </p>
+              </div>
+            </div>
+          )}
+        </main>
+      </div>
+
+      <EnhancedCheckoutModal
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        product={{ name: isZh ? `购物车商品 (共 ${cart.length} 件)` : `Cart Items (Total ${cart.length})`, price: cartTotal }}
+        isCart={true}
+        cartItems={cart.map(item => ({ id: item.id, name: item.name, price: item.price, quantity: item.quantity }))}
+        cartTotal={cartTotal}
+      />
     </div>
   )
 }

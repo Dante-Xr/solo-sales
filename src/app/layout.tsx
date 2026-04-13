@@ -8,7 +8,6 @@ import { AuthProvider } from "@/components/providers/AuthProvider";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
-import { ReactNode } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,19 +20,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SoloSales Shop v0.5.5",
+  title: "SoloSales Shop",
   description: "High conversion independent store for TikTok",
 };
-
-// 2026-03-24: 合并 ThemeProvider 和 AuthProvider，减少嵌套层级
-// 优化目的：从 6 层嵌套减少到 4 层，降低重渲染传播深度
-function CombinedThemeAuthProvider({ children }: { children: ReactNode }) {
-  return (
-    <ThemeProvider>
-      <AuthProvider>{children}</AuthProvider>
-    </ThemeProvider>
-  )
-}
 
 export default function RootLayout({
   children,
@@ -45,19 +34,19 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* 2026-03-24: 优化后的 Provider 嵌套结构 */}
-        {/* 合并 ThemeProvider + AuthProvider，减少 1 层嵌套 */}
-        <CombinedThemeAuthProvider>
-          <LanguageProvider>
-            <WishlistProvider>
-              <CartProvider>
-                <TooltipProvider>
-                  <QueryProvider>{children}</QueryProvider>
-                </TooltipProvider>
-              </CartProvider>
-            </WishlistProvider>
-          </LanguageProvider>
-        </CombinedThemeAuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <LanguageProvider>
+              <WishlistProvider>
+                <CartProvider>
+                  <TooltipProvider>
+                    <QueryProvider>{children}</QueryProvider>
+                  </TooltipProvider>
+                </CartProvider>
+              </WishlistProvider>
+            </LanguageProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

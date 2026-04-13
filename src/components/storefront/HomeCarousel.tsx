@@ -1,8 +1,5 @@
 "use client"
 
-// 2026-03-24: HomeCarousel 轮播组件性能优化
-// 优化点：移除每秒触发的 useState 更新，改为纯 ref 计时的方式
-// 避免轮播过程中因状态更新导致的频繁重渲染
 import * as React from "react"
 import Image from "next/image"
 import useEmblaCarousel from "embla-carousel-react"
@@ -38,9 +35,8 @@ export const FEATURED_PRODUCTS = [
   }
 ]
 
-const AUTO_PLAY_DELAY = 10
+const AUTO_PLAY_INTERVAL = 8
 
-// 2026-03-24: 使用 React.memo 优化轮播卡片组件，避免不必要重渲染
 const CarouselCard = React.memo(function CarouselCard({
   product,
   isActive,
@@ -82,67 +78,33 @@ const CarouselCard = React.memo(function CarouselCard({
   )
 })
 
-// 2026-03-24: 轮播卡片点击处理器工厂函数，避免在渲染时创建新函数
-// 使用 useCallback 缓存，确保子组件不会因回调函数变化而重渲染
-const getCarouselCardClickHandler = (router: ReturnType<typeof useRouter>, productId: string) => {
-  const handler = () => {
-    router.push(`/product/${productId}`)
-  }
-  return handler
-}
-
 export function HomeCarousel() {
   const router = useRouter()
   const { t } = useLanguage()
   const [emblaRef, embla] = useEmblaCarousel({ loop: true })
-
-  // 2026-03-24: 优化：移除每秒更新状态的 useState，改为纯 ref 计时
-  // 这样可以避免每秒触发组件重渲染，提升滚动性能
   const [currentIndex, setCurrentIndex] = React.useState(0)
-  const timerRef = React.useRef<{
-    interval: ReturnType<typeof setInterval> | null
-    remaining: number
-  } | null>(null)
-
-  // 2026-03-24: 使用 ref 存储 embla 实例，避免闭包问题
-  // 使用 useEffect 而非直接赋值，避免 "Cannot update ref during render" 错误
-  const emblaRefStore = React.useRef(embla)
+  const timerRef = React.useRef<ReturnType<typeof setInterval> | null>(null)
+  const emblaApiRef = React.useRef(embla)
 
   React.useEffect(() => {
-    emblaRefStore.current = embla
+    emblaApiRef.current = embla
   }, [embla])
 
-  const startTimer = React.useCallback(() => {
-    if (timerRef.current?.interval) {
-      clearInterval(timerRef.current.interval)
-    }
-
-    // 2026-03-24: 使用 ref 存储剩余时间，不触发渲染
-    timerRef.current = {
-      interval: null,
-      remaining: AUTO_PLAY_DELAY
-    }
-
-    timerRef.current.interval = setInterval(() => {
-      if (!timerRef.current) return
-
-      timerRef.current.remaining -= 1
-
-      if (timerRef.current.remaining <= 0) {
-        if (emblaRefStore.current) {
-          emblaRefStore.current.scrollNext()
-        }
-        timerRef.current.remaining = AUTO_PLAY_DELAY
-      }
-    }, 1000)
-  }, [])
-
-  const stopTimer = React.useCallback(() => {
-    if (timerRef.current?.interval) {
-      clearInterval(timerRef.current.interval)
+  const clearTimer = React.useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current)
       timerRef.current = null
     }
   }, [])
+
+  const startTimer = React.useCallback(() => {
+    clearTimer()
+    timerRef.current = setInterval(() => {
+      if (emblaApiRef.current) {
+        emblaApiRef.current.scrollNext()
+      }
+    }, AUTO_PLAY_INTERVAL * 1000)
+  }, [clearTimer])
 
   React.useEffect(() => {
     if (!embla) return
@@ -156,21 +118,25 @@ export function HomeCarousel() {
 
     return () => {
       embla.off('select', onSelect)
-      stopTimer()
+      clearTimer()
     }
-  }, [embla, startTimer, stopTimer])
+  }, [embla, startTimer, clearTimer])
 
   const scrollPrev = React.useCallback(() => {
-    stopTimer()
+    clearTimer()
     if (embla) embla.scrollPrev()
     startTimer()
-  }, [embla, startTimer, stopTimer])
+  }, [embla, startTimer, clearTimer])
 
   const scrollNext = React.useCallback(() => {
-    stopTimer()
+    clearTimer()
     if (embla) embla.scrollNext()
     startTimer()
-  }, [embla, startTimer, stopTimer])
+  }, [embla, startTimer, clearTimer])
+
+  const handleCardClick = React.useCallback((productId: string) => {
+    router.push(`/product/${productId}`)
+  }, [router])
 
   return (
     <div className="w-full relative pt-4 pb-2">
@@ -183,7 +149,7 @@ export function HomeCarousel() {
                 key={product.id}
                 product={product}
                 isActive={index === currentIndex}
-                onClick={getCarouselCardClickHandler(router, product.id)}
+                onClick={() => handleCardClick(product.id)}
               />
             ))}
           </div>
