@@ -1,45 +1,45 @@
 # Tasks - 框架迁移计划
 
-## Phase 1: 零成本修复 (v0.9.0)
+## Phase 1: 零成本修复 (v0.9.0) ✅ 已完成 (2026-04-13)
 
-- [ ] Task 1.1: 启用 next-themes 替代自建 ThemeProvider
-  - [ ] SubTask 1.1.1: 重写 `src/components/providers/ThemeProvider.tsx`，使用 next-themes
-  - [ ] SubTask 1.1.2: 简化 `src/app/layout.tsx`，移除 CombinedThemeAuthProvider
-  - [ ] SubTask 1.1.3: 移除各页面中的 `mounted` 状态检查（page.tsx, cart, search, product）
-  - [ ] SubTask 1.1.4: 验证主题切换、暗色模式、无 hydration 错误
+- [x] Task 1.1: 启用 next-themes 替代自建 ThemeProvider
+  - [x] SubTask 1.1.1: 重写 `src/components/providers/ThemeProvider.tsx`，使用 next-themes
+  - [x] SubTask 1.1.2: 简化 `src/app/layout.tsx`，移除 CombinedThemeAuthProvider
+  - [x] SubTask 1.1.3: 移除各页面中的 `mounted` 状态检查（page.tsx, cart, search, product）
+  - [x] SubTask 1.1.4: 验证主题切换、暗色模式、无 hydration 错误
 
-- [ ] Task 1.2: 启用 TanStack Query 替代手动 fetch
-  - [ ] SubTask 1.2.1: 创建 `src/lib/api-client.ts` API 客户端工具
-  - [ ] SubTask 1.2.2: 创建 `src/hooks/useProducts.ts` 商品查询 Hook
-  - [ ] SubTask 1.2.3: 创建 `src/hooks/useOrders.ts` 订单查询 Hook
-  - [ ] SubTask 1.2.4: 迁移 orders/page.tsx 数据获取为 useQuery
-  - [ ] SubTask 1.2.5: 迁移 orders/[id]/page.tsx 数据获取为 useQuery
-  - [ ] SubTask 1.2.6: 迁移 search/page.tsx 数据获取为 useQuery
-  - [ ] SubTask 1.2.7: 迁移 admin 页面数据获取为 useQuery
-  - [ ] SubTask 1.2.8: 验证缓存、DevTools、加载状态
+- [x] Task 1.2: 启用 TanStack Query 替代手动 fetch
+  - [x] SubTask 1.2.1: 创建 `src/lib/api-client.ts` API 客户端工具
+  - [x] SubTask 1.2.2: 创建 `src/hooks/useProducts.ts` 商品查询 Hook
+  - [x] SubTask 1.2.3: 创建 `src/hooks/useOrders.ts` 订单查询 Hook
+  - [x] SubTask 1.2.4: 迁移 orders/page.tsx 数据获取为 useQuery
+  - [x] SubTask 1.2.5: 迁移 orders/[id]/page.tsx 数据获取为 useQuery
+  - [x] SubTask 1.2.6: 迁移 search/page.tsx 数据获取为 useQuery
+  - [x] SubTask 1.2.7: 迁移 admin 页面数据获取为 useQuery
+  - [x] SubTask 1.2.8: 验证缓存、DevTools、加载状态
 
-## Phase 2: 安全修复 (v0.10.0)
+## Phase 2: 安全修复 (v0.10.0) ✅ 已完成 (2026-04-13)
 
-- [ ] Task 2.1: Better Auth 替代双重认证体系
-  - [ ] SubTask 2.1.1: 安装 better-auth
-  - [ ] SubTask 2.1.2: 创建 `src/lib/auth.ts` Better Auth 配置
-  - [ ] SubTask 2.1.3: 创建 `src/app/api/auth/[...all]/route.ts` API 路由
-  - [ ] SubTask 2.1.4: 更新 Prisma Schema 添加 Better Auth 模型
-  - [ ] SubTask 2.1.5: 迁移前台认证（AuthProvider, useSession）
-  - [ ] SubTask 2.1.6: 迁移后台认证（adminAuth.ts, admin API 路由）
-  - [ ] SubTask 2.1.7: 迁移登录/注册组件
-  - [ ] SubTask 2.1.8: 验证前后台登录、权限检查、Token 安全
+- [x] Task 2.1: Better Auth 替代双重认证体系
+  - [x] SubTask 2.1.1: 安装 better-auth
+  - [x] SubTask 2.1.2: 创建 `src/lib/auth.ts` Better Auth 配置
+  - [x] SubTask 2.1.3: 创建 `src/app/api/auth/[...all]/route.ts` API 路由
+  - [x] SubTask 2.1.4: 更新 Prisma Schema 添加 Better Auth 模型
+  - [x] SubTask 2.1.5: 迁移前台认证（AuthProvider, useSession）
+  - [x] SubTask 2.1.6: 迁移后台认证（adminAuth.ts, admin API 路由）
+  - [x] SubTask 2.1.7: 迁移登录/注册组件
+  - [x] SubTask 2.1.8: 验证前后台登录、权限检查、Token 安全
 
-## Phase 3: 状态管理升级 (v0.11.0)
+## Phase 3: 状态管理升级 (v0.11.0) ✅ 已完成 (2026-04-13)
 
-- [ ] Task 3.1: Zustand 替代 React Context
-  - [ ] SubTask 3.1.1: 安装 zustand
-  - [ ] SubTask 3.1.2: 创建 `src/stores/useCartStore.ts`
-  - [ ] SubTask 3.1.3: 创建 `src/stores/useWishlistStore.ts`
-  - [ ] SubTask 3.1.4: 更新所有消费文件 import（约20个）
-  - [ ] SubTask 3.1.5: 简化 layout.tsx，移除 CartProvider/WishlistProvider
-  - [ ] SubTask 3.1.6: 删除旧文件 CartContext.tsx, WishlistContext.tsx
-  - [ ] SubTask 3.1.7: 验证购物车、收藏、持久化、无 hydration 错误
+- [x] Task 3.1: Zustand 替代 React Context
+  - [x] SubTask 3.1.1: 安装 zustand
+  - [x] SubTask 3.1.2: 创建 `src/stores/useCartStore.ts`
+  - [x] SubTask 3.1.3: 创建 `src/stores/useWishlistStore.ts`
+  - [x] SubTask 3.1.4: 更新所有消费文件 import（约8个）
+  - [x] SubTask 3.1.5: 简化 layout.tsx，移除 CartProvider/WishlistProvider
+  - [x] SubTask 3.1.6: 删除旧文件 CartContext.tsx, WishlistContext.tsx
+  - [x] SubTask 3.1.7: 验证购物车、收藏、持久化、无 hydration 错误
 
 ## Phase 4: 国际化升级 (v0.12.0)
 

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ArrowLeft, Search, ShoppingCart, ShoppingBag } from "lucide-react"
-import { useCart } from "@/context/CartContext"
+import { useCartStore } from "@/stores/useCartStore"
 import { useLanguage } from "@/context/LanguageContext"
 import { useTheme } from "next-themes"
 
@@ -71,7 +71,7 @@ function SearchPageContent() {
   const { language } = useLanguage()
   const { theme, setTheme } = useTheme()
   const isZh = language === "zh"
-  const { cartCount, addToCart } = useCart()
+  const { cartCount, addToCart } = useCartStore()
 
   const query = searchParams.get("q") || ""
   const [searchInput, setSearchInput] = useState(query)

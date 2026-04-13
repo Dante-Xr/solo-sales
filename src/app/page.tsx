@@ -12,7 +12,7 @@ import { UserMenu } from "@/components/storefront/UserMenu"
 import { ProductGrid } from "@/components/storefront/ProductGrid"
 import { FeatureSection } from "@/components/storefront/FeatureSection"
 import { StorefrontFooter } from "@/components/storefront/StorefrontFooter"
-import { useCart } from "@/context/CartContext"
+import { useCartStore } from "@/stores/useCartStore"
 import { useLanguage } from "@/context/LanguageContext"
 import { useTheme } from "next-themes"
 
@@ -33,7 +33,7 @@ const navItems = [
 
 export default function Storefront() {
   const router = useRouter()
-  const { cartCount } = useCart()
+  const { cartCount } = useCartStore()
   const { language, toggleLanguage } = useLanguage()
   const { theme, setTheme } = useTheme()
   const [showWelcome, setShowWelcome] = useState(false)

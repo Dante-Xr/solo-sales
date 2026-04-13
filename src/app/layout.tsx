@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { CartProvider } from "@/context/CartContext";
-import { WishlistProvider } from "@/context/WishlistContext";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
@@ -37,13 +35,9 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <LanguageProvider>
-              <WishlistProvider>
-                <CartProvider>
-                  <TooltipProvider>
-                    <QueryProvider>{children}</QueryProvider>
-                  </TooltipProvider>
-                </CartProvider>
-              </WishlistProvider>
+              <TooltipProvider>
+                <QueryProvider>{children}</QueryProvider>
+              </TooltipProvider>
             </LanguageProvider>
           </AuthProvider>
         </ThemeProvider>

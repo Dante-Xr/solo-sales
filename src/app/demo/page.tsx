@@ -12,13 +12,13 @@ import { HomeCarousel, FEATURED_PRODUCTS } from "@/components/storefront/HomeCar
 import { SearchBox } from "@/components/storefront/SearchBox"
 import { UserMenu } from "@/components/storefront/UserMenu"
 import { WelcomeModal } from "@/components/storefront/WelcomeModal"
-import { useCart } from "@/context/CartContext"
+import { useCartStore } from "@/stores/useCartStore"
 import { useLanguage } from "@/context/LanguageContext"
 import { useTheme } from "next-themes"
 
 export default function DemoPage() {
   const router = useRouter()
-  const { cartCount, addToCart } = useCart()
+  const { cartCount, addToCart } = useCartStore()
   const { language, toggleLanguage } = useLanguage()
   const { theme, setTheme } = useTheme()
   const [viewers, setViewers] = useState(0)

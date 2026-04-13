@@ -9,8 +9,8 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Star, ShieldCheck, Truck, ShoppingCart, Heart, ShoppingBag } from "lucide-react"
 import { EnhancedCheckoutModal } from "@/components/checkout/EnhancedCheckoutModal"
-import { useCart } from "@/context/CartContext"
-import { useWishlist } from "@/context/WishlistContext"
+import { useCartStore } from "@/stores/useCartStore"
+import { useWishlistStore } from "@/stores/useWishlistStore"
 import { useLanguage } from "@/context/LanguageContext"
 import { useTheme } from "next-themes"
 import { FEATURED_PRODUCTS } from "@/components/storefront/HomeCarousel"
@@ -22,8 +22,8 @@ export default function ProductDetailPage() {
   const { language } = useLanguage()
   const { theme, setTheme } = useTheme()
   const isZh = language === "zh"
-  const { addToCart, cartCount } = useCart()
-  const { isInWishlist, toggleWishlist } = useWishlist()
+  const { addToCart, cartCount } = useCartStore()
+  const { isInWishlist, toggleWishlist } = useWishlistStore()
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
 
   const product = FEATURED_PRODUCTS.find(p => p.id === params.id)

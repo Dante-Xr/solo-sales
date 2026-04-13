@@ -11,7 +11,7 @@
 "use client"
 
 import { useState } from "react"
-import { useCart } from "@/context/CartContext"
+import { useCartStore } from "@/stores/useCartStore"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
@@ -34,7 +34,7 @@ export function CouponInput({ onApply, onRemove, isZh = false }: CouponInputProp
     discount: number
   } | null>(null)
 
-  const { cartTotal } = useCart()
+  const { cartTotal } = useCartStore()
 
   const handleApply = async () => {
     if (!code.trim()) {

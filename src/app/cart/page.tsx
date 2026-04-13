@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, Trash2, Minus, Plus, ShoppingBag } from "lucide-react"
-import { useCart } from "@/context/CartContext"
+import { useCartStore } from "@/stores/useCartStore"
 import { useLanguage } from "@/context/LanguageContext"
 import { useTheme } from "next-themes"
 import { EnhancedCheckoutModal } from "@/components/checkout/EnhancedCheckoutModal"
@@ -16,7 +16,7 @@ export default function CartPage() {
   const { language } = useLanguage()
   const { theme, setTheme } = useTheme()
   const isZh = language === "zh"
-  const { cart, removeFromCart, updateQuantity, cartTotal, cartCount } = useCart()
+  const { cart, removeFromCart, updateQuantity, cartTotal, cartCount } = useCartStore()
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
 
   const navItems = [

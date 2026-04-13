@@ -11,7 +11,7 @@
 "use client"
 
 import { useState } from "react"
-import { useCart } from "@/context/CartContext"
+import { useCartStore } from "@/stores/useCartStore"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -31,7 +31,7 @@ interface UpsellRecommendationProps {
 }
 
 export function UpsellRecommendation({ isZh = false }: UpsellRecommendationProps) {
-  const { addToCart } = useCart()
+  const { addToCart } = useCartStore()
   const [loading, setLoading] = useState<string | null>(null)
 
   const recommendations: Product[] = []
