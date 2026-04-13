@@ -1,11 +1,12 @@
 /**
  * ============================================
- * 用户登录表单组件 (Phase 2 安全修复)
+ * 用户登录表单组件 (Phase 4 国际化升级)
  * ============================================
+ * 2026-04-13: 更新为使用 next-intl 国际化
  * 功能说明：
  *   - 用户邮箱密码登录
  *   - 使用 Better Auth 替代 NextAuth
- *   - 支持中英文切换
+ *   - 使用 next-intl 进行国际化
  * ============================================
  */
 
@@ -18,7 +19,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2, Eye, EyeOff } from "lucide-react"
-import { useLanguage } from "@/context/LanguageContext"
+import { useTranslations } from "next-intl"
 
 interface LoginFormProps {
   onSuccess?: () => void
@@ -35,8 +36,7 @@ interface LoginFormProps {
  *   - 登录成功后调用 onSuccess 回调并刷新路由
  */
 export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
-  const { language } = useLanguage()
-  const isZh = language === "zh"
+  const t = useTranslations()
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -61,14 +61,14 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
       })
 
       if (result.error) {
-        setError(isZh ? "邮箱或密码错误" : "Invalid email or password")
+        setError(t('auth.loginFailed'))
       } else {
         // 登录成功：执行回调并刷新页面
         onSuccess?.()
         router.refresh()
       }
     } catch {
-      setError(isZh ? "登录失败，请稍后重试" : "Login failed, please try again")
+      setError(t('auth.loginFailed'))
     } finally {
       setLoading(false)
     }
@@ -77,7 +77,7 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="login-email">{isZh ? "邮箱" : "Email"}</Label>
+        <Label htmlFor="login-email">{t('auth.email')}</Label>
         <Input
           id="login-email"
           type="email"
@@ -90,12 +90,12 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="login-password">{isZh ? "密码" : "Password"}</Label>
+        <Label htmlFor="login-password">{t('auth.password')}</Label>
         <div className="relative">
           <Input
             id="login-password"
-            type={showPassword ? "text" : "password"}
-            placeholder={isZh ? "输入密码" : "Enter password"}
+            type={showPassword ? 'text' : 'password'}
+            placeholder={t('auth.password')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -122,22 +122,22 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
         {loading ? (
           <>
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            {isZh ? "登录中..." : "Logging in..."}
+            {t('common.loading')}
           </>
         ) : (
-          isZh ? "登录" : "Login"
+          t('auth.login')
         )}
       </Button>
 
       {/* 切换到注册链接 */}
       <p className="text-center text-sm text-gray-500">
-        {isZh ? "还没有账户？" : "Don't have an account?"}{" "}
+        {t('auth.noAccount')}{" "}
         <button
           type="button"
           onClick={onSwitchToRegister}
           className="text-blue-600 hover:underline"
         >
-          {isZh ? "立即注册" : "Register now"}
+          {t('auth.register')}
         </button>
       </p>
     </form>

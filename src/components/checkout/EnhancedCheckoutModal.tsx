@@ -1,5 +1,7 @@
 "use client"
 
+// 2026-04-13: 更新为使用 next-intl 国际化
+
 import { useState } from "react"
 import { useSession } from "@/lib/auth-client"
 import {
@@ -15,7 +17,7 @@ import { Label } from "@/components/ui/label"
 import { Loader2 } from "lucide-react"
 import { AuthModal } from "@/components/auth/AuthModal"
 import { GuestCheckoutData } from "@/components/auth/GuestCheckoutForm"
-import { useLanguage } from "@/context/LanguageContext"
+import { useTranslations } from "next-intl"
 
 // 增强版结账弹窗 Props 接口
 interface EnhancedCheckoutModalProps {
@@ -55,10 +57,9 @@ export function EnhancedCheckoutModal({
   cartTotal = 0,
 }: EnhancedCheckoutModalProps) {
   const { data: session } = useSession()   // 当前用户 session
-  const { language } = useLanguage()
-  const isZh = language === "zh"
+  const t = useTranslations()
   const [showAuthModal, setShowAuthModal] = useState(false)  // 是否显示认证弹窗
-  const [authMode, setAuthMode] = useState<"login" | "register" | "guest">("login")  // 认证弹窗模式
+  const [authMode, setAuthMode] = useState<"login" | "register" | "guest">('login')  // 认证弹窗模式
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({  // 收货信息
     name: "",
     phone: "",
@@ -110,14 +111,14 @@ export function EnhancedCheckoutModal({
       })
 
       if (!res.ok) {
-        throw new Error(isZh ? "创建订单失败" : "Failed to create order")
+        throw new Error(t('checkout.createOrderFailed'))
       }
 
       const order = await res.json()
-      alert(isZh ? `订单创建成功！订单号: ${order.id}` : `Order created! Order ID: ${order.id}`)
+      alert(t('checkout.orderCreated', { id: order.id }))
       onClose()
     } catch {
-      setError(isZh ? "订单创建失败，请稍后重试" : "Order creation failed, please try again")
+      setError(t('checkout.orderCreationFailed'))
     } finally {
       setLoading(false)
     }
@@ -127,7 +128,7 @@ export function EnhancedCheckoutModal({
   const handleAuthenticatedCheckout = async () => {
     // 验证收货信息完整性
     if (!shippingInfo.name || !shippingInfo.phone || !shippingInfo.address) {
-      setError(isZh ? "请填写完整的收货信息" : "Please fill in all shipping info")
+      setError(t('checkout.fillShippingInfo'))
       return
     }
 
@@ -157,14 +158,14 @@ export function EnhancedCheckoutModal({
       })
 
       if (!res.ok) {
-        throw new Error(isZh ? "创建订单失败" : "Failed to create order")
+        throw new Error(t('checkout.createOrderFailed'))
       }
 
       const order = await res.json()
-      alert(isZh ? `订单创建成功！订单号: ${order.id}` : `Order created! Order ID: ${order.id}`)
+      alert(t('checkout.orderCreated', { id: order.id }))
       onClose()
     } catch {
-      setError(isZh ? "订单创建失败，请稍后重试" : "Order creation failed, please try again")
+      setError(t('checkout.orderCreationFailed'))
     } finally {
       setLoading(false)
     }
@@ -181,11 +182,11 @@ export function EnhancedCheckoutModal({
       {/* 订单摘要 */}
       <div className="bg-gray-50 p-4 rounded-lg">
         <p className="text-sm text-gray-500 mb-1">
-          {isCart ? (isZh ? "购物车商品" : "Cart Items") : (isZh ? "商品" : "Product")}
+          {isCart ? t('checkout.cartItems') : t('checkout.product')}
         </p>
         <p className="font-medium line-clamp-2">
           {isCart
-            ? `${isZh ? "共" : "Total"} ${cartItems.length} ${isZh ? "件商品" : "items"}`
+            ? t('checkout.totalItems', { count: cartItems.length })
             : product.name}
         </p>
         <p className="text-xl font-bold text-red-600 mt-2">
@@ -196,10 +197,10 @@ export function EnhancedCheckoutModal({
       {/* 收货信息表单 */}
       <div className="space-y-3">
         <div className="space-y-2">
-          <Label htmlFor="checkout-name">{isZh ? "收货人姓名" : "Recipient Name"}</Label>
+          <Label htmlFor="checkout-name">{t('checkout.recipientName')}</Label>
           <Input
             id="checkout-name"
-            placeholder={isZh ? "请输入收货人姓名" : "Enter recipient name"}
+            placeholder={t('checkout.enterRecipientName')}
             value={shippingInfo.name}
             onChange={(e) =>
               setShippingInfo((prev) => ({ ...prev, name: e.target.value }))
@@ -209,10 +210,10 @@ export function EnhancedCheckoutModal({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="checkout-phone">{isZh ? "联系电话" : "Phone Number"}</Label>
+          <Label htmlFor="checkout-phone">{t('checkout.phoneNumber')}</Label>
           <Input
             id="checkout-phone"
-            placeholder={isZh ? "请输入手机号码" : "Enter phone number"}
+            placeholder={t('checkout.enterPhone')}
             value={shippingInfo.phone}
             onChange={(e) =>
               setShippingInfo((prev) => ({ ...prev, phone: e.target.value }))
@@ -222,10 +223,10 @@ export function EnhancedCheckoutModal({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="checkout-address">{isZh ? "收货地址" : "Shipping Address"}</Label>
+          <Label htmlFor="checkout-address">{t('checkout.shippingAddress')}</Label>
           <Input
             id="checkout-address"
-            placeholder={isZh ? "省/市/区 + 详细地址" : "Province/City/District + Address"}
+            placeholder={t('checkout.enterAddress')}
             value={shippingInfo.address}
             onChange={(e) =>
               setShippingInfo((prev) => ({ ...prev, address: e.target.value }))
@@ -248,10 +249,10 @@ export function EnhancedCheckoutModal({
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              {isZh ? "处理中..." : "Processing..."}
+              {t('checkout.processing')}
             </>
           ) : (
-            isZh ? "确认下单" : "Place Order"
+            t('checkout.placeOrder')
           )}
         </Button>
 
@@ -261,7 +262,7 @@ export function EnhancedCheckoutModal({
           onClick={() => setShowAuthModal(true)}
           disabled={loading}
         >
-          {isZh ? "登录账户 / 注册账户" : "Login / Register"}
+          {t('checkout.loginRegister')}
         </Button>
       </div>
     </div>
@@ -272,7 +273,7 @@ export function EnhancedCheckoutModal({
     <div className="space-y-4">
       {/* 订单金额展示 */}
       <div className="bg-gray-50 p-4 rounded-lg">
-        <p className="text-sm text-gray-500 mb-1">{isZh ? "订单金额" : "Order Total"}</p>
+        <p className="text-sm text-gray-500 mb-1">{t('checkout.orderTotal')}</p>
         <p className="text-xl font-bold text-red-600">
           ${totalAmount.toFixed(2)}
         </p>
@@ -282,11 +283,11 @@ export function EnhancedCheckoutModal({
       <Button
         className="w-full bg-[#635BFF] hover:bg-[#5851df] text-white"
         onClick={() => {
-          setAuthMode("login")
+          setAuthMode('login')
           setShowAuthModal(true)
         }}
       >
-        {isZh ? "登录账户" : "Login"}
+        {t('auth.login')}
       </Button>
 
       {/* 分隔线 */}
@@ -295,7 +296,7 @@ export function EnhancedCheckoutModal({
           <span className="w-full border-t" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white px-2 text-gray-500">{isZh ? "或" : "or"}</span>
+          <span className="bg-white px-2 text-gray-500">{t('common.or')}</span>
         </div>
       </div>
 
@@ -304,11 +305,11 @@ export function EnhancedCheckoutModal({
         variant="outline"
         className="w-full"
         onClick={() => {
-          setAuthMode("guest")
+          setAuthMode('guest')
           setShowAuthModal(true)
         }}
       >
-        {isZh ? "访客结账" : "Guest Checkout"}
+        {t('checkout.guestCheckout')}
       </Button>
 
       {/* 注册链接 */}
@@ -316,11 +317,11 @@ export function EnhancedCheckoutModal({
         variant="ghost"
         className="w-full"
         onClick={() => {
-          setAuthMode("register")
+          setAuthMode('register')
           setShowAuthModal(true)
         }}
       >
-        {isZh ? "注册新账户" : "Register"}
+        {t('auth.register')}
       </Button>
     </div>
   )
@@ -331,9 +332,9 @@ export function EnhancedCheckoutModal({
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold">{isZh ? "确认订单" : "Confirm Order"}</DialogTitle>
+            <DialogTitle className="text-xl font-bold">{t('checkout.confirmOrder')}</DialogTitle>
             <DialogDescription>
-              {session ? (isZh ? "请填写收货信息" : "Please fill in shipping info") : (isZh ? "登录账户或以访客身份结账" : "Login or checkout as guest")}
+              {session ? t('checkout.fillShippingInfo') : t('checkout.loginOrGuest')}
             </DialogDescription>
           </DialogHeader>
 

@@ -8,6 +8,7 @@
  *   - 响应式断点：1024px (lg)
  *   - 目标设备：iPhone 13 Pro Max (428px), Xiaomi 14 Ultra (393px)
  *   - v0.6.1: 右上角添加管理员用户菜单
+ *   - 2026-04-13: 更新为使用 next-intl 国际化
  * ============================================
  */
 
@@ -18,7 +19,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { useTheme } from "next-themes"
-import { useLanguage } from "@/context/LanguageContext"
+import { useTranslations, useLocale } from "next-intl"
 import {
   LayoutDashboard,
   Package,
@@ -45,23 +46,23 @@ import {
  * 导航菜单项配置
  */
 const NAV_ITEMS = [
-  { href: "/admin", icon: LayoutDashboard, label: "控制台" },
-  { href: "/admin/products", icon: Package, label: "商品管理" },
-  { href: "/admin/knowledge", icon: BookOpen, label: "知识库" },
-  { href: "/admin/customers", icon: Users, label: "客户管理" },
-  { href: "/admin/orders", icon: ShoppingCart, label: "订单管理" },
-  { href: "/admin/import", icon: Upload, label: "导入管理" },
-  { href: "/admin/chat", icon: MessageSquare, label: "客服会话" },
-  { href: "/admin/settings", icon: Settings, label: "设置" },
+  { href: "/admin", icon: LayoutDashboard, label: "dashboard" },
+  { href: "/admin/products", icon: Package, label: "products" },
+  { href: "/admin/knowledge", icon: BookOpen, label: "knowledge" },
+  { href: "/admin/customers", icon: Users, label: "customers" },
+  { href: "/admin/orders", icon: ShoppingCart, label: "orders" },
+  { href: "/admin/import", icon: Upload, label: "import" },
+  { href: "/admin/chat", icon: MessageSquare, label: "chat" },
+  { href: "/admin/settings", icon: Settings, label: "settings" },
 ]
 
 /**
  * 系统管理菜单项
  */
 const SYSTEM_ITEMS = [
-  { href: "/admin/users", icon: UserCog, label: "用户管理" },
-  { href: "/admin/roles", icon: Shield, label: "角色管理" },
-  { href: "/admin/permissions", icon: Key, label: "权限管理" },
+  { href: "/admin/users", icon: UserCog, label: "userManagement" },
+  { href: "/admin/roles", icon: Shield, label: "roleManagement" },
+  { href: "/admin/permissions", icon: Key, label: "permissionManagement" },
 ]
 
 interface AdminLayoutProps {
@@ -83,11 +84,11 @@ interface AdminUser {
 export function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname()
   const router = useRouter()
+  const t = useTranslations('admin')
+  const locale = useLocale()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const { resolvedTheme, setTheme } = useTheme()
-  const { language, toggleLanguage } = useLanguage()
-  const isZh = language === "zh"
 
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
@@ -102,13 +103,13 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           setAdminUser(data.data)
         }
       } catch (error) {
-        console.error("获取管理员信息失败:", error)
+        console.error(t('fetchingAdminInfoFailed'), error)
       } finally {
         setLoading(false)
       }
     }
     fetchAdminUser()
-  }, [])
+  }, [t])
 
   useEffect(() => {
     const checkMobile = () => {
@@ -129,7 +130,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       await fetch("/api/admin/auth", { method: "PUT" })
       router.push("/admin/login")
     } catch (error) {
-      console.error("登出失败:", error)
+      console.error(t('logoutFailed'), error)
       router.push("/admin/login")
     }
   }
@@ -154,30 +155,30 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           <button
             onClick={() => setSidebarOpen(true)}
             className="p-2 -ml-2 rounded-md hover:bg-muted active:bg-muted/80"
-            aria-label="打开菜单"
+            aria-label={t('openMenu')}
           >
             <Menu className="w-6 h-6" />
           </button>
-          <span className="font-semibold text-base">SoloSales</span>
+          <span className="font-semibold text-base">{t('shopName')}</span>
           <div className="flex items-center gap-1">
             <button
               onClick={() => setUserMenuOpen(!userMenuOpen)}
               className="p-2 rounded-md hover:bg-muted"
-              aria-label="用户菜单"
+              aria-label={t('userMenu')}
             >
               <User className="w-5 h-5" />
             </button>
             <button
-              onClick={() => toggleLanguage()}
+              onClick={() => router.push(`/${locale === 'zh' ? 'en' : 'zh'}/admin`)}
               className="p-2 rounded-md hover:bg-muted"
-              aria-label="切换语言"
+              aria-label={t('switchLanguage')}
             >
               <Globe className="w-5 h-5" />
             </button>
             <button
               onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
               className="p-2 rounded-md hover:bg-muted"
-              aria-label="切换主题"
+              aria-label={t('switchTheme')}
             >
               {resolvedTheme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
@@ -194,17 +195,17 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           />
           <aside className="fixed left-0 top-0 bottom-0 w-72 bg-background z-50 transform transition-transform duration-200 ease-out animate-in slide-in-from-left duration-200">
             <div className="h-14 border-b flex items-center justify-between px-4">
-              <span className="font-semibold">SoloSales</span>
+              <span className="font-semibold">{t('shopName')}</span>
               <button
                 onClick={closeSidebar}
                 className="p-2 rounded-md hover:bg-muted"
-                aria-label="关闭菜单"
+                aria-label={t('closeMenu')}
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             <nav className="p-2 overflow-y-auto h-[calc(100vh-56px)]">
-              <div className="mb-2 px-2 text-xs font-medium text-muted-foreground">管理后台</div>
+              <div className="mb-2 px-2 text-xs font-medium text-muted-foreground">{t('adminPanel')}</div>
               {NAV_ITEMS.map((item) => {
                 const isActive = pathname === item.href
                 return (
@@ -220,11 +221,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     )}
                   >
                     <item.icon className="w-5 h-5 shrink-0" />
-                    <span className="text-sm font-medium">{item.label}</span>
+                    <span className="text-sm font-medium">{t(item.label)}</span>
                   </Link>
                 )
               })}
-              <div className="mt-4 mb-2 px-2 text-xs font-medium text-muted-foreground">系统管理</div>
+              <div className="mt-4 mb-2 px-2 text-xs font-medium text-muted-foreground">{t('systemManagement')}</div>
               {SYSTEM_ITEMS.map((item) => {
                 const isActive = pathname === item.href
                 return (
@@ -240,7 +241,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     )}
                   >
                     <item.icon className="w-5 h-5 shrink-0" />
-                    <span className="text-sm font-medium">{item.label}</span>
+                    <span className="text-sm font-medium">{t(item.label)}</span>
                   </Link>
                 )
               })}
@@ -253,19 +254,19 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       {!isMobile && (
         <aside className="fixed left-0 top-0 bottom-0 w-64 bg-background border-r z-30">
           <div className="h-16 border-b flex items-center justify-between px-4">
-            <span className="font-semibold text-lg">SoloSales</span>
+            <span className="font-semibold text-lg">{t('shopName')}</span>
             <div className="flex items-center gap-1">
               <button
-                onClick={() => toggleLanguage()}
+                onClick={() => router.push(`/${locale === 'zh' ? 'en' : 'zh'}/admin`)}
                 className="p-2 rounded-md hover:bg-muted"
-                aria-label="切换语言"
+                aria-label={t('switchLanguage')}
               >
                 <Globe className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
                 className="p-2 rounded-md hover:bg-muted"
-                aria-label="切换主题"
+                aria-label={t('switchTheme')}
               >
                 {resolvedTheme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </button>
@@ -273,7 +274,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="p-2 rounded-md hover:bg-muted flex items-center gap-2"
-                  aria-label="用户菜单"
+                  aria-label={t('userMenu')}
                 >
                   <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-primary-foreground font-medium text-xs">
                     {loading ? "..." : (adminUser?.username?.charAt(0).toUpperCase() || "A")}
@@ -291,7 +292,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                           <p className="font-medium text-sm truncate text-foreground">{adminUser.username}</p>
                           <p className="text-xs text-muted-foreground truncate">{adminUser.email}</p>
                           <p className="text-xs text-muted-foreground mt-1">
-                            {isZh ? "角色：" : "Role: "}{adminUser.role.label}
+                            {t('role')}: {adminUser.role.label}
                           </p>
                         </div>
                       )}
@@ -301,7 +302,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                           className="w-full px-4 py-2.5 text-left text-sm hover:bg-accent flex items-center gap-3 text-foreground"
                         >
                           <UserCircle className="w-4 h-4 text-muted-foreground" />
-                          {isZh ? "个人资料" : "Profile"}
+                          {t('profile')}
                         </button>
                         <div className="border-t border-border my-1" />
                         <button
@@ -309,7 +310,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                           className="w-full px-4 py-2.5 text-left text-sm hover:bg-accent flex items-center gap-3 text-destructive"
                         >
                           <LogOut className="w-4 h-4" />
-                          {isZh ? "登出" : "Logout"}
+                          {t('logout')}
                         </button>
                       </div>
                     </div>
@@ -319,7 +320,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             </div>
           </div>
           <nav className="p-3 overflow-y-auto h-[calc(100vh-64px)]">
-            <div className="mb-2 px-2 text-xs font-medium text-muted-foreground">管理后台</div>
+            <div className="mb-2 px-2 text-xs font-medium text-muted-foreground">{t('adminPanel')}</div>
             {NAV_ITEMS.map((item) => {
               const isActive = pathname === item.href
               return (
@@ -334,11 +335,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   )}
                 >
                   <item.icon className="w-5 h-5 shrink-0" />
-                  <span className="text-sm font-medium">{item.label}</span>
+                  <span className="text-sm font-medium">{t(item.label)}</span>
                 </Link>
               )
             })}
-            <div className="mt-4 mb-2 px-2 text-xs font-medium text-muted-foreground">系统管理</div>
+            <div className="mt-4 mb-2 px-2 text-xs font-medium text-muted-foreground">{t('systemManagement')}</div>
             {SYSTEM_ITEMS.map((item) => {
               const isActive = pathname === item.href
               return (
@@ -353,7 +354,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   )}
                 >
                   <item.icon className="w-5 h-5 shrink-0" />
-                  <span className="text-sm font-medium">{item.label}</span>
+                  <span className="text-sm font-medium">{t(item.label)}</span>
                 </Link>
               )
             })}
@@ -374,7 +375,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 <p className="font-medium text-sm truncate text-foreground">{adminUser.username}</p>
                 <p className="text-xs text-muted-foreground truncate">{adminUser.email}</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {isZh ? "角色：" : "Role: "}{adminUser.role.label}
+                  {t('role')}: {adminUser.role.label}
                 </p>
               </div>
             )}
@@ -384,7 +385,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 className="w-full px-4 py-2.5 text-left text-sm hover:bg-accent flex items-center gap-3 text-foreground"
               >
                 <UserCircle className="w-4 h-4 text-muted-foreground" />
-                {isZh ? "个人资料" : "Profile"}
+                {t('profile')}
               </button>
               <div className="border-t border-border my-1" />
               <button
@@ -392,7 +393,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 className="w-full px-4 py-2.5 text-left text-sm hover:bg-accent flex items-center gap-3 text-destructive"
               >
                 <LogOut className="w-4 h-4" />
-                {isZh ? "登出" : "Logout"}
+                {t('logout')}
               </button>
             </div>
           </div>

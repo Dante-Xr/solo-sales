@@ -1,3 +1,15 @@
+/**
+ * ============================================
+ * 访客结账表单组件 (Phase 4 国际化升级)
+ * ============================================
+ * 2026-04-13: 更新为使用 next-intl 国际化
+ * 功能说明：
+ *   - 访客结账表单
+ *   - 表单验证
+ *   - 使用 next-intl 进行国际化
+ * ============================================
+ */
+
 "use client"
 
 import { useState } from "react"
@@ -5,7 +17,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2 } from "lucide-react"
-import { useLanguage } from "@/context/LanguageContext"
+import { useTranslations } from "next-intl"
 
 // 访客结账表单 Props 接口
 interface GuestCheckoutFormProps {
@@ -24,8 +36,7 @@ export interface GuestCheckoutData {
 
 // 访客结账表单组件
 export function GuestCheckoutForm({ onSubmit, onSwitchToLogin, onSwitchToRegister }: GuestCheckoutFormProps) {
-  const { language } = useLanguage()
-  const isZh = language === "zh"
+  const t = useTranslations()
   const [formData, setFormData] = useState<GuestCheckoutData>({
     name: "",
     phone: "",
@@ -41,26 +52,26 @@ export function GuestCheckoutForm({ onSubmit, onSwitchToLogin, onSwitchToRegiste
 
     // 验证收货人姓名
     if (!formData.name.trim()) {
-      newErrors.name = isZh ? "请输入收货人姓名" : "Please enter recipient name"
+      newErrors.name = t('checkout.nameRequired')
     }
 
     // 验证手机号（中国大陆手机号格式）
     if (!formData.phone.trim()) {
-      newErrors.phone = isZh ? "请输入联系电话" : "Please enter phone number"
+      newErrors.phone = t('checkout.phoneRequired')
     } else if (!/^1[3-9]\d{9}$/.test(formData.phone)) {
-      newErrors.phone = isZh ? "请输入有效的手机号码" : "Please enter a valid phone number"
+      newErrors.phone = t('checkout.phoneInvalid')
     }
 
     // 验证邮箱
     if (!formData.email.trim()) {
-      newErrors.email = isZh ? "请输入邮箱" : "Please enter email"
+      newErrors.email = t('auth.emailRequired')
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = isZh ? "请输入有效的邮箱地址" : "Please enter a valid email address"
+      newErrors.email = t('checkout.emailInvalid')
     }
 
     // 验证收货地址
     if (!formData.address.trim()) {
-      newErrors.address = isZh ? "请输入收货地址" : "Please enter shipping address"
+      newErrors.address = t('checkout.addressRequired')
     }
 
     setErrors(newErrors)
@@ -94,13 +105,13 @@ export function GuestCheckoutForm({ onSubmit, onSwitchToLogin, onSwitchToRegiste
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* 收货人姓名 */}
       <div className="space-y-2">
-        <Label htmlFor="guest-name">{isZh ? "收货人姓名" : "Recipient Name"}</Label>
+        <Label htmlFor="guest-name">{t('checkout.contactName')}</Label>
         <Input
           id="guest-name"
           type="text"
-          placeholder={isZh ? "请输入收货人姓名" : "Enter recipient name"}
+          placeholder={t('checkout.contactName')}
           value={formData.name}
-          onChange={handleChange("name")}
+          onChange={handleChange('name')}
           disabled={loading}
         />
         {errors.name && <p className="text-red-500 text-xs">{errors.name}</p>}
@@ -108,13 +119,13 @@ export function GuestCheckoutForm({ onSubmit, onSwitchToLogin, onSwitchToRegiste
 
       {/* 联系电话 */}
       <div className="space-y-2">
-        <Label htmlFor="guest-phone">{isZh ? "联系电话" : "Phone Number"}</Label>
+        <Label htmlFor="guest-phone">{t('checkout.contactPhone')}</Label>
         <Input
           id="guest-phone"
           type="tel"
-          placeholder={isZh ? "请输入手机号码" : "Enter phone number"}
+          placeholder={t('checkout.contactPhone')}
           value={formData.phone}
-          onChange={handleChange("phone")}
+          onChange={handleChange('phone')}
           disabled={loading}
         />
         {errors.phone && <p className="text-red-500 text-xs">{errors.phone}</p>}
@@ -122,13 +133,13 @@ export function GuestCheckoutForm({ onSubmit, onSwitchToLogin, onSwitchToRegiste
 
       {/* 邮箱 */}
       <div className="space-y-2">
-        <Label htmlFor="guest-email">{isZh ? "邮箱" : "Email"}</Label>
+        <Label htmlFor="guest-email">{t('checkout.contactEmail')}</Label>
         <Input
           id="guest-email"
           type="email"
-          placeholder={isZh ? "用于接收订单通知" : "For order notifications"}
+          placeholder={t('checkout.contactEmail')}
           value={formData.email}
-          onChange={handleChange("email")}
+          onChange={handleChange('email')}
           disabled={loading}
         />
         {errors.email && <p className="text-red-500 text-xs">{errors.email}</p>}
@@ -136,13 +147,13 @@ export function GuestCheckoutForm({ onSubmit, onSwitchToLogin, onSwitchToRegiste
 
       {/* 收货地址 */}
       <div className="space-y-2">
-        <Label htmlFor="guest-address">{isZh ? "收货地址" : "Shipping Address"}</Label>
+        <Label htmlFor="guest-address">{t('checkout.addressDetail')}</Label>
         <Input
           id="guest-address"
           type="text"
-          placeholder={isZh ? "省/市/区 + 详细地址" : "Province/City/District + Address"}
+          placeholder={t('checkout.addressDetail')}
           value={formData.address}
-          onChange={handleChange("address")}
+          onChange={handleChange('address')}
           disabled={loading}
         />
         {errors.address && <p className="text-red-500 text-xs">{errors.address}</p>}
@@ -153,10 +164,10 @@ export function GuestCheckoutForm({ onSubmit, onSwitchToLogin, onSwitchToRegiste
         {loading ? (
           <>
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            {isZh ? "提交中..." : "Submitting..."}
+            {t('common.loading')}
           </>
         ) : (
-          isZh ? "确认下单" : "Place Order"
+          t('checkout.placeOrder')
         )}
       </Button>
 
@@ -167,14 +178,14 @@ export function GuestCheckoutForm({ onSubmit, onSwitchToLogin, onSwitchToRegiste
           onClick={onSwitchToLogin}
           className="text-blue-600 hover:underline"
         >
-          {isZh ? "已有账户？登录" : "Already have an account? Login"}
+          {t('auth.hasAccount')} {t('auth.login')}
         </button>
         <button
           type="button"
           onClick={onSwitchToRegister}
           className="text-blue-600 hover:underline"
         >
-          {isZh ? "注册新账户" : "Register new account"}
+          {t('auth.register')}
         </button>
       </div>
     </form>

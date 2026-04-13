@@ -1,7 +1,9 @@
 "use client"
 
+// 2026-04-13: 更新为使用 next-intl 国际化
+
 import { Rocket, Shield, Package, MessageCircle } from "lucide-react"
-import { useLanguage } from "@/context/LanguageContext"
+import { useTranslations } from "next-intl"
 
 interface Feature {
   icon: React.ReactNode
@@ -12,23 +14,23 @@ interface Feature {
 const features: Feature[] = [
   {
     icon: <Rocket className="w-6 h-6" />,
-    titleKey: "feature.fastResponse",
-    descriptionKey: "feature.fastResponseDesc",
+    titleKey: "fastResponse",
+    descriptionKey: "fastResponseDesc",
   },
   {
     icon: <Shield className="w-6 h-6" />,
-    titleKey: "feature.securePayment",
-    descriptionKey: "feature.securePaymentDesc",
+    titleKey: "securePayment",
+    descriptionKey: "securePaymentDesc",
   },
   {
     icon: <Package className="w-6 h-6" />,
-    titleKey: "feature.freeReturns",
-    descriptionKey: "feature.freeReturnsDesc",
+    titleKey: "freeReturns",
+    descriptionKey: "freeReturnsDesc",
   },
   {
     icon: <MessageCircle className="w-6 h-6" />,
-    titleKey: "feature.support247",
-    descriptionKey: "feature.support247Desc",
+    titleKey: "support247",
+    descriptionKey: "support247Desc",
   },
 ]
 
@@ -40,7 +42,7 @@ const iconBgColors = [
 ]
 
 export function FeatureSection() {
-  const { t } = useLanguage()
+  const t = useTranslations('feature')
 
   return (
     <section className="bg-muted/30 py-12">

@@ -1,19 +1,25 @@
 /**
  * 2026-03-24: Next.js 配置文件
+ * 2026-04-13: 添加 next-intl 插件支持
  * 功能：
  *   1. 图片优化配置（AVIF/WebP 自动转换）
  *   2. 安全响应头配置（CSP, HSTS, X-Frame-Options 等）
  *   3. 包导入优化
  *   4. Bundle 分析配置
+ *   5. 国际化支持（next-intl）
  */
 import type { NextConfig } from "next";
 import withBundleAnalyzerImport from "@next/bundle-analyzer";
+import createNextIntlPlugin from "next-intl/plugin";
 
 // 2026-03-24: Bundle Analyzer 配置，用于分析打包体积
 // 使用方法：ANALYZE=true npm run build 或 npm run analyze
 const withBundleAnalyzer = withBundleAnalyzerImport({
   enabled: process.env.ANALYZE === "true",
-})
+});
+
+// 2026-04-13: next-intl 插件配置
+const withNextIntl = createNextIntlPlugin();
 
 const nextConfig: NextConfig = {
   // 2026-03-24: 图片优化配置
@@ -101,9 +107,9 @@ const securityHeaders = [
 ];
 
 // 2026-03-24: 导出带安全头的配置
+// 2026-04-13: 使用 withNextIntl 和 withBundleAnalyzer 包装配置
 // 注意：Next.js 16 中安全头配置方式可能不同，需要验证
-// 2026-03-24: 使用 withBundleAnalyzer 包装配置，支持 bundle 分析
-export default withBundleAnalyzer(nextConfig);
+export default withBundleAnalyzer(withNextIntl(nextConfig));
 
 // 2026-03-24: 导出安全头配置供 middleware 使用
 export { securityHeaders };

@@ -1,7 +1,9 @@
 "use client"
 
+// 2026-04-13: 更新为使用 next-intl 国际化
+
 import { CheckCircle2, Circle, Truck, Package, CreditCard } from "lucide-react"
-import { useLanguage } from "@/context/LanguageContext"
+import { useTranslations } from "next-intl"
 
 interface TimelineStep {
   status: string
@@ -17,26 +19,26 @@ interface TrackingTimelineProps {
 const statusOrder = ["PENDING", "PAID", "SHIPPED", "DELIVERED"]
 
 export function TrackingTimeline({ currentStatus }: TrackingTimelineProps) {
-  const { t } = useLanguage()
+  const t = useTranslations('orders')
 
   const currentIndex = statusOrder.indexOf(currentStatus)
 
   const steps: TimelineStep[] = [
     {
       status: "PAID",
-      label: t("orders.paidStatus"),
+      label: t('paidStatus'),
       icon: <CreditCard className="w-5 h-5" />,
       completed: currentIndex >= 1,
     },
     {
       status: "SHIPPED",
-      label: t("orders.shippedStatus"),
+      label: t('shippedStatus'),
       icon: <Truck className="w-5 h-5" />,
       completed: currentIndex >= 2,
     },
     {
       status: "DELIVERED",
-      label: t("orders.deliveredStatus"),
+      label: t('deliveredStatus'),
       icon: <CheckCircle2 className="w-5 h-5" />,
       completed: currentIndex >= 3,
     },
@@ -46,7 +48,7 @@ export function TrackingTimeline({ currentStatus }: TrackingTimelineProps) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
         <Circle className="w-8 h-8 mx-auto mb-2 text-red-500" />
-        <p className="text-red-600 font-medium">{t("orders.orderCancelled")}</p>
+        <p className="text-red-600 font-medium">{t('orderCancelled')}</p>
       </div>
     )
   }
@@ -55,15 +57,15 @@ export function TrackingTimeline({ currentStatus }: TrackingTimelineProps) {
     return (
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
         <Package className="w-8 h-8 mx-auto mb-2 text-yellow-500" />
-        <p className="text-yellow-600 font-medium">{t("orders.waitingPayment")}</p>
-        <p className="text-sm text-yellow-500 mt-1">{t("orders.pleasePay")}</p>
+        <p className="text-yellow-600 font-medium">{t('waitingPayment')}</p>
+        <p className="text-sm text-yellow-500 mt-1">{t('pleasePay')}</p>
       </div>
     )
   }
 
   return (
     <div className="space-y-4">
-      <h3 className="font-medium">{t("orders.orderTracking")}</h3>
+      <h3 className="font-medium">{t('orderTracking')}</h3>
       <div className="flex items-center justify-between">
         {steps.map((step, index) => (
           <div key={step.status} className="flex flex-col items-center flex-1">

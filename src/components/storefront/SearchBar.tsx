@@ -1,15 +1,30 @@
+/**
+ * ============================================
+ * 搜索栏组件 (Phase 4 国际化升级)
+ * ============================================
+ * 2026-04-13: 更新为使用 next-intl 国际化
+ * 功能说明：
+ *   - 搜索框输入和提交
+ *   - 搜索历史记录
+ *   - 支持从历史记录选择
+ *   - 使用 next-intl 进行国际化
+ * ============================================
+ */
+
 "use client"
 
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Search, X, History } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 interface SearchBarProps {
   onSearch: (query: string) => void
 }
 
 export function SearchBar({ onSearch }: SearchBarProps) {
+  const t = useTranslations()
   const [query, setQuery] = useState("")
   const [history, setHistory] = useState<string[]>(() => {
     if (typeof window !== "undefined") {
@@ -76,7 +91,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
         <Input
           type="text"
-          placeholder="搜索商品..."
+          placeholder={t('nav.searchPlaceholder')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -102,7 +117,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
           <div className="flex items-center justify-between px-3 py-2 border-b">
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <History className="w-4 h-4" />
-              <span>搜索历史</span>
+              <span>{t('nav.searchHistory')}</span>
             </div>
             <Button
               variant="ghost"
@@ -110,7 +125,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
               className="text-xs text-gray-500 hover:text-gray-700"
               onClick={clearHistory}
             >
-              清空
+              {t('common.clear')}
             </Button>
           </div>
           
@@ -147,7 +162,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
           disabled={!query.trim()}
         >
           <Search className="w-4 h-4 mr-2" />
-          搜索
+          {t('common.search')}
         </Button>
       </div>
     </div>

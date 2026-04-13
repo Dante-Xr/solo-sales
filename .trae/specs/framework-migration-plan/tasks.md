@@ -41,17 +41,17 @@
   - [x] SubTask 3.1.6: 删除旧文件 CartContext.tsx, WishlistContext.tsx
   - [x] SubTask 3.1.7: 验证购物车、收藏、持久化、无 hydration 错误
 
-## Phase 4: 国际化升级 (v0.12.0)
+## Phase 4: 国际化升级 (v0.12.0) ✅ 已完成 (2026-04-13)
 
-- [ ] Task 4.1: next-intl 替代自建 LanguageContext
-  - [ ] SubTask 4.1.1: 安装 next-intl
-  - [ ] SubTask 4.1.2: 提取翻译文件 `src/i18n/messages/zh.json` 和 `en.json`
-  - [ ] SubTask 4.1.3: 创建 `src/i18n/request.ts` next-intl 配置
-  - [ ] SubTask 4.1.4: 更新 next.config.ts 添加 next-intl 插件
-  - [ ] SubTask 4.1.5: 更新所有消费文件 import（约39个）
-  - [ ] SubTask 4.1.6: 删除旧文件 LanguageContext.tsx, translations.ts
-  - [ ] SubTask 4.1.7: 简化 layout.tsx，移除 LanguageProvider
-  - [ ] SubTask 4.1.8: 验证中英文切换、SSR 渲染、无 hydration 错误
+- [x] Task 4.1: next-intl 替代自建 LanguageContext
+  - [x] SubTask 4.1.1: 安装 next-intl
+  - [x] SubTask 4.1.2: 提取翻译文件 `src/i18n/messages/zh.json` 和 `en.json`
+  - [x] SubTask 4.1.3: 创建 `src/i18n/request.ts` next-intl 配置
+  - [x] SubTask 4.1.4: 更新 next.config.ts 添加 next-intl 插件
+  - [x] SubTask 4.1.5: 更新所有消费文件 import（约39个）
+  - [x] SubTask 4.1.6: 删除旧文件 LanguageContext.tsx, translations.ts
+  - [x] SubTask 4.1.7: 简化 layout.tsx，移除 LanguageProvider
+  - [x] SubTask 4.1.8: 验证中英文切换、SSR 渲染、无 hydration 错误
 
 ## Phase 5: 管理后台重构 (v1.0.0)
 

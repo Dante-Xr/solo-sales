@@ -1,10 +1,12 @@
 "use client"
 
+// 2026-04-13: 更新为使用 next-intl 国际化
+
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Search, X, History, Flame } from "lucide-react"
-import { useLanguage } from "@/context/LanguageContext"
+import { useTranslations, useLocale } from "next-intl"
 
 const MAX_HISTORY = 3
 
@@ -19,7 +21,8 @@ interface SearchBoxProps {
 
 export function SearchBox({ onSearch }: SearchBoxProps) {
   const router = useRouter()
-  const { t, language } = useLanguage()
+  const t = useTranslations('nav')
+  const locale = useLocale()
   const [query, setQuery] = useState("")
   const [history, setHistory] = useState<string[]>([])
   const [showHistory, setShowHistory] = useState(false)
@@ -33,7 +36,7 @@ export function SearchBox({ onSearch }: SearchBoxProps) {
         setHistory(JSON.parse(saved))
       }
     } catch (e) {
-      console.error(t("common.loading"), e)
+      console.error(t('searchPlaceholder'), e)
     }
   }, [t])
 
@@ -43,23 +46,23 @@ export function SearchBox({ onSearch }: SearchBoxProps) {
       try {
         const res = await fetch("/api/search/trending")
         const data = await res.json()
-        const terms = language === "zh" ? data.zh : data.en
+        const terms = locale === "zh" ? data.zh : data.en
         setHotTerms(terms)
       } catch {
-        setHotTerms(language === "zh" ? DEFAULT_HOT_TERMS.zh : DEFAULT_HOT_TERMS.en)
+        setHotTerms(locale === "zh" ? DEFAULT_HOT_TERMS.zh : DEFAULT_HOT_TERMS.en)
       } finally {
         setLoading(false)
       }
     }
     fetchTrending()
-  }, [language])
+  }, [locale])
 
   const saveHistory = (newHistory: string[]) => {
     try {
       localStorage.setItem("solo_search_history_v2", JSON.stringify(newHistory))
       setHistory(newHistory)
     } catch (e) {
-      console.error(t("common.loading"), e)
+      console.error(t('searchPlaceholder'), e)
     }
   }
 
@@ -100,7 +103,7 @@ export function SearchBox({ onSearch }: SearchBoxProps) {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           type="text"
-          placeholder={t("nav.searchPlaceholder")}
+          placeholder={t("searchPlaceholder")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -126,13 +129,13 @@ export function SearchBox({ onSearch }: SearchBoxProps) {
               <div className="flex items-center justify-between px-3 py-2 border-b border-border">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <History className="w-4 h-4" />
-                  <span>{t("nav.searchHistory")}</span>
+                  <span>{t("searchHistory")}</span>
                 </div>
                 <button
                   onClick={clearHistory}
                   className="text-xs text-muted-foreground hover:text-foreground"
                 >
-                  {t("common.clear")}
+                  {t("clear")}
                 </button>
               </div>
 
@@ -156,7 +159,7 @@ export function SearchBox({ onSearch }: SearchBoxProps) {
             <div className="border-t border-border">
               <div className="px-3 py-2 text-sm text-muted-foreground flex items-center gap-2">
                 <Flame className="w-4 h-4 text-orange-500" />
-                <span>{t("nav.hotSearch")}</span>
+                <span>{t("hotSearch")}</span>
               </div>
               <div className="flex flex-wrap gap-2 px-3 pb-2">
                 {hotTerms.map((term, index) => (

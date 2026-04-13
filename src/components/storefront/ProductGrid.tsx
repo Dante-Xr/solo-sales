@@ -1,10 +1,12 @@
 "use client"
 
+// 2026-04-13: 更新为使用 next-intl 国际化
+
 import * as React from "react"
 import Image from "next/image"
 import { ShoppingCart, Flame } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useLanguage } from "@/context/LanguageContext"
+import { useTranslations } from "next-intl"
 import { FEATURED_PRODUCTS } from "./HomeCarousel"
 
 const formatSales = (sales: number) => {
@@ -24,6 +26,7 @@ const ProductCard = React.memo(function ProductCard({
   product: typeof FEATURED_PRODUCTS[0]
 }) {
   const router = useRouter()
+  const t = useTranslations('product')
   const discount = calculateDiscount(product.price, product.originalPrice)
 
   const handleClick = () => {
@@ -53,7 +56,7 @@ const ProductCard = React.memo(function ProductCard({
         {product.sales >= 1000 && (
           <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1">
             <ShoppingCart className="w-3 h-3" />
-            {formatSales(product.sales)} sold
+            {formatSales(product.sales)} {t('sold')}
           </div>
         )}
       </div>
@@ -77,11 +80,11 @@ const ProductCard = React.memo(function ProductCard({
 })
 
 export function ProductGrid() {
-  const { t } = useLanguage()
+  const t = useTranslations('product')
 
   return (
     <div className="w-full px-4 py-6">
-      <h2 className="text-xl font-bold mb-6">{t("product.featured")}</h2>
+      <h2 className="text-xl font-bold mb-6">{t('featured')}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
         {FEATURED_PRODUCTS.map((product) => (
           <ProductCard key={product.id} product={product} />

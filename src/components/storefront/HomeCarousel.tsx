@@ -1,11 +1,13 @@
 "use client"
 
+// 2026-04-13: 更新为使用 next-intl 国际化
+
 import * as React from "react"
 import Image from "next/image"
 import useEmblaCarousel from "embla-carousel-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { useLanguage } from "@/context/LanguageContext"
+import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 
 export const FEATURED_PRODUCTS = [
@@ -46,6 +48,7 @@ const CarouselCard = React.memo(function CarouselCard({
   isActive: boolean
   onClick: () => void
 }) {
+  const t = useTranslations('product')
   return (
     <div className="flex-none w-full">
       <div className="p-1 h-[250px] md:h-[350px] lg:h-[450px]">
@@ -62,7 +65,7 @@ const CarouselCard = React.memo(function CarouselCard({
               priority={isActive}
             />
             <div className="absolute top-4 right-4 bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse">
-              🔥 {product.name.includes("加湿器") ? "限时特惠" : "Hot Sale"}
+              🔥 {product.name.includes("加湿器") ? t('limitedOffer') : "Hot Sale"}
             </div>
             <div className="absolute bottom-0 w-full bg-gradient-to-t from-black/80 to-transparent p-4 lg:p-6">
               <h3 className="text-white font-medium text-sm lg:text-base line-clamp-1">{product.name}</h3>
@@ -80,7 +83,7 @@ const CarouselCard = React.memo(function CarouselCard({
 
 export function HomeCarousel() {
   const router = useRouter()
-  const { t } = useLanguage()
+  const t = useTranslations('product')
   const [emblaRef, embla] = useEmblaCarousel({ loop: true })
   const [currentIndex, setCurrentIndex] = React.useState(0)
   const timerRef = React.useRef<ReturnType<typeof setInterval> | null>(null)
@@ -140,7 +143,7 @@ export function HomeCarousel() {
 
   return (
     <div className="w-full relative pt-4 pb-2">
-      <h2 className="text-lg font-bold mb-3">{t("product.featured")}</h2>
+      <h2 className="text-lg font-bold mb-3">{t('featured')}</h2>
       <div className="relative">
         <div ref={emblaRef} className="overflow-hidden">
           <div className="flex">
@@ -158,7 +161,7 @@ export function HomeCarousel() {
         <button
           onClick={scrollPrev}
           className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg z-10 transition-opacity opacity-60 hover:opacity-100"
-          aria-label={t("common.back")}
+          aria-label={t('back')}
         >
           <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
         </button>
@@ -166,7 +169,7 @@ export function HomeCarousel() {
         <button
           onClick={scrollNext}
           className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg z-10 transition-opacity opacity-60 hover:opacity-100"
-          aria-label={t("common.search")}
+          aria-label={t('next')}
         >
           <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
         </button>

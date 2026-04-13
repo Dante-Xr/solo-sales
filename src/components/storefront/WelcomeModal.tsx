@@ -1,8 +1,10 @@
 "use client"
 
+// 2026-04-13: 更新为使用 next-intl 国际化
+
 import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
-import { useLanguage } from "@/context/LanguageContext"
+import { useTranslations, useLocale } from "next-intl"
 
 interface WelcomeModalProps {
   onClose: () => void
@@ -10,8 +12,8 @@ interface WelcomeModalProps {
 }
 
 export function WelcomeModal({ onClose, onClaim }: WelcomeModalProps) {
-  const { language } = useLanguage()
-  const isZh = language === "zh"
+  const t = useTranslations('welcome')
+  const locale = useLocale()
 
   const handleClaim = () => {
     const couponCode = "NEWUSER5"
@@ -36,7 +38,7 @@ export function WelcomeModal({ onClose, onClaim }: WelcomeModalProps) {
         <div className="bg-gradient-to-r from-pink-500 to-purple-500 p-6 pt-10 text-center">
           <div className="text-5xl mb-2">🎁</div>
           <h2 className="text-2xl font-bold text-white">
-            {isZh ? "新人专属优惠" : "Welcome Gift"}
+            {t("title")}
           </h2>
         </div>
 
@@ -44,14 +46,12 @@ export function WelcomeModal({ onClose, onClaim }: WelcomeModalProps) {
         <div className="p-6 text-center">
           <div className="text-4xl font-black text-red-500 dark:text-red-400 mb-2">$5 OFF</div>
           <p className="text-muted-foreground mb-6">
-            {isZh
-              ? "首单立减5美元，全场通用"
-              : "$5 off your first order, valid on all products"}
+            {t("description")}
           </p>
 
           <div className="bg-muted rounded-lg p-3 mb-6">
             <div className="text-xs text-muted-foreground mb-1">
-              {isZh ? "优惠码" : "Coupon Code"}
+              {t("couponCode")}
             </div>
             <div className="text-lg font-mono font-bold">NEWUSER5</div>
           </div>
@@ -60,13 +60,11 @@ export function WelcomeModal({ onClose, onClaim }: WelcomeModalProps) {
             onClick={handleClaim}
             className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white py-6 text-lg font-bold rounded-xl"
           >
-            {isZh ? "立即领取" : "Claim Now"}
+            {t("claimNow")}
           </Button>
 
           <p className="text-xs text-muted-foreground mt-4">
-            {isZh
-              ? "* 有效期30天，不可与其他优惠叠加"
-              : "* Valid for 30 days, cannot be combined with other offers"}
+            {t("validity")}
           </p>
         </div>
       </div>

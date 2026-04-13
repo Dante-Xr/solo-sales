@@ -1,13 +1,15 @@
 "use client"
 
+// 2026-04-13: 更新为使用 next-intl 国际化
+
 import { useState } from "react"
-import { useLanguage } from "@/context/LanguageContext"
+import { useTranslations } from "next-intl"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Facebook, Instagram, Twitter, Mail, ArrowRight, Video } from "lucide-react"
 
 export function StorefrontFooter() {
-  const { t } = useLanguage()
+  const t = useTranslations('footer')
   const [email, setEmail] = useState("")
   const [subscribed, setSubscribed] = useState(false)
 
@@ -22,16 +24,16 @@ export function StorefrontFooter() {
 
   const footerLinks = {
     shop: [
-      { label: t("footer.newArrivals"), href: "/products?filter=new" },
-      { label: t("footer.bestSellers"), href: "/products?filter=best" },
-      { label: t("footer.sales"), href: "/products?filter=sale" },
-      { label: t("footer.allProducts"), href: "/products" },
+      { label: t("newArrivals"), href: "/products?filter=new" },
+      { label: t("bestSellers"), href: "/products?filter=best" },
+      { label: t("sales"), href: "/products?filter=sale" },
+      { label: t("allProducts"), href: "/products" },
     ],
     company: [
-      { label: t("footer.aboutUs"), href: "/about" },
-      { label: t("footer.contactUs"), href: "/contact" },
-      { label: t("footer.faq"), href: "/faq" },
-      { label: t("footer.privacyPolicy"), href: "/privacy" },
+      { label: t("aboutUs"), href: "/about" },
+      { label: t("contactUs"), href: "/contact" },
+      { label: t("faq"), href: "/faq" },
+      { label: t("privacyPolicy"), href: "/privacy" },
     ],
   }
 
@@ -54,12 +56,12 @@ export function StorefrontFooter() {
               <span className="text-xl font-bold text-white">SoloSales</span>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
-              {t("footer.description")}
+              {t("description")}
             </p>
           </div>
 
           <div className="lg:col-span-1">
-            <h3 className="text-white font-semibold mb-4">{t("footer.shop")}</h3>
+            <h3 className="text-white font-semibold mb-4">{t("shop")}</h3>
             <ul className="space-y-2">
               {footerLinks.shop.map((link) => (
                 <li key={link.href}>
@@ -75,7 +77,7 @@ export function StorefrontFooter() {
           </div>
 
           <div className="lg:col-span-1">
-            <h3 className="text-white font-semibold mb-4">{t("footer.company")}</h3>
+            <h3 className="text-white font-semibold mb-4">{t("company")}</h3>
             <ul className="space-y-2">
               {footerLinks.company.map((link) => (
                 <li key={link.href}>
@@ -91,16 +93,16 @@ export function StorefrontFooter() {
           </div>
 
           <div className="lg:col-span-1">
-            <h3 className="text-white font-semibold mb-4">{t("footer.newsletter")}</h3>
+            <h3 className="text-white font-semibold mb-4">{t("newsletter")}</h3>
             <p className="text-gray-400 text-sm mb-4">
-              {t("footer.newsletterDesc")}
+              {t("newsletterDesc")}
             </p>
             <form onSubmit={handleSubscribe} className="flex gap-2">
               <div className="relative flex-1">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                 <Input
                   type="email"
-                  placeholder={t("footer.emailPlaceholder")}
+                  placeholder={t("emailPlaceholder")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-red-500 focus:ring-red-500"
@@ -116,7 +118,7 @@ export function StorefrontFooter() {
             </form>
             {subscribed && (
               <p className="text-green-400 text-sm mt-2">
-                {t("footer.subscribed")}
+                {t("subscribed")}
               </p>
             )}
 
@@ -139,7 +141,7 @@ export function StorefrontFooter() {
 
         <div className="border-t border-gray-800 mt-10 pt-6">
           <p className="text-center text-gray-500 text-sm">
-            {t("footer.copyright")}
+            {t("copyright")}
           </p>
         </div>
       </div>

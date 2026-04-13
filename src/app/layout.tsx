@@ -1,47 +1,23 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider } from "@/components/providers/AuthProvider";
-import { LanguageProvider } from "@/context/LanguageContext";
-import { ThemeProvider } from "@/components/providers/ThemeProvider";
-import { QueryProvider } from "@/components/providers/QueryProvider";
+/**
+ * ============================================
+ * 根布局文件 (Phase 4 国际化升级)
+ * ============================================
+ * 2026-04-13: 创建根布局文件，处理语言路由
+ * 功能说明：
+ *   - 处理语言路由重定向
+ *   - 提供基础布局结构
+ * ============================================
+ */
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+import { redirect } from 'next/navigation'
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+export function generateStaticParams() {
+  return [
+    { locale: 'zh' },
+    { locale: 'en' }
+  ]
+}
 
-export const metadata: Metadata = {
-  title: "SoloSales Shop",
-  description: "High conversion independent store for TikTok",
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ThemeProvider>
-          <AuthProvider>
-            <LanguageProvider>
-              <TooltipProvider>
-                <QueryProvider>{children}</QueryProvider>
-              </TooltipProvider>
-            </LanguageProvider>
-          </AuthProvider>
-        </ThemeProvider>
-      </body>
-    </html>
-  );
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  redirect('/zh')
 }

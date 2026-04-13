@@ -1,11 +1,13 @@
 /**
  * ============================================
- * 用户注册表单组件 (Phase 2 安全修复)
+ * 用户注册表单组件 (Phase 4 国际化升级)
  * ============================================
+ * 2026-04-13: 更新为使用 next-intl 国际化
  * 功能说明：
  *   - 用户邮箱密码注册
  *   - 注册成功后自动登录
  *   - 使用 Better Auth 替代 NextAuth
+ *   - 使用 next-intl 进行国际化
  * ============================================
  */
 
@@ -18,7 +20,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2, Eye, EyeOff } from "lucide-react"
-import { useLanguage } from "@/context/LanguageContext"
+import { useTranslations } from "next-intl"
 
 interface RegisterFormProps {
   onSuccess?: () => void
@@ -35,8 +37,7 @@ interface RegisterFormProps {
  *   - 注册成功后自动登录
  */
 export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) {
-  const { language } = useLanguage()
-  const isZh = language === "zh"
+  const t = useTranslations()
   const router = useRouter()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -61,13 +62,13 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
 
     // 验证密码一致性
     if (password !== confirmPassword) {
-      setError(isZh ? "两次输入的密码不一致" : "Passwords do not match")
+      setError(t('auth.passwordMismatch'))
       return
     }
 
     // 验证密码长度
     if (password.length < 6) {
-      setError(isZh ? "密码至少需要6个字符" : "Password must be at least 6 characters")
+      setError(t('auth.passwordRequired'))
       return
     }
 
@@ -82,7 +83,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
       })
 
       if (result.error) {
-        setError(result.error.message || (isZh ? "注册失败" : "Registration failed"))
+        setError(result.error.message || t('auth.registerFailed'))
         return
       }
 
@@ -93,13 +94,13 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
       })
 
       if (signInResult.error) {
-        setError(isZh ? "注册成功但登录失败，请手动登录" : "Registration successful but login failed, please login manually")
+        setError(t('auth.registerFailed'))
       } else {
         onSuccess?.()
         router.refresh()
       }
     } catch {
-      setError(isZh ? "注册失败，请稍后重试" : "Registration failed, please try again")
+      setError(t('auth.registerFailed'))
     } finally {
       setLoading(false)
     }
@@ -108,11 +109,11 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="register-name">{isZh ? "用户名" : "Name"}</Label>
+        <Label htmlFor="register-name">{t('auth.name')}</Label>
         <Input
           id="register-name"
           type="text"
-          placeholder={isZh ? "您的用户名" : "Your name"}
+          placeholder={t('auth.name')}
           value={name}
           onChange={(e) => setName(e.target.value)}
           disabled={loading}
@@ -120,7 +121,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="register-email">{isZh ? "邮箱" : "Email"}</Label>
+        <Label htmlFor="register-email">{t('auth.email')}</Label>
         <Input
           id="register-email"
           type="email"
@@ -133,12 +134,12 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="register-password">{isZh ? "密码" : "Password"}</Label>
+        <Label htmlFor="register-password">{t('auth.password')}</Label>
         <div className="relative">
           <Input
             id="register-password"
-            type={showPassword ? "text" : "password"}
-            placeholder={isZh ? "至少6个字符" : "At least 6 characters"}
+            type={showPassword ? 'text' : 'password'}
+            placeholder={t('auth.passwordRequired')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -156,11 +157,11 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="register-confirm">{isZh ? "确认密码" : "Confirm Password"}</Label>
+        <Label htmlFor="register-confirm">{t('auth.confirmPassword')}</Label>
         <Input
           id="register-confirm"
-          type={showPassword ? "text" : "password"}
-          placeholder={isZh ? "再次输入密码" : "Enter password again"}
+          type={showPassword ? 'text' : 'password'}
+          placeholder={t('auth.confirmPassword')}
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
@@ -176,21 +177,21 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
         {loading ? (
           <>
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            {isZh ? "注册中..." : "Registering..."}
+            {t('common.loading')}
           </>
         ) : (
-          isZh ? "注册" : "Register"
+          t('auth.register')
         )}
       </Button>
 
       <p className="text-center text-sm text-gray-500">
-        {isZh ? "已有账户？" : "Already have an account?"}{" "}
+        {t('auth.hasAccount')}{" "}
         <button
           type="button"
           onClick={onSwitchToLogin}
           className="text-blue-600 hover:underline"
         >
-          {isZh ? "立即登录" : "Login now"}
+          {t('auth.login')}
         </button>
       </p>
     </form>

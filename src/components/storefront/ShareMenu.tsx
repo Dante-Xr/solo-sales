@@ -1,14 +1,16 @@
 "use client"
 
+// 2026-04-13: 更新为使用 next-intl 国际化
+
 import { useState, useRef, useEffect } from "react"
 import { Share2, X, Twitter, Facebook, Instagram, Link2, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useTranslations } from "next-intl"
 
 interface ShareMenuProps {
   title: string
   text: string
   url: string
-  isZh: boolean
 }
 
 const TikTokIcon = () => (
@@ -51,7 +53,8 @@ const SOCIAL_PLATFORMS = [
   },
 ]
 
-export function ShareMenu({ title, text, url, isZh }: ShareMenuProps) {
+export function ShareMenu({ title, text, url }: ShareMenuProps) {
+  const t = useTranslations()
   const [isOpen, setIsOpen] = useState(false)
   const [copied, setCopied] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -119,7 +122,7 @@ export function ShareMenu({ title, text, url, isZh }: ShareMenuProps) {
         <div className="absolute bottom-full right-0 mb-2 w-48 bg-card rounded-lg shadow-lg border border-border overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200">
           <div className="px-3 py-2 border-b border-border">
             <p className="text-sm font-medium text-foreground">
-              {isZh ? "分享到" : "Share to"}
+              {t('common.shareTo')}
             </p>
           </div>
 
@@ -152,7 +155,7 @@ export function ShareMenu({ title, text, url, isZh }: ShareMenuProps) {
                 <Link2 className="w-4 h-4 text-muted-foreground" />
               )}
               <span className="text-sm text-foreground">
-                {copied ? (isZh ? "已复制!" : "Copied!") : (isZh ? "复制链接" : "Copy Link")}
+                {copied ? t('common.copied') : t('common.copyLink')}
               </span>
             </button>
           </div>

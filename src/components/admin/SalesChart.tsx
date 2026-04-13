@@ -6,6 +6,7 @@
  *   - 展示 7天/30天 销售趋势折线图
  *   - 使用 Recharts 库绘制
  *   - 响应式设计
+ *   - 2026-04-13: 更新为使用 next-intl 国际化
  * ============================================
  */
 
@@ -24,7 +25,7 @@ import {
 } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { useLanguage } from "@/context/LanguageContext"
+import { useTranslations, useLocale } from "next-intl"
 
 interface SalesData {
   date: string
@@ -48,12 +49,12 @@ function CustomTooltip({
   active,
   payload,
   label,
-  isZh
+  t
 }: {
   active?: boolean
   payload?: TooltipPayload[]
   label?: string
-  isZh: boolean
+  t: ReturnType<typeof useTranslations>
 }) {
   if (active && payload && payload.length) {
     return (
@@ -66,7 +67,7 @@ function CustomTooltip({
               style={{ backgroundColor: entry.color }}
             />
             <span className="text-muted-foreground">
-              {entry.name === "sales" ? (isZh ? "销量" : "Sales") + ":" : ""}
+              {entry.name === "sales" ? t('sales') + ":" : ""}
             </span>
             <span className="font-medium">
               {entry.name === "revenue"
@@ -82,8 +83,8 @@ function CustomTooltip({
 }
 
 export function SalesChart({ data: propData, loading: propLoading }: SalesChartProps) {
-  const { language } = useLanguage()
-  const isZh = language === "zh"
+  const t = useTranslations('admin')
+  const locale = useLocale()
   const [period, setPeriod] = useState<7 | 30>(7)
   const [data, setData] = useState<SalesData[]>(propData || [])
   const [loading, setLoading] = useState(propLoading ?? true)
@@ -105,7 +106,7 @@ export function SalesChart({ data: propData, loading: propLoading }: SalesChartP
         date.setDate(date.getDate() - i)
 
         result.push({
-          date: date.toLocaleDateString(isZh ? "zh-CN" : "en-US", {
+          date: date.toLocaleDateString(locale === "zh" ? "zh-CN" : "en-US", {
             month: "short",
             day: "numeric",
           }),
@@ -124,7 +125,7 @@ export function SalesChart({ data: propData, loading: propLoading }: SalesChartP
       setLoading(false)
     }, 500)
     return () => clearTimeout(timer)
-  }, [period, isZh])
+  }, [period, locale])
 
   // 格式化货币
   const formatCurrency = (value: number) => {
@@ -136,7 +137,7 @@ export function SalesChart({ data: propData, loading: propLoading }: SalesChartP
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">
-            {isZh ? "销售趋势" : "Sales Trend"}
+            {t('salesTrend')}
           </CardTitle>
           <div className="flex gap-2">
             <Button
@@ -144,14 +145,14 @@ export function SalesChart({ data: propData, loading: propLoading }: SalesChartP
               size="sm"
               onClick={() => setPeriod(7)}
             >
-              {isZh ? "7天" : "7 Days"}
+              {t('7days')}
             </Button>
             <Button
               variant={period === 30 ? "default" : "outline"}
               size="sm"
               onClick={() => setPeriod(30)}
             >
-              {isZh ? "30天" : "30 Days"}
+              {t('30days')}
             </Button>
           </div>
         </div>
@@ -160,7 +161,7 @@ export function SalesChart({ data: propData, loading: propLoading }: SalesChartP
         {loading || propLoading ? (
           <div className="h-[300px] flex items-center justify-center">
             <div className="text-muted-foreground">
-              {isZh ? "加载中..." : "Loading..."}
+              {t('loading')}
             </div>
           </div>
         ) : (
@@ -191,13 +192,13 @@ export function SalesChart({ data: propData, loading: propLoading }: SalesChartP
                 axisLine={{ stroke: "var(--border)" }}
                 tickFormatter={(value) => formatCurrency(value)}
               />
-              <Tooltip content={<CustomTooltip isZh={isZh} />} />
+              <Tooltip content={<CustomTooltip t={t} />} />
               <Legend
                 formatter={(value) =>
                   value === "sales"
-                    ? (isZh ? "销量" : "Sales")
+                    ? t('sales')
                     : value === "revenue"
-                      ? (isZh ? "收入" : "Revenue")
+                      ? t('revenue')
                       : value
                 }
               />
@@ -233,7 +234,7 @@ export function SalesChart({ data: propData, loading: propLoading }: SalesChartP
                 {data.reduce((sum, d) => sum + d.sales, 0).toLocaleString()}
               </div>
               <div className="text-sm text-muted-foreground">
-                {isZh ? "总销量" : "Total Sales"}
+                {t('totalSales')}
               </div>
             </div>
             <div className="text-center">
@@ -241,7 +242,7 @@ export function SalesChart({ data: propData, loading: propLoading }: SalesChartP
                 {data.reduce((sum, d) => sum + d.orders, 0).toLocaleString()}
               </div>
               <div className="text-sm text-muted-foreground">
-                {isZh ? "总订单" : "Total Orders"}
+                {t('totalOrders')}
               </div>
             </div>
             <div className="text-center">
@@ -249,7 +250,7 @@ export function SalesChart({ data: propData, loading: propLoading }: SalesChartP
                 {formatCurrency(data.reduce((sum, d) => sum + d.revenue, 0))}
               </div>
               <div className="text-sm text-muted-foreground">
-                {isZh ? "总收入" : "Total Revenue"}
+                {t('totalRevenue')}
               </div>
             </div>
           </div>
