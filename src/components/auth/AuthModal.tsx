@@ -1,7 +1,22 @@
+/**
+ * ============================================
+ * 认证弹窗组件 (Phase 2 安全修复)
+ * ============================================
+ * 功能说明：
+ *   - 整合登录、注册、访客结账三种模式
+ *   - 使用 Tabs 组件切换不同模式
+ *   - 已登录用户自动隐藏
+ *
+ * 认证说明：
+ *   - 使用 Better Auth 的 useSession 判断登录状态
+ *   - 已登录用户不显示弹窗（返回 null）
+ * ============================================
+ */
+
 "use client"
 
 import { useState } from "react"
-import { useSession } from "next-auth/react"
+import { useSession } from "@/lib/auth-client"
 import {
   Dialog,
   DialogContent,
@@ -15,32 +30,42 @@ import { RegisterForm } from "./RegisterForm"
 import { GuestCheckoutForm, GuestCheckoutData } from "./GuestCheckoutForm"
 import { useLanguage } from "@/context/LanguageContext"
 
-// 认证弹窗 Props 接口
 interface AuthModalProps {
-  isOpen: boolean                    // 弹窗是否打开
-  onClose: () => void               // 关闭弹窗回调
-  mode?: "login" | "register" | "guest"  // 默认选中的 Tab
-  onGuestCheckout?: (data: GuestCheckoutData) => Promise<void>  // 访客结账提交回调
+  isOpen: boolean
+  onClose: () => void
+  mode?: "login" | "register" | "guest"  // 默认显示模式
+  onGuestCheckout?: (data: GuestCheckoutData) => Promise<void>  // 访客结账回调
 }
 
-// 认证弹窗组件：整合登录、注册、访客结账三个 Tab
+/**
+ * 认证弹窗组件
+ *
+ * 三种模式：
+ *   1. login - 用户登录
+ *   2. register - 用户注册
+ *   3. guest - 访客结账（无需登录）
+ *
+ * 使用 Better Auth useSession 判断是否已登录
+ * 已登录用户自动隐藏弹窗
+ */
 export function AuthModal({ isOpen, onClose, mode = "login", onGuestCheckout }: AuthModalProps) {
-  const { data: session } = useSession()   // 当前用户 session
+  // 使用 Better Auth 的响应式 Session
+  const { data: session } = useSession()
   const { language } = useLanguage()
   const isZh = language === "zh"
-  const [activeTab, setActiveTab] = useState<string>(mode)  // 当前激活的 Tab
+  const [activeTab, setActiveTab] = useState<string>(mode)
 
-  // 登录成功处理
+  // 登录成功回调：关闭弹窗
   const handleLoginSuccess = () => {
     onClose()
   }
 
-  // 注册成功处理
+  // 注册成功回调：关闭弹窗
   const handleRegisterSuccess = () => {
     onClose()
   }
 
-  // 访客结账提交处理
+  // 访客结账提交回调
   const handleGuestSubmit = async (data: GuestCheckoutData) => {
     if (onGuestCheckout) {
       await onGuestCheckout(data)
@@ -57,8 +82,8 @@ export function AuthModal({ isOpen, onClose, mode = "login", onGuestCheckout }: 
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          {/* 标题根据当前 Tab 动态显示 */}
           <DialogTitle className="text-xl font-bold text-center">
+            {/* 根据当前 Tab 显示不同标题 */}
             {activeTab === "guest" ? (isZh ? "访客结账" : "Guest Checkout") : (isZh ? "欢迎回来" : "Welcome Back")}
           </DialogTitle>
           <DialogDescription className="text-center">
@@ -68,7 +93,7 @@ export function AuthModal({ isOpen, onClose, mode = "login", onGuestCheckout }: 
           </DialogDescription>
         </DialogHeader>
 
-        {/* Tab 切换：登录 / 注册 / 访客结账 */}
+        {/* Tab 切换：登录 / 注册 / 访客 */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="login">{isZh ? "登录" : "Login"}</TabsTrigger>
@@ -76,7 +101,7 @@ export function AuthModal({ isOpen, onClose, mode = "login", onGuestCheckout }: 
             <TabsTrigger value="guest">{isZh ? "访客结账" : "Guest"}</TabsTrigger>
           </TabsList>
 
-          {/* 登录表单 Tab */}
+          {/* 登录表单 */}
           <TabsContent value="login" className="mt-4">
             <LoginForm
               onSuccess={handleLoginSuccess}
@@ -84,7 +109,7 @@ export function AuthModal({ isOpen, onClose, mode = "login", onGuestCheckout }: 
             />
           </TabsContent>
 
-          {/* 注册表单 Tab */}
+          {/* 注册表单 */}
           <TabsContent value="register" className="mt-4">
             <RegisterForm
               onSuccess={handleRegisterSuccess}
@@ -92,7 +117,7 @@ export function AuthModal({ isOpen, onClose, mode = "login", onGuestCheckout }: 
             />
           </TabsContent>
 
-          {/* 访客结账 Tab */}
+          {/* 访客结账表单 */}
           <TabsContent value="guest" className="mt-4">
             <GuestCheckoutForm
               onSubmit={handleGuestSubmit}

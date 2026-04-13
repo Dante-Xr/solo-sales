@@ -1,14 +1,42 @@
+/**
+ * ============================================
+ * 订单 API 路由 (Phase 2 安全修复)
+ * ============================================
+ * 功能说明：
+ *   - GET /api/orders: 获取订单列表或单个订单详情
+ *   - POST /api/orders: 创建新订单
+ *
+ * 认证变更：
+ *   - 之前使用 getServerSession + NextAuth
+ *   - 现在使用 Better Auth 的 auth.api.getSession
+ * ============================================
+ */
+
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers"
 
+/**
+ * GET /api/orders
+ *
+ * 查询参数：
+ *   - id: 订单 ID（可选），存在时返回单个订单，否则返回当前用户所有订单
+ *
+ * 认证：
+ *   - 查询特定订单：无需登录（但只能查看自己的订单）
+ *   - 查询订单列表：需要 Better Auth Session
+ */
 export async function GET(request: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    // 使用 Better Auth 获取会话
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    })
     const { searchParams } = new URL(request.url)
     const orderId = searchParams.get("id")
 
+    // 查询单个订单
     if (orderId) {
       const order = await prisma.order.findUnique({
         where: { id: orderId },
@@ -34,6 +62,7 @@ export async function GET(request: Request) {
       return NextResponse.json(order)
     }
 
+    // 查询订单列表需要登录
     if (!session) {
       return NextResponse.json(
         { error: "请先登录" },
@@ -41,8 +70,9 @@ export async function GET(request: Request) {
       )
     }
 
+    // 获取当前用户的订单列表
     const orders = await prisma.order.findMany({
-      where: { userId: (session.user as { id: string }).id },
+      where: { userId: session.user.id },
       include: {
         items: {
           include: {
@@ -63,11 +93,31 @@ export async function GET(request: Request) {
   }
 }
 
+/**
+ * POST /api/orders
+ *
+ * 创建新订单
+ *
+ * 请求体：
+ *   - items: 商品列表 [{ productId, quantity, price }]
+ *   - totalAmount: 订单总金额
+ *   - shippingAddress: 收货地址
+ *   - contactInfo: 联系信息
+ *
+ * 认证：
+ *   - 可选登录，登录时绑定用户 ID
+ *   - 未登录时 userId 为 "guest"
+ *
+ * 库存处理：
+ *   - 事务中扣减库存
+ *   - 库存不足时抛出错误
+ */
 export async function POST(request: Request) {
   try {
     const body = await request.json()
     const { items, totalAmount, shippingAddress, contactInfo } = body
 
+    // 验证订单商品
     if (!items || items.length === 0) {
       return NextResponse.json(
         { error: "订单商品不能为空" },
@@ -75,6 +125,7 @@ export async function POST(request: Request) {
       )
     }
 
+    // 验证订单金额
     if (!totalAmount || totalAmount <= 0) {
       return NextResponse.json(
         { error: "订单金额无效" },
@@ -82,6 +133,7 @@ export async function POST(request: Request) {
       )
     }
 
+    // 验证收货信息
     if (!shippingAddress || !contactInfo) {
       return NextResponse.json(
         { error: "收货信息不完整" },
@@ -89,17 +141,21 @@ export async function POST(request: Request) {
       )
     }
 
+    // 获取当前用户 ID（可选）
     let userId: string | null = null
-    const session = await getServerSession(authOptions)
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    })
 
     if (session) {
-      userId = (session.user as { id?: string }).id ?? null
+      userId = session.user.id
     }
 
-    // 使用事务和乐观锁防止并发库存超卖
+    // 使用事务创建订单并扣减库存
     const order = await prisma.$transaction(async (tx) => {
-      // 验证并扣减每个商品的库存
+      // 遍历订单商品，扣减库存
       for (const item of items) {
+        // 查询商品库存
         const product = await tx.product.findUnique({
           where: { id: item.productId },
           select: { stock: true, name: true },
@@ -109,21 +165,23 @@ export async function POST(request: Request) {
           throw new Error(`商品不存在: ${item.productId}`)
         }
 
+        // 检查库存是否充足
         if (product.stock < item.quantity) {
           throw new Error(`商品「${product.name}」库存不足，当前库存: ${product.stock}`)
         }
 
-        // 使用乐观锁扣减库存
+        // 扣减库存
         const updated = await tx.product.updateMany({
           where: {
             id: item.productId,
-            stock: { gte: item.quantity }, // 乐观锁条件
+            stock: { gte: item.quantity },
           },
           data: {
             stock: { decrement: item.quantity },
           },
         })
 
+        // 库存扣减失败（并发问题）
         if (updated.count === 0) {
           throw new Error(`商品「${product.name}」库存不足，请重试`)
         }
@@ -132,7 +190,7 @@ export async function POST(request: Request) {
       // 创建订单
       return tx.order.create({
         data: {
-          userId: userId || "guest",
+          userId: userId || "guest", // 未登录时使用 "guest"
           totalAmount,
           status: "PENDING",
           shippingAddress,

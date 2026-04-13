@@ -3,7 +3,7 @@
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { useSession } from "next-auth/react"
+import { useSession } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -14,7 +14,7 @@ import { useOrders } from "@/hooks/useOrders"
 
 export default function OrdersPage() {
   const router = useRouter()
-  const { status } = useSession()
+  const { data: session, isPending } = useSession()
   const { t, language } = useLanguage()
   const { theme, setTheme } = useTheme()
   const { data: orders = [], isLoading, error } = useOrders()
@@ -37,12 +37,12 @@ export default function OrdersPage() {
   ]
 
   useEffect(() => {
-    if (status === "unauthenticated") {
+    if (!session) {
       router.push("/")
     }
-  }, [status, router])
+  }, [session, router])
 
-  if (status === "loading" || isLoading) {
+  if (isPending || isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-red-600" />

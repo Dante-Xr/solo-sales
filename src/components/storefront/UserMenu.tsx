@@ -1,7 +1,19 @@
+/**
+ * ============================================
+ * 用户菜单组件 (Phase 2 安全修复)
+ * ============================================
+ * 功能说明：
+ *   - 显示用户头像/登录按钮
+ *   - 已登录用户显示下拉菜单（个人中心、订单、管理面板等）
+ *   - 未登录用户显示登录/注册选项
+ *   - 使用 Better Auth 的 useSession 获取会话状态
+ * ============================================
+ */
+
 "use client"
 
 import { useState } from "react"
-import { useSession, signOut } from "next-auth/react"
+import { useSession, signOut } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
 import { User, ChevronDown, UserCircle, Package, Settings, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -9,6 +21,7 @@ import { useLanguage } from "@/context/LanguageContext"
 import { AuthModal } from "@/components/auth/AuthModal"
 
 export function UserMenu() {
+  // 使用 Better Auth 的响应式 Session 获取当前登录状态
   const { data: session } = useSession()
   const router = useRouter()
   const { t } = useLanguage()
@@ -16,8 +29,16 @@ export function UserMenu() {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [authMode, setAuthMode] = useState<"login" | "register">("login")
 
-  const isAdmin = (session?.user as { role?: string })?.role === "ADMIN"
+  // 根据 Better Auth Session 中的 role 字段判断是否为管理员
+  const isAdmin = session?.user?.role === "admin"
 
+  /**
+   * 处理菜单项点击
+   * 根据 action 参数执行相应操作：
+   *   - login/register: 打开认证弹窗
+   *   - profile/orders/admin: 路由跳转
+   *   - logout: 登出并刷新页面
+   */
   const handleMenuClick = (action: string) => {
     setIsOpen(false)
     switch (action) {
@@ -39,15 +60,19 @@ export function UserMenu() {
         router.push("/admin")
         break
       case "logout":
-        signOut({ callbackUrl: "/" })
+        // 调用 Better Auth 登出
+        signOut()
+        router.push("/")
         break
     }
   }
 
+  // 获取用户名：优先使用 name，其次使用邮箱前缀
   const userName = session?.user?.name || session?.user?.email?.split("@")[0] || t("common.user")
 
   return (
     <div className="relative">
+      {/* 用户头像/登录按钮 */}
       <Button
         variant="ghost"
         size="icon"
@@ -55,23 +80,30 @@ export function UserMenu() {
         className="relative"
       >
         {session?.user ? (
+          // 已登录：显示用户头像首字母
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-white font-medium text-sm">
             {userName.charAt(0).toUpperCase()}
           </div>
         ) : (
+          // 未登录：显示用户图标
           <User className="w-6 h-6 text-foreground" />
         )}
+        {/* 下拉箭头 */}
         <ChevronDown className={`w-4 h-4 ml-1 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`} />
       </Button>
 
+      {/* 下拉菜单 */}
       {isOpen && (
         <>
+          {/* 点击遮罩关闭菜单 */}
           <div
             className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
           />
 
+          {/* 菜单内容 */}
           <div className="absolute right-0 top-full mt-2 w-48 bg-card rounded-lg shadow-lg border border-border z-50 overflow-hidden">
+            {/* 已登录用户信息头部 */}
             {session?.user ? (
               <div className="px-4 py-3 border-b border-border bg-muted">
                 <p className="font-medium text-sm truncate text-foreground">{userName}</p>
@@ -81,6 +113,7 @@ export function UserMenu() {
 
             <div className="py-1">
               {session?.user ? (
+                // 已登录菜单项
                 <>
                   <button
                     onClick={() => handleMenuClick("profile")}
@@ -96,6 +129,7 @@ export function UserMenu() {
                     <Package className="w-4 h-4 text-muted-foreground" />
                     {t("userMenu.orders")}
                   </button>
+                  {/* 仅管理员显示 */}
                   {isAdmin && (
                     <button
                       onClick={() => handleMenuClick("admin")}
@@ -115,6 +149,7 @@ export function UserMenu() {
                   </button>
                 </>
               ) : (
+                // 未登录菜单项
                 <>
                   <button
                     onClick={() => handleMenuClick("login")}
@@ -137,6 +172,7 @@ export function UserMenu() {
         </>
       )}
 
+      {/* 认证弹窗 */}
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}

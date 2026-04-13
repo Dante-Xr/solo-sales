@@ -1,8 +1,7 @@
 "use client"
 
-import { signOut } from "next-auth/react"
+import { signOut, useSession } from "@/lib/auth-client"
 import { useState } from "react"
-import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -14,7 +13,7 @@ import { useLanguage } from "@/context/LanguageContext"
 import { useTheme } from "next-themes"
 
 export default function ProfilePage() {
-  const { data: session, status } = useSession()
+  const { data: session, isPending } = useSession()
   const router = useRouter()
   const { t, language } = useLanguage()
   const { theme, setTheme } = useTheme()
@@ -34,7 +33,7 @@ export default function ProfilePage() {
     { labelKey: "nav.contact", href: "/contact" },
   ]
 
-  if (status === "loading") {
+  if (isPending) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-red-600" />
@@ -42,7 +41,7 @@ export default function ProfilePage() {
     )
   }
 
-  if (status === "unauthenticated") {
+  if (!session) {
     router.push("/")
     return null
   }
@@ -116,7 +115,7 @@ export default function ProfilePage() {
                     {(session?.user?.name || session?.user?.email || "U").charAt(0).toUpperCase()}
                   </div>
                   <p className="font-medium text-lg">{session?.user?.name || session?.user?.email}</p>
-                  <p className="text-sm text-muted-foreground">{(session?.user as { role?: string })?.role || "USER"}</p>
+                  <p className="text-sm text-muted-foreground">{session?.user?.role || "user"}</p>
 
                   <div className="w-full mt-6 space-y-2">
                     <Button variant="ghost" className="w-full justify-start" onClick={() => router.push("/orders")}>
@@ -132,7 +131,8 @@ export default function ProfilePage() {
                       className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
                       onClick={() => {
                         if (confirm(t("profile.logoutConfirm"))) {
-                          signOut({ callbackUrl: "/" })
+                          signOut()
+                          router.push("/")
                         }
                       }}
                     >

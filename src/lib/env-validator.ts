@@ -97,16 +97,16 @@ export function validatePayPalConfig() {
  * @returns 经验证的 NextAuth 配置对象
  * @throws 如果环境变量缺失，抛出明确错误
  */
-export function validateNextAuthConfig() {
-  const secret = process.env.NEXTAUTH_SECRET
-  const url = process.env.NEXTAUTH_URL
+export function validateBetterAuthConfig() {
+  const secret = process.env.BETTER_AUTH_SECRET
+  const url = process.env.BETTER_AUTH_URL
 
   if (!secret) {
-    throw new Error("缺少必需的环境变量 NEXTAUTH_SECRET，请生成一个随机字符串")
+    throw new Error("缺少必需的环境变量 BETTER_AUTH_SECRET，请生成一个随机字符串")
   }
 
   if (!url) {
-    throw new Error("缺少必需的环境变量 NEXTAUTH_URL，请设置为你的网站 URL")
+    throw new Error("缺少必需的环境变量 BETTER_AUTH_URL，请设置为你的网站 URL")
   }
 
   return {

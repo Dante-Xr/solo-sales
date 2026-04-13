@@ -1,59 +1,23 @@
-/**
- * ============================================
- * 管理员个人资料管理 API
- * ============================================
- * 功能说明：
- *   - GET: 获取当前管理员资料
- *   - PUT: 更新管理员资料（用户名、密码）
- * ============================================
- */
-
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
+import { auth } from "@/lib/auth"
 
-const ADMIN_COOKIE_NAME = "admin_token"
-
-interface TokenPayload {
-  adminId: string
-  timestamp: number
-  random: string
-}
-
-function parseToken(token: string): TokenPayload | null {
-  try {
-    const decoded = Buffer.from(token, "base64").toString("utf-8")
-    return JSON.parse(decoded) as TokenPayload
-  } catch {
-    return null
-  }
-}
-
-/**
- * 获取当前管理员资料
- * 从 cookie 中获取 token，解析后查询数据库返回管理员信息
- */
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get(ADMIN_COOKIE_NAME)?.value
+    const session = await auth.api.getSession({
+      headers: request.headers,
+    })
 
-    if (!token) {
+    if (!session?.user) {
       return NextResponse.json(
         { success: false, error: "未登录" },
         { status: 401 }
       )
     }
 
-    const tokenData = parseToken(token)
-    if (!tokenData) {
-      return NextResponse.json(
-        { success: false, error: "登录已过期" },
-        { status: 401 }
-      )
-    }
-
     const admin = await prisma.adminUser.findUnique({
-      where: { id: tokenData.adminId },
+      where: { email: session.user.email },
       include: {
         role: true,
       },
@@ -89,26 +53,15 @@ export async function GET(request: NextRequest) {
   }
 }
 
-/**
- * 更新管理员资料
- * 支持更新用户名和密码（需验证旧密码）
- * 请求体格式：{ username?: string, oldPassword?: string, newPassword?: string }
- */
 export async function PUT(request: NextRequest) {
   try {
-    const token = request.cookies.get(ADMIN_COOKIE_NAME)?.value
+    const session = await auth.api.getSession({
+      headers: request.headers,
+    })
 
-    if (!token) {
+    if (!session?.user) {
       return NextResponse.json(
         { success: false, error: "未登录" },
-        { status: 401 }
-      )
-    }
-
-    const tokenData = parseToken(token)
-    if (!tokenData) {
-      return NextResponse.json(
-        { success: false, error: "登录已过期" },
         { status: 401 }
       )
     }
@@ -117,7 +70,7 @@ export async function PUT(request: NextRequest) {
     const { username, oldPassword, newPassword } = body
 
     const admin = await prisma.adminUser.findUnique({
-      where: { id: tokenData.adminId },
+      where: { email: session.user.email },
     })
 
     if (!admin || !admin.isActive) {

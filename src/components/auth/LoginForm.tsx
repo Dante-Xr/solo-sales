@@ -1,7 +1,18 @@
+/**
+ * ============================================
+ * 用户登录表单组件 (Phase 2 安全修复)
+ * ============================================
+ * 功能说明：
+ *   - 用户邮箱密码登录
+ *   - 使用 Better Auth 替代 NextAuth
+ *   - 支持中英文切换
+ * ============================================
+ */
+
 "use client"
 
 import { useState } from "react"
-import { signIn } from "next-auth/react"
+import { authClient } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,42 +20,50 @@ import { Label } from "@/components/ui/label"
 import { Loader2, Eye, EyeOff } from "lucide-react"
 import { useLanguage } from "@/context/LanguageContext"
 
-// 登录表单组件 Props 接口
 interface LoginFormProps {
-  onSuccess?: () => void            // 登录成功后的回调
-  onSwitchToRegister?: () => void   // 切换到注册表单的回调
+  onSuccess?: () => void
+  onSwitchToRegister?: () => void
 }
 
-// 登录表单组件
+/**
+ * 登录表单组件
+ *
+ * 功能：
+ *   - 邮箱密码输入框
+ *   - 密码显示/隐藏切换
+ *   - 表单验证和错误提示
+ *   - 登录成功后调用 onSuccess 回调并刷新路由
+ */
 export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
   const { language } = useLanguage()
   const isZh = language === "zh"
   const router = useRouter()
-  const [email, setEmail] = useState("")           // 邮箱状态
-  const [password, setPassword] = useState("")     // 密码状态
-  const [showPassword, setShowPassword] = useState(false)  // 密码可见性切换
-  const [loading, setLoading] = useState(false)    // 加载状态
-  const [error, setError] = useState("")          // 错误信息
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
 
-  // 处理表单提交
+  /**
+   * 处理表单提交
+   * 调用 Better Auth 的 signIn.email 方法进行登录
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError("")
 
     try {
-      // 调用 NextAuth 的 signIn 进行登录
-      const result = await signIn("credentials", {
+      // 使用 Better Auth 进行邮箱密码登录
+      const result = await authClient.signIn.email({
         email,
         password,
-        redirect: false,
       })
 
-      // 登录失败
-      if (result?.error) {
+      if (result.error) {
         setError(isZh ? "邮箱或密码错误" : "Invalid email or password")
       } else {
-        // 登录成功：执行成功回调并刷新页面
+        // 登录成功：执行回调并刷新页面
         onSuccess?.()
         router.refresh()
       }
@@ -57,7 +76,6 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* 邮箱输入框 */}
       <div className="space-y-2">
         <Label htmlFor="login-email">{isZh ? "邮箱" : "Email"}</Label>
         <Input
@@ -71,7 +89,6 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
         />
       </div>
 
-      {/* 密码输入框 */}
       <div className="space-y-2">
         <Label htmlFor="login-password">{isZh ? "密码" : "Password"}</Label>
         <div className="relative">
@@ -85,7 +102,7 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
             disabled={loading}
             className="pr-10"
           />
-          {/* 密码可见性切换按钮 */}
+          {/* 密码显示/隐藏切换按钮 */}
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
@@ -101,7 +118,6 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
         <p className="text-red-500 text-sm text-center">{error}</p>
       )}
 
-      {/* 登录按钮 */}
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? (
           <>
@@ -113,7 +129,7 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
         )}
       </Button>
 
-      {/* 切换到注册 */}
+      {/* 切换到注册链接 */}
       <p className="text-center text-sm text-gray-500">
         {isZh ? "还没有账户？" : "Don't have an account?"}{" "}
         <button

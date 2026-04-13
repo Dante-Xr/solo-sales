@@ -1,7 +1,18 @@
+/**
+ * ============================================
+ * 用户注册表单组件 (Phase 2 安全修复)
+ * ============================================
+ * 功能说明：
+ *   - 用户邮箱密码注册
+ *   - 注册成功后自动登录
+ *   - 使用 Better Auth 替代 NextAuth
+ * ============================================
+ */
+
 "use client"
 
 import { useState } from "react"
-import { signIn } from "next-auth/react"
+import { authClient } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,31 +20,46 @@ import { Label } from "@/components/ui/label"
 import { Loader2, Eye, EyeOff } from "lucide-react"
 import { useLanguage } from "@/context/LanguageContext"
 
-// 注册表单组件 Props 接口
 interface RegisterFormProps {
-  onSuccess?: () => void          // 注册成功后的回调
-  onSwitchToLogin?: () => void    // 切换到登录表单的回调
+  onSuccess?: () => void
+  onSwitchToLogin?: () => void
 }
 
-// 注册表单组件
+/**
+ * 注册表单组件
+ *
+ * 功能：
+ *   - 用户名、邮箱、密码、确认密码输入
+ *   - 密码一致性验证
+ *   - 密码长度验证（至少 6 位）
+ *   - 注册成功后自动登录
+ */
 export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) {
   const { language } = useLanguage()
   const isZh = language === "zh"
   const router = useRouter()
-  const [name, setName] = useState("")                // 用户名
-  const [email, setEmail] = useState("")               // 邮箱
-  const [password, setPassword] = useState("")         // 密码
-  const [confirmPassword, setConfirmPassword] = useState("")  // 确认密码
-  const [showPassword, setShowPassword] = useState(false)     // 密码可见性
-  const [loading, setLoading] = useState(false)       // 加载状态
-  const [error, setError] = useState("")             // 错误信息
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
 
-  // 处理表单提交
+  /**
+   * 处理表单提交
+   *
+   * 流程：
+   *   1. 验证密码一致性
+   *   2. 验证密码长度（至少 6 位）
+   *   3. 调用 Better Auth signUp.email 注册
+   *   4. 注册成功后自动调用 signIn.email 登录
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
 
-    // 验证两次密码输入一致
+    // 验证密码一致性
     if (password !== confirmPassword) {
       setError(isZh ? "两次输入的密码不一致" : "Passwords do not match")
       return
@@ -48,33 +74,27 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
     setLoading(true)
 
     try {
-      // 调用注册 API
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, name }),
+      // 使用 Better Auth 进行用户注册
+      const result = await authClient.signUp.email({
+        name,
+        email,
+        password,
       })
 
-      const data = await res.json()
-
-      // 注册失败
-      if (!res.ok) {
-        setError(data.error || (isZh ? "注册失败" : "Registration failed"))
+      if (result.error) {
+        setError(result.error.message || (isZh ? "注册失败" : "Registration failed"))
         return
       }
 
       // 注册成功后自动登录
-      const signInResult = await signIn("credentials", {
+      const signInResult = await authClient.signIn.email({
         email,
         password,
-        redirect: false,
       })
 
-      // 自动登录失败
-      if (signInResult?.error) {
+      if (signInResult.error) {
         setError(isZh ? "注册成功但登录失败，请手动登录" : "Registration successful but login failed, please login manually")
       } else {
-        // 成功：执行回调并刷新
         onSuccess?.()
         router.refresh()
       }
@@ -87,7 +107,6 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* 用户名 */}
       <div className="space-y-2">
         <Label htmlFor="register-name">{isZh ? "用户名" : "Name"}</Label>
         <Input
@@ -100,7 +119,6 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
         />
       </div>
 
-      {/* 邮箱 */}
       <div className="space-y-2">
         <Label htmlFor="register-email">{isZh ? "邮箱" : "Email"}</Label>
         <Input
@@ -114,7 +132,6 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
         />
       </div>
 
-      {/* 密码 */}
       <div className="space-y-2">
         <Label htmlFor="register-password">{isZh ? "密码" : "Password"}</Label>
         <div className="relative">
@@ -128,7 +145,6 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
             disabled={loading}
             className="pr-10"
           />
-          {/* 密码可见性切换 */}
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
@@ -139,7 +155,6 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
         </div>
       </div>
 
-      {/* 确认密码 */}
       <div className="space-y-2">
         <Label htmlFor="register-confirm">{isZh ? "确认密码" : "Confirm Password"}</Label>
         <Input
@@ -153,12 +168,10 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
         />
       </div>
 
-      {/* 错误提示 */}
       {error && (
         <p className="text-red-500 text-sm text-center">{error}</p>
       )}
 
-      {/* 注册按钮 */}
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? (
           <>
@@ -170,7 +183,6 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
         )}
       </Button>
 
-      {/* 切换到登录 */}
       <p className="text-center text-sm text-gray-500">
         {isZh ? "已有账户？" : "Already have an account?"}{" "}
         <button

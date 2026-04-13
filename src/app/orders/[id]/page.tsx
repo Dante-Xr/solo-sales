@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { useSession } from "next-auth/react"
+import { useSession } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -41,7 +41,7 @@ interface Order {
 export default function OrderDetailPage() {
   const params = useParams()
   const router = useRouter()
-  const { data: _session, status } = useSession()
+  const { data: _session, isPending } = useSession()
   const { t, language } = useLanguage()
   const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)
@@ -56,10 +56,10 @@ export default function OrderDetailPage() {
   }
 
   useEffect(() => {
-    if (status === "authenticated") {
+    if (_session) {
       fetchOrder()
     }
-  }, [status])
+  }, [_session])
 
   const fetchOrder = async () => {
     try {
@@ -83,7 +83,7 @@ export default function OrderDetailPage() {
     }
   }
 
-  if (status === "loading" || loading) {
+  if (isPending || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-red-600" />

@@ -10,37 +10,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 用户模型 (包括普通用户和管理员)
 model User {
-  id            String    @id @default(cuid())
+  id            String   @id @default(cuid())
   name          String?
-  email         String?   @unique
-  emailVerified DateTime?
+  email         String   @unique
+  emailVerified Boolean  @default(false)
   image         String?
-  password      String?
-  role          UserRole  @default(USER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  role          String   @default("user")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  // v0.5.9 添加登录安全字段
-  failedLoginAttempts  Int       @default(0)   // 连续登录失败次数
-  lockoutUntil        DateTime?              // 账户锁定截止时间
-  lastLoginAt         DateTime?              // 最后登录时间
-  lastLoginIp         String?                // 最后登录 IP
-
-  orders        Order[]
-  messages      Message[]
-  reviews       Review[]
+  orders         Order[]
+  messages       Message[]
+  reviews        Review[]
   customerPoints CustomerPoints?
-  affiliate     Affiliate?
-}
+  affiliate      Affiliate?
+  banned         Boolean?   @default(false)
+  banReason      String?
+  banExpires     DateTime?
+  sessions       Session[]
+  accounts       Account[]
 
-enum UserRole {
-  USER
-  ADMIN
+  @@map("user")
 }
 
 // 商品类别
+
 model Category {
   id          String    @id @default(cuid())
   name        String
@@ -51,54 +46,64 @@ model Category {
 }
 
 // 商品模型
+
 model Product {
-  id          String      @id @default(cuid())
-  sku         String?     @unique // 商品 SKU，用于批发导入去重
+  id          String    @id @default(cuid())
+  sku         String?   @unique // 商品 SKU，用于批发导入去重
   name        String
   description String
-  price       Decimal     @db.Decimal(10, 2) // 使用 Decimal 避免浮点数精度问题
-  stock       Int         @default(0)
+  price       Decimal   @db.Decimal(10, 2) // 使用 Decimal 避免浮点数精度问题
+  stock       Int       @default(0)
   images      String[]
   categoryId  String?
-  category    Category?   @relation(fields: [categoryId], references: [id])
-  isPublished Boolean     @default(true)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  category    Category? @relation(fields: [categoryId], references: [id])
+  isPublished Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   orderItems  OrderItem[]
   reviews     Review[]
   bundleItems BundleItem[]
 
   // v0.4.3 添加数据库索引 - 优化高频查询性能
-  @@index([categoryId])          // 按分类查商品
-  @@index([isPublished])        // 筛选已发布商品
-  @@index([name])               // 按名称搜索优化
-  @@index([categoryId, isPublished, createdAt]) // 复合索引：分类+发布状态+时间
+  // 按分类查商品
+  // 筛选已发布商品
+  // 按名称搜索优化
+  // 复合索引：分类+发布状态+时间
+  @@index([categoryId])
+  @@index([isPublished])
+  @@index([name])
+  @@index([categoryId, isPublished, createdAt])
 }
 
 // 订单模型
-model Order {
-  id          String      @id @default(cuid())
-  userId      String
-  user        User        @relation(fields: [userId], references: [id])
-  totalAmount Decimal     @db.Decimal(10, 2) // 使用 Decimal 避免浮点数精度问题
-  status      OrderStatus @default(PENDING)
-  paymentMethod String?
-  shippingAddress String?
-  trackingNumber String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
 
-  items       OrderItem[]
-  payments    Payment[]
+model Order {
+  id              String      @id @default(cuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  totalAmount     Decimal     @db.Decimal(10, 2) // 使用 Decimal 避免浮点数精度问题
+  status          OrderStatus @default(PENDING)
+  paymentMethod   String?
+  shippingAddress String?
+  trackingNumber  String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  items        OrderItem[]
+  payments     Payment[]
   couponUsages CouponUsage[]
-  currency    OrderCurrency?
+  currency     OrderCurrency?
 
   // v0.4.3 添加数据库索引 - 优化订单查询性能
-  @@index([userId])              // 按用户查订单
-  @@index([status])              // 按状态筛选订单
-  @@index([createdAt])           // 按时间排序查询
-  @@index([userId, status])      // 复合索引：用户+状态
+  // 按用户查订单
+  // 按状态筛选订单
+  // 按时间排序查询
+  // 复合索引：用户+状态
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([userId, status])
 }
 
 enum OrderStatus {
@@ -110,6 +115,7 @@ enum OrderStatus {
 }
 
 // 订单商品明细
+
 model OrderItem {
   id        String   @id @default(cuid())
   orderId   String
@@ -123,22 +129,26 @@ model OrderItem {
 }
 
 // 支付记录
+
 model Payment {
-  id            String   @id @default(cuid())
+  id            String        @id @default(cuid())
   orderId       String
-  order         Order    @relation(fields: [orderId], references: [id])
-  amount        Decimal  @db.Decimal(10, 2) // 使用 Decimal 避免浮点数精度问题
-  currency      String   @default("USD")
+  order         Order         @relation(fields: [orderId], references: [id])
+  amount        Decimal       @db.Decimal(10, 2) // 使用 Decimal 避免浮点数精度问题
+  currency      String        @default("USD")
   status        PaymentStatus @default(PENDING)
   provider      String
   transactionId String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   // v0.4.3 添加数据库索引 - 优化支付查询性能
-  @@index([orderId])              // 按订单查支付记录
-  @@index([transactionId])         // 按支付流水号查询
-  @@index([status])               // 按状态筛选
+  // 按订单查支付记录
+  // 按支付流水号查询
+  // 按状态筛选
+  @@index([orderId])
+  @@index([transactionId])
+  @@index([status])
 }
 
 enum PaymentStatus {
@@ -149,18 +159,21 @@ enum PaymentStatus {
 }
 
 // 客服消息系统
+
 model Message {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User    @relation(fields: [userId], references: [id])
-  content   String
-  isFromAdmin Boolean @default(false)
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  content     String
+  isFromAdmin Boolean  @default(false)
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
 
   // v0.4.3 添加数据库索引 - 优化消息查询
-  @@index([userId])               // 按用户查消息
-  @@index([isRead])               // 筛选未读消息
+  // 按用户查消息
+  // 筛选未读消息
+  @@index([userId])
+  @@index([isRead])
 }
 
 // ============================================
@@ -170,11 +183,12 @@ model Message {
 // ============================================
 
 // 知识库分类模型 - 支持多级分类结构
+
 model KnowledgeCategory {
-  id       String  @id @default(cuid())
-  name     String  // 分类名称
-  parentId String? // 父分类 ID，支持多级分类
-  order    Int     @default(0) // 排序权重
+  id        String   @id @default(cuid())
+  name      String // 分类名称
+  parentId  String? // 父分类 ID，支持多级分类
+  order     Int      @default(0) // 排序权重
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -188,44 +202,47 @@ model KnowledgeCategory {
 }
 
 // 知识库条目模型 - 存储智能客服所需的知识内容
+
 model KnowledgeBase {
-  id        String   @id @default(cuid())
-  title     String   // 知识条目标题
-  content   String   // 知识条目内容（支持富文本）
-  category  String   // 所属分类名称
+  id        String          @id @default(cuid())
+  title     String // 知识条目标题
+  content   String // 知识条目内容（支持富文本）
+  category  String // 所属分类名称
   tags      String[] // 标签数组，用于检索和推荐
-  version   Int      @default(1) // 版本号，更新时自动递增
+  version   Int             @default(1) // 版本号，更新时自动递增
   status    KnowledgeStatus @default(DRAFT) // 状态：草稿/已发布/已归档
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  createdBy String   // 创建者 ID
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  createdBy String // 创建者 ID
 
   // 关联分类
   categoryRelation KnowledgeCategory? @relation(fields: [category], references: [id])
 
   // 版本历史记录
-  history   KnowledgeHistory[]
+  history KnowledgeHistory[]
 }
 
 // 知识库状态枚举
+
 enum KnowledgeStatus {
-  DRAFT    // 草稿
+  DRAFT // 草稿
   PUBLISHED // 已发布
   ARCHIVED // 已归档
 }
 
 // 知识库历史版本模型 - 记录每次修改的历史
+
 model KnowledgeHistory {
   id          String   @id @default(cuid())
-  knowledgeId String   // 对应的知识条目 ID
-  version     Int      // 版本号
-  title       String   // 修改时的标题
-  content     String   // 修改时的内容
+  knowledgeId String // 对应的知识条目 ID
+  version     Int // 版本号
+  title       String // 修改时的标题
+  content     String // 修改时的内容
   changedAt   DateTime @default(now())
-  changedBy   String   // 修改者 ID
+  changedBy   String // 修改者 ID
 
   // 关联知识条目
-  knowledge   KnowledgeBase @relation(fields: [knowledgeId], references: [id])
+  knowledge KnowledgeBase @relation(fields: [knowledgeId], references: [id])
 }
 
 // ============================================
@@ -233,58 +250,63 @@ model KnowledgeHistory {
 // ============================================
 
 // RAG 对话会话模型
+
 model Conversation {
-  id            String            @id @default(cuid())
-  userId        String?           // 用户 ID（可为空）
-  userEmail     String?           // 用户邮箱
-  status        ConversationStatus @default(ACTIVE) // 会话状态
-  currentIntent String?           // 当前意图
-  rating        SatisfactionRating? // 用户满意度
-  feedbackComment String?         // 用户反馈
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+  id              String              @id @default(cuid())
+  userId          String? // 用户 ID（可为空）
+  userEmail       String? // 用户邮箱
+  status          ConversationStatus  @default(ACTIVE) // 会话状态
+  currentIntent   String? // 当前意图
+  rating          SatisfactionRating? // 用户满意度
+  feedbackComment String? // 用户反馈
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
 
   // 关联消息
-  messages      ChatMessage[]
+  messages ChatMessage[]
 }
 
 // 会话状态枚举
+
 enum ConversationStatus {
-  ACTIVE    // 进行中
+  ACTIVE // 进行中
   COMPLETED // 已完成
-  EXPIRED   // 已过期
+  EXPIRED // 已过期
   ESCALATED // 已转人工
 }
 
 // 满意度枚举
+
 enum SatisfactionRating {
-  SATISFIED    // 满意
-  NEUTRAL      // 一般
+  SATISFIED // 满意
+  NEUTRAL // 一般
   DISSATISFIED // 不满意
 }
 
 // RAG 聊天消息模型
+
 model ChatMessage {
-  id            String   @id @default(cuid())
-  conversationId String   // 关联的会话 ID
-  role          MessageRole // 角色：用户/助手/系统
-  content       String   @db.Text // 消息内容
-  intent        String?  // 识别的意图
-  confidence    Float?   // 置信度
-  createdAt     DateTime @default(now())
+  id             String      @id @default(cuid())
+  conversationId String // 关联的会话 ID
+  role           MessageRole // 角色：用户/助手/系统
+  content        String      @db.Text // 消息内容
+  intent         String? // 识别的意图
+  confidence     Float? // 置信度
+  createdAt      DateTime    @default(now())
 
   // 关联会话
-  conversation  Conversation @relation(fields: [conversationId], references: [id])
+  conversation Conversation @relation(fields: [conversationId], references: [id])
 
   @@index([conversationId])
   @@index([createdAt])
 }
 
 // 消息角色枚举
+
 enum MessageRole {
-  USER     // 用户
+  USER // 用户
   ASSISTANT // 助手
-  SYSTEM  // 系统
+  SYSTEM // 系统
 }
 
 // ============================================
@@ -292,47 +314,50 @@ enum MessageRole {
 // ============================================
 
 // 每日数据快照模型
+
 model DailySnapshot {
-  id                String   @id @default(cuid())
-  date              DateTime @db.Date // 日期（不含时间）
-  totalRevenue      Decimal  @db.Decimal(12, 2) @default(0) // 总收入
-  totalOrders      Int      @default(0) // 总订单数
-  totalVisitors    Int      @default(0) // 访问人数
-  newCustomers     Int      @default(0) // 新客户数
-  returningCustomers Int    @default(0) // 回头客数
-  avgOrderValue    Decimal  @db.Decimal(10, 2) @default(0) // 平均订单金额
-  conversionRate   Decimal  @db.Decimal(5, 4) @default(0) // 转化率
-  topProducts      Json?    // 热销商品 [{"productId": "x", "count": 10}]
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  date               DateTime @db.Date // 日期（不含时间）
+  totalRevenue       Decimal  @db.Decimal(12, 2) @default(0) // 总收入
+  totalOrders        Int      @default(0) // 总订单数
+  totalVisitors      Int      @default(0) // 访问人数
+  newCustomers       Int      @default(0) // 新客户数
+  returningCustomers Int      @default(0) // 回头客数
+  avgOrderValue      Decimal  @db.Decimal(10, 2) @default(0) // 平均订单金额
+  conversionRate     Decimal  @db.Decimal(5, 4) @default(0) // 转化率
+  topProducts        Json? // 热销商品 [{"productId": "x", "count": 10}]
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   @@unique([date])
   @@index([date])
 }
 
 // 报表定时任务模型
+
 model ReportSchedule {
-  id          String     @id @default(cuid())
-  name        String     // 任务名称
-  type        ReportType // 报表类型
-  cron        String     // cron 表达式
-  recipients  String[]   // 邮件接收者列表
-  isActive    Boolean    @default(true) // 是否启用
-  lastRun     DateTime?  // 上次运行时间
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id         String     @id @default(cuid())
+  name       String // 任务名称
+  type       ReportType // 报表类型
+  cron       String // cron 表达式
+  recipients String[] // 邮件接收者列表
+  isActive   Boolean    @default(true) // 是否启用
+  lastRun    DateTime? // 上次运行时间
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 
   @@index([isActive])
   @@index([type])
 }
 
 // 报表类型枚举
+
 enum ReportType {
-  DAILY_SALES        // 日销售报表
-  WEEKLY_SALES       // 周销售报表
-  MONTHLY_SALES      // 月销售报表
-  INVENTORY          // 库存报表
-  CUSTOMER_ANALYSIS  // 客户分析报表
+  DAILY_SALES // 日销售报表
+  WEEKLY_SALES // 周销售报表
+  MONTHLY_SALES // 月销售报表
+  INVENTORY // 库存报表
+  CUSTOMER_ANALYSIS // 客户分析报表
   PRODUCT_PERFORMANCE // 商品表现报表
 }
 
@@ -342,25 +367,27 @@ enum ReportType {
 // ============================================
 
 // 批发商品导入日志模型
+
 model ImportLog {
-  id            String   @id @default(cuid())
-  wholesaler    String   // 批发商名称 (如: 1866)
+  id            String       @id @default(cuid())
+  wholesaler    String // 批发商名称 (如: 1866)
   status        ImportStatus @default(PENDING) // 导入状态
-  totalProducts Int      @default(0) // 总商品数
-  successCount  Int      @default(0) // 成功数
-  failCount     Int      @default(0) // 失败数
+  totalProducts Int          @default(0) // 总商品数
+  successCount  Int          @default(0) // 成功数
+  failCount     Int          @default(0) // 失败数
   errorDetails  String[] // 错误详情数组
-  startedAt     DateTime @default(now())
+  startedAt     DateTime     @default(now())
   completedAt   DateTime? // 完成时间
-  triggeredBy   String   // 触发者 ID
+  triggeredBy   String // 触发者 ID
 }
 
 // 导入状态枚举
+
 enum ImportStatus {
-  PENDING   // 待处理
-  RUNNING   // 运行中
+  PENDING // 待处理
+  RUNNING // 运行中
   COMPLETED // 已完成
-  FAILED    // 失败
+  FAILED // 失败
 }
 
 // ============================================
@@ -369,32 +396,35 @@ enum ImportStatus {
 // ============================================
 
 // 权限模型 - 定义系统中的所有权限
+
 model Permission {
-  id          String   @id @default(cuid())
-  name        String   @unique // 权限标识 (如: products.view)
-  label       String   // 显示名称 (如: 查看商品)
-  description String?  // 权限描述
+  id          String         @id @default(cuid())
+  name        String         @unique // 权限标识 (如: products.view)
+  label       String // 显示名称 (如: 查看商品)
+  description String? // 权限描述
   type        PermissionType @default(ACTION) // 权限类型: 页面权限 / 操作权限
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
   // 关联角色
-  roles       Role[]   @relation("RolePermissions")
+  roles Role[] @relation("RolePermissions")
 }
 
 // 权限类型枚举
+
 enum PermissionType {
-  PAGE    // 页面权限
-  ACTION  // 操作权限
-  DATA    // 数据权限
+  PAGE // 页面权限
+  ACTION // 操作权限
+  DATA // 数据权限
 }
 
 // 角色模型 - 关联权限集合
+
 model Role {
   id          String   @id @default(cuid())
   name        String   @unique // 角色标识 (如: admin, operator)
-  label       String   // 显示名称 (如: 管理员，运营员)
-  description String?  // 角色描述
+  label       String // 显示名称 (如: 管理员，运营员)
+  description String? // 角色描述
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -402,28 +432,31 @@ model Role {
   permissions Permission[] @relation("RolePermissions")
 
   // 关联管理员用户
-  admins      AdminUser[]
+  admins AdminUser[]
 }
 
 // 管理员用户模型 - 后台管理系统用户
+
 model AdminUser {
-  id           String   @id @default(cuid())
-  username     String   @unique // 用户名 (唯一)
-  email        String   @unique // 邮箱 (唯一)
-  password     String   // 加密密码
-  roleId       String   // 关联角色 ID
-  role         Role     @relation(fields: [roleId], references: [id])
-  isActive     Boolean  @default(true) // 是否启用
-  lastLoginAt  DateTime? // 最后登录时间
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String    @id @default(cuid())
+  username    String    @unique // 用户名 (唯一)
+  email       String    @unique // 邮箱 (唯一)
+  password    String // 加密密码
+  roleId      String // 关联角色 ID
+  role        Role      @relation(fields: [roleId], references: [id])
+  isActive    Boolean   @default(true) // 是否启用
+  lastLoginAt DateTime? // 最后登录时间
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   // 关联操作日志
   permissionLogs PermissionLog[]
 
   // v0.4.3 添加数据库索引 - 优化管理员查询
-  @@index([roleId])               // 按角色查管理员
-  @@index([isActive])             // 筛选启用的管理员
+  // 按角色查管理员
+  // 筛选启用的管理员
+  @@index([roleId])
+  @@index([isActive])
 }
 
 // ============================================
@@ -432,57 +465,67 @@ model AdminUser {
 // ============================================
 
 // 商品评价模型
+
 model Review {
-  id          String   @id @default(cuid())
-  productId   String
-  userId      String
-  rating      Int      // 1-5 星评分
-  title       String?  // 评价标题
-  content     String?  // 评价内容
-  images      ReviewImage[]
-  replies     ReviewReply[]
-  isApproved  Boolean  @default(false)  // 是否审核通过
-  isFeatured  Boolean  @default(false)  // 是否精选
-  helpfulCount Int     @default(0)      // 点赞数
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String        @id @default(cuid())
+  productId    String
+  userId       String
+  rating       Int // 1-5 星评分
+  title        String? // 评价标题
+  content      String? // 评价内容
+  images       ReviewImage[]
+  replies      ReviewReply[]
+  isApproved   Boolean       @default(false) // 是否审核通过
+  isFeatured   Boolean       @default(false) // 是否精选
+  helpfulCount Int           @default(0) // 点赞数
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   // 关联关系
-  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // v0.5.0 添加数据库索引 - 优化评价查询
-  @@index([productId])              // 按商品查评价
-  @@index([userId])                // 按用户查评价
-  @@index([rating])                // 按评分筛选
-  @@index([isApproved])            // 筛选已审核
-  @@index([createdAt])             // 按时间排序
+  // 按商品查评价
+  // 按用户查评价
+  // 按评分筛选
+  // 筛选已审核
+  // 按时间排序
+  @@index([productId])
+  @@index([userId])
+  @@index([rating])
+  @@index([isApproved])
+  @@index([createdAt])
 }
 
 // 评价图片模型
+
 model ReviewImage {
-  id        String  @id @default(cuid())
-  reviewId  String
-  url       String  // 图片 URL
-  position  Int     @default(0)  // 图片顺序
+  id       String @id @default(cuid())
+  reviewId String
+  url      String // 图片 URL
+  position Int    @default(0) // 图片顺序
 
-  review    Review  @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
 
-  @@index([reviewId])              // 按评价查图片
+  // 按评价查图片
+  @@index([reviewId])
 }
 
 // 评价回复模型 (支持商家回复)
+
 model ReviewReply {
   id        String   @id @default(cuid())
   reviewId  String
-  userId    String?  // 回复用户 ID (可为 null 表示商家回复)
-  adminId   String?  // 管理员 ID (商家回复)
-  content   String   // 回复内容
+  userId    String? // 回复用户 ID (可为 null 表示商家回复)
+  adminId   String? // 管理员 ID (商家回复)
+  content   String // 回复内容
   createdAt DateTime @default(now())
 
-  review    Review  @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
 
-  @@index([reviewId])              // 按评价查回复
+  // 按评价查回复
+  @@index([reviewId])
 }
 
 // ============================================
@@ -491,6 +534,7 @@ model ReviewReply {
 // ============================================
 
 // 日志操作类型枚举
+
 enum LogAction {
   CREATE // 创建
   UPDATE // 更新
@@ -498,27 +542,29 @@ enum LogAction {
 }
 
 // 日志目标类型枚举
+
 enum TargetType {
   PERMISSION // 权限
-  ROLE       // 角色
+  ROLE // 角色
   ADMIN_USER // 管理员用户
 }
 
 // 权限变更日志模型
+
 model PermissionLog {
-  id          String    @id @default(cuid())
-  action      LogAction // 操作类型
-  targetType  TargetType // 目标类型
-  targetId    String    // 目标 ID
-  operatorId  String    // 操作人 ID
-  beforeData  Json?     // 变更前数据
-  afterData   Json?     // 变更后数据
-  ipAddress   String?   // IP 地址
-  userAgent   String?   // 用户代理
-  createdAt   DateTime  @default(now())
+  id         String     @id @default(cuid())
+  action     LogAction // 操作类型
+  targetType TargetType // 目标类型
+  targetId   String // 目标 ID
+  operatorId String // 操作人 ID
+  beforeData Json? // 变更前数据
+  afterData  Json? // 变更后数据
+  ipAddress  String? // IP 地址
+  userAgent  String? // 用户代理
+  createdAt  DateTime   @default(now())
 
   // 关联操作人
-  operator    AdminUser @relation(fields: [operatorId], references: [id])
+  operator AdminUser @relation(fields: [operatorId], references: [id])
 }
 
 // ============================================
@@ -526,31 +572,33 @@ model PermissionLog {
 // ============================================
 
 // 优惠券类型枚举
+
 enum CouponType {
-  PERCENTAGE  // 百分比折扣 (如: 20% off)
-  FIXED       // 固定金额折扣 (如: $10 off)
+  PERCENTAGE // 百分比折扣 (如: 20% off)
+  FIXED // 固定金额折扣 (如: $10 off)
 }
 
 // 优惠券模型
-model Coupon {
-  id            String      @id @default(cuid())
-  code          String      @unique
-  name          String
-  description   String?
-  type          CouponType
-  value         Decimal     @db.Decimal(10, 2) // 折扣值或百分比
-  minAmount     Decimal?    @db.Decimal(10, 2) // 最低消费金额
-  maxDiscount   Decimal?    @db.Decimal(10, 2) // 最高折扣金额
-  maxUses       Int?        // 最大使用次数
-  usedCount     Int         @default(0)
-  perUserLimit  Int         @default(1)
-  startsAt      DateTime?
-  expiresAt     DateTime?
-  isActive      Boolean     @default(true)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
 
-  usages        CouponUsage[]
+model Coupon {
+  id           String     @id @default(cuid())
+  code         String     @unique
+  name         String
+  description  String?
+  type         CouponType
+  value        Decimal    @db.Decimal(10, 2) // 折扣值或百分比
+  minAmount    Decimal?   @db.Decimal(10, 2) // 最低消费金额
+  maxDiscount  Decimal?   @db.Decimal(10, 2) // 最高折扣金额
+  maxUses      Int? // 最大使用次数
+  usedCount    Int        @default(0)
+  perUserLimit Int        @default(1)
+  startsAt     DateTime?
+  expiresAt    DateTime?
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  usages CouponUsage[]
 
   @@index([code])
   @@index([isActive])
@@ -558,18 +606,20 @@ model Coupon {
 }
 
 // 优惠券使用记录模型
+
 model CouponUsage {
-  id          String   @id @default(cuid())
-  couponId    String
-  userId      String
-  orderId     String
-  discount    Decimal  @db.Decimal(10, 2) // 实际折扣金额
-  usedAt      DateTime @default(now())
+  id       String   @id @default(cuid())
+  couponId String
+  userId   String
+  orderId  String
+  discount Decimal  @db.Decimal(10, 2) // 实际折扣金额
+  usedAt   DateTime @default(now())
 
-  coupon      Coupon   @relation(fields: [couponId], references: [id])
-  order       Order    @relation(fields: [orderId], references: [id])
+  coupon Coupon @relation(fields: [couponId], references: [id])
+  order  Order  @relation(fields: [orderId], references: [id])
 
-  @@unique([couponId, userId]) // 防止重复使用
+  // 防止重复使用
+  @@unique([couponId, userId])
   @@index([couponId])
   @@index([userId])
 }
@@ -579,28 +629,31 @@ model CouponUsage {
 // ============================================
 
 // 会员等级枚举
+
 enum MemberTier {
-  BRONZE     // 青铜
-  SILVER     // 白银
-  GOLD       // 黄金
-  PLATINUM   // 白金
+  BRONZE // 青铜
+  SILVER // 白银
+  GOLD // 黄金
+  PLATINUM // 白金
 }
 
 // 积分类型枚举
+
 enum PointType {
-  EARN       // 消费获得
-  REDEEM     // 兑换抵扣
-  BONUS      // 奖励
-  EXPIRE     // 过期作废
-  ADJUST     // 后台调整
-  REFUND     // 退款扣回
+  EARN // 消费获得
+  REDEEM // 兑换抵扣
+  BONUS // 奖励
+  EXPIRE // 过期作废
+  ADJUST // 后台调整
+  REFUND // 退款扣回
 }
 
 // 积分计划模型
+
 model LoyaltyProgram {
   id            String   @id @default(cuid())
   name          String   @default("默认积分计划")
-  pointsRate    Float    @default(1.0)  // 每消费1元得积分
+  pointsRate    Float    @default(1.0) // 每消费1元得积分
   pointsToYuan  Float    @default(0.01) // 100积分=1元
   minRedemption Int      @default(100) // 最低兑换积分
   isActive      Boolean  @default(true)
@@ -609,34 +662,36 @@ model LoyaltyProgram {
 }
 
 // 客户积分模型
-model CustomerPoints {
-  id            String      @id @default(cuid())
-  userId        String      @unique
-  balance       Int         @default(0)
-  totalEarned   Int         @default(0)
-  totalRedeemed Int         @default(0)
-  tier          MemberTier  @default(BRONZE)
-  updatedAt     DateTime    @updatedAt
 
-  user          User        @relation(fields: [userId], references: [id])
-  transactions  PointTransaction[]
+model CustomerPoints {
+  id            String     @id @default(cuid())
+  userId        String     @unique
+  balance       Int        @default(0)
+  totalEarned   Int        @default(0)
+  totalRedeemed Int        @default(0)
+  tier          MemberTier @default(BRONZE)
+  updatedAt     DateTime   @updatedAt
+
+  user         User               @relation(fields: [userId], references: [id])
+  transactions PointTransaction[]
 
   @@index([userId])
 }
 
 // 积分交易记录模型
-model PointTransaction {
-  id                String       @id @default(cuid())
-  customerPointsId  String
-  userId            String
-  amount            Int          // 正数=获得，负数=消耗
-  type              PointType
-  orderId           String?
-  description        String
-  expiresAt          DateTime?    // 积分过期时间
-  createdAt         DateTime     @default(now())
 
-  customerPoints     CustomerPoints @relation(fields: [customerPointsId], references: [id])
+model PointTransaction {
+  id               String    @id @default(cuid())
+  customerPointsId String
+  userId           String
+  amount           Int // 正数=获得，负数=消耗
+  type             PointType
+  orderId          String?
+  description      String
+  expiresAt        DateTime? // 积分过期时间
+  createdAt        DateTime  @default(now())
+
+  customerPoints CustomerPoints @relation(fields: [customerPointsId], references: [id])
 
   @@index([userId])
   @@index([customerPointsId])
@@ -650,35 +705,39 @@ model PointTransaction {
 // ============================================
 
 // 废弃购物车状态枚举
+
 enum AbandonedCartStatus {
-  PENDING     // 待发送
-  SENT        // 已发送第一封
+  PENDING // 待发送
+  SENT // 已发送第一封
   SENT_SECOND // 已发送第二封
-  RECOVERED   // 已恢复（用户完成购买）
-  EXPIRED     // 已过期（不再发送）
+  RECOVERED // 已恢复（用户完成购买）
+  EXPIRED // 已过期（不再发送）
 }
 
 // 废弃购物车模型
-model AbandonedCart {
-  id            String               @id @default(cuid())
-  userId        String
-  userEmail     String
-  userName      String?
-  cartData      Json                 // 购物车内容
-  totalAmount   Decimal              @db.Decimal(10, 2) // 使用 Decimal 避免浮点数精度问题
-  locale        String               @default("en")
-  status        AbandonedCartStatus  @default(PENDING)
-  lastEmailAt   DateTime?
-  emailCount    Int                  @default(0)
-  recoveredAt   DateTime?            // 恢复购买时间
-  createdAt     DateTime             @default(now())
-  updatedAt     DateTime             @updatedAt
 
+model AbandonedCart {
+  id          String              @id @default(cuid())
+  userId      String
+  userEmail   String
+  userName    String?
+  cartData    Json // 购物车内容
+  totalAmount Decimal             @db.Decimal(10, 2) // 使用 Decimal 避免浮点数精度问题
+  locale      String              @default("en")
+  status      AbandonedCartStatus @default(PENDING)
+  lastEmailAt DateTime?
+  emailCount  Int                 @default(0)
+  recoveredAt DateTime? // 恢复购买时间
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  // 复合索引：状态+时间（废弃购物车查询）
+  // 复合索引：用户+状态
   @@index([userId])
   @@index([status])
   @@index([createdAt])
-  @@index([status, createdAt]) // 复合索引：状态+时间（废弃购物车查询）
-  @@index([userId, status])   // 复合索引：用户+状态
+  @@index([status, createdAt])
+  @@index([userId, status])
 }
 
 // ============================================
@@ -686,10 +745,11 @@ model AbandonedCart {
 // ============================================
 
 // 货币配置模型
+
 model Currency {
   code      String   @id // ISO 4217 代码 (USD, EUR, GBP, JPY)
-  name      String   // 货币名称
-  symbol    String   // 货币符号 ($ , € , £ , ¥)
+  name      String // 货币名称
+  symbol    String // 货币符号 ($ , € , £ , ¥)
   decimals  Int      @default(2) // 小数位数
   isDefault Boolean  @default(false) // 是否为默认货币
   isActive  Boolean  @default(true) // 是否启用
@@ -700,16 +760,17 @@ model Currency {
 }
 
 // 汇率记录模型
-model ExchangeRate {
-  id          String   @id @default(cuid())
-  baseCurrency String   // 基准货币代码
-  targetCurrency String // 目标货币代码
-  rate        Decimal  @db.Decimal(12, 6) // 汇率（基准货币 : 目标货币）
-  fetchedAt   DateTime @default(now()) // 汇率获取时间
-  expiresAt   DateTime // 汇率过期时间
-  source      String   @default("exchangerate-api.com") // 汇率数据源
 
-  currency    Currency @relation(fields: [baseCurrency], references: [code])
+model ExchangeRate {
+  id             String   @id @default(cuid())
+  baseCurrency   String // 基准货币代码
+  targetCurrency String // 目标货币代码
+  rate           Decimal  @db.Decimal(12, 6) // 汇率（基准货币 : 目标货币）
+  fetchedAt      DateTime @default(now()) // 汇率获取时间
+  expiresAt      DateTime // 汇率过期时间
+  source         String   @default("exchangerate-api.com") // 汇率数据源
+
+  currency Currency @relation(fields: [baseCurrency], references: [code])
 
   @@unique([baseCurrency, targetCurrency])
   @@index([baseCurrency])
@@ -718,16 +779,17 @@ model ExchangeRate {
 }
 
 // 订单多币种记录（用于追踪原始币种和转换后金额）
-model OrderCurrency {
-  id                String   @id @default(cuid())
-  orderId           String   @unique
-  baseCurrency      String   @default("USD") // 订单原始币种
-  displayCurrency   String   @default("USD") // 显示币种
-  exchangeRate      Decimal  @db.Decimal(12, 6) @default(1) // 结算时的汇率
-  baseAmount        Decimal  @db.Decimal(10, 2) // 原始金额
-  displayAmount     Decimal  @db.Decimal(10, 2) // 转换后显示金额
 
-  order             Order    @relation(fields: [orderId], references: [id])
+model OrderCurrency {
+  id              String  @id @default(cuid())
+  orderId         String  @unique
+  baseCurrency    String  @default("USD") // 订单原始币种
+  displayCurrency String  @default("USD") // 显示币种
+  exchangeRate    Decimal @db.Decimal(12, 6) @default(1) // 结算时的汇率
+  baseAmount      Decimal @db.Decimal(10, 2) // 原始金额
+  displayAmount   Decimal @db.Decimal(10, 2) // 转换后显示金额
+
+  order Order @relation(fields: [orderId], references: [id])
 
   @@index([orderId])
 }
@@ -737,33 +799,36 @@ model OrderCurrency {
 // ============================================
 
 // 触发器类型枚举
+
 enum TriggerType {
-  ORDER_PLACED      // 订单创建
-  ORDER_PAID        // 订单支付
-  ORDER_SHIPPED     // 订单发货
-  ORDER_DELIVERED   // 订单送达
-  CART_ABANDONED    // 购物车废弃
-  PRODUCT_VIEWED    // 商品浏览
+  ORDER_PLACED // 订单创建
+  ORDER_PAID // 订单支付
+  ORDER_SHIPPED // 订单发货
+  ORDER_DELIVERED // 订单送达
+  CART_ABANDONED // 购物车废弃
+  PRODUCT_VIEWED // 商品浏览
   CUSTOMER_INACTIVE // 客户沉睡
-  BIRTHDAY         // 生日
-  FIRST_PURCHASE   // 首次购买
-  MEMBERSHIP_TIER  // 会员等级变更
+  BIRTHDAY // 生日
+  FIRST_PURCHASE // 首次购买
+  MEMBERSHIP_TIER // 会员等级变更
 }
 
 // 序列状态枚举
+
 enum SequenceStatus {
-  DRAFT     // 草稿
-  ACTIVE    // 启用
-  PAUSED    // 暂停
+  DRAFT // 草稿
+  ACTIVE // 启用
+  PAUSED // 暂停
   COMPLETED // 已完成
 }
 
 // 邮件序列模型
+
 model EmailSequence {
   id          String         @id @default(cuid())
-  name        String         // 序列名称
-  description String?        // 描述
-  trigger     TriggerType    // 触发器类型
+  name        String // 序列名称
+  description String? // 描述
+  trigger     TriggerType // 触发器类型
   status      SequenceStatus @default(DRAFT)
   isActive    Boolean        @default(true)
   createdAt   DateTime       @default(now())
@@ -778,19 +843,20 @@ model EmailSequence {
 }
 
 // 邮件序列步骤模型
-model EmailSequenceStep {
-  id            String   @id @default(cuid())
-  sequenceId    String
-  name          String   // 步骤名称
-  order         Int      // 执行顺序
-  templateId    String   // 邮件模板 ID
-  delayHours    Int      @default(0) // 延迟时间（小时）
-  condition     Json?   // 触发条件（如：订单金额 > 100）
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
 
-  sequence      EmailSequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+model EmailSequenceStep {
+  id         String   @id @default(cuid())
+  sequenceId String
+  name       String // 步骤名称
+  order      Int // 执行顺序
+  templateId String // 邮件模板 ID
+  delayHours Int      @default(0) // 延迟时间（小时）
+  condition  Json? // 触发条件（如：订单金额 > 100）
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  sequence EmailSequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
 
   @@index([sequenceId])
   @@index([order])
@@ -798,19 +864,20 @@ model EmailSequenceStep {
 }
 
 // 邮件序列参与记录模型
+
 model EmailSequenceEnrollment {
-  id            String            @id @default(cuid())
+  id            String           @id @default(cuid())
   sequenceId    String
   userId        String
-  currentStep   Int               @default(0) // 当前步骤
+  currentStep   Int              @default(0) // 当前步骤
   status        EnrollmentStatus @default(ACTIVE)
-  enrolledAt    DateTime          @default(now())
+  enrolledAt    DateTime         @default(now())
   completedAt   DateTime?
   pausedAt      DateTime?
-  lastTriggerAt DateTime?         // 最后触发时间
-  triggerData   Json?             // 触发时的数据（如：订单 ID）
+  lastTriggerAt DateTime? // 最后触发时间
+  triggerData   Json? // 触发时的数据（如：订单 ID）
 
-  sequence      EmailSequence @relation(fields: [sequenceId], references: [id])
+  sequence EmailSequence @relation(fields: [sequenceId], references: [id])
 
   @@unique([sequenceId, userId])
   @@index([sequenceId])
@@ -819,30 +886,32 @@ model EmailSequenceEnrollment {
 }
 
 // 参与状态枚举
+
 enum EnrollmentStatus {
-  ACTIVE     // 进行中
-  COMPLETED  // 已完成
+  ACTIVE // 进行中
+  COMPLETED // 已完成
   UNENROLLED // 已取消
-  FAILED     // 失败
-  PAUSED     // 已暂停
+  FAILED // 失败
+  PAUSED // 已暂停
 }
 
 // 邮件发送日志模型
+
 model EmailSequenceLog {
-  id            String   @id @default(cuid())
-  sequenceId    String
-  stepId        String
-  userId        String
-  enrollmentId  String
-  email         String
-  status        EmailSendStatus @default(PENDING)
-  sentAt        DateTime?
-  deliveredAt   DateTime?
-  openedAt      DateTime?
-  clickedAt     DateTime?
-  bouncedAt     DateTime?
-  errorMessage  String?
-  createdAt     DateTime @default(now())
+  id           String          @id @default(cuid())
+  sequenceId   String
+  stepId       String
+  userId       String
+  enrollmentId String
+  email        String
+  status       EmailSendStatus @default(PENDING)
+  sentAt       DateTime?
+  deliveredAt  DateTime?
+  openedAt     DateTime?
+  clickedAt    DateTime?
+  bouncedAt    DateTime?
+  errorMessage String?
+  createdAt    DateTime        @default(now())
 
   @@index([sequenceId])
   @@index([userId])
@@ -851,14 +920,15 @@ model EmailSequenceLog {
 }
 
 // 邮件发送状态枚举
+
 enum EmailSendStatus {
-  PENDING   // 待发送
-  SENT      // 已发送
+  PENDING // 待发送
+  SENT // 已发送
   DELIVERED // 已送达
-  OPENED    // 已打开
-  CLICKED   // 已点击
-  BOUNCED   // 退回
-  FAILED    // 失败
+  OPENED // 已打开
+  CLICKED // 已点击
+  BOUNCED // 退回
+  FAILED // 失败
 }
 
 // ============================================
@@ -866,56 +936,60 @@ enum EmailSendStatus {
 // ============================================
 
 // 套餐状态枚举
+
 enum BundleStatus {
-  DRAFT     // 草稿
-  ACTIVE    // 启用
-  INACTIVE  // 停用
-  ARCHIVED  // 已归档
+  DRAFT // 草稿
+  ACTIVE // 启用
+  INACTIVE // 停用
+  ARCHIVED // 已归档
 }
 
 // 套餐模型
+
 model Bundle {
   id            String       @id @default(cuid())
-  name          String       // 套餐名称
-  description   String?      // 套餐描述
+  name          String // 套餐名称
+  description   String? // 套餐描述
   slug          String       @unique // URL slug
   status        BundleStatus @default(DRAFT)
   discountType  DiscountType // 折扣类型
   discountValue Decimal      @db.Decimal(10, 2) // 折扣值
-  startDate     DateTime?    // 开始日期
-  endDate       DateTime?    // 结束日期
-  maxUsage      Int?         // 最大使用次数
+  startDate     DateTime? // 开始日期
+  endDate       DateTime? // 结束日期
+  maxUsage      Int? // 最大使用次数
   usedCount     Int          @default(0)
   minItems      Int          @default(2) // 最少商品数
-  maxItems      Int?         // 最大商品数
+  maxItems      Int? // 最大商品数
   isStackable   Boolean      @default(false) // 是否可与其他优惠叠加
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
-  items         BundleItem[]
+  items BundleItem[]
 
   @@index([status])
   @@index([slug])
 }
 
 // 折扣类型枚举
+
 enum DiscountType {
   PERCENTAGE // 百分比折扣
-  FIXED      // 固定金额折扣
+  FIXED // 固定金额折扣
   BUY_X_GET_Y // 买 X 送 Y
 }
 
 // 套餐商品项模型
-model BundleItem {
-  id          String   @id @default(cuid())
-  bundleId    String
-  productId   String
-  quantity    Int      @default(1) // 套餐中该商品的数量
-  isRequired  Boolean  @default(true) // 是否必选
-  bonusQuantity Int    @default(0) // 赠送数量
 
-  bundle      Bundle  @relation(fields: [bundleId], references: [id], onDelete: Cascade)
-  product     Product @relation(fields: [productId], references: [id])
+model BundleItem {
+  id            String  @id @default(cuid())
+  bundleId      String
+  productId     String
+  quantity      Int     @default(1) // 套餐中该商品的数量
+  isRequired    Boolean @default(true) // 是否必选
+  bonusQuantity Int     @default(0) // 赠送数量
+
+  bundle  Bundle  @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
 
   @@unique([bundleId, productId])
   @@index([bundleId])
@@ -923,12 +997,13 @@ model BundleItem {
 }
 
 // 套餐订单记录模型
+
 model BundleOrder {
-  id            String   @id @default(cuid())
-  bundleId      String
-  orderId       String
-  discount      Decimal  @db.Decimal(10, 2) // 实际折扣金额
-  createdAt     DateTime @default(now())
+  id        String   @id @default(cuid())
+  bundleId  String
+  orderId   String
+  discount  Decimal  @db.Decimal(10, 2) // 实际折扣金额
+  createdAt DateTime @default(now())
 
   @@unique([bundleId, orderId])
   @@index([bundleId])
@@ -940,50 +1015,53 @@ model BundleOrder {
 // ============================================
 
 // 分销商状态枚举
+
 enum AffiliateStatus {
-  PENDING   // 待审核
-  ACTIVE    // 启用
+  PENDING // 待审核
+  ACTIVE // 启用
   SUSPENDED // 暂停
-  REJECTED  // 已拒绝
+  REJECTED // 已拒绝
 }
 
 // 分销商模型
-model Affiliate {
-  id            String          @id @default(cuid())
-  userId        String          @unique
-  status        AffiliateStatus @default(PENDING)
-  commissionRate Decimal        @db.Decimal(5, 2) @default(10) // 佣金比例 %
-  balance       Decimal         @db.Decimal(12, 2) @default(0) // 可用余额
-  totalEarned   Decimal         @db.Decimal(12, 2) @default(0) // 累计收益
-  totalPaid     Decimal         @db.Decimal(12, 2) @default(0) // 已支付
-  payoutMethod  String?         // 支付方式
-  payoutInfo    Json?           // 支付信息详情
-  approvedAt    DateTime?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
 
-  user          User    @relation(fields: [userId], references: [id])
-  links         AffiliateLink[]
-  commissions   AffiliateCommission[]
-  payouts       AffiliatePayout[]
+model Affiliate {
+  id             String          @id @default(cuid())
+  userId         String          @unique
+  status         AffiliateStatus @default(PENDING)
+  commissionRate Decimal         @db.Decimal(5, 2) @default(10) // 佣金比例 %
+  balance        Decimal         @db.Decimal(12, 2) @default(0) // 可用余额
+  totalEarned    Decimal         @db.Decimal(12, 2) @default(0) // 累计收益
+  totalPaid      Decimal         @db.Decimal(12, 2) @default(0) // 已支付
+  payoutMethod   String? // 支付方式
+  payoutInfo     Json? // 支付信息详情
+  approvedAt     DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  user        User                  @relation(fields: [userId], references: [id])
+  links       AffiliateLink[]
+  commissions AffiliateCommission[]
+  payouts     AffiliatePayout[]
 
   @@index([status])
   @@index([userId])
 }
 
 // 分销链接模型
-model AffiliateLink {
-  id          String   @id @default(cuid())
-  affiliateId String
-  code        String   @unique // 分销码
-  productId   String?  // 可指定商品
-  campaign    String?  // 活动名称
-  clicks      Int      @default(0)
-  conversions Int      @default(0)
-  createdAt   DateTime @default(now())
-  expiresAt  DateTime?
 
-  affiliate   Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+model AffiliateLink {
+  id          String    @id @default(cuid())
+  affiliateId String
+  code        String    @unique // 分销码
+  productId   String? // 可指定商品
+  campaign    String? // 活动名称
+  clicks      Int       @default(0)
+  conversions Int       @default(0)
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime?
+
+  affiliate Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
 
   commissions AffiliateCommission[]
 
@@ -992,21 +1070,22 @@ model AffiliateLink {
 }
 
 // 佣金记录模型
-model AffiliateCommission {
-  id            String            @id @default(cuid())
-  affiliateId   String
-  linkId        String
-  orderId       String
-  userId        String
-  amount        Decimal           @db.Decimal(12, 2) // 订单金额
-  commission    Decimal           @db.Decimal(12, 2) // 佣金金额
-  rate          Decimal           @db.Decimal(5, 2)  // 佣金比例
-  status        CommissionStatus   @default(PENDING)
-  paidAt        DateTime?
-  createdAt     DateTime          @default(now())
 
-  affiliate     Affiliate         @relation(fields: [affiliateId], references: [id])
-  link          AffiliateLink     @relation(fields: [linkId], references: [id])
+model AffiliateCommission {
+  id          String           @id @default(cuid())
+  affiliateId String
+  linkId      String
+  orderId     String
+  userId      String
+  amount      Decimal          @db.Decimal(12, 2) // 订单金额
+  commission  Decimal          @db.Decimal(12, 2) // 佣金金额
+  rate        Decimal          @db.Decimal(5, 2) // 佣金比例
+  status      CommissionStatus @default(PENDING)
+  paidAt      DateTime?
+  createdAt   DateTime         @default(now())
+
+  affiliate Affiliate     @relation(fields: [affiliateId], references: [id])
+  link      AffiliateLink @relation(fields: [linkId], references: [id])
 
   @@index([affiliateId])
   @@index([orderId])
@@ -1014,38 +1093,41 @@ model AffiliateCommission {
 }
 
 // 佣金状态枚举
+
 enum CommissionStatus {
-  PENDING   // 待确认
-  APPROVED  // 已确认
-  PAID      // 已支付
+  PENDING // 待确认
+  APPROVED // 已确认
+  PAID // 已支付
   CANCELLED // 已取消
-  REJECTED  // 已拒绝
+  REJECTED // 已拒绝
 }
 
 // 佣金提现模型
-model AffiliatePayout {
-  id          String         @id @default(cuid())
-  affiliateId String
-  amount      Decimal        @db.Decimal(12, 2)
-  method      String         // 支付方式
-  status      PayoutStatus   @default(PENDING)
-  transactionId String?       // 外部交易号
-  notes       String?
-  processedAt DateTime?
-  createdAt   DateTime       @default(now())
 
-  affiliate   Affiliate      @relation(fields: [affiliateId], references: [id])
+model AffiliatePayout {
+  id            String       @id @default(cuid())
+  affiliateId   String
+  amount        Decimal      @db.Decimal(12, 2)
+  method        String // 支付方式
+  status        PayoutStatus @default(PENDING)
+  transactionId String? // 外部交易号
+  notes         String?
+  processedAt   DateTime?
+  createdAt     DateTime     @default(now())
+
+  affiliate Affiliate @relation(fields: [affiliateId], references: [id])
 
   @@index([affiliateId])
   @@index([status])
 }
 
 // 提现状态枚举
+
 enum PayoutStatus {
-  PENDING   // 待处理
+  PENDING // 待处理
   PROCESSING // 处理中
   COMPLETED // 已完成
-  FAILED    // 失败
+  FAILED // 失败
   CANCELLED // 已取消
 }
 
@@ -1054,16 +1136,66 @@ enum PayoutStatus {
 // ============================================
 
 // 库存预警日志模型
+
 model StockAlertLog {
-  id          String   @id @default(cuid())
-  productId   String
-  productName String
-  oldStock    Int
-  newStock    Int
-  threshold   Int
+  id             String   @id @default(cuid())
+  productId      String
+  productName    String
+  oldStock       Int
+  newStock       Int
+  threshold      Int
   notifiedEmails String[]
-  createdAt   DateTime @default(now())
+  createdAt      DateTime @default(now())
 
   @@index([productId])
   @@index([createdAt])
+}
+
+model Session {
+  id             String   @id
+  expiresAt      DateTime
+  token          String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  ipAddress      String?
+  userAgent      String?
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  impersonatedBy String?
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
 }
