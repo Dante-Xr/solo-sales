@@ -5,7 +5,7 @@
 import * as React from "react"
 import Image from "next/image"
 import { ShoppingCart, Flame } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useRouter } from "@/i18n/navigation"
 import { useTranslations } from "next-intl"
 import { FEATURED_PRODUCTS } from "./HomeCarousel"
 
@@ -83,9 +83,9 @@ export function ProductGrid() {
   const t = useTranslations('product')
 
   return (
-    <div className="w-full px-4 py-6">
-      <h2 className="text-xl font-bold mb-6">{t('featured')}</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+    <div className="w-full px-3 py-4">
+      <h2 className="text-base font-bold mb-4">{t('featured')}</h2>
+      <div className="grid grid-cols-2 gap-3">
         {FEATURED_PRODUCTS.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}

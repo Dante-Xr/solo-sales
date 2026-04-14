@@ -13,22 +13,15 @@
 
 import { getRequestConfig } from 'next-intl/server'
 
-/**
- * 支持的语言列表
- * 与翻译文件对应
- */
 const supportedLocales = ['en', 'zh']
+const defaultLocale = 'zh'
 
-/**
- * 国际化请求配置
- * @returns 语言配置和翻译加载器
- */
-export default getRequestConfig(async ({ locale }) => {
-  const detectedLocale = locale || 'zh'
-  const validLocale = supportedLocales.includes(detectedLocale) ? detectedLocale : 'zh'
+export default getRequestConfig(async ({ requestLocale }) => {
+  const requested = await requestLocale
+  const detectedLocale = supportedLocales.includes(requested || '') ? requested : defaultLocale
 
   return {
-    locale: validLocale,
-    messages: (await import(`../i18n/messages/${validLocale}.json`)).default
+    locale: detectedLocale,
+    messages: (await import(`../i18n/messages/${detectedLocale}.json`)).default
   }
 })

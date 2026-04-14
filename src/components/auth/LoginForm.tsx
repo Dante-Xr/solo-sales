@@ -14,7 +14,7 @@
 
 import { useState } from "react"
 import { authClient } from "@/lib/auth-client"
-import { useRouter } from "next/navigation"
+import { useRouter } from "@/i18n/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"

@@ -8,7 +8,7 @@ import useEmblaCarousel from "embla-carousel-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { useTranslations } from "next-intl"
-import { useRouter } from "next/navigation"
+import { useRouter } from "@/i18n/navigation"
 
 export const FEATURED_PRODUCTS = [
   {
@@ -142,8 +142,8 @@ export function HomeCarousel() {
   }, [router])
 
   return (
-    <div className="w-full relative pt-4 pb-2">
-      <h2 className="text-lg font-bold mb-3">{t('featured')}</h2>
+    <div className="w-full relative pt-3 pb-2 px-0">
+      <h2 className="text-base font-bold mb-2 px-4">{t('featured')}</h2>
       <div className="relative">
         <div ref={emblaRef} className="overflow-hidden">
           <div className="flex">
@@ -160,26 +160,26 @@ export function HomeCarousel() {
 
         <button
           onClick={scrollPrev}
-          className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg z-10 transition-opacity opacity-60 hover:opacity-100"
+          className="absolute left-1 md:left-4 top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg z-10 transition-opacity opacity-50 hover:opacity-100"
           aria-label={t('back')}
         >
-          <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
+          <ChevronLeft className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
         </button>
 
         <button
           onClick={scrollNext}
-          className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg z-10 transition-opacity opacity-60 hover:opacity-100"
+          className="absolute right-1 md:right-4 top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg z-10 transition-opacity opacity-50 hover:opacity-100"
           aria-label={t('next')}
         >
-          <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
+          <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
         </button>
 
-        <div className="absolute bottom-3 md:bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 md:gap-2 z-10">
+        <div className="absolute bottom-2 md:bottom-3 left-1/2 -translate-x-1/2 flex gap-1 md:gap-1.5 z-10">
           {FEATURED_PRODUCTS.map((_, i) => (
             <div
               key={i}
-              className={`h-1.5 md:h-2 rounded-full transition-all duration-300 ${
-                i === currentIndex ? 'w-6 md:w-8 bg-white' : 'w-1.5 md:w-2 bg-white/50'
+              className={`h-1 md:h-1.5 rounded-full transition-all duration-300 ${
+                i === currentIndex ? 'w-4 md:w-6 bg-white' : 'w-1 md:w-1.5 bg-white/50'
               }`}
             />
           ))}

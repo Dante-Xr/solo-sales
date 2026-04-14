@@ -5,7 +5,7 @@
 
 import { useState, useCallback, useEffect } from "react"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
+import { useRouter } from "@/i18n/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ShoppingCart, Sun, Moon, AlertTriangle } from "lucide-react"

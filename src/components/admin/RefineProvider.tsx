@@ -60,7 +60,7 @@ export function RefineProvider({ children }: { children: React.ReactNode }) {
           create: "/admin/roles/create",
           edit: "/admin/roles/edit/:id",
           meta: {
-            label: t("roleManagement") || "角色管理",
+            label: t("roleManagement"),
           },
         },
         {
@@ -69,7 +69,7 @@ export function RefineProvider({ children }: { children: React.ReactNode }) {
           create: "/admin/permissions/create",
           edit: "/admin/permissions/edit/:id",
           meta: {
-            label: t("permissionManagement") || "权限管理",
+            label: t("permissionManagement"),
           },
         },
         {
@@ -83,14 +83,14 @@ export function RefineProvider({ children }: { children: React.ReactNode }) {
           name: "messages",
           list: "/admin/chat",
           meta: {
-            label: t("chat") || "客服消息",
+            label: t("chatLabel"),
           },
         },
         {
           name: "import-logs",
           list: "/admin/import",
           meta: {
-            label: t("import") || "商品导入",
+            label: t("importLabel"),
           },
         },
         {
@@ -99,19 +99,19 @@ export function RefineProvider({ children }: { children: React.ReactNode }) {
           create: "/admin/knowledge/create",
           edit: "/admin/knowledge/edit/:id",
           meta: {
-            label: t("knowledge") || "知识库",
+            label: t("knowledgeLabel"),
           },
         },
         {
           name: "knowledge-categories",
           meta: {
-            label: t("knowledgeCategories") || "知识分类",
+            label: t("knowledgeCategories"),
           },
         },
         {
           name: "profile",
           meta: {
-            label: t("profile") || "个人资料",
+            label: t("profileLabel"),
           },
         },
         {

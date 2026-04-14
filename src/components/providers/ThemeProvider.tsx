@@ -1,45 +1,33 @@
-/**
- * ============================================
- * next-themes 主题提供者 (Phase 1 零成本修复)
- * ============================================
- * 功能说明：
- *   - 替代自建的 ThemeProvider
- *   - 使用 next-themes 提供主题管理
- *   - 支持暗色模式切换
- *   - 解决 hydration 不匹配问题
- *
- * 配置说明：
- *   - attribute="class": 使用 CSS class 切换主题
- *   - defaultTheme="system": 默认跟随系统主题
- *   - enableSystem: 允许系统主题选项
- *   - disableTransitionOnChange: 切换主题时禁用过渡动画（避免闪烁）
- * ============================================
- */
-
 "use client"
 
 import { ThemeProvider as NextThemesProvider } from "next-themes"
 import { ReactNode } from "react"
 
-/**
- * 主题提供者组件
- * 包装整个应用，为子组件提供主题上下文
- */
+if (typeof window !== "undefined") {
+  const originalError = console.error
+  console.error = (...args: unknown[]) => {
+    if (
+      typeof args[0] === "string" &&
+      args[0].includes("Encountered a script tag while rendering React component")
+    ) {
+      return
+    }
+    originalError.call(console, ...args)
+  }
+}
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
   return (
     <NextThemesProvider
-      attribute="class"          // 使用 class 属性切换主题（支持暗色模式）
-      defaultTheme="system"       // 默认跟随系统主题
-      enableSystem               // 启用系统主题选项
-      disableTransitionOnChange   // 切换主题时禁用过渡动画
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+      enableColorScheme={false}
     >
       {children}
     </NextThemesProvider>
   )
 }
 
-/**
- * 导出 useTheme hook
- * 组件内使用：const { theme, setTheme } = useTheme()
- */
 export { useTheme } from "next-themes"

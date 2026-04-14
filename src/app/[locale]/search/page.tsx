@@ -13,10 +13,10 @@
 "use client"
 
 import { Suspense, useState } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
+import { useSearchParams } from "next/navigation"
+import { useRouter, Link } from "@/i18n/navigation"
 import { useEffect, useCallback } from "react"
 import Image from "next/image"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"

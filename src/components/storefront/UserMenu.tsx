@@ -16,31 +16,28 @@
 
 import { useState } from "react"
 import { useSession, signOut } from "@/lib/auth-client"
-import { useRouter } from "next/navigation"
-import { User, ChevronDown, UserCircle, Package, Settings, LogOut } from "lucide-react"
+import { useRouter } from "@/i18n/navigation"
+import { User, ChevronDown, UserCircle, Package, Settings, LogOut, Sun, Moon, Globe, Monitor, Smartphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useTranslations } from "next-intl"
+import { useTranslations, useLocale } from "next-intl"
+import { useTheme } from "next-themes"
 import { AuthModal } from "@/components/auth/AuthModal"
+import { useViewportModeStore } from "@/stores/useViewportModeStore"
+import { LanguageSwitcher } from "@/components/storefront/LanguageSwitcher"
 
 export function UserMenu() {
-  // 使用 Better Auth 的响应式 Session 获取当前登录状态
   const { data: session } = useSession()
   const router = useRouter()
   const t = useTranslations()
+  const locale = useLocale()
+  const { theme, setTheme } = useTheme()
+  const { mode, setMode } = useViewportModeStore()
   const [isOpen, setIsOpen] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [authMode, setAuthMode] = useState<"login" | "register">('login')
 
-  // 根据 Better Auth Session 中的 role 字段判断是否为管理员
   const isAdmin = session?.user?.role === 'admin'
 
-  /**
-   * 处理菜单项点击
-   * 根据 action 参数执行相应操作：
-   *   - login/register: 打开认证弹窗
-   *   - profile/orders/admin: 路由跳转
-   *   - logout: 登出并刷新页面
-   */
   const handleMenuClick = (action: string) => {
     setIsOpen(false)
     switch (action) {
@@ -62,9 +59,14 @@ export function UserMenu() {
         router.push('/admin')
         break
       case 'logout':
-        // 调用 Better Auth 登出
         signOut()
         router.push('/')
+        break
+      case 'toggle-theme':
+        setTheme(theme === "dark" ? "light" : "dark")
+        break
+      case 'toggle-viewport':
+        setMode(mode === "desktop" ? "mobile" : "desktop")
         break
     }
   }
@@ -115,7 +117,6 @@ export function UserMenu() {
 
             <div className="py-1">
               {session?.user ? (
-                // 已登录菜单项
                 <>
                   <button
                     onClick={() => handleMenuClick('profile')}
@@ -131,7 +132,6 @@ export function UserMenu() {
                     <Package className="w-4 h-4 text-muted-foreground" />
                     {t('userMenu.orders')}
                   </button>
-                  {/* 仅管理员显示 */}
                   {isAdmin && (
                     <button
                       onClick={() => handleMenuClick('admin')}
@@ -143,6 +143,29 @@ export function UserMenu() {
                   )}
                   <div className="border-t border-border my-1" />
                   <button
+                    onClick={() => handleMenuClick('toggle-theme')}
+                    className="w-full px-4 py-2 text-left text-sm hover:bg-accent flex items-center gap-3 text-foreground"
+                  >
+                    {theme === "dark" ? (
+                      <Sun className="w-4 h-4 text-muted-foreground" />
+                    ) : (
+                      <Moon className="w-4 h-4 text-muted-foreground" />
+                    )}
+                    {theme === "dark" ? t('theme.lightMode') : t('theme.darkMode')}
+                  </button>
+                  <button
+                    onClick={() => handleMenuClick('toggle-viewport')}
+                    className="w-full px-4 py-2 text-left text-sm hover:bg-accent flex items-center gap-3 text-foreground"
+                  >
+                    {mode === "desktop" ? (
+                      <Smartphone className="w-4 h-4 text-muted-foreground" />
+                    ) : (
+                      <Monitor className="w-4 h-4 text-muted-foreground" />
+                    )}
+                    {mode === "desktop" ? t('viewport.mobileView') : t('viewport.desktopView')}
+                  </button>
+                  <div className="border-t border-border my-1" />
+                  <button
                     onClick={() => handleMenuClick('logout')}
                     className="w-full px-4 py-2 text-left text-sm hover:bg-accent flex items-center gap-3 text-destructive"
                   >
@@ -151,8 +174,33 @@ export function UserMenu() {
                   </button>
                 </>
               ) : (
-                // 未登录菜单项
                 <>
+                  <div className="px-4 py-2 text-xs text-muted-foreground border-b border-border">
+                    {t('userMenu.tools')}
+                  </div>
+                  <button
+                    onClick={() => handleMenuClick('toggle-theme')}
+                    className="w-full px-4 py-2 text-left text-sm hover:bg-accent flex items-center gap-3 text-foreground"
+                  >
+                    {theme === "dark" ? (
+                      <Sun className="w-4 h-4 text-muted-foreground" />
+                    ) : (
+                      <Moon className="w-4 h-4 text-muted-foreground" />
+                    )}
+                    {theme === "dark" ? t('theme.lightMode') : t('theme.darkMode')}
+                  </button>
+                  <button
+                    onClick={() => handleMenuClick('toggle-viewport')}
+                    className="w-full px-4 py-2 text-left text-sm hover:bg-accent flex items-center gap-3 text-foreground"
+                  >
+                    {mode === "desktop" ? (
+                      <Smartphone className="w-4 h-4 text-muted-foreground" />
+                    ) : (
+                      <Monitor className="w-4 h-4 text-muted-foreground" />
+                    )}
+                    {mode === "desktop" ? t('viewport.mobileView') : t('viewport.desktopView')}
+                  </button>
+                  <div className="border-t border-border my-1" />
                   <button
                     onClick={() => handleMenuClick('login')}
                     className="w-full px-4 py-2 text-left text-sm hover:bg-accent flex items-center gap-3 text-foreground"

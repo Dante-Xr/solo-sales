@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from "react"
 import dynamic from "next/dynamic"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { Link, useRouter } from "@/i18n/navigation"
 import { Button } from "@/components/ui/button"
-import { ShoppingCart, Sun, Moon, Search, X } from "lucide-react"
+import { ShoppingCart, Sun, Moon } from "lucide-react"
 import { HomeCarousel } from "@/components/storefront/HomeCarousel"
 import { SearchBox } from "@/components/storefront/SearchBox"
 import { UserMenu } from "@/components/storefront/UserMenu"
@@ -13,6 +12,8 @@ import { ProductGrid } from "@/components/storefront/ProductGrid"
 import { FeatureSection } from "@/components/storefront/FeatureSection"
 import { StorefrontFooter } from "@/components/storefront/StorefrontFooter"
 import { LanguageSwitcher } from "@/components/storefront/LanguageSwitcher"
+import { ViewportModeToggle } from "@/components/storefront/ViewportModeToggle"
+import { ViewportWrapper } from "@/components/storefront/ViewportWrapper"
 import { useCartStore } from "@/stores/useCartStore"
 import { useTheme } from "next-themes"
 import { useTranslations } from "next-intl"
@@ -31,7 +32,6 @@ export default function Storefront() {
   const { cartCount } = useCartStore()
   const { theme, setTheme } = useTheme()
   const [showWelcome, setShowWelcome] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     const hasVisited = localStorage.getItem("solo_has_visited")
@@ -54,126 +54,68 @@ export default function Storefront() {
     router.push("/cart")
   }
 
-  const handleThemeClick = () => {
-    setTheme(theme === "dark" ? "light" : "dark")
-  }
-
   return (
+    <ViewportWrapper>
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-red-500/5 to-pink-500/5 rounded-full blur-3xl" />
         <div className="absolute top-1/3 -left-20 w-72 h-72 bg-gradient-to-br from-purple-500/5 to-blue-500/5 rounded-full blur-3xl" />
         <div className="absolute bottom-20 right-1/4 w-64 h-64 bg-gradient-to-br from-orange-500/5 to-yellow-500/5 rounded-full blur-3xl" />
-        <svg className="absolute top-20 left-1/4 w-16 h-16 text-muted-foreground/5" viewBox="0 0 24 24" fill="currentColor">
-          <circle cx="12" cy="12" r="10" />
-        </svg>
-        <svg className="absolute bottom-40 right-20 w-12 h-12 text-muted-foreground/5" viewBox="0 0 24 24" fill="currentColor">
-          <rect x="3" y="3" width="18" height="18" rx="2" />
-        </svg>
-        <svg className="absolute top-1/2 right-1/3 w-8 h-8 text-muted-foreground/5 rotate-45" viewBox="0 0 24 24" fill="currentColor">
-          <polygon points="12,2 22,22 2,22" />
-        </svg>
       </div>
 
       <div className="w-full max-w-[1440px] mx-auto relative">
         <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
-          <div className="px-4 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <div className="flex items-center gap-8">
+          <div className="px-3">
+            <div className="flex items-center justify-between h-12">
+              <div className="flex items-center gap-2">
                 <Link href="/" className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
                     <span className="text-white font-bold text-sm">S</span>
                   </div>
-                  <span className="text-xl font-bold text-foreground hidden sm:block">SoloSales</span>
+                  <span className="text-lg font-bold text-foreground">Solo Sales</span>
                 </Link>
-
-                <nav className="hidden lg:flex items-center gap-6">
-                  <Link
-                    href="/"
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {t('nav.shopName')}
-                  </Link>
-                  <Link
-                    href="/products"
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {t('nav.allProducts')}
-                  </Link>
-                </nav>
               </div>
 
-              <div className="flex items-center gap-3 flex-1 max-w-xl">
-                <SearchBox onSearch={(query) => console.log("Search:", query)} />
-              </div>
-
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-0.5">
+                <ViewportModeToggle />
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="md:hidden"
-                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                >
-                  {mobileMenuOpen ? <X className="w-5 h-5" /> : <Search className="w-5 h-5" />}
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleThemeClick}
+                  className="w-9 h-9"
+                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 >
                   {theme === "dark" ? (
-                    <Sun className="w-5 h-5 text-foreground" />
+                    <Sun className="w-4 h-4 text-foreground" />
                   ) : (
-                    <Moon className="w-5 h-5 text-foreground" />
+                    <Moon className="w-4 h-4 text-foreground" />
                   )}
                 </Button>
-
                 <LanguageSwitcher />
-
-                <UserMenu />
-
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="relative"
+                  className="relative w-9 h-9"
                   onClick={handleCartClick}
                 >
-                  <ShoppingCart className="w-5 h-5" />
+                  <ShoppingCart className="w-4 h-4" />
                   {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                       {cartCount}
                     </span>
                   )}
                 </Button>
+                <UserMenu />
               </div>
             </div>
 
-            {mobileMenuOpen && (
-              <div className="md:hidden py-4 border-t border-border">
-                <nav className="flex flex-col gap-2 mt-4">
-                  <Link
-                    href="/"
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {t('nav.shopName')}
-                  </Link>
-                  <Link
-                    href="/products"
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {t('nav.allProducts')}
-                  </Link>
-                </nav>
-              </div>
-            )}
+            <div className="pb-3">
+              <SearchBox onSearch={(query) => console.log("Search:", query)} />
+            </div>
           </div>
         </header>
 
-        <main className="flex flex-col">
-          <section className="w-full" style={{ height: "450px" }}>
+        <main className="flex flex-col pb-16">
+          <section className="w-full">
             <div className="h-full">
               <HomeCarousel />
             </div>
@@ -202,5 +144,6 @@ export default function Storefront() {
         )}
       </div>
     </div>
+    </ViewportWrapper>
   )
 }

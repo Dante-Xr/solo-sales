@@ -3,7 +3,7 @@
 // 2026-04-13: 更新为使用 next-intl 国际化
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter } from "@/i18n/navigation"
 import { Input } from "@/components/ui/input"
 import { Search, X, History, Flame } from "lucide-react"
 import { useTranslations, useLocale } from "next-intl"

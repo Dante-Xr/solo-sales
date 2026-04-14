@@ -1,62 +1,72 @@
-/**
- * ============================================
- * 语言切换组件 (Phase 4 国际化升级)
- * ============================================
- * 2026-04-13: 创建语言切换组件
- * 功能说明：
- *   - 支持中英文切换
- *   - 基于 next-intl 实现
- *   - 切换时更新 URL 语言前缀
- * ============================================
- */
-
 "use client"
 
-import { useLocale, useTranslations } from "next-intl"
-import { useRouter } from "next/navigation"
+import { useState, useRef, useEffect } from "react"
+import { useLocale } from "next-intl"
+import { usePathname, useRouter } from "@/i18n/navigation"
 import { Button } from "@/components/ui/button"
-import { Globe } from "lucide-react"
+import { Globe, Check } from "lucide-react"
+
+const LANGUAGES = [
+  { code: "zh" as const, label: "中文" },
+  { code: "en" as const, label: "English" },
+]
 
 export function LanguageSwitcher() {
   const locale = useLocale()
-  const t = useTranslations()
+  const pathname = usePathname()
   const router = useRouter()
+  const [isOpen, setIsOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
 
-  // 切换语言
-  const switchLanguage = () => {
-    const newLocale = locale === 'zh' ? 'en' : 'zh'
-    
-    // 获取当前路径
-    const currentPath = window.location.pathname
-    
-    // 替换语言前缀
-    let newPath: string
-    if (currentPath.startsWith('/en/') || currentPath.startsWith('/zh/')) {
-      newPath = currentPath.replace(/^\/(en|zh)\//, `/${newLocale}/`)
-    } else {
-      // 如果没有语言前缀，添加新的语言前缀
-      newPath = `/${newLocale}${currentPath || '/'}`
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setIsOpen(false)
+      }
     }
-    
-    // 保持搜索参数
-    const searchParams = window.location.search
-    if (searchParams) {
-      newPath += searchParams
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside)
     }
-    
-    router.push(newPath)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [isOpen])
+
+  const handleSelect = (code: string) => {
+    setIsOpen(false)
+    if (code !== locale) {
+      router.push(pathname, { locale: code })
+    }
   }
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={switchLanguage}
-      title={t('language.switchToEnglish')}
-      className="relative"
-    >
-      <Globe className="w-5 h-5 text-foreground" />
-      <span className="absolute -bottom-1 -right-1 w-2 h-2 bg-current rounded-full border border-background" />
-    </Button>
+    <div className="relative" ref={menuRef}>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="w-9 h-9"
+        onClick={() => setIsOpen(!isOpen)}
+        title={locale === "zh" ? "Switch to English" : "切换到中文"}
+      >
+        <Globe className="w-4 h-4 text-foreground" />
+      </Button>
+
+      {isOpen && (
+        <div className="absolute right-0 top-full mt-1 min-w-[120px] bg-popover border border-border rounded-lg shadow-lg z-50 py-1 animate-in fade-in-0 zoom-in-95">
+          {LANGUAGES.map((lang) => (
+            <button
+              key={lang.code}
+              onClick={() => handleSelect(lang.code)}
+              className="w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-accent transition-colors text-foreground"
+            >
+              <span>{lang.label}</span>
+              {locale === lang.code && (
+                <Check className="w-4 h-4 text-primary" />
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
