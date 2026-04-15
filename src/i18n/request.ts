@@ -18,10 +18,10 @@ const defaultLocale = 'zh'
 
 export default getRequestConfig(async ({ requestLocale }) => {
   const requested = await requestLocale
-  const detectedLocale = supportedLocales.includes(requested || '') ? requested : defaultLocale
+  const locale = (requested && supportedLocales.includes(requested)) ? requested : defaultLocale
 
   return {
-    locale: detectedLocale,
-    messages: (await import(`../i18n/messages/${detectedLocale}.json`)).default
+    locale,
+    messages: (await import(`../i18n/messages/${locale}.json`)).default
   }
 })

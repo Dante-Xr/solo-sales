@@ -72,7 +72,7 @@ export async function GET(request: Request) {
 
     // 获取当前用户的订单列表
     const orders = await prisma.order.findMany({
-      where: { userId: session.user.id },
+      where: { userId: (session.user as { id?: string }).id ?? "" },
       include: {
         items: {
           include: {
@@ -148,7 +148,7 @@ export async function POST(request: Request) {
     })
 
     if (session) {
-      userId = session.user.id
+      userId = (session.user as { id?: string }).id ?? null
     }
 
     // 使用事务创建订单并扣减库存
