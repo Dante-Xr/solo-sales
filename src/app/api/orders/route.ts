@@ -148,7 +148,8 @@ export async function POST(request: Request) {
     })
 
     if (session) {
-      userId = (session.user as { id?: string }).id ?? null
+      const userIdFromSession = (session.user as { id?: string }).id
+      userId = userIdFromSession !== undefined ? userIdFromSession : null
     }
 
     // 使用事务创建订单并扣减库存
