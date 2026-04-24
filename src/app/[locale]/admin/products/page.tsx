@@ -1,6 +1,6 @@
 /**
  * ============================================
- * 商品管理页面 (Phase 5 管理后台重构)
+ * 商品管理页面 (Phase 5 管理后台重构 + v1.2 Phase 1 快速操作)
  * ============================================
  * 功能说明：
  *   - 商品列表展示（支持分页、筛选、搜索）
@@ -9,8 +9,10 @@
  *   - 移动端卡片视图 + PC 端表格视图
  *   - React.memo 和 useMemo 优化渲染性能
  *   - 使用 Refine useList/useOne hook
+ *   - v1.2 Phase 1: 行内快速编辑（价格、库存）、上下架开关、批量折扣
  * ============================================
  * 2026-04-13: 集成 Refine useList/useOne hook
+ * 2026-04-24: 集成 Phase 1 快速操作组件
  */
 
 "use client"
@@ -24,6 +26,7 @@ import {
   Trash2,
   ToggleLeft,
   ToggleRight,
+  Percent,
 } from "lucide-react"
 import { useList, useOne } from "@refinedev/core"
 import { Button } from "@/components/ui/button"
@@ -47,8 +50,12 @@ import {
 import { BatchActionBar } from "@/components/admin/BatchActionBar"
 import { useTranslations, useLocale } from "next-intl"
 import { MobileProductCard } from "@/components/admin/MobileProductCard"
+import { QuickEditCell } from "@/components/admin/products/QuickEditCell"
+import { StockAdjuster } from "@/components/admin/products/StockAdjuster"
+import { BatchDiscountModal } from "@/components/admin/products/BatchDiscountModal"
 import { toast } from "sonner"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Switch } from "@/components/ui/switch"
 
 // ============================================
 // 类型定义
@@ -92,16 +99,8 @@ interface ProductFormData {
   isPublished: boolean
 }
 
-/** 分页结果 */
-interface _PaginatedResponse {
-  list: Product[]
-  pagination: {
-    page: number
-    pageSize: number
-    total: number
-    totalPages: number
-  }
-}
+/** 折扣类型 */
+type DiscountType = "percentage" | "fixed" | "override"
 
 // ============================================
 // 默认表单数据
@@ -177,7 +176,7 @@ export default function ProductsPage() {
   // 批量选择状态
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set())
   const [batchDialogOpen, setBatchDialogOpen] = useState(false)
-  const [batchAction, setBatchAction] = useState<"publish" | "unpublish" | "delete" | null>(null)
+  const [batchAction, setBatchAction] = useState<"publish" | "unpublish" | "delete" | "discount" | null>(null)
 
   // Dialog 状态
   const [editDialogOpen, setEditDialogOpen] = useState(false)
@@ -341,6 +340,86 @@ export default function ProductsPage() {
     }
   }
 
+  // ============================================
+  // Phase 1: 快速保存（行内编辑价格/库存）
+  // ============================================
+  const handleQuickSave = useCallback(async (
+    productId: string,
+    type: "price" | "stock",
+    value: number
+  ): Promise<boolean> => {
+    try {
+      const response = await fetch("/api/products/" + productId, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [type]: value }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        refetch()
+        return true
+      } else {
+        toast.error(result.error || (isZh ? "更新失败" : "Update failed"))
+        return false
+      }
+    } catch (error) {
+      console.error("快速保存失败:", error)
+      toast.error(isZh ? "更新失败" : "Update failed")
+      return false
+    }
+  }, [refetch, isZh])
+
+  // ============================================
+  // Phase 1: 批量折扣
+  // ============================================
+  const handleBatchDiscount = useCallback(async (
+    productIds: string[],
+    discountType: DiscountType,
+    value: number
+  ): Promise<boolean> => {
+    try {
+      let body: Record<string, unknown> = {}
+
+      switch (discountType) {
+        case "percentage":
+          // 百分比折扣: newPrice = originalPrice * (1 - value / 100)
+          body = { ids: productIds, discountType: "percentage", discountValue: value }
+          break
+        case "fixed":
+          // 固定金额减免: newPrice = originalPrice - value
+          body = { ids: productIds, discountType: "fixed", discountValue: value }
+          break
+        case "override":
+          // 恢复原价: newPrice = originalPrice (即折扣值为0)
+          body = { ids: productIds, discountType: "override", discountValue: 0 }
+          break
+      }
+
+      const response = await fetch("/api/products/batch-discount", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        setSelectedProducts(new Set())
+        refetch()
+        return true
+      } else {
+        toast.error(result.error || (isZh ? "批量折扣失败" : "Batch discount failed"))
+        return false
+      }
+    } catch (error) {
+      console.error("批量折扣失败:", error)
+      toast.error(isZh ? "批量折扣失败" : "Batch discount failed")
+      return false
+    }
+  }, [refetch, isZh])
+
   // 全选/取消全选
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -364,7 +443,7 @@ export default function ProductsPage() {
   }
 
   // 打开批量操作确认 Dialog
-  const handleOpenBatchAction = (action: "publish" | "unpublish" | "delete") => {
+  const handleOpenBatchAction = (action: "publish" | "unpublish" | "delete" | "discount") => {
     setBatchAction(action)
     setBatchDialogOpen(true)
   }
@@ -372,6 +451,12 @@ export default function ProductsPage() {
   // 执行批量操作
   const handleExecuteBatch = async () => {
     if (selectedProducts.size === 0 || !batchAction) return
+
+    // 如果是折扣操作，关闭 dialog 让 BatchDiscountModal 处理
+    if (batchAction === "discount") {
+      setBatchDialogOpen(false)
+      return
+    }
 
     try {
       const ids = Array.from(selectedProducts)
@@ -421,6 +506,17 @@ export default function ProductsPage() {
       formattedDate: new Date(product.createdAt).toLocaleDateString(isZh ? "zh-CN" : "en-US"),
     }))
   }, [productList, isZh])
+
+  // 选中的商品数据（用于批量折扣）
+  const selectedProductData = useMemo(() => {
+    return productList
+      .filter((p: any) => selectedProducts.has(p.id))
+      .map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+      }))
+  }, [productList, selectedProducts])
 
   return (
     <div className="space-y-6">
@@ -509,6 +605,16 @@ export default function ProductsPage() {
                 >
                   <ToggleLeft className="w-4 h-4 mr-1" />
                   {adminT("batchUnpublish")}
+                </Button>
+                {/* Phase 1: 批量折扣按钮 */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleOpenBatchAction("discount")}
+                  className="text-blue-600 hover:text-blue-700"
+                >
+                  <Percent className="w-4 h-4 mr-1" />
+                  {isZh ? "批量折扣" : "Discount"}
                 </Button>
                 <Button
                   variant="destructive"
@@ -601,7 +707,7 @@ export default function ProductsPage() {
               ))}
             </div>
           ) : (
-            // PC 端表格视图
+            // PC 端表格视图 - Phase 1: 集成快速操作组件
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -660,25 +766,37 @@ export default function ProductsPage() {
                           <span className="text-muted-foreground">-</span>
                         )}
                       </td>
-                      <td className="py-3 px-4 font-medium">
-                        {formattedProducts.find((p: any) => p.id === product.id)?.formattedPrice}
-                      </td>
+                      {/* Phase 1: 快速编辑价格 */}
                       <td className="py-3 px-4">
-                        <span className={product.stock <= 10 ? "text-orange-500" : ""}>
-                          {product.stock}
-                        </span>
+                        <QuickEditCell
+                          value={product.price}
+                          type="price"
+                          productId={product.id}
+                          onSave={handleQuickSave}
+                        />
                       </td>
+                      {/* Phase 1: 快速调整库存 */}
                       <td className="py-3 px-4">
-                        <button
-                          onClick={() => handleToggleStatus(product)}
-                          className="flex items-center gap-1"
-                        >
-                          {product.isPublished ? (
-                            <span className="text-green-500 text-sm">{adminT("active")}</span>
-                          ) : (
-                            <span className="text-muted-foreground text-sm">{adminT("inactive")}</span>
-                          )}
-                        </button>
+                        <StockAdjuster
+                          stock={product.stock}
+                          productId={product.id}
+                          onSave={(id, newStock) => handleQuickSave(id, "stock", newStock)}
+                          compact={true}
+                        />
+                      </td>
+                      {/* Phase 1: 上下架开关 */}
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            checked={product.isPublished}
+                            onCheckedChange={() => handleToggleStatus(product)}
+                          />
+                          <span className={`text-sm ${product.isPublished ? "text-green-600" : "text-muted-foreground"}`}>
+                            {product.isPublished
+                              ? (isZh ? "上架" : "Active")
+                              : (isZh ? "下架" : "Inactive")}
+                          </span>
+                        </div>
                       </td>
                       <td className="py-3 px-4 text-muted-foreground text-sm">
                         {formattedProducts.find((p: any) => p.id === product.id)?.formattedDate}
@@ -1115,6 +1233,7 @@ export default function ProductsPage() {
               {batchAction === "publish" && adminT("confirmBatchPublish")}
               {batchAction === "unpublish" && adminT("confirmBatchUnpublish")}
               {batchAction === "delete" && adminT("confirmBatchDelete")}
+              {batchAction === "discount" && (isZh ? "批量设置折扣" : "Batch Discount")}
             </DialogTitle>
           </DialogHeader>
           <p className="py-4">
@@ -1127,6 +1246,9 @@ export default function ProductsPage() {
             {batchAction === "delete" && (isZh
               ? "确定要删除所选的 " + selectedProducts.size + " 个商品吗？此操作不可撤销。"
               : "Are you sure you want to delete the selected " + selectedProducts.size + " products? This action cannot be undone.")}
+            {batchAction === "discount" && (isZh
+              ? "确定要为所选的 " + selectedProducts.size + " 个商品设置折扣吗？"
+              : "Are you sure you want to apply discount to the selected " + selectedProducts.size + " products?")}
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setBatchDialogOpen(false)}>
@@ -1145,6 +1267,17 @@ export default function ProductsPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Phase 1: 批量折扣弹窗 */}
+      <BatchDiscountModal
+        open={batchAction === "discount" && batchDialogOpen}
+        onClose={() => {
+          setBatchDialogOpen(false)
+          setBatchAction(null)
+        }}
+        selectedProducts={selectedProductData}
+        onApply={handleBatchDiscount}
+      />
+
       {/* 批量操作栏 */}
       {selectedProducts.size > 0 && !isMobile && (
         <BatchActionBar
@@ -1152,6 +1285,7 @@ export default function ProductsPage() {
           onPublish={() => handleOpenBatchAction("publish")}
           onUnpublish={() => handleOpenBatchAction("unpublish")}
           onDelete={() => handleOpenBatchAction("delete")}
+          onDiscount={() => handleOpenBatchAction("discount")}
           onClear={() => setSelectedProducts(new Set())}
           isZh={isZh}
         />
