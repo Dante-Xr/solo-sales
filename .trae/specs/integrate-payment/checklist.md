@@ -1,4 +1,0 @@
-- [x] Stripe 服务端 API 成功创建并能够返回 Session ID
-- [x] PayPal 服务端 API 成功创建并能够生成 Order ID
-- [x] 前端“立即购买”按钮能够唤起结账弹窗/页面
-- [x] 结账弹窗中成功渲染 Stripe 和 PayPal 的支付选项

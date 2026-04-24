@@ -1,9 +1,0 @@
-- [x] SearchBox component created in `src/components/storefront/SearchBox.tsx`
-- [x] Search box displays dropdown with latest 3 search terms from localStorage
-- [x] New search term is saved to localStorage history (max 3 entries)
-- [x] Clicking a history item populates the search box with that term
-- [x] Carousel auto-advances every 10 seconds when idle
-- [x] Clicking previous/next arrow resets the auto-play timer
-- [x] Left arrow button displays on the left edge of carousel images
-- [x] Right arrow button displays on the right edge of carousel images
-- [x] Left/right arrow buttons successfully navigate carousel images
