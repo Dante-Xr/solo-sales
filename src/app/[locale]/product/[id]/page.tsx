@@ -1,23 +1,31 @@
 "use client"
 
-import { useState } from "react"
-import Image from "next/image"
+import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import { useRouter, Link } from "@/i18n/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { Star, ShieldCheck, Truck, ShoppingCart, Heart, ShoppingBag, ArrowLeft, Sun, Moon } from "lucide-react"
+import { Star, ShoppingCart, Heart, ShoppingBag, ArrowLeft, Sun, Moon, ChevronDown, ChevronUp, X, ZoomIn } from "lucide-react"
 import { EnhancedCheckoutModal } from "@/components/checkout/EnhancedCheckoutModal"
 import { useCartStore } from "@/stores/useCartStore"
 import { useWishlistStore } from "@/stores/useWishlistStore"
 import { useTheme } from "next-themes"
 import { useTranslations } from "next-intl"
-import { FEATURED_PRODUCTS } from "@/components/storefront/HomeCarousel"
+import { ProductItem } from "@/components/storefront/HomeCarouselClient"
 import { ShareMenu } from "@/components/storefront/ShareMenu"
 import { ViewportWrapper } from "@/components/storefront/ViewportWrapper"
 import { LanguageSwitcher } from "@/components/storefront/LanguageSwitcher"
 import { ViewportModeToggle } from "@/components/storefront/ViewportModeToggle"
+import { MobileMenu } from "@/components/storefront/MobileMenu"
+import { VariantSelector, SelectedVariant } from "@/components/product/VariantSelector"
+import { RelatedProducts } from "@/components/product/RelatedProducts"
+import { TrustBar } from "@/components/product/TrustBadges"
+import { ProductReviews } from "@/components/product/ProductReviews"
+import { CountdownTimer } from "@/components/product/CountdownTimer"
+import { StockBadge } from "@/components/product/StockBadge"
+import { RecentPurchases } from "@/components/storefront/RecentPurchases"
+import Image from "next/image"
 
 export default function ProductDetailPage() {
   const params = useParams()
@@ -27,13 +35,59 @@ export default function ProductDetailPage() {
   const { addToCart, cartCount } = useCartStore()
   const { isInWishlist, toggleWishlist } = useWishlistStore()
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
+  const [product, setProduct] = useState<ProductItem | null>(null)
+  const [productImages, setProductImages] = useState<string[]>([])
+  const [categoryId, setCategoryId] = useState<string>("")
+  const [selectedVariant, setSelectedVariant] = useState<SelectedVariant>({})
+  const [loading, setLoading] = useState(true)
+  const [descExpanded, setDescExpanded] = useState(false)
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+  const [showImageModal, setShowImageModal] = useState(false)
 
-  const product = FEATURED_PRODUCTS.find(p => p.id === params.id)
+  useEffect(() => {
+    const productId = params.id as string
+    if (!productId) return
+
+    fetch(`/api/products/${productId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data) {
+          const p = data.data
+          const price = typeof p.price === 'object' ? p.price.toNumber ? p.price.toNumber() : Number(p.price) : Number(p.price)
+          setProduct({
+            id: p.id,
+            name: p.name,
+            description: p.description,
+            price,
+            originalPrice: Math.round(price * 1.4 * 100) / 100,
+            image: p.images?.[0] || "",
+            sales: p._count?.orderItems ?? 0,
+            stock: p.stock,
+          })
+          setProductImages(p.images?.length > 0 ? p.images : [p.images?.[0] || ""])
+          setCategoryId(p.categoryId || p.category?.id || "")
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false))
+  }, [params.id])
+
+  if (loading) {
+    return (
+      <ViewportWrapper>
+        <div className="min-h-screen bg-background flex items-center justify-center p-4">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4" />
+          </div>
+        </div>
+      </ViewportWrapper>
+    )
+  }
 
   if (!product) {
     return (
       <ViewportWrapper>
-        <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-background flex items-center justify-center p-4">
           <div className="text-center">
             <h1 className="text-xl font-bold mb-4">{t('product.notFound')}</h1>
             <Button onClick={() => router.push('/')}>{t('common.backToHome')}</Button>
@@ -47,7 +101,7 @@ export default function ProductDetailPage() {
     ...product,
     rating: 4.9,
     reviews: 1248,
-    description: t('product.description'),
+    description: product.description || t('product.description'),
   }
 
   const shareTitle = `${detailProduct.name} - ${t('product.checkThisOut')}`
@@ -64,191 +118,304 @@ export default function ProductDetailPage() {
   }
 
   const inWishlist = isInWishlist(product.id)
+  const discount = Math.round((1 - detailProduct.price / detailProduct.originalPrice) * 100)
 
   return (
     <ViewportWrapper>
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 relative">
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-red-500/5 to-pink-500/5 rounded-full blur-3xl" />
-        <div className="absolute top-1/3 -left-20 w-72 h-72 bg-gradient-to-br from-purple-500/5 to-blue-500/5 rounded-full blur-3xl" />
-      </div>
-
-      <div className="w-full max-w-[1440px] mx-auto relative">
-        <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
-          <div className="px-3">
-            <div className="flex items-center justify-between h-12">
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="w-9 h-9 hover:bg-accent active:bg-accent/80 transition-colors"
-                  onClick={() => router.push('/')}
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-                <Link href="/" className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
-                    <span className="text-white font-bold text-xs">S</span>
-                  </div>
-                  <span className="text-base font-bold text-foreground">Solo Sales</span>
-                </Link>
-              </div>
-
-              <div className="flex items-center gap-0.5">
-                <ViewportModeToggle />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="w-9 h-9"
-                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                >
-                  {theme === "dark" ? (
-                    <Sun className="w-4 h-4 text-foreground" />
-                  ) : (
-                    <Moon className="w-4 h-4 text-foreground" />
-                  )}
-                </Button>
-                <LanguageSwitcher />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="relative w-9 h-9"
-                  onClick={() => router.push("/cart")}
-                >
-                  <ShoppingBag className="w-4 h-4" />
-                  {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                      {cartCount}
-                    </span>
-                  )}
-                </Button>
+      <div className="min-h-screen bg-background relative pb-20 md:pb-0">
+        <div className="w-full max-w-[1440px] mx-auto">
+          {/* Header */}
+          <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-md border-b">
+            <div className="px-3 md:px-4">
+              <div className="flex items-center justify-between h-12">
+                <div className="flex items-center gap-1.5 md:gap-2">
+                  <Button variant="ghost" size="icon" className="w-8 h-8 md:w-9 md:h-9" onClick={() => router.push('/')}>
+                    <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
+                  </Button>
+                  <Link href="/" className="flex items-center gap-1.5 md:gap-2">
+                    <div className="w-6 h-6 md:w-7 md:h-7 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
+                      <span className="text-white font-bold text-[10px] md:text-xs">S</span>
+                    </div>
+                    <span className="text-sm md:text-base font-bold hidden sm:inline">Solo Sales</span>
+                  </Link>
+                </div>
+                {/* Mobile: Hamburger Menu + Cart */}
+                <div className="flex items-center gap-0 md:hidden">
+                  <MobileMenu />
+                  <Button variant="ghost" size="icon" className="relative w-8 h-8" onClick={() => router.push("/cart")}>
+                    <ShoppingBag className="w-4 h-4" />
+                    {cartCount > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center">{cartCount}</span>
+                    )}
+                  </Button>
+                </div>
+                {/* Desktop: Original buttons */}
+                <div className="hidden md:flex items-center gap-0.5">
+                  <ViewportModeToggle />
+                  <Button variant="ghost" size="icon" className="w-9 h-9" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+                    {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                  </Button>
+                  <LanguageSwitcher />
+                  <Button variant="ghost" size="icon" className="relative w-9 h-9" onClick={() => router.push("/cart")}>
+                    <ShoppingBag className="w-4 h-4" />
+                    {cartCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">{cartCount}</span>
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        <main className="p-3">
-          <div className="space-y-4">
-            <div className="relative aspect-square bg-muted rounded-xl overflow-hidden">
-              <Image
-                src={detailProduct.image}
-                alt={detailProduct.name}
-                fill
-                className="object-cover"
-                priority={true}
-              />
-              <Badge className="absolute top-3 left-3 bg-red-500 hover:bg-red-600 border-none text-sm px-3 py-0.5">
-                {t('product.limitedOffer')}
-              </Badge>
-              <button
-                onClick={() => toggleWishlist(product.id)}
-                className="absolute top-3 right-3 w-9 h-9 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-background transition-colors"
-              >
-                <Heart className={`w-5 h-5 ${inWishlist ? 'fill-red-500 text-red-500' : 'text-foreground'}`} />
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              <div>
+          <main className="p-3 md:p-6">
+            {/* 移动端布局：标题 -> 价格 -> 图片 -> 其他 */}
+            <div className="md:hidden">
+              {/* 标题和评分 */}
+              <div className="mb-2">
                 <div className="flex items-center gap-1 text-yellow-500 mb-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-current" />
-                  ))}
+                  {[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-current" />)}
                   <span className="text-muted-foreground text-xs ml-1">({detailProduct.reviews})</span>
                 </div>
-                <h1 className="text-lg font-bold leading-tight line-clamp-2">{detailProduct.name}</h1>
+                <h1 className="text-lg font-bold leading-tight">{detailProduct.name}</h1>
               </div>
 
-              <div className="flex items-end gap-2">
-                <span className="text-2xl font-black text-red-600 dark:text-red-500">${detailProduct.price}</span>
-                <span className="text-sm text-muted-foreground line-through mb-0.5">${detailProduct.originalPrice}</span>
-                <Badge variant="destructive" className="text-xs px-2 py-0.5">{Math.round((1 - detailProduct.price / detailProduct.originalPrice) * 100)}% OFF</Badge>
+              {/* 价格 */}
+              <div className="flex items-baseline gap-2 mb-3">
+                <span className="text-2xl font-black text-red-600">${detailProduct.price}</span>
+                <span className="text-sm text-muted-foreground line-through">${detailProduct.originalPrice}</span>
+                <Badge variant="destructive" className="text-xs">{discount}% OFF</Badge>
               </div>
 
-              <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">
-                {detailProduct.description}
-              </p>
-
-              <div className="grid grid-cols-2 gap-2">
-                <Card className="bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800">
-                  <CardContent className="flex items-center gap-2 p-3">
-                    <Truck className="w-5 h-5 text-green-600 dark:text-green-500 flex-shrink-0" />
-                    <div>
-                      <p className="text-xs font-medium text-green-700 dark:text-green-400">{t('product.freeShipping')}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
-                  <CardContent className="flex items-center gap-2 p-3">
-                    <ShieldCheck className="w-5 h-5 text-blue-600 dark:text-blue-500 flex-shrink-0" />
-                    <div>
-                      <p className="text-xs font-medium text-blue-700 dark:text-blue-400">{t('product.returns')}</p>
-                    </div>
-                  </CardContent>
-                </Card>
+              {/* 图片画廊 - 在标题下方 */}
+              <div className="mb-3">
+                <div className="relative aspect-square bg-muted rounded-lg overflow-hidden">
+                  {productImages.length > 0 && (
+                    <Image
+                      src={productImages[selectedImageIndex]}
+                      alt={detailProduct.name}
+                      fill
+                      className="object-cover cursor-zoom-in"
+                      onClick={() => setShowImageModal(true)}
+                      sizes="100vw"
+                      priority
+                    />
+                  )}
+                  <Badge className="absolute top-2 left-2 bg-red-500 text-xs z-10">{t('product.limitedOffer')}</Badge>
+                  <button
+                    onClick={() => toggleWishlist(product.id)}
+                    className="absolute top-2 right-2 w-9 h-9 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center z-10"
+                  >
+                    <Heart className={`w-5 h-5 ${inWishlist ? 'fill-red-500 text-red-500' : ''}`} />
+                  </button>
+                  <button
+                    onClick={() => setShowImageModal(true)}
+                    className="absolute bottom-2 right-2 w-8 h-8 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center z-10"
+                  >
+                    <ZoomIn className="w-4 h-4" />
+                  </button>
+                </div>
+                {/* 缩略图 */}
+                {productImages.length > 1 && (
+                  <div className="flex gap-2 mt-2 overflow-x-auto">
+                    {productImages.map((img, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setSelectedImageIndex(idx)}
+                        className={`relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden border-2 ${idx === selectedImageIndex ? 'border-primary' : 'border-transparent'}`}
+                      >
+                        <Image src={img} alt={`${detailProduct.name} ${idx + 1}`} fill className="object-cover" sizes="64px" />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <div className="flex gap-2 pt-1">
-                <Button
-                  variant="outline"
-                  size="default"
-                  className="flex-1 rounded-full border-2 text-sm h-11"
-                  onClick={handleAddToCart}
-                >
-                  <ShoppingCart className="w-4 h-4 mr-1.5" />
-                  {t('cart.addToCart')}
-                </Button>
-                <Button
-                  size="default"
-                  className="flex-1 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-lg text-sm h-11"
-                  onClick={() => setIsCheckoutOpen(true)}
-                >
-                  {t('product.buyNow')}
-                </Button>
+              {/* 库存和倒计时 */}
+              <div className="flex items-center gap-2 mb-3">
+                <StockBadge stock={product.stock ?? 0} />
+                <CountdownTimer targetDate={product.saleEndsAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()} label={t('product.saleEndsIn')} />
               </div>
 
-              <div className="flex gap-2">
-                <ShareMenu
-                  title={shareTitle}
-                  text={shareText}
-                  url={shareUrl}
-                />
+              {/* 描述 */}
+              <div className="mb-3">
+                <p className={`text-muted-foreground text-sm leading-relaxed ${descExpanded ? '' : 'line-clamp-3'}`}>{detailProduct.description}</p>
+                {detailProduct.description.length > 120 && (
+                  <button onClick={() => setDescExpanded(!descExpanded)} className="text-xs text-primary font-medium mt-1 flex items-center gap-0.5">
+                    {descExpanded ? t('product.showLess') : t('product.showMore')}
+                    {descExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                  </button>
+                )}
               </div>
 
-              <Card>
-                <CardContent className="p-4">
-                  <h3 className="font-bold text-sm mb-3">{t('product.details')}</h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between py-1.5 border-b">
-                      <span className="text-muted-foreground">{t('product.sku')}</span>
-                      <span className="truncate ml-2">{product.id}</span>
-                    </div>
-                    <div className="flex justify-between py-1.5 border-b">
-                      <span className="text-muted-foreground">{t('product.rating')}</span>
-                      <span className="text-yellow-500">{detailProduct.rating} / 5.0</span>
-                    </div>
-                    <div className="flex justify-between py-1.5 border-b">
-                      <span className="text-muted-foreground">{t('product.sales')}</span>
-                      <span>{detailProduct.sales} {t('product.units')}</span>
-                    </div>
-                    <div className="flex justify-between py-1.5">
-                      <span className="text-muted-foreground">{t('product.stock')}</span>
-                      <span className="text-green-600">{t('product.inStock')}</span>
-                    </div>
+              {/* 变体选择 */}
+              <div className="mb-3">
+                <VariantSelector selectedVariant={selectedVariant} onSelect={setSelectedVariant} />
+              </div>
+
+              {/* 信任栏 */}
+              <div className="mb-3">
+                <TrustBar />
+              </div>
+
+              {/* 商品详情 */}
+              <Card className="mb-3">
+                <CardContent className="p-3">
+                  <h3 className="font-bold text-sm mb-2">{t('product.details')}</h3>
+                  <div className="space-y-1.5 text-sm">
+                    <div className="flex justify-between py-1 border-b"><span className="text-muted-foreground">{t('product.sku')}</span><span className="text-xs">{product.id.slice(0, 8)}...</span></div>
+                    <div className="flex justify-between py-1 border-b"><span className="text-muted-foreground">{t('product.rating')}</span><span className="text-yellow-500">{detailProduct.rating} / 5.0</span></div>
+                    <div className="flex justify-between py-1 border-b"><span className="text-muted-foreground">{t('product.sales')}</span><span>{detailProduct.sales} {t('product.units')}</span></div>
+                    <div className="flex justify-between py-1"><span className="text-muted-foreground">{t('product.stock')}</span><span className="text-green-600">{t('product.inStock')}</span></div>
                   </div>
                 </CardContent>
               </Card>
-            </div>
-          </div>
-        </main>
-      </div>
 
-      <EnhancedCheckoutModal
-        isOpen={isCheckoutOpen}
-        onClose={() => setIsCheckoutOpen(false)}
-        product={detailProduct}
-      />
-    </div>
+              {/* 分享 */}
+              <div className="mb-3">
+                <ShareMenu title={shareTitle} text={shareText} url={shareUrl} />
+              </div>
+            </div>
+
+            {/* PC端布局：左图右信息 */}
+            <div className="hidden md:flex md:gap-6 lg:gap-8">
+              {/* 左侧图片 */}
+              <div className="md:w-1/2 lg:w-5/12 md:sticky md:top-16 md:self-start">
+                <div className="relative aspect-[4/3] bg-muted rounded-lg overflow-hidden">
+                  {productImages.length > 0 && (
+                    <Image
+                      src={productImages[selectedImageIndex]}
+                      alt={detailProduct.name}
+                      fill
+                      className="object-cover cursor-zoom-in"
+                      onClick={() => setShowImageModal(true)}
+                      sizes="50vw"
+                      priority
+                    />
+                  )}
+                  <Badge className="absolute top-3 left-3 bg-red-500 z-10">{t('product.limitedOffer')}</Badge>
+                  <button onClick={() => toggleWishlist(product.id)} className="absolute top-3 right-3 w-9 h-9 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center z-10">
+                    <Heart className={`w-5 h-5 ${inWishlist ? 'fill-red-500 text-red-500' : ''}`} />
+                  </button>
+                </div>
+                {productImages.length > 1 && (
+                  <div className="flex gap-2 mt-3">
+                    {productImages.map((img, idx) => (
+                      <button key={idx} onClick={() => setSelectedImageIndex(idx)} className={`relative w-20 h-20 rounded-lg overflow-hidden border-2 ${idx === selectedImageIndex ? 'border-primary' : 'border-transparent'}`}>
+                        <Image src={img} alt={`${detailProduct.name} ${idx + 1}`} fill className="object-cover" sizes="80px" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* 右侧信息 */}
+              <div className="md:w-1/2 lg:w-7/12">
+                <div className="mb-3">
+                  <div className="flex items-center gap-1 text-yellow-500 mb-1">
+                    {[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-current" />)}
+                    <span className="text-muted-foreground text-xs ml-1">({detailProduct.reviews})</span>
+                  </div>
+                  <h1 className="text-xl lg:text-2xl font-bold leading-tight">{detailProduct.name}</h1>
+                </div>
+
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span className="text-3xl font-black text-red-600">${detailProduct.price}</span>
+                  <span className="text-base text-muted-foreground line-through">${detailProduct.originalPrice}</span>
+                  <Badge variant="destructive">{discount}% OFF</Badge>
+                </div>
+
+                <div className="flex items-center gap-2 mb-4">
+                  <StockBadge stock={product.stock ?? 0} />
+                  <CountdownTimer targetDate={product.saleEndsAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()} label={t('product.saleEndsIn')} />
+                </div>
+
+                <div className="mb-4">
+                  <p className="text-muted-foreground text-sm leading-relaxed">{detailProduct.description}</p>
+                </div>
+
+                <div className="mb-4">
+                  <VariantSelector selectedVariant={selectedVariant} onSelect={setSelectedVariant} />
+                </div>
+
+                <div className="flex gap-2 mb-4">
+                  <Button variant="outline" className="flex-1 rounded-full h-11" onClick={handleAddToCart}>
+                    <ShoppingCart className="w-4 h-4 mr-2" />{t('cart.addToCart')}
+                  </Button>
+                  <Button className="flex-1 rounded-full bg-red-600 hover:bg-red-700 h-11" onClick={() => setIsCheckoutOpen(true)}>
+                    {t('product.buyNow')}
+                  </Button>
+                </div>
+
+                <div className="mb-4">
+                  <TrustBar />
+                </div>
+
+                <Card className="mb-4">
+                  <CardContent className="p-4">
+                    <h3 className="font-bold mb-3">{t('product.details')}</h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between py-1.5 border-b"><span className="text-muted-foreground">{t('product.sku')}</span><span>{product.id.slice(0, 8)}...</span></div>
+                      <div className="flex justify-between py-1.5 border-b"><span className="text-muted-foreground">{t('product.rating')}</span><span className="text-yellow-500">{detailProduct.rating} / 5.0</span></div>
+                      <div className="flex justify-between py-1.5 border-b"><span className="text-muted-foreground">{t('product.sales')}</span><span>{detailProduct.sales} {t('product.units')}</span></div>
+                      <div className="flex justify-between py-1.5"><span className="text-muted-foreground">{t('product.stock')}</span><span className="text-green-600">{t('product.inStock')}</span></div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <div className="mb-4">
+                  <ShareMenu title={shareTitle} text={shareText} url={shareUrl} />
+                </div>
+              </div>
+            </div>
+
+            {/* 底部内容 */}
+            <div className="mt-6 space-y-6">
+              {categoryId && <RelatedProducts categoryId={categoryId} currentProductId={product.id} />}
+              <ProductReviews productId={product.id} />
+            </div>
+          </main>
+        </div>
+
+        {/* 移动端底部购买栏 */}
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t md:hidden safe-area-pb">
+          <div className="flex items-center gap-2 p-2 px-3">
+            <div className="flex-shrink-0">
+              <div className="text-lg font-black text-red-600">${detailProduct.price}</div>
+              <div className="text-xs text-muted-foreground line-through">${detailProduct.originalPrice}</div>
+            </div>
+            <Button variant="outline" size="sm" className="flex-1 rounded-full h-10" onClick={handleAddToCart}>
+              <ShoppingCart className="w-4 h-4 mr-1" />{t('cart.addToCart')}
+            </Button>
+            <Button size="sm" className="flex-1 rounded-full bg-red-600 hover:bg-red-700 h-10" onClick={() => setIsCheckoutOpen(true)}>
+              {t('product.buyNow')}
+            </Button>
+          </div>
+        </div>
+
+        {/* 图片大图弹窗 */}
+        {showImageModal && (
+          <div className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center" onClick={() => setShowImageModal(false)}>
+            <button className="absolute top-4 right-4 w-10 h-10 bg-white/10 rounded-full flex items-center justify-center" onClick={() => setShowImageModal(false)}>
+              <X className="w-6 h-6 text-white" />
+            </button>
+            <div className="relative w-full h-full max-w-4xl max-h-[80vh] m-4">
+              <Image src={productImages[selectedImageIndex]} alt={detailProduct.name} fill className="object-contain" sizes="100vw" />
+            </div>
+            {productImages.length > 1 && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                {productImages.map((img, idx) => (
+                  <button key={idx} onClick={(e) => { e.stopPropagation(); setSelectedImageIndex(idx); }} className={`w-12 h-12 rounded-lg overflow-hidden border-2 ${idx === selectedImageIndex ? 'border-white' : 'border-white/30'}`}>
+                    <Image src={img} alt={`${detailProduct.name} ${idx + 1}`} width={48} height={48} className="object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        <EnhancedCheckoutModal isOpen={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)} product={detailProduct} />
+        <RecentPurchases />
+      </div>
     </ViewportWrapper>
   )
 }

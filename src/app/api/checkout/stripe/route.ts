@@ -1,59 +1,69 @@
 /**
- * 2026-03-24: Stripe 结账后端 API 路由
+ * Stripe 结账后端 API 路由
  * 功能：接收前台传来的商品信息，调用 Stripe API 生成 Checkout Session 并返回支付跳转链接
  * 安全措施：
  *   1. Zod 请求体验证：商品信息格式验证
  *   2. Rate Limiting：5分钟内最多支付 10 次
  *   3. 错误处理：不泄露 Stripe 内部错误信息
- * 注意：Stripe Key 验证在运行时进行，开发环境允许使用 Mock Key
+ * 环境变量：
+ *   STRIPE_SECRET_KEY  - sk_test_xxx（测试模式）/ sk_live_xxx（生产模式），自动区分
+ *   STRIPE_PUBLIC_KEY  - pk_test_xxx / pk_live_xxx，前端使用
  */
 import { NextResponse } from "next/server"
 import Stripe from "stripe"
 import { paymentRateLimiter } from "@/middleware/rate-limit"
 import { stripeCheckoutSchema, parseWithValidation } from "@/lib/validators"
+import { csrfGuard } from "@/middleware/csrf-guard"
 
 /**
- * 2026-03-24: 获取 Stripe 实例
+ * 判断当前是否为 Stripe 测试模式
+ * 通过 STRIPE_SECRET_KEY 前缀自动识别：sk_test_ = 测试，sk_live_ = 生产
+ */
+export function isStripeTestMode(): boolean {
+  const key = process.env.STRIPE_SECRET_KEY || ""
+  return key.startsWith("sk_test_")
+}
+
+/**
+ * 获取 Stripe 实例
  * 延迟初始化，仅在首次调用时创建
- * 开发环境允许使用 Mock Key，生产环境必须提供真实 Key
+ * - sk_test_ 前缀自动进入测试模式
+ * - sk_live_ 前缀自动进入生产模式
+ * - 缺少 key 时抛出明确错误
  */
 function getStripe(): Stripe {
   const secretKey = process.env.STRIPE_SECRET_KEY
 
-  // 2026-03-24: 检查是否提供了 Stripe Key
   if (!secretKey) {
-    // 2026-03-24: 未提供 Key，使用 Mock 模式（仅用于开发）
-    console.warn("STRIPE_SECRET_KEY 未配置，使用 Mock Stripe 模式")
-    return new Stripe("sk_test_mock", {
-      apiVersion: "2026-02-25.clover",
-    })
+    throw new Error(
+      "STRIPE_SECRET_KEY 未配置。请在 .env 中设置 Stripe 密钥（sk_test_xxx 或 sk_live_xxx）"
+    )
   }
 
-  // 2026-03-24: 检查是否为 Mock Key
-  if (secretKey === "sk_test_mock" || secretKey.includes("mock")) {
-    // 2026-03-24: 检测到 Mock Key，可能仍在开发环境
-    if (process.env.NODE_ENV === "production") {
-      throw new Error("生产环境禁止使用 Mock Stripe Key，请配置真实的 STRIPE_SECRET_KEY")
-    }
-    console.warn("检测到 Mock Stripe Key，仅在开发环境可用")
-    return new Stripe(secretKey, {
-      apiVersion: "2026-02-25.clover",
-    })
+  if (!secretKey.startsWith("sk_test_") && !secretKey.startsWith("sk_live_")) {
+    throw new Error(
+      "STRIPE_SECRET_KEY 格式无效。必须以 sk_test_（测试）或 sk_live_（生产）开头"
+    )
   }
 
-  // 2026-03-24: 使用真实 Key 创建 Stripe 实例
+  if (secretKey.startsWith("sk_live_") && process.env.NODE_ENV !== "production") {
+    console.warn("⚠️ 当前使用 sk_live_ 密钥但非生产环境，请确认是否正确")
+  }
+
   return new Stripe(secretKey, {
     apiVersion: "2026-02-25.clover",
   })
 }
 
 /**
- * 2026-03-24: POST 处理器 - 创建 Stripe Checkout Session
+ * POST 处理器 - 创建 Stripe Checkout Session
  * @param req - 包含 productId、productName、price、quantity 的请求体
- * @returns 包含 sessionId 和支付链接的 JSON 响应
+ * @returns 包含 sessionId、支付链接和模式的 JSON 响应
  */
 export async function POST(req: Request) {
-  // 2026-03-24: 限流检查
+  const csrfError = await csrfGuard(req)
+  if (csrfError) return csrfError
+
   const rateLimitResult = paymentRateLimiter(req)
   if (!rateLimitResult.allowed && rateLimitResult.errorResponse) {
     return rateLimitResult.errorResponse
@@ -62,7 +72,6 @@ export async function POST(req: Request) {
   try {
     const body = await req.json()
 
-    // 2026-03-24: 使用 Zod 验证请求体
     const validation = parseWithValidation(stripeCheckoutSchema, body)
     if (!validation.success) {
       return NextResponse.json(
@@ -73,39 +82,42 @@ export async function POST(req: Request) {
 
     const { productName, price, quantity } = validation.data
 
-    // 2026-03-24: 从请求头中获取当前站点 origin，用于拼接 success/cancel 回跳 URL
     const origin = req.headers.get("origin") || "http://localhost:3000"
 
-    // 2026-03-24: 获取 Stripe 实例并创建结账会话
     const stripe = getStripe()
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"], // 仅限信用卡支付
+      payment_method_types: ["card"],
       line_items: [
         {
           price_data: {
-            currency: "usd", // 统一使用美元结算
+            currency: "usd",
             product_data: {
-              name: productName, // 商品名称
+              name: productName,
             },
-            unit_amount: Math.round(price * 100), // Stripe 使用"美分"为单位，需乘以100
+            unit_amount: Math.round(price * 100),
           },
           quantity,
         },
       ],
-      mode: "payment", // 非订阅模式，单次付款
-      success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`, // 支付成功后跳转
-      cancel_url: `${origin}/`, // 支付取消后跳转回商品页
+      mode: "payment",
+      success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/`,
+      metadata: {
+        productId: validation.data.productId,
+      },
     })
 
-    // 2026-03-24: 返回 session ID 和 Stripe 托管页面的 URL 给前端
-    return NextResponse.json({ sessionId: session.id, url: session.url })
+    return NextResponse.json({
+      sessionId: session.id,
+      url: session.url,
+      isTestMode: isStripeTestMode(),
+    })
   } catch (error) {
-    // 2026-03-24: 错误日志记录，不泄露敏感信息
     console.error("Stripe Error:", error)
-    // 2026-03-24: 返回通用错误信息，不暴露 Stripe 内部细节
-    return NextResponse.json(
-      { error: "支付服务暂时不可用，请稍后重试" },
-      { status: 500 }
-    )
+    const message =
+      error instanceof Error && error.message.includes("STRIPE_SECRET_KEY")
+        ? error.message
+        : "支付服务暂时不可用，请稍后重试"
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

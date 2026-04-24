@@ -38,6 +38,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { useTranslations, useLocale } from "next-intl"
+import { toast } from "sonner"
 
 type KnowledgeStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED"
 
@@ -197,11 +198,11 @@ export default function KnowledgePage() {
         setEditDialogOpen(false)
         refetchAll()
       } else {
-        alert(result.error || t('saveFailed'))
+        toast.error(result.error || t('saveFailed'))
       }
     } catch (error) {
       console.error("保存知识失败:", error)
-      alert(t('saveFailed'))
+      toast.error(t('saveFailed'))
     } finally {
       setSaving(false)
     }
@@ -226,11 +227,11 @@ export default function KnowledgePage() {
         setDeleteDialogOpen(false)
         refetchKnowledge()
       } else {
-        alert(result.error || t('deleteFailed'))
+        toast.error(result.error || t('deleteFailed'))
       }
     } catch (error) {
       console.error("删除知识失败:", error)
-      alert(t('deleteFailed'))
+      toast.error(t('deleteFailed'))
     }
   }
 

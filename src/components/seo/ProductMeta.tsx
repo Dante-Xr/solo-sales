@@ -5,7 +5,7 @@
  * 功能说明：
  *   - 生成商品页面的动态 Meta 标签
  *   - 生成 JSON-LD 结构化数据
- *   - 支持 Open Graph 和 Twitter Card
+ *   - 支持 Open Graph 和 X (Twitter) Card
  * ============================================
  */
 

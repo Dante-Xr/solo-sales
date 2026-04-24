@@ -1,0 +1,107 @@
+{
+  "name": "AI 一人公司：全员大会",
+  "success": false,
+  "totalDuration": "10.7s",
+  "totalTokens": {
+    "input": 0,
+    "output": 0
+  },
+  "inputs": {
+    "idea": "AI电商选品"
+  },
+  "steps": [
+    {
+      "id": "ceo_kickoff",
+      "role": "strategy/nexus-strategy",
+      "agentName": "老板",
+      "agentEmoji": "👔",
+      "status": "failed",
+      "output_var": "vision",
+      "duration": "10.7s",
+      "tokens": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "market_research",
+      "role": "product/product-trend-researcher",
+      "status": "skipped",
+      "duration": "0.0s",
+      "tokens": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "user_research",
+      "role": "design/design-ux-researcher",
+      "status": "skipped",
+      "duration": "0.0s",
+      "tokens": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "tech_feasibility",
+      "role": "engineering/engineering-backend-architect",
+      "status": "skipped",
+      "duration": "0.0s",
+      "tokens": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "brand_design",
+      "role": "design/design-brand-guardian",
+      "status": "skipped",
+      "duration": "0.0s",
+      "tokens": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "product_plan",
+      "role": "product/product-manager",
+      "status": "skipped",
+      "duration": "0.0s",
+      "tokens": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "marketing_plan",
+      "role": "marketing/marketing-content-creator",
+      "status": "skipped",
+      "duration": "0.0s",
+      "tokens": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "finance_plan",
+      "role": "finance/finance-financial-forecaster",
+      "status": "skipped",
+      "duration": "0.0s",
+      "tokens": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "ceo_decision",
+      "role": "strategy/nexus-strategy",
+      "status": "skipped",
+      "duration": "0.0s",
+      "tokens": {
+        "input": 0,
+        "output": 0
+      }
+    }
+  ]
+}

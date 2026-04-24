@@ -4,6 +4,7 @@
 
 import { useState } from "react"
 import { useSession } from "@/lib/auth-client"
+import { useCsrfToken } from "@/hooks/useCsrfToken"
 import {
   Dialog,
   DialogContent,
@@ -18,6 +19,8 @@ import { Loader2 } from "lucide-react"
 import { AuthModal } from "@/components/auth/AuthModal"
 import { GuestCheckoutData } from "@/components/auth/GuestCheckoutForm"
 import { useTranslations } from "next-intl"
+import { toast } from "sonner"
+import { useRouter } from "@/i18n/navigation"
 
 // 增强版结账弹窗 Props 接口
 interface EnhancedCheckoutModalProps {
@@ -56,8 +59,10 @@ export function EnhancedCheckoutModal({
   cartItems = [],
   cartTotal = 0,
 }: EnhancedCheckoutModalProps) {
-  const { data: session } = useSession()   // 当前用户 session
+  const { data: session } = useSession()
   const t = useTranslations()
+  const router = useRouter()
+  const { csrfHeaders } = useCsrfToken()
   const [showAuthModal, setShowAuthModal] = useState(false)  // 是否显示认证弹窗
   const [authMode, setAuthMode] = useState<"login" | "register" | "guest">('login')  // 认证弹窗模式
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({  // 收货信息
@@ -89,7 +94,7 @@ export function EnhancedCheckoutModal({
       // 调用订单 API 创建订单
       const res = await fetch("/api/orders", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...csrfHeaders },
         body: JSON.stringify({
           // 根据是购物车还是单品决定商品项
           items: isCart
@@ -115,8 +120,9 @@ export function EnhancedCheckoutModal({
       }
 
       const order = await res.json()
-      alert(t('checkout.orderCreated', { id: order.id }))
+      toast.success(t('checkout.orderCreated', { id: order.id }))
       onClose()
+      router.push(`/orders/confirmation/${order.id}`)
     } catch {
       setError(t('checkout.orderCreationFailed'))
     } finally {
@@ -137,7 +143,7 @@ export function EnhancedCheckoutModal({
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...csrfHeaders },
         body: JSON.stringify({
           items: isCart
             ? cartItems.map((item) => ({
@@ -162,8 +168,9 @@ export function EnhancedCheckoutModal({
       }
 
       const order = await res.json()
-      alert(t('checkout.orderCreated', { id: order.id }))
+      toast.success(t('checkout.orderCreated', { id: order.id }))
       onClose()
+      router.push(`/orders/confirmation/${order.id}`)
     } catch {
       setError(t('checkout.orderCreationFailed'))
     } finally {

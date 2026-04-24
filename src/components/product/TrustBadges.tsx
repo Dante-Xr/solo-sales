@@ -193,23 +193,37 @@ export function TrustBar({
 }) {
   return (
     <Card className={className}>
-      <CardContent className="p-4">
-        <div className="space-y-4">
-          {/* 信任徽章 */}
-          <TrustBadges variant="row" />
+      <CardContent className="p-3 md:p-4">
+        <div className="space-y-3 md:space-y-4">
+          {/* 信任徽章 - 移动端grid，PC端row */}
+          <div className="grid grid-cols-2 md:hidden gap-2">
+            {defaultBadges.map((badge, index) => (
+              <div
+                key={index}
+                className={`flex flex-col items-center text-center p-2 rounded-lg border ${colorStyles[badge.color]}`}
+              >
+                <div className="mb-1 scale-75">{badge.icon}</div>
+                <p className="text-xs font-semibold">{badge.title}</p>
+                <p className="text-[10px] opacity-80 mt-0.5">{badge.description}</p>
+              </div>
+            ))}
+          </div>
+          <div className="hidden md:block">
+            <TrustBadges variant="row" />
+          </div>
 
           {/* 分隔线 */}
           {showPayment && <div className="border-t" />}
 
           {/* 支付方式 */}
           {showPayment && (
-            <div className="pt-4">
+            <div className="pt-2 md:pt-4">
               <PaymentMethods showLabels />
             </div>
           )}
 
           {/* 安全认证 */}
-          <div className="pt-4 border-t">
+          <div className="pt-2 md:pt-4 border-t">
             <SecurityBadge />
           </div>
         </div>

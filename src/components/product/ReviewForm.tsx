@@ -138,7 +138,7 @@ export function ReviewForm({
                 onChange={setRating}
               />
               <span className="text-sm text-muted-foreground">
-                {rating > 0 ? `${rating} 星` : "请选择评分"}
+                {rating > 0 ? `${rating}` : "请选择评分"}
               </span>
             </div>
           </div>

@@ -36,6 +36,7 @@ export function LanguageSwitcher() {
     setIsOpen(false)
     if (code !== locale) {
       router.push(pathname, { locale: code })
+      setTimeout(() => router.refresh(), 100)
     }
   }
 

@@ -1,32 +1,30 @@
 import { NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma"
 import { cacheGet, cacheSet, CACHE_KEYS, CACHE_TTL } from "@/lib/cache"
 
-const FEATURED_PRODUCTS = [
-  {
-    id: "prod_mock_001",
-    name: "TikTok爆款便携加湿器 | 带RGB氛围灯",
-    price: 29.99,
-    originalPrice: 49.99,
-    image: "https://images.unsplash.com/photo-1542013936693-884638332954?auto=format&fit=crop&q=80&w=1000",
-    sales: 1580,
-  },
-  {
-    id: "prod_mock_002",
-    name: "网红发光手机壳 | 磁吸充电",
-    price: 19.99,
-    originalPrice: 29.99,
-    image: "https://images.unsplash.com/photo-1601593346740-925612772716?auto=format&fit=crop&q=80&w=1000",
-    sales: 2340,
-  },
-  {
-    id: "prod_mock_003",
-    name: "蓝牙无线运动耳机 | 防汗降噪",
-    price: 39.99,
-    originalPrice: 59.99,
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=1000",
-    sales: 892,
-  },
-]
+// 将数据库商品数据转换为前端展示格式
+function transformProduct(product: {
+  id: string
+  name: string
+  description: string
+  price: { toNumber: () => number }
+  stock: number
+  images: string[]
+  isPublished: boolean
+  _count?: { orderItems: number }
+}) {
+  const price = product.price.toNumber()
+  return {
+    id: product.id,
+    name: product.name,
+    description: product.description,
+    price,
+    originalPrice: Math.round(price * 1.4 * 100) / 100,
+    image: product.images[0] || "",
+    sales: product._count?.orderItems ?? 0,
+    stock: product.stock,
+  }
+}
 
 export async function GET() {
   try {
@@ -35,11 +33,23 @@ export async function GET() {
       return NextResponse.json({ products: cached, fromCache: true })
     }
 
-    await cacheSet(CACHE_KEYS.FEATURED_PRODUCTS, FEATURED_PRODUCTS, CACHE_TTL.FEATURED_PRODUCTS)
+    const products = await prisma.product.findMany({
+      where: { isPublished: true },
+      orderBy: { createdAt: "desc" },
+      include: {
+        _count: {
+          select: { orderItems: true },
+        },
+      },
+    })
 
-    return NextResponse.json({ products: FEATURED_PRODUCTS, fromCache: false })
+    const transformed = products.map(transformProduct)
+
+    await cacheSet(CACHE_KEYS.FEATURED_PRODUCTS, transformed, CACHE_TTL.FEATURED_PRODUCTS)
+
+    return NextResponse.json({ products: transformed, fromCache: false })
   } catch (error) {
     console.error("Error fetching featured products:", error)
-    return NextResponse.json({ products: FEATURED_PRODUCTS, fromCache: false })
+    return NextResponse.json({ products: [], fromCache: false })
   }
 }

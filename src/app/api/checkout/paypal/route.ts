@@ -42,7 +42,7 @@ export async function POST(req: Request) {
     // 2026-03-24: Mock 模式：生成一个模拟的 PayPal Order ID 用于演示流程
     const mockOrderId = `PAYPAL-MOCK-${Date.now()}`
 
-    return NextResponse.json({ orderId: mockOrderId, amount: totalAmount })
+    return NextResponse.json({ orderId: mockOrderId, amount: totalAmount, isDemo: true })
   } catch (error) {
     // 2026-03-24: 错误日志，不泄露敏感信息
     console.error("PayPal Error:", error)

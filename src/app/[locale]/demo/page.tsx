@@ -1,16 +1,13 @@
 "use client"
 
-// 2026-03-23: 演示页面 - 供外部人员体验核心电商功能
-// 2026-04-13: 更新为使用 next-intl 国际化
-
 import { useState, useCallback, useEffect } from "react"
 import Image from "next/image"
 import { useRouter } from "@/i18n/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ShoppingCart, Sun, Moon, AlertTriangle } from "lucide-react"
-import { HomeCarousel, FEATURED_PRODUCTS } from "@/components/storefront/HomeCarousel"
-import { SearchBox } from "@/components/storefront/SearchBox"
+import { HomeCarouselClient as HomeCarousel, ProductItem } from "@/components/storefront/HomeCarouselClient"
+import { SearchBoxClient as SearchBox } from "@/components/storefront/SearchBoxClient"
 import { UserMenu } from "@/components/storefront/UserMenu"
 import { LanguageSwitcher } from "@/components/storefront/LanguageSwitcher"
 import { WelcomeModal } from "@/components/storefront/WelcomeModal"
@@ -27,9 +24,21 @@ export default function DemoPage() {
   const [soldRandom, setSoldRandom] = useState(0)
   const [showWelcome, setShowWelcome] = useState(false)
   const [showDemoNotice, setShowDemoNotice] = useState(false)
+  const [products, setProducts] = useState<ProductItem[]>([])
 
   const getRandomViewers = useCallback(() => Math.floor(Math.random() * 100) + 50, [])
   const getRandomSold = useCallback(() => Math.floor(Math.random() * 50), [])
+
+  useEffect(() => {
+    fetch("/api/products/featured")
+      .then(res => res.json())
+      .then(data => {
+        if (data.products) {
+          setProducts(data.products)
+        }
+      })
+      .catch(console.error)
+  }, [])
 
   useEffect(() => {
     setViewers(getRandomViewers())
@@ -61,7 +70,7 @@ export default function DemoPage() {
     setShowDemoNotice(true)
   }
 
-  const handleAddToCart = (product: typeof FEATURED_PRODUCTS[0], e: React.MouseEvent) => {
+  const handleAddToCart = (product: ProductItem, e: React.MouseEvent) => {
     e.stopPropagation()
     addToCart({
       id: product.id,
@@ -74,7 +83,6 @@ export default function DemoPage() {
   return (
     <div className="min-h-screen bg-muted flex justify-center">
       <main className="w-full max-w-md bg-card text-card-foreground min-h-screen shadow-xl flex flex-col relative pb-16">
-        {/* 演示模式顶部横幅 */}
         <div className="bg-yellow-500/90 text-yellow-950 text-center py-2 px-4 flex items-center justify-center gap-2 text-sm font-medium">
           <AlertTriangle className="w-4 h-4" />
           {t('common.loading')}
@@ -83,15 +91,11 @@ export default function DemoPage() {
         <header className="flex items-center justify-between p-4 border-b sticky top-0 bg-card z-50">
           <h1 className="text-xl font-bold tracking-tight">{t('nav.shopName')}</h1>
           <div className="flex items-center gap-1">
-            {/* 暗色模式切换按钮 */}
             <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} title={theme === "dark" ? "Switch to Light" : "切换到暗色"}>
               {theme === "dark" ? <Sun className="w-5 h-5 text-foreground" /> : <Moon className="w-5 h-5 text-foreground" />}
             </Button>
-            {/* 语言切换按钮 */}
             <LanguageSwitcher />
-            {/* 用户菜单 */}
             <UserMenu />
-            {/* 购物车 */}
             <Button variant="ghost" size="icon" className="relative" onClick={() => router.push('/cart')}>
               <ShoppingCart className="w-6 h-6" />
               {cartCount > 0 && (
@@ -104,10 +108,8 @@ export default function DemoPage() {
         </header>
 
         <div className="overflow-y-auto">
-          {/* 首页轮播图组件 */}
-          <HomeCarousel />
+          <HomeCarousel products={products} />
 
-          {/* 商品搜索框 */}
           <div className="px-4 pb-2">
             <SearchBox onSearch={(query) => console.log("Demo Search:", query)} />
           </div>
@@ -115,7 +117,7 @@ export default function DemoPage() {
           <div className="p-4">
             <h2 className="text-lg font-bold mb-4">{t('nav.allProducts')}</h2>
             <div className="grid grid-cols-2 gap-4">
-              {FEATURED_PRODUCTS.map(product => (
+              {products.map(product => (
                 <Card
                   key={product.id}
                   className="cursor-pointer overflow-hidden flex flex-col transition-all duration-200 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
@@ -123,7 +125,6 @@ export default function DemoPage() {
                 >
                   <div className="aspect-square relative">
                     <Image src={product.image} alt={product.name} fill className="object-cover" sizes="(max-width: 768px) 50vw, 33vw" />
-                    {/* 正在观看人数 */}
                     <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
                       <span>👀</span>
                       <span>{viewers}</span>
@@ -131,7 +132,6 @@ export default function DemoPage() {
                   </div>
                   <CardContent className="p-3 flex-1 flex flex-col justify-between">
                     <h3 className="text-sm font-medium line-clamp-2 mb-1">{product.name}</h3>
-                    {/* 已售数量 */}
                     <div className="text-xs text-muted-foreground mb-2">
                       {t('product.sold')} {product.sales + soldRandom}
                     </div>
@@ -153,7 +153,6 @@ export default function DemoPage() {
           </div>
         </div>
 
-        {/* 底部演示说明 */}
         <div className="fixed bottom-0 w-full max-w-md bg-card border-t p-4 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)] z-50">
           <div className="flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
@@ -178,7 +177,6 @@ export default function DemoPage() {
           </div>
         </div>
 
-        {/* 演示模式提示弹窗 */}
         {showDemoNotice && (
           <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4">
             <div className="bg-card rounded-xl p-6 max-w-sm w-full text-center">
@@ -196,7 +194,6 @@ export default function DemoPage() {
           </div>
         )}
 
-        {/* 新用户欢迎弹窗 */}
         {showWelcome && (
           <WelcomeModal
             onClose={() => setShowWelcome(false)}

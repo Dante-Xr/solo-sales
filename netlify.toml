@@ -5,6 +5,13 @@
 [build.environment]
   NODE_VERSION = "20"
   DATABASE_URL = "${NETLIFY_DATABASE_URL}"
+  # Stripe（支付）- 在 Netlify 控制台配置实际值
+  # STRIPE_PUBLIC_KEY = ""
+  # STRIPE_SECRET_KEY = ""
+  # STRIPE_WEBHOOK_SECRET = ""
+  # PayPal（支付 - 可选）- 在 Netlify 控制台配置实际值
+  # PAYPAL_CLIENT_ID = ""
+  # PAYPAL_CLIENT_SECRET = ""
   UPSTASH_REDIS_REST_URL = "${UPSTASH_REDIS_REST_URL}"
   UPSTASH_REDIS_REST_TOKEN = "${UPSTASH_REDIS_REST_TOKEN}"
 

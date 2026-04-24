@@ -1,0 +1,23 @@
+{
+  "name": "测试工作流",
+  "success": false,
+  "totalDuration": "0.0s",
+  "totalTokens": {
+    "input": 0,
+    "output": 0
+  },
+  "inputs": {},
+  "steps": [
+    {
+      "id": "start",
+      "role": "助理",
+      "status": "failed",
+      "output_var": "分析结果",
+      "duration": "0.0s",
+      "tokens": {
+        "input": 0,
+        "output": 0
+      }
+    }
+  ]
+}

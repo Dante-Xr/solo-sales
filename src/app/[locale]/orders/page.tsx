@@ -6,10 +6,40 @@ import { useSession } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Package, Loader2, ShoppingBag, AlertCircle } from "lucide-react"
+import { Package, ShoppingBag, AlertCircle } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useTranslations, useLocale } from "next-intl"
 import { useOrders } from "@/hooks/useOrders"
+import { Skeleton } from "@/components/ui/skeleton"
+
+function OrderListSkeleton({ count = 3 }: { count?: number }) {
+  return (
+    <div className="grid gap-6">
+      {Array.from({ length: count }, (_, i) => (
+        <div key={i} className="border rounded-lg p-4 lg:p-6 space-y-4 animate-pulse">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <Skeleton className="w-16 h-16 rounded-lg" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-6 w-16 rounded-full" />
+              <Skeleton className="h-6 w-20" />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {Array.from({ length: 4 }, (_, j) => (
+              <Skeleton key={j} className="w-12 h-12 rounded-md" />
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 export default function OrdersPage() {
   const router = useRouter()
@@ -35,8 +65,39 @@ export default function OrdersPage() {
 
   if (isPending || isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-red-600" />
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 relative">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-red-500/5 to-pink-500/5 rounded-full blur-3xl" />
+          <div className="absolute top-1/3 -left-20 w-72 h-72 bg-gradient-to-br from-purple-500/5 to-blue-500/5 rounded-full blur-3xl" />
+        </div>
+        <div className="w-full max-w-[1440px] mx-auto relative">
+          <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+            <div className="px-4 lg:px-8">
+              <div className="flex items-center justify-between h-16">
+                <div className="flex items-center gap-8">
+                  <Link href="/" className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">S</span>
+                    </div>
+                    <span className="text-xl font-bold text-foreground hidden sm:block">SoloSales</span>
+                  </Link>
+                </div>
+                <div className="flex items-center gap-4">
+                  <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+                    {theme === "dark" ? "☀️" : "🌙"}
+                  </Button>
+                  <Button variant="ghost" size="icon" className="relative" onClick={() => router.push("/cart")}>
+                    <ShoppingBag className="w-5 h-5" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </header>
+          <main className="p-4 lg:p-8">
+            <Skeleton className="h-9 w-48 mb-6" />
+            <OrderListSkeleton />
+          </main>
+        </div>
       </div>
     )
   }

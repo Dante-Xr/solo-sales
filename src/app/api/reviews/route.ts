@@ -11,7 +11,10 @@
 
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers"
 import { successResponse } from "@/lib/api-wrapper"
+import { csrfGuard } from "@/middleware/csrf-guard"
 
 /**
  * 获取评论列表
@@ -104,11 +107,26 @@ export async function GET(request: NextRequest) {
  * POST /api/reviews
  */
 export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json()
-    const { productId, userId, rating, title, content, images } = body
+  const csrfError = await csrfGuard(request)
+  if (csrfError) return csrfError
 
-    if (!productId || !userId || !rating) {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    })
+
+    if (!session?.user) {
+      return NextResponse.json(
+        { success: false, error: { code: "UNAUTHORIZED", message: "请先登录" } },
+        { status: 401 }
+      )
+    }
+
+    const body = await request.json()
+    const { productId, rating, title, content, images } = body
+    const userId = session.user.id
+
+    if (!productId || !rating) {
       return NextResponse.json(
         { success: false, error: { code: "BAD_REQUEST", message: "缺少必填字段" } },
         { status: 400 }
@@ -130,6 +148,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: { code: "NOT_FOUND", message: "商品不存在" } },
         { status: 404 }
+      )
+    }
+
+    const existingReview = await prisma.review.findFirst({
+      where: { productId, userId },
+    })
+
+    if (existingReview) {
+      return NextResponse.json(
+        { success: false, error: { code: "DUPLICATE", message: "您已评价过该商品" } },
+        { status: 409 }
       )
     }
 

@@ -4,9 +4,22 @@
 
 import { useState } from "react"
 import { useTranslations } from "next-intl"
+import { Link } from "@/i18n/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Facebook, Instagram, Twitter, Mail, ArrowRight, Video } from "lucide-react"
+import { Facebook, Instagram, Mail, ArrowRight } from "lucide-react"
+
+const XLogo = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+  </svg>
+)
+
+const TikTokLogo = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+    <path d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+  </svg>
+)
 
 export function StorefrontFooter() {
   const t = useTranslations('footer')
@@ -40,15 +53,15 @@ export function StorefrontFooter() {
   const socialLinks = [
     { icon: Facebook, href: "https://facebook.com", label: "Facebook" },
     { icon: Instagram, href: "https://instagram.com", label: "Instagram" },
-    { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
-    { icon: Video, href: "https://tiktok.com", label: "TikTok" },
+    { icon: XLogo, href: "https://x.com", label: "X" },
+    { icon: TikTokLogo, href: "https://tiktok.com", label: "TikTok" },
   ]
 
   return (
     <footer className="bg-gray-900 text-gray-100">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12">
-          <div className="lg:col-span-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
+          <div>
             <div className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
                 <span className="text-white font-bold text-lg">S</span>
@@ -60,41 +73,44 @@ export function StorefrontFooter() {
             </p>
           </div>
 
-          <div className="lg:col-span-1">
-            <h3 className="text-white font-semibold mb-4">{t("shop")}</h3>
-            <ul className="space-y-2">
-              {footerLinks.shop.map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors text-sm"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
+          <div>
+            <div className="grid grid-cols-2 gap-6 md:gap-8">
+              <div>
+                <h3 className="text-white font-semibold mb-4 text-sm md:text-base">{t("shop")}</h3>
+                <ul className="space-y-2">
+                  {footerLinks.shop.map((link) => (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        className="text-gray-400 hover:text-white transition-colors text-xs md:text-sm"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-white font-semibold mb-4 text-sm md:text-base">{t("company")}</h3>
+                <ul className="space-y-2">
+                  {footerLinks.company.map((link) => (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        className="text-gray-400 hover:text-white transition-colors text-xs md:text-sm"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </div>
 
-          <div className="lg:col-span-1">
-            <h3 className="text-white font-semibold mb-4">{t("company")}</h3>
-            <ul className="space-y-2">
-              {footerLinks.company.map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors text-sm"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="lg:col-span-1">
-            <h3 className="text-white font-semibold mb-4">{t("newsletter")}</h3>
-            <p className="text-gray-400 text-sm mb-4">
+          <div className="md:col-span-2 lg:col-span-1">
+            <h3 className="text-white font-semibold mb-4 text-sm md:text-base">{t("newsletter")}</h3>
+            <p className="text-gray-400 text-xs md:text-sm mb-4">
               {t("newsletterDesc")}
             </p>
             <form onSubmit={handleSubscribe} className="flex gap-2">
@@ -111,13 +127,13 @@ export function StorefrontFooter() {
               <Button
                 type="submit"
                 size="icon"
-                className="bg-red-500 hover:bg-red-600 text-white"
+                className="bg-red-500 hover:bg-red-600 text-white shrink-0"
               >
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </form>
             {subscribed && (
-              <p className="text-green-400 text-sm mt-2">
+              <p className="text-green-400 text-xs md:text-sm mt-2">
                 {t("subscribed")}
               </p>
             )}
@@ -140,7 +156,7 @@ export function StorefrontFooter() {
         </div>
 
         <div className="border-t border-gray-800 mt-10 pt-6">
-          <p className="text-center text-gray-500 text-sm">
+          <p className="text-center text-gray-500 text-xs md:text-sm">
             {t("copyright")}
           </p>
         </div>

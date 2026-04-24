@@ -47,6 +47,8 @@ import {
 import { BatchActionBar } from "@/components/admin/BatchActionBar"
 import { useTranslations, useLocale } from "next-intl"
 import { MobileProductCard } from "@/components/admin/MobileProductCard"
+import { toast } from "sonner"
+import { Skeleton } from "@/components/ui/skeleton"
 
 // ============================================
 // 类型定义
@@ -278,11 +280,11 @@ export default function ProductsPage() {
         setEditDialogOpen(false)
         refetch()
       } else {
-        alert(result.error || (isZh ? "保存失败" : "Save failed"))
+        toast.error(result.error || (isZh ? "保存失败" : "Save failed"))
       }
     } catch (error) {
       console.error("保存商品失败:", error)
-      alert(isZh ? "保存失败" : "Save failed")
+      toast.error(isZh ? "保存失败" : "Save failed")
     } finally {
       setSaving(false)
     }
@@ -309,11 +311,11 @@ export default function ProductsPage() {
         setDeleteDialogOpen(false)
         refetch()
       } else {
-        alert(result.error || (isZh ? "删除失败" : "Delete failed"))
+        toast.error(result.error || (isZh ? "删除失败" : "Delete failed"))
       }
     } catch (error) {
       console.error("删除商品失败:", error)
-      alert(isZh ? "删除失败" : "Delete failed")
+      toast.error(isZh ? "删除失败" : "Delete failed")
     }
   }
 
@@ -331,11 +333,11 @@ export default function ProductsPage() {
       if (result.success) {
         refetch()
       } else {
-        alert(result.error || (isZh ? "操作失败" : "Operation failed"))
+        toast.error(result.error || (isZh ? "操作失败" : "Operation failed"))
       }
     } catch (error) {
       console.error("切换状态失败:", error)
-      alert(isZh ? "操作失败" : "Operation failed")
+      toast.error(isZh ? "操作失败" : "Operation failed")
     }
   }
 
@@ -400,11 +402,11 @@ export default function ProductsPage() {
         setSelectedProducts(new Set())
         refetch()
       } else {
-        alert(result.error || (isZh ? "批量操作失败" : "Batch operation failed"))
+        toast.error(result.error || (isZh ? "批量操作失败" : "Batch operation failed"))
       }
     } catch (error) {
       console.error("批量操作失败:", error)
-      alert(isZh ? "批量操作失败" : "Batch operation failed")
+      toast.error(isZh ? "批量操作失败" : "Batch operation failed")
     }
   }
 
@@ -522,9 +524,64 @@ export default function ProductsPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="text-center py-8 text-muted-foreground">
-              {adminT("loading")}
-            </div>
+            isMobile ? (
+              <div className="md:hidden space-y-4">
+                {Array.from({ length: 5 }, (_, i) => (
+                  <div key={i} className="border rounded-lg p-4 space-y-3 animate-pulse">
+                    <div className="flex items-start gap-3">
+                      <Skeleton className="w-16 h-16 rounded-lg" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-5 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Skeleton className="h-5 w-20" />
+                      <Skeleton className="h-6 w-16 rounded-full" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="w-12 py-3 px-4"><Skeleton className="h-4 w-4" /></th>
+                      <th className="text-left py-3 px-4 font-medium">{adminT("productName")}</th>
+                      <th className="text-left py-3 px-4 font-medium">{adminT("category")}</th>
+                      <th className="text-left py-3 px-4 font-medium">{adminT("price")}</th>
+                      <th className="text-left py-3 px-4 font-medium">{adminT("stock")}</th>
+                      <th className="text-left py-3 px-4 font-medium">{adminT("status")}</th>
+                      <th className="text-left py-3 px-4 font-medium">{adminT("created")}</th>
+                      <th className="text-right py-3 px-4 font-medium">{adminT("actions")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Array.from({ length: 5 }, (_, i) => (
+                      <tr key={i} className="border-b">
+                        <td className="py-3 px-4"><Skeleton className="h-4 w-4" /></td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-3">
+                            <Skeleton className="w-10 h-10 rounded" />
+                            <div className="space-y-1">
+                              <Skeleton className="h-4 w-24" />
+                              <Skeleton className="h-3 w-16" />
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4"><Skeleton className="h-5 w-16 rounded-full" /></td>
+                        <td className="py-3 px-4"><Skeleton className="h-4 w-16" /></td>
+                        <td className="py-3 px-4"><Skeleton className="h-4 w-12" /></td>
+                        <td className="py-3 px-4"><Skeleton className="h-4 w-12" /></td>
+                        <td className="py-3 px-4"><Skeleton className="h-4 w-20" /></td>
+                        <td className="py-3 px-4 text-right"><Skeleton className="h-8 w-16 ml-auto" /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )
           ) : productList.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               {adminT("noData")}

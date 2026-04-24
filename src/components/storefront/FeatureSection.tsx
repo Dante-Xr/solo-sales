@@ -1,9 +1,8 @@
 "use client"
 
-// 2026-04-13: 更新为使用 next-intl 国际化
-
 import { Rocket, Shield, Package, MessageCircle } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { useViewportModeStore } from "@/stores/useViewportModeStore"
 
 interface Feature {
   icon: React.ReactNode
@@ -43,6 +42,8 @@ const iconBgColors = [
 
 export function FeatureSection() {
   const t = useTranslations('feature')
+  const { mode: viewportMode } = useViewportModeStore()
+  const isMobileView = viewportMode === "mobile"
 
   return (
     <section className="bg-muted/30 py-8">
@@ -61,7 +62,7 @@ export function FeatureSection() {
               <h3 className="text-xs md:text-sm font-semibold mb-1 md:mb-2">
                 {t(feature.titleKey)}
               </h3>
-              <p className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">
+              <p className={`text-[10px] md:text-xs text-muted-foreground ${isMobileView ? "" : "hidden sm:block"}`}>
                 {t(feature.descriptionKey)}
               </p>
             </div>

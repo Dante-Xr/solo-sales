@@ -1,0 +1,15 @@
+name: "测试工作流"
+llm:
+  provider: "zhipu"
+  base_url: "https://open.bigmodel.cn/api/paas/v4"
+  api_key: "f563d8b651c647b3a30243921743d412.AhovBpJKBAKO1p8E"
+  model: "glm-5"
+
+input:
+  description: "测试工作流"
+
+steps:
+  - id: start
+    role: "助理"
+    task: "分析用户输入：${input.description}"
+    output: "分析结果"

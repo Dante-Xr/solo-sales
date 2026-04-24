@@ -53,8 +53,8 @@ export function ReviewSummary({
       <div className="flex-1 space-y-2">
         {[5, 4, 3, 2, 1].map((rating) => (
           <div key={rating} className="flex items-center gap-2">
-            <span className="text-sm w-6 text-muted-foreground">
-              {rating} 星
+            <span className="text-sm w-6 text-muted-foreground text-center">
+              {rating}
             </span>
             <Progress
               value={getPercentage(rating)}

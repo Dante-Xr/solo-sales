@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/dialog"
 import { useTranslations } from "next-intl"
 import { Checkbox } from "@/components/ui/checkbox"
+import { toast } from "sonner"
 
 interface Permission {
   id: string
@@ -160,7 +161,7 @@ export default function RolesPage() {
         setDialogOpen(false)
         refetchAll()
       } else {
-        alert(data.error || t('operationFailed'))
+        toast.error(data.error || t('operationFailed'))
       }
     } catch (error) {
       console.error("提交失败:", error)
@@ -182,7 +183,7 @@ export default function RolesPage() {
         setDeleteDialogOpen(false)
         refetchAll()
       } else {
-        alert(data.error || t('deleteFailed'))
+        toast.error(data.error || t('deleteFailed'))
       }
     } catch (error) {
       console.error("删除失败:", error)

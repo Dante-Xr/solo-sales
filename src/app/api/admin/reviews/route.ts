@@ -109,9 +109,8 @@ export async function POST(request: NextRequest) {
           data: { isApproved: true },
         })
       } else if (action === "reject") {
-        await prisma.review.update({
+        await prisma.review.delete({
           where: { id: reviewId },
-          data: { isApproved: false },
         })
       } else if (action === "feature") {
         await prisma.review.update({
@@ -146,7 +145,13 @@ export async function POST(request: NextRequest) {
       if (action === "approve") {
         updateData.isApproved = true
       } else if (action === "reject") {
-        updateData.isApproved = false
+        await prisma.review.deleteMany({
+          where: { id: { in: reviewIds } },
+        })
+        return NextResponse.json({
+          success: true,
+          message: `已拒绝 ${reviewIds.length} 条评论`,
+        })
       } else if (action === "delete") {
         await prisma.review.deleteMany({
           where: { id: { in: reviewIds } },
@@ -176,6 +181,66 @@ export async function POST(request: NextRequest) {
     console.error("评论操作失败:", error)
     return NextResponse.json(
       { success: false, error: { code: "INTERNAL_ERROR", message: "评论操作失败" } },
+      { status: 500 }
+    )
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const admin = await verifyAdminToken(request)
+    if (!admin) {
+      return NextResponse.json(
+        { success: false, error: { code: "UNAUTHORIZED", message: "请先登录" } },
+        { status: 401 }
+      )
+    }
+
+    const body = await request.json()
+    const { reviewId, action } = body
+
+    if (!reviewId || !action) {
+      return NextResponse.json(
+        { success: false, error: { code: "BAD_REQUEST", message: "缺少 reviewId 或 action" } },
+        { status: 400 }
+      )
+    }
+
+    const existingReview = await prisma.review.findUnique({
+      where: { id: reviewId },
+    })
+
+    if (!existingReview) {
+      return NextResponse.json(
+        { success: false, error: { code: "NOT_FOUND", message: "评论不存在" } },
+        { status: 404 }
+      )
+    }
+
+    if (action === "approve") {
+      await prisma.review.update({
+        where: { id: reviewId },
+        data: { isApproved: true },
+      })
+    } else if (action === "reject") {
+      await prisma.review.delete({
+        where: { id: reviewId },
+      })
+    } else {
+      return NextResponse.json(
+        { success: false, error: { code: "BAD_REQUEST", message: "无效的操作，支持 approve/reject" } },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: action === "approve" ? "评论已通过审核" : "评论已拒绝",
+    })
+  } catch (error) {
+    console.error("审核操作失败:", error)
+    return NextResponse.json(
+      { success: false, error: { code: "INTERNAL_ERROR", message: "审核操作失败" } },
       { status: 500 }
     )
   }

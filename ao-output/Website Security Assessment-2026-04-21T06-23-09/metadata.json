@@ -1,0 +1,99 @@
+{
+  "name": "Website Security Assessment",
+  "success": false,
+  "totalDuration": "283.9s",
+  "totalTokens": {
+    "input": 25568,
+    "output": 11348
+  },
+  "inputs": {
+    "target_url": "http://localhost:3000"
+  },
+  "steps": [
+    {
+      "id": "ssl_assessment",
+      "role": "engineering/engineering-security-engineer",
+      "agentName": "SSL/TLS Security Analyst",
+      "agentEmoji": "🔐",
+      "status": "completed",
+      "output_var": "ssl_findings",
+      "duration": "76.5s",
+      "tokens": {
+        "input": 6695,
+        "output": 2333
+      }
+    },
+    {
+      "id": "vulnerability_assessment",
+      "role": "engineering/engineering-security-engineer",
+      "agentName": "Web Vulnerability Analyst",
+      "agentEmoji": "🛡️",
+      "status": "completed",
+      "output_var": "vulnerability_findings",
+      "duration": "76.5s",
+      "tokens": {
+        "input": 6717,
+        "output": 2460
+      }
+    },
+    {
+      "id": "auth_assessment",
+      "role": "engineering/engineering-security-engineer",
+      "agentName": "Identity Security Analyst",
+      "agentEmoji": "🔑",
+      "status": "failed",
+      "output_var": "auth_findings",
+      "duration": "120.0s",
+      "tokens": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "encryption_payment_assessment",
+      "role": "engineering/engineering-security-engineer",
+      "agentName": "Data & Payment Security Analyst",
+      "agentEmoji": "💳",
+      "status": "completed",
+      "output_var": "encryption_payment_findings",
+      "duration": "120.0s",
+      "tokens": {
+        "input": 6758,
+        "output": 2698
+      }
+    },
+    {
+      "id": "compliance_assessment",
+      "role": "legal/legal-contract-reviewer",
+      "agentName": "Compliance Analyst",
+      "agentEmoji": "📋",
+      "status": "completed",
+      "output_var": "compliance_findings",
+      "duration": "87.3s",
+      "tokens": {
+        "input": 5398,
+        "output": 3857
+      }
+    },
+    {
+      "id": "risk_prioritization",
+      "role": "engineering/engineering-security-engineer",
+      "status": "skipped",
+      "duration": "0.0s",
+      "tokens": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "final_report",
+      "role": "engineering/engineering-technical-writer",
+      "status": "skipped",
+      "duration": "0.0s",
+      "tokens": {
+        "input": 0,
+        "output": 0
+      }
+    }
+  ]
+}

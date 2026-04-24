@@ -16,6 +16,7 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import createMiddleware from "next-intl/middleware"
 import { routing } from "./i18n/routing"
+import { generateNonce, getCspHeaders } from "./lib/csp-nonce"
 
 const intlMiddleware = createMiddleware(routing)
 
@@ -31,7 +32,22 @@ export function proxy(request: NextRequest) {
   // 1. 先执行 next-intl 的语言检测和重定向
   const response = intlMiddleware(request)
 
-  // 2. 管理员认证检查
+  // 2. 生成 CSP nonce 并注入响应头
+  const nonce = generateNonce()
+  const isDev = process.env.NODE_ENV === "development"
+  response.headers.set("Content-Security-Policy", getCspHeaders(nonce, isDev))
+  response.headers.set("x-nonce", nonce)
+
+  // 3. 安全响应头
+  response.headers.set("X-DNS-Prefetch-Control", "on")
+  response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
+  response.headers.set("X-Frame-Options", "SAMEORIGIN")
+  response.headers.set("X-Content-Type-Options", "nosniff")
+  response.headers.set("Referrer-Policy", "origin-when-cross-origin")
+  response.headers.set("X-XSS-Protection", "1; mode=block")
+  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+
+  // 4. 管理员认证检查
   if (pathname.includes("/admin")) {
     const isPublicPath = PUBLIC_PATHS.some((p) => pathname.includes(p))
     if (!isPublicPath) {

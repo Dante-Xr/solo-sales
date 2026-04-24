@@ -47,7 +47,6 @@ const nextConfig: NextConfig = {
   },
 
   // 2026-03-24: Turbopack 配置（Next.js 16 使用 Turbopack 作为默认构建工具）
-  // 2026-03-24: 空的 turbopack 配置表示不需要特殊配置
   turbopack: {},
 };
 
@@ -79,20 +78,6 @@ const securityHeaders = [
     // 2026-03-24: 控制 referrer 信息泄露
     key: "Referrer-Policy",
     value: "origin-when-cross-origin",
-  },
-  {
-    // 2026-03-24: Content Security Policy，限制资源加载来源
-    // 防止 XSS 攻击，限制脚本、样式、图片等资源来源
-    key: "Content-Security-Policy",
-    value: [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // 2026-03-24: Next.js 需要这些
-      "style-src 'self' 'unsafe-inline'", // 2026-03-24: Tailwind 需要
-      "img-src 'self' data: https://images.unsplash.com https://picsum.photos",
-      "font-src 'self' data:",
-      "connect-src 'self' https://api.stripe.com", // 2026-03-24: Stripe API
-      "frame-src 'self' https://js.stripe.com", // 2026-03-24: Stripe.js
-    ].join("; "),
   },
   {
     // 2026-03-24: X-XSS-Protection 头，虽然现代浏览器已支持 CSP，但保留以兼容旧浏览器

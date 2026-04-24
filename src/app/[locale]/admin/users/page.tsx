@@ -47,6 +47,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useTranslations, useLocale } from "next-intl"
+import { toast } from "sonner"
 
 interface Role {
   id: string
@@ -187,7 +188,7 @@ export default function UsersPage() {
         setDialogOpen(false)
         refetchUsers()
       } else {
-        alert(result.error || (isZh ? "操作失败" : "Operation failed"))
+        toast.error(result.error || (isZh ? "操作失败" : "Operation failed"))
       }
     } catch (error) {
       console.error("保存用户失败:", error)
@@ -231,7 +232,7 @@ export default function UsersPage() {
         setDeletingUser(null)
         refetchUsers()
       } else {
-        alert(result.error || (isZh ? "删除失败" : "Delete failed"))
+        toast.error(result.error || (isZh ? "删除失败" : "Delete failed"))
       }
     } catch (error) {
       console.error("删除用户失败:", error)

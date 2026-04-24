@@ -11,6 +11,7 @@
 
 // 2026-03-23: 引入 React useState 钩子，用于管理两个支付按钮的加载状态
 import { useState } from "react"
+import { useCsrfToken } from "@/hooks/useCsrfToken"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -21,6 +22,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { toast } from "sonner"
 
 // 2026-03-23: 定义组件 Props 接口，约束传入参数的类型
 interface CheckoutModalProps {
@@ -40,10 +42,10 @@ interface CheckoutModalProps {
  * @param product - 当前待购买的商品信息（名称、价格、ID）
  */
 export function CheckoutModal({ isOpen, onClose, product }: CheckoutModalProps) {
-  // 2026-03-23: 记录 Stripe 支付按钮的加载状态，防止用户重复点击
   const [loadingStripe, setLoadingStripe] = useState(false)
-  // 2026-03-23: 记录 PayPal 支付按钮的加载状态
   const [loadingPayPal, setLoadingPayPal] = useState(false)
+  const [paypalIsDemo, setPaypalIsDemo] = useState(false)
+  const { csrfHeaders } = useCsrfToken()
 
   /**
    * 2026-03-23: Stripe 支付处理函数
@@ -58,7 +60,7 @@ export function CheckoutModal({ isOpen, onClose, product }: CheckoutModalProps) 
     try {
       const res = await fetch("/api/checkout/stripe", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...csrfHeaders },
         body: JSON.stringify({
           productId: product.id || "mock-id",
           productName: product.name,
@@ -89,7 +91,7 @@ export function CheckoutModal({ isOpen, onClose, product }: CheckoutModalProps) 
     try {
       const res = await fetch("/api/checkout/paypal", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...csrfHeaders },
         body: JSON.stringify({
           price: product.price,
           quantity: 1,
@@ -97,7 +99,10 @@ export function CheckoutModal({ isOpen, onClose, product }: CheckoutModalProps) 
       })
       const data = await res.json()
       if (data.orderId) {
-        alert(`PayPal 订单已生成: ${data.orderId} \n实际项目中这里会拉起 PayPal 弹窗。`)
+        if (data.isDemo) {
+          setPaypalIsDemo(true)
+        }
+        toast.success(`PayPal 订单已生成: ${data.orderId}`)
         onClose()
       }
     } catch (error) {
@@ -143,7 +148,7 @@ export function CheckoutModal({ isOpen, onClose, product }: CheckoutModalProps) 
               onClick={handlePayPalCheckout}
               disabled={loadingStripe || loadingPayPal}
             >
-              {loadingPayPal ? "处理中..." : "使用 PayPal 支付"}
+              {loadingPayPal ? "处理中..." : `使用 PayPal 支付${paypalIsDemo ? " (Demo)" : ""}`}
             </Button>
           </div>
         </div>

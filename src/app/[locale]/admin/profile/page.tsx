@@ -24,6 +24,7 @@ import { PasswordInput } from "@/components/ui/password-input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { useTranslations, useLocale } from "next-intl"
+import { toast } from "sonner"
 
 export default function AdminProfilePage() {
   const t = useTranslations('admin.profile')
@@ -69,11 +70,11 @@ export default function AdminProfilePage() {
         setUsernameSuccess(true)
         setTimeout(() => setUsernameSuccess(false), 3000)
       } else {
-        alert(result.error || t('updateFailed'))
+        toast.error(result.error || t('updateFailed'))
       }
     } catch (err) {
       console.error("更新用户名失败:", err)
-      alert(t('networkError'))
+      toast.error(t('networkError'))
     } finally {
       setUsernameSaving(false)
     }

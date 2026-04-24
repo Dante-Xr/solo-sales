@@ -4,6 +4,161 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased] - 2026-04-23
+
+### Today's Changes
+
+#### UI/UX 优化
+- **工具菜单语言切换**: "语言"标题改为"Language/语言"，选项固定为"中文"和"English"（不随语言切换变化）
+- **Footer 布局调整**: PC 端"商城"与"公司"列从纵向改为横向排列
+- **响应式布局**: 新增移动端独立响应式方案，优化不同屏幕尺寸下的显示效果、间距、字体和触控体验
+
+#### 图标更新
+- **Twitter → X**: 更新所有 Twitter 相关图标和链接为 X (x.com)
+  - StorefrontFooter 社交图标
+  - ShareMenu 分享菜单
+  - ProductMeta SEO 组件
+- **TikTok Logo**: 替换为官方最新 SVG 图标
+
+#### 视口模式切换 (Viewport Mode)
+- **PC 端手机模式**: 在 PC 端浏览器中实现手机端页面模式切换功能
+- **强制控制**: 页面布局严格受"切换 PC 端/手机端"按钮控制，不受浏览器窗口大小影响
+- **CSS 覆盖层**: 通过 `[data-viewport="mobile"]` 选择器覆盖 Tailwind 响应式断点
+- **ViewportWrapper**: 动态修改 viewport meta 标签和添加 data 属性
+
+### 依赖更新
+- 移除 lucide-react 的 Twitter 图标，使用自定义 SVG 组件
+
+## [1.0.2] - 2026-04-23
+
+### Bug Fixes
+
+- 修复 `session.user.id` 类型错误
+- 修复 TypeScript 类型错误 - session.user.id 和 i18n locale
+- 修复语言切换功能
+
+## [1.0.0] - 2026-04-21
+
+### Phase 5: Refine 框架和 Tremor 组件集成
+
+#### 框架升级
+- 集成 Refine 框架用于后台管理
+- 集成 Tremor 组件库用于数据可视化
+- 完成 Phase 5 所有功能模块
+
+## [0.11.0] - 2026-04-18
+
+### Phase 4: next-intl 国际化升级
+
+#### 国际化
+- 完成 next-intl 插件配置
+- 迁移所有页面到 next-intl 路由
+- 实现中英文切换功能
+
+## [0.10.0] - 2026-04-15
+
+### Phase 3: Zustand 状态管理升级
+
+#### 状态管理重构
+- Zustand 替代 React Context
+- 优化状态管理性能
+- 减少不必要的重渲染
+
+## [0.9.0] - 2026-04-14
+
+### Phase 1 & 2: 零成本修复和安全增强
+
+#### 安全修复
+- 安全响应头配置
+- CSP, HSTS, X-Frame-Options 配置
+- Rate Limiting 中间件
+
+#### 性能优化
+- 首屏加载优化
+- WelcomeModal 动态导入
+- HomeCarousel 定时器优化
+- Context 嵌套合并
+
+#### 新增功能
+- next-themes 主题管理
+- TanStack Query 数据获取
+- ViewportModeToggle 手机端模式切换
+- ViewportWrapper 视口容器
+
+### Bug Fixes
+- 修复 safeErrorLog 参数顺序错误
+- 修复多币种/营销/分销 API 导入问题
+- 修复缓存函数问题
+
+## [0.8.1] - 2026-04-13
+
+### Bug Fixes
+- 修复首页点击功能 (Hydration mismatch修复)
+
+## [0.8.0] - 2026-04-13
+
+### 首页 PC 重构: Shopify Style
+
+#### 布局重构
+- Shopify 风格首页设计
+- 极简现代美学布局
+- PC 端响应式优化
+
+## [0.6.2] - 2026-04-12
+
+### 管理员功能增强
+- 管理员个人资料菜单功能
+- ESLint 代码规范清理
+
+## [0.6.0] - 2026-04-11
+
+### M4 智能运营模块
+
+#### 新增功能
+- 数据分析仪表盘
+- 订单管理增强
+- 客户管理模块
+- 营销工具集成
+- 分销系统
+
+#### API 新增
+- 营销活动管理 API
+- 分销商管理 API
+- 数据分析 API
+
+## [0.5.9] - 2026-04-10
+
+### 安全修复与性能优化
+- API 安全增强
+- 性能监控优化
+- 缓存策略优化
+
+## [0.5.7] - 2026-04-09
+
+### M5.3 移动端表单 Sheet + M6 触控优化
+
+#### 移动端优化
+- 移动端表单 Sheet 组件
+- 触控区域 44px 最小尺寸
+- 列表项触控反馈优化
+- iPhone 安全区域支持
+
+## [0.5.6] - 2026-04-08
+
+### Bug Fixes
+- 修复夜间模式按钮问题
+- 修复登录重定向问题
+- Next.js 16 proxy 迁移适配
+
+## [0.5.0] - 2026-04-07
+
+### 移动端增强
+
+#### M5 移动端优化
+- 移动端表单优化
+- 触控交互增强
+- 性能优化
+
 ## [0.4.0] - 2026-03-24
 
 ### 后台管理系统增强

@@ -16,6 +16,7 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
+import { csrfGuard } from "@/middleware/csrf-guard"
 
 /**
  * GET /api/orders
@@ -59,7 +60,7 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: "订单不存在" }, { status: 404 })
       }
 
-      return NextResponse.json(order)
+      return NextResponse.json(order, { status: 201 })
     }
 
     // 查询订单列表需要登录
@@ -113,6 +114,9 @@ export async function GET(request: Request) {
  *   - 库存不足时抛出错误
  */
 export async function POST(request: Request) {
+  const csrfError = await csrfGuard(request)
+  if (csrfError) return csrfError
+
   try {
     const body = await request.json()
     const { items, totalAmount, shippingAddress, contactInfo } = body

@@ -46,6 +46,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useTranslations } from "next-intl"
+import { toast } from "sonner"
 
 interface Permission {
   id: string
@@ -134,7 +135,7 @@ export default function PermissionsPage() {
         setDialogOpen(false)
         refetch()
       } else {
-        alert(data.error || t('operationFailed'))
+        toast.error(data.error || t('operationFailed'))
       }
     } catch (error) {
       console.error("提交失败:", error)
@@ -156,7 +157,7 @@ export default function PermissionsPage() {
         setDeleteDialogOpen(false)
         refetch()
       } else {
-        alert(data.error || t('deleteFailed'))
+        toast.error(data.error || t('deleteFailed'))
       }
     } catch (error) {
       console.error("删除失败:", error)

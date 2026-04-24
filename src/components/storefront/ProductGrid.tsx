@@ -1,13 +1,12 @@
 "use client"
 
-// 2026-04-13: 更新为使用 next-intl 国际化
-
 import * as React from "react"
 import Image from "next/image"
 import { ShoppingCart, Flame } from "lucide-react"
 import { useRouter } from "@/i18n/navigation"
 import { useTranslations } from "next-intl"
-import { FEATURED_PRODUCTS } from "./HomeCarousel"
+import { ProductItem } from "./HomeCarousel"
+import { Skeleton } from "@/components/ui/skeleton"
 
 const formatSales = (sales: number) => {
   if (sales >= 1000) {
@@ -23,7 +22,7 @@ const calculateDiscount = (price: number, originalPrice: number) => {
 const ProductCard = React.memo(function ProductCard({
   product
 }: {
-  product: typeof FEATURED_PRODUCTS[0]
+  product: ProductItem
 }) {
   const router = useRouter()
   const t = useTranslations('product')
@@ -79,14 +78,47 @@ const ProductCard = React.memo(function ProductCard({
   )
 })
 
-export function ProductGrid() {
+function ProductCardSkeleton() {
+  return (
+    <div className="w-full overflow-hidden border-border/50 rounded-lg animate-pulse">
+      <Skeleton className="aspect-square w-full rounded-none" />
+      <div className="p-4 space-y-3">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-2/3" />
+        <div className="flex items-center gap-2 mt-3">
+          <Skeleton className="h-5 w-16" />
+          <Skeleton className="h-4 w-12" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function ProductGridSkeleton({ count = 6 }: { count?: number }) {
+  return (
+    <div className="w-full px-3 py-4">
+      <Skeleton className="h-6 w-24 mb-4" />
+      <div className="grid grid-cols-2 gap-3">
+        {Array.from({ length: count }, (_, i) => (
+          <ProductCardSkeleton key={i} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export function ProductGrid({ products, isLoading }: { products: ProductItem[]; isLoading?: boolean }) {
   const t = useTranslations('product')
+
+  if (isLoading || !products || products.length === 0) {
+    return <ProductGridSkeleton />
+  }
 
   return (
     <div className="w-full px-3 py-4">
       <h2 className="text-base font-bold mb-4">{t('featured')}</h2>
       <div className="grid grid-cols-2 gap-3">
-        {FEATURED_PRODUCTS.map((product) => (
+        {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>

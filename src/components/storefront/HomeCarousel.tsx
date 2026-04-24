@@ -1,7 +1,5 @@
 "use client"
 
-// 2026-04-13: 更新为使用 next-intl 国际化
-
 import * as React from "react"
 import Image from "next/image"
 import useEmblaCarousel from "embla-carousel-react"
@@ -10,32 +8,17 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useRouter } from "@/i18n/navigation"
 
-export const FEATURED_PRODUCTS = [
-  {
-    id: "prod_mock_001",
-    name: "TikTok爆款便携加湿器 | 带RGB氛围灯",
-    price: 29.99,
-    originalPrice: 49.99,
-    image: "https://images.unsplash.com/photo-1542013936693-884638332954?auto=format&fit=crop&q=80&w=1000",
-    sales: 1580,
-  },
-  {
-    id: "prod_mock_002",
-    name: "网红发光手机壳 | 磁吸充电",
-    price: 19.99,
-    originalPrice: 29.99,
-    image: "https://images.unsplash.com/photo-1601593346740-925612772716?auto=format&fit=crop&q=80&w=1000",
-    sales: 2340,
-  },
-  {
-    id: "prod_mock_003",
-    name: "蓝牙无线运动耳机 | 防汗降噪",
-    price: 39.99,
-    originalPrice: 59.99,
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=1000",
-    sales: 892,
-  }
-]
+// 商品展示数据接口，供其他组件复用
+export interface ProductItem {
+  id: string
+  name: string
+  price: number
+  originalPrice: number
+  image: string
+  sales: number
+  description?: string
+  stock?: number
+}
 
 const AUTO_PLAY_INTERVAL = 8
 
@@ -44,7 +27,7 @@ const CarouselCard = React.memo(function CarouselCard({
   isActive,
   onClick
 }: {
-  product: typeof FEATURED_PRODUCTS[0]
+  product: ProductItem
   isActive: boolean
   onClick: () => void
 }) {
@@ -65,7 +48,7 @@ const CarouselCard = React.memo(function CarouselCard({
               priority={isActive}
             />
             <div className="absolute top-4 right-4 bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse">
-              🔥 {product.name.includes("加湿器") ? t('limitedOffer') : "Hot Sale"}
+              🔥 {t('limitedOffer')}
             </div>
             <div className="absolute bottom-0 w-full bg-gradient-to-t from-black/80 to-transparent p-4 lg:p-6">
               <h3 className="text-white font-medium text-sm lg:text-base line-clamp-1">{product.name}</h3>
@@ -81,7 +64,7 @@ const CarouselCard = React.memo(function CarouselCard({
   )
 })
 
-export function HomeCarousel() {
+export function HomeCarousel({ products }: { products: ProductItem[] }) {
   const router = useRouter()
   const t = useTranslations('product')
   const [emblaRef, embla] = useEmblaCarousel({ loop: true })
@@ -141,13 +124,15 @@ export function HomeCarousel() {
     router.push(`/product/${productId}`)
   }, [router])
 
+  if (!products || products.length === 0) return null
+
   return (
     <div className="w-full relative pt-3 pb-2 px-0">
       <h2 className="text-base font-bold mb-2 px-4">{t('featured')}</h2>
       <div className="relative">
         <div ref={emblaRef} className="overflow-hidden">
           <div className="flex">
-            {FEATURED_PRODUCTS.map((product, index) => (
+            {products.map((product, index) => (
               <CarouselCard
                 key={product.id}
                 product={product}
@@ -175,7 +160,7 @@ export function HomeCarousel() {
         </button>
 
         <div className="absolute bottom-2 md:bottom-3 left-1/2 -translate-x-1/2 flex gap-1 md:gap-1.5 z-10">
-          {FEATURED_PRODUCTS.map((_, i) => (
+          {products.map((_, i) => (
             <div
               key={i}
               className={`h-1 md:h-1.5 rounded-full transition-all duration-300 ${

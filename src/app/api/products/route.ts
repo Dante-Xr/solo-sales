@@ -22,7 +22,10 @@ const listQuerySchema = z.object({
   pageSize: z.coerce.number().int().positive().max(100).default(10),
   keyword: z.string().optional(),
   category: z.string().optional(),
+  categoryId: z.string().optional(),
   isPublished: z.string().optional(),
+  exclude: z.string().optional(),
+  limit: z.coerce.number().int().positive().max(50).optional(),
 })
 
 /**
@@ -56,11 +59,12 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const { page, pageSize, keyword, category, isPublished } = parsed.data
+    const { page, pageSize, keyword, category, categoryId, isPublished, exclude, limit } = parsed.data
 
-    // 构建缓存键
+    const effectiveCategoryId = categoryId || category
+
     const cacheKey = CACHE_KEYS.PRODUCT_LIST(
-      JSON.stringify({ page, pageSize, keyword, category, isPublished })
+      JSON.stringify({ page, pageSize, keyword, category: effectiveCategoryId, isPublished, exclude, limit })
     )
 
     // 尝试从缓存获取
@@ -73,7 +77,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ ...cached, fromCache: true })
     }
 
-    const skip = (page - 1) * pageSize
+    const take = limit || pageSize
+    const skip = (page - 1) * (limit || pageSize)
 
     // 构建 where 条件
     const where: Record<string, unknown> = {}
@@ -87,11 +92,14 @@ export async function GET(request: NextRequest) {
         { description: { contains: sanitizedKeyword, mode: "insensitive" } },
       ]
     }
-    if (category) {
-      where.categoryId = category
+    if (effectiveCategoryId) {
+      where.categoryId = effectiveCategoryId
     }
     if (isPublished !== undefined) {
       where.isPublished = isPublished === "true"
+    }
+    if (exclude) {
+      where.id = { not: exclude }
     }
 
     // 查询数据
@@ -108,7 +116,7 @@ export async function GET(request: NextRequest) {
         },
         orderBy: { createdAt: "desc" },
         skip,
-        take: pageSize,
+        take,
       }),
       prisma.product.count({ where }),
     ])
