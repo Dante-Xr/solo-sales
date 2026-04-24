@@ -47,3 +47,14 @@ next-env.d.ts
 
 # agency-orchestrator local config
 .env
+
+#AI generated files
+.trae/documents/
+.trae/plans/
+.trae/specs/
+
+#ao
+ao-output/
+
+# Local documentation
+DEPLOYMENT.md
