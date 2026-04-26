@@ -47,13 +47,13 @@ const CarouselCard = React.memo(function CarouselCard({
               className="object-cover"
               priority={isActive}
             />
-            <div className="absolute top-4 right-4 bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse">
+            <div className="absolute top-4 right-4 bg-gradient-to-r from-brand-gradient-from to-brand-gradient-to text-brand-foreground text-xs font-bold px-3 py-1 rounded-full animate-pulse">
               🔥 {t('limitedOffer')}
             </div>
             <div className="absolute bottom-0 w-full bg-gradient-to-t from-black/80 to-transparent p-4 lg:p-6">
               <h3 className="text-white font-medium text-sm lg:text-base line-clamp-1">{product.name}</h3>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-red-500 dark:text-red-400 font-bold text-sm lg:text-base">${product.price}</span>
+                <span className="text-price font-bold text-sm lg:text-base">${product.price}</span>
                 <span className="text-muted-foreground text-xs lg:text-sm line-through">${product.originalPrice}</span>
               </div>
             </div>

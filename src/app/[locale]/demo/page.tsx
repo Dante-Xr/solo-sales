@@ -99,7 +99,7 @@ export default function DemoPage() {
             <Button variant="ghost" size="icon" className="relative" onClick={() => router.push('/cart')}>
               <ShoppingCart className="w-6 h-6" />
               {cartCount > 0 && (
-                <span className="absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="absolute top-0 right-0 -mt-1 -mr-1 bg-brand text-brand-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                   {cartCount}
                 </span>
               )}
@@ -136,7 +136,7 @@ export default function DemoPage() {
                       {t('product.sold')} {product.sales + soldRandom}
                     </div>
                     <div className="flex items-end justify-between">
-                      <span className="text-lg font-bold text-red-600 dark:text-red-500">${product.price}</span>
+                      <span className="text-lg font-bold text-price">${product.price}</span>
                       <Button
                         size="sm"
                         variant="outline"

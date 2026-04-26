@@ -67,7 +67,7 @@ export default function OrdersPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 relative">
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-red-500/5 to-pink-500/5 rounded-full blur-3xl" />
+          <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-brand-gradient-from/5 to-brand-gradient-to/5 rounded-full blur-3xl" />
           <div className="absolute top-1/3 -left-20 w-72 h-72 bg-gradient-to-br from-purple-500/5 to-blue-500/5 rounded-full blur-3xl" />
         </div>
         <div className="w-full max-w-[1440px] mx-auto relative">
@@ -76,8 +76,8 @@ export default function OrdersPage() {
               <div className="flex items-center justify-between h-16">
                 <div className="flex items-center gap-8">
                   <Link href="/" className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">S</span>
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gradient-from to-brand-gradient-to flex items-center justify-center">
+                      <span className="text-brand-foreground font-bold text-sm">S</span>
                     </div>
                     <span className="text-xl font-bold text-foreground hidden sm:block">SoloSales</span>
                   </Link>
@@ -105,7 +105,7 @@ export default function OrdersPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 relative">
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-red-500/5 to-pink-500/5 rounded-full blur-3xl" />
+        <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-brand-gradient-from/5 to-brand-gradient-to/5 rounded-full blur-3xl" />
         <div className="absolute top-1/3 -left-20 w-72 h-72 bg-gradient-to-br from-purple-500/5 to-blue-500/5 rounded-full blur-3xl" />
       </div>
 
@@ -115,8 +115,8 @@ export default function OrdersPage() {
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center gap-8">
                 <Link href="/" className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">S</span>
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gradient-from to-brand-gradient-to flex items-center justify-center">
+                    <span className="text-brand-foreground font-bold text-sm">S</span>
                   </div>
                   <span className="text-xl font-bold text-foreground hidden sm:block">SoloSales</span>
                 </Link>
@@ -174,7 +174,7 @@ export default function OrdersPage() {
                   <CardContent className="p-4 lg:p-6 space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 bg-muted rounded-lg overflow-hidden">
+                        <div className="w-16 h-16 bg-muted rounded-xl overflow-hidden">
                           {order.items[0]?.product.images?.[0] ? (
                             <img
                               src={order.items[0].product.images[0]}
@@ -200,7 +200,7 @@ export default function OrdersPage() {
                         <Badge className={`${statusLabels[order.status]?.color} text-white text-sm px-3 py-1`}>
                           {statusLabels[order.status]?.label || order.status}
                         </Badge>
-                        <p className="font-bold text-lg text-red-600 dark:text-red-500">
+                        <p className="font-bold text-lg text-price">
                           ${order.totalAmount.toFixed(2)}
                         </p>
                       </div>

@@ -32,12 +32,38 @@ function randomInterval(): number {
   return 5000 + Math.random() * 3000
 }
 
+/**
+ * 检测页面中是否存在底部栏（BottomNav 或结账栏）
+ * @returns 是否存在底部栏
+ */
+function hasBottomBar(): boolean {
+  if (typeof document === "undefined") return false
+  // 检测 BottomNav 组件（固定底部导航）
+  const bottomNav = document.querySelector("nav[aria-label]")
+  // 检测固定底部结账栏
+  const checkoutBar = document.querySelector(".fixed.bottom-0")
+  return !!(bottomNav || checkoutBar)
+}
+
 export function RecentPurchases() {
   const t = useTranslations("urgency")
   const [visible, setVisible] = useState(false)
   const [dismissed, setDismissed] = useState(false)
   const [message, setMessage] = useState("")
   const [timeLabel, setTimeLabel] = useState("")
+  /** 底部栏存在时增加偏移 */
+  const [bottomOffset, setBottomOffset] = useState(16)
+
+  /** 检测底部栏并调整偏移 */
+  useEffect(() => {
+    const checkBottomBar = () => {
+      setBottomOffset(hasBottomBar() ? 80 : 16)
+    }
+    checkBottomBar()
+    // 页面加载后延迟再次检测（底部栏可能延迟渲染）
+    const timer = setTimeout(checkBottomBar, 1000)
+    return () => clearTimeout(timer)
+  }, [])
 
   const showNotification = useCallback(() => {
     if (dismissed) return
@@ -75,7 +101,7 @@ export function RecentPurchases() {
   if (dismissed) return null
 
   return (
-    <div className="fixed bottom-4 left-4 z-50">
+    <div className="fixed left-4 z-50" style={{ bottom: `${bottomOffset}px` }}>
       <Card
         className={`shadow-lg border-none transition-all duration-500 ease-in-out max-w-[300px] ${
           visible

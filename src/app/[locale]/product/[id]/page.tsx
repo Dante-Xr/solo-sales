@@ -1,11 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useParams } from "next/navigation"
 import { useRouter, Link } from "@/i18n/navigation"
+import useEmblaCarousel from 'embla-carousel-react'
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Star, ShoppingCart, Heart, ShoppingBag, ArrowLeft, Sun, Moon, ChevronDown, ChevronUp, X, ZoomIn } from "lucide-react"
 import { EnhancedCheckoutModal } from "@/components/checkout/EnhancedCheckoutModal"
 import { useCartStore } from "@/stores/useCartStore"
@@ -43,6 +45,27 @@ export default function ProductDetailPage() {
   const [descExpanded, setDescExpanded] = useState(false)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [showImageModal, setShowImageModal] = useState(false)
+
+  // 移动端 embla 轮播
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true })
+  const [selectedIndex, setSelectedIndex] = useState(0)
+
+  // 监听轮播滑动，同步当前索引
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return
+    setSelectedIndex(emblaApi.selectedScrollSnap())
+  }, [emblaApi])
+
+  useEffect(() => {
+    if (!emblaApi) return
+    onSelect()
+    emblaApi.on('select', onSelect)
+    emblaApi.on('reInit', onSelect)
+    return () => {
+      emblaApi.off('select', onSelect)
+      emblaApi.off('reInit', onSelect)
+    }
+  }, [emblaApi, onSelect])
 
   useEffect(() => {
     const productId = params.id as string
@@ -122,7 +145,7 @@ export default function ProductDetailPage() {
 
   return (
     <ViewportWrapper>
-      <div className="min-h-screen bg-background relative pb-20 md:pb-0">
+      <div className="min-h-screen bg-background relative pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">
         <div className="w-full max-w-[1440px] mx-auto">
           {/* Header */}
           <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-md border-b">
@@ -133,10 +156,10 @@ export default function ProductDetailPage() {
                     <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
                   </Button>
                   <Link href="/" className="flex items-center gap-1.5 md:gap-2">
-                    <div className="w-6 h-6 md:w-7 md:h-7 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
-                      <span className="text-white font-bold text-[10px] md:text-xs">S</span>
+                    <div className="w-6 h-6 md:w-7 md:h-7 rounded-full bg-gradient-to-br from-brand-gradient-from to-brand-gradient-to flex items-center justify-center">
+                      <span className="text-brand-foreground font-bold text-[10px] md:text-xs">S</span>
                     </div>
-                    <span className="text-sm md:text-base font-bold hidden sm:inline">Solo Sales</span>
+                    <span className="text-sm md:text-base font-bold text-foreground hidden sm:inline">Solo Sales</span>
                   </Link>
                 </div>
                 {/* Mobile: Hamburger Menu + Cart */}
@@ -145,7 +168,7 @@ export default function ProductDetailPage() {
                   <Button variant="ghost" size="icon" className="relative w-8 h-8" onClick={() => router.push("/cart")}>
                     <ShoppingBag className="w-4 h-4" />
                     {cartCount > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center">{cartCount}</span>
+                      <span className="absolute -top-0.5 -right-0.5 bg-brand text-brand-foreground text-[9px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center">{cartCount}</span>
                     )}
                   </Button>
                 </div>
@@ -159,7 +182,7 @@ export default function ProductDetailPage() {
                   <Button variant="ghost" size="icon" className="relative w-9 h-9" onClick={() => router.push("/cart")}>
                     <ShoppingBag className="w-4 h-4" />
                     {cartCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">{cartCount}</span>
+                      <span className="absolute -top-1 -right-1 bg-brand text-brand-foreground text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">{cartCount}</span>
                     )}
                   </Button>
                 </div>
@@ -181,50 +204,64 @@ export default function ProductDetailPage() {
 
               {/* 价格 */}
               <div className="flex items-baseline gap-2 mb-3">
-                <span className="text-2xl font-black text-red-600">${detailProduct.price}</span>
+                <span className="text-2xl font-black text-price">${detailProduct.price}</span>
                 <span className="text-sm text-muted-foreground line-through">${detailProduct.originalPrice}</span>
-                <Badge variant="destructive" className="text-xs">{discount}% OFF</Badge>
+                <Badge className="bg-brand text-brand-foreground text-xs">{discount}% OFF</Badge>
               </div>
 
-              {/* 图片画廊 - 在标题下方 */}
+              {/* 图片画廊 - embla 轮播手势滑动 */}
               <div className="mb-3">
-                <div className="relative aspect-square bg-muted rounded-lg overflow-hidden">
-                  {productImages.length > 0 && (
-                    <Image
-                      src={productImages[selectedImageIndex]}
-                      alt={detailProduct.name}
-                      fill
-                      className="object-cover cursor-zoom-in"
-                      onClick={() => setShowImageModal(true)}
-                      sizes="100vw"
-                      priority
-                    />
-                  )}
-                  <Badge className="absolute top-2 left-2 bg-red-500 text-xs z-10">{t('product.limitedOffer')}</Badge>
-                  <button
-                    onClick={() => toggleWishlist(product.id)}
-                    className="absolute top-2 right-2 w-9 h-9 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center z-10"
-                  >
-                    <Heart className={`w-5 h-5 ${inWishlist ? 'fill-red-500 text-red-500' : ''}`} />
-                  </button>
-                  <button
-                    onClick={() => setShowImageModal(true)}
-                    className="absolute bottom-2 right-2 w-8 h-8 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center z-10"
-                  >
-                    <ZoomIn className="w-4 h-4" />
-                  </button>
-                </div>
-                {/* 缩略图 */}
-                {productImages.length > 1 && (
-                  <div className="flex gap-2 mt-2 overflow-x-auto">
+                <div className="overflow-hidden" ref={emblaRef}>
+                  <div className="flex">
                     {productImages.map((img, idx) => (
+                      <div key={idx} className="flex-none w-full">
+                        <div className="relative aspect-square bg-muted rounded-xl overflow-hidden">
+                          {productImages.length > 0 && (
+                            <Image
+                              src={img}
+                              alt={`${detailProduct.name} ${idx + 1}`}
+                              fill
+                              className="object-cover cursor-zoom-in"
+                              onClick={() => {
+                                setSelectedImageIndex(idx)
+                                setShowImageModal(true)
+                              }}
+                              sizes="100vw"
+                              priority={idx === 0}
+                            />
+                          )}
+                          {idx === 0 && (
+                            <Badge className="absolute top-2 left-2 bg-brand text-brand-foreground text-xs z-10">{t('product.limitedOffer')}</Badge>
+                          )}
+                          <button
+                            onClick={() => toggleWishlist(product.id)}
+                            className="absolute top-2 right-2 w-9 h-9 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center z-10"
+                          >
+                            <Heart className={`w-5 h-5 ${inWishlist ? 'fill-red-500 text-red-500' : ''}`} />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedImageIndex(idx)
+                              setShowImageModal(true)
+                            }}
+                            className="absolute bottom-2 right-2 w-8 h-8 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center z-10"
+                          >
+                            <ZoomIn className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* 指示器小圆点 */}
+                {productImages.length > 1 && (
+                  <div className="flex justify-center gap-1.5 mt-3">
+                    {productImages.map((_, i) => (
                       <button
-                        key={idx}
-                        onClick={() => setSelectedImageIndex(idx)}
-                        className={`relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden border-2 ${idx === selectedImageIndex ? 'border-primary' : 'border-transparent'}`}
-                      >
-                        <Image src={img} alt={`${detailProduct.name} ${idx + 1}`} fill className="object-cover" sizes="64px" />
-                      </button>
+                        key={i}
+                        className={`w-2 h-2 rounded-full transition-all ${i === selectedIndex ? 'bg-brand w-4' : 'bg-muted-foreground/30'}`}
+                        onClick={() => emblaApi?.scrollTo(i)}
+                      />
                     ))}
                   </div>
                 )}
@@ -280,7 +317,7 @@ export default function ProductDetailPage() {
             <div className="hidden md:flex md:gap-6 lg:gap-8">
               {/* 左侧图片 */}
               <div className="md:w-1/2 lg:w-5/12 md:sticky md:top-16 md:self-start">
-                <div className="relative aspect-[4/3] bg-muted rounded-lg overflow-hidden">
+                <div className="relative aspect-[4/3] bg-muted rounded-xl overflow-hidden">
                   {productImages.length > 0 && (
                     <Image
                       src={productImages[selectedImageIndex]}
@@ -292,7 +329,7 @@ export default function ProductDetailPage() {
                       priority
                     />
                   )}
-                  <Badge className="absolute top-3 left-3 bg-red-500 z-10">{t('product.limitedOffer')}</Badge>
+                  <Badge className="absolute top-3 left-3 bg-brand text-brand-foreground z-10">{t('product.limitedOffer')}</Badge>
                   <button onClick={() => toggleWishlist(product.id)} className="absolute top-3 right-3 w-9 h-9 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center z-10">
                     <Heart className={`w-5 h-5 ${inWishlist ? 'fill-red-500 text-red-500' : ''}`} />
                   </button>
@@ -300,7 +337,7 @@ export default function ProductDetailPage() {
                 {productImages.length > 1 && (
                   <div className="flex gap-2 mt-3">
                     {productImages.map((img, idx) => (
-                      <button key={idx} onClick={() => setSelectedImageIndex(idx)} className={`relative w-20 h-20 rounded-lg overflow-hidden border-2 ${idx === selectedImageIndex ? 'border-primary' : 'border-transparent'}`}>
+                      <button key={idx} onClick={() => setSelectedImageIndex(idx)} className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 ${idx === selectedImageIndex ? 'border-primary' : 'border-transparent'}`}>
                         <Image src={img} alt={`${detailProduct.name} ${idx + 1}`} fill className="object-cover" sizes="80px" />
                       </button>
                     ))}
@@ -319,9 +356,9 @@ export default function ProductDetailPage() {
                 </div>
 
                 <div className="flex items-baseline gap-2 mb-4">
-                  <span className="text-3xl font-black text-red-600">${detailProduct.price}</span>
+                  <span className="text-3xl font-black text-price">${detailProduct.price}</span>
                   <span className="text-base text-muted-foreground line-through">${detailProduct.originalPrice}</span>
-                  <Badge variant="destructive">{discount}% OFF</Badge>
+                  <Badge className="bg-brand text-brand-foreground">{discount}% OFF</Badge>
                 </div>
 
                 <div className="flex items-center gap-2 mb-4">
@@ -330,37 +367,52 @@ export default function ProductDetailPage() {
                 </div>
 
                 <div className="mb-4">
-                  <p className="text-muted-foreground text-sm leading-relaxed">{detailProduct.description}</p>
-                </div>
-
-                <div className="mb-4">
                   <VariantSelector selectedVariant={selectedVariant} onSelect={setSelectedVariant} />
                 </div>
 
                 <div className="flex gap-2 mb-4">
-                  <Button variant="outline" className="flex-1 rounded-full h-11" onClick={handleAddToCart}>
+                  <Button variant="outline" className="flex-1 rounded-full h-11 border-brand text-brand hover:bg-brand/5" onClick={handleAddToCart}>
                     <ShoppingCart className="w-4 h-4 mr-2" />{t('cart.addToCart')}
                   </Button>
-                  <Button className="flex-1 rounded-full bg-red-600 hover:bg-red-700 h-11" onClick={() => setIsCheckoutOpen(true)}>
+                  <Button className="flex-1 rounded-full bg-brand hover:bg-brand/90 text-brand-foreground h-11" onClick={() => setIsCheckoutOpen(true)}>
                     {t('product.buyNow')}
                   </Button>
                 </div>
 
+                {/* 信任栏 - 独立显示在 Tabs 上方 */}
                 <div className="mb-4">
                   <TrustBar />
                 </div>
 
-                <Card className="mb-4">
-                  <CardContent className="p-4">
-                    <h3 className="font-bold mb-3">{t('product.details')}</h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between py-1.5 border-b"><span className="text-muted-foreground">{t('product.sku')}</span><span>{product.id.slice(0, 8)}...</span></div>
-                      <div className="flex justify-between py-1.5 border-b"><span className="text-muted-foreground">{t('product.rating')}</span><span className="text-yellow-500">{detailProduct.rating} / 5.0</span></div>
-                      <div className="flex justify-between py-1.5 border-b"><span className="text-muted-foreground">{t('product.sales')}</span><span>{detailProduct.sales} {t('product.units')}</span></div>
-                      <div className="flex justify-between py-1.5"><span className="text-muted-foreground">{t('product.stock')}</span><span className="text-green-600">{t('product.inStock')}</span></div>
-                    </div>
-                  </CardContent>
-                </Card>
+                {/* PC端信息 Tabs：描述 | 规格 | 评价 */}
+                <Tabs defaultValue="description" className="mb-4">
+                  <TabsList variant="line">
+                    <TabsTrigger value="description">{t('product.description')}</TabsTrigger>
+                    <TabsTrigger value="specs">{t('product.specifications')}</TabsTrigger>
+                    <TabsTrigger value="reviews">{t('product.reviews')}</TabsTrigger>
+                  </TabsList>
+                  {/* 描述 Tab */}
+                  <TabsContent value="description" className="mt-4">
+                    <p className="text-muted-foreground text-sm leading-relaxed">{detailProduct.description}</p>
+                  </TabsContent>
+                  {/* 规格 Tab */}
+                  <TabsContent value="specs" className="mt-4">
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between py-1.5 border-b"><span className="text-muted-foreground">{t('product.sku')}</span><span>{product.id.slice(0, 8)}...</span></div>
+                          <div className="flex justify-between py-1.5 border-b"><span className="text-muted-foreground">{t('product.rating')}</span><span className="text-yellow-500">{detailProduct.rating} / 5.0</span></div>
+                          <div className="flex justify-between py-1.5 border-b"><span className="text-muted-foreground">{t('product.sales')}</span><span>{detailProduct.sales} {t('product.units')}</span></div>
+                          <div className="flex justify-between py-1.5"><span className="text-muted-foreground">{t('product.stock')}</span><span className="text-green-600">{t('product.inStock')}</span></div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                  {/* 评价 Tab */}
+                  <TabsContent value="reviews" className="mt-4">
+                    <ProductReviews productId={product.id} />
+                  </TabsContent>
+                </Tabs>
 
                 <div className="mb-4">
                   <ShareMenu title={shareTitle} text={shareText} url={shareUrl} />
@@ -368,10 +420,12 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            {/* 底部内容 */}
+            {/* 底部内容 - ProductReviews 在 PC 端已移入 Tabs，仅移动端显示 */}
             <div className="mt-6 space-y-6">
               {categoryId && <RelatedProducts categoryId={categoryId} currentProductId={product.id} />}
-              <ProductReviews productId={product.id} />
+              <div className="md:hidden">
+                <ProductReviews productId={product.id} />
+              </div>
             </div>
           </main>
         </div>
@@ -380,13 +434,13 @@ export default function ProductDetailPage() {
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t md:hidden safe-area-pb">
           <div className="flex items-center gap-2 p-2 px-3">
             <div className="flex-shrink-0">
-              <div className="text-lg font-black text-red-600">${detailProduct.price}</div>
+              <div className="text-lg font-black text-price">${detailProduct.price}</div>
               <div className="text-xs text-muted-foreground line-through">${detailProduct.originalPrice}</div>
             </div>
-            <Button variant="outline" size="sm" className="flex-1 rounded-full h-10" onClick={handleAddToCart}>
+            <Button variant="outline" size="sm" className="flex-1 rounded-full h-10 border-brand text-brand hover:bg-brand/5" onClick={handleAddToCart}>
               <ShoppingCart className="w-4 h-4 mr-1" />{t('cart.addToCart')}
             </Button>
-            <Button size="sm" className="flex-1 rounded-full bg-red-600 hover:bg-red-700 h-10" onClick={() => setIsCheckoutOpen(true)}>
+            <Button size="sm" className="flex-1 rounded-full bg-brand hover:bg-brand/90 text-brand-foreground h-10" onClick={() => setIsCheckoutOpen(true)}>
               {t('product.buyNow')}
             </Button>
           </div>
@@ -404,7 +458,7 @@ export default function ProductDetailPage() {
             {productImages.length > 1 && (
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
                 {productImages.map((img, idx) => (
-                  <button key={idx} onClick={(e) => { e.stopPropagation(); setSelectedImageIndex(idx); }} className={`w-12 h-12 rounded-lg overflow-hidden border-2 ${idx === selectedImageIndex ? 'border-white' : 'border-white/30'}`}>
+                  <button key={idx} onClick={(e) => { e.stopPropagation(); setSelectedImageIndex(idx); }} className={`w-12 h-12 rounded-xl overflow-hidden border-2 ${idx === selectedImageIndex ? 'border-white' : 'border-white/30'}`}>
                     <Image src={img} alt={`${detailProduct.name} ${idx + 1}`} width={48} height={48} className="object-cover" />
                   </button>
                 ))}

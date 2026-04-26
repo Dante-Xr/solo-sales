@@ -35,7 +35,7 @@ const ProductCard = React.memo(function ProductCard({
   return (
     <button
       type="button"
-      className="w-full text-left group cursor-pointer overflow-hidden border-border/50 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-105 rounded-lg"
+      className="w-full text-left group cursor-pointer overflow-hidden border-border/50 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-105 rounded-xl"
       onClick={handleClick}
     >
       <div className="relative aspect-square overflow-hidden bg-muted">
@@ -47,7 +47,7 @@ const ProductCard = React.memo(function ProductCard({
           sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
         />
         {discount > 0 && (
-          <div className="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
+          <div className="absolute top-3 left-3 bg-gradient-to-r from-brand-gradient-from to-brand-gradient-to text-brand-foreground text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
             <Flame className="w-3 h-3" />
             -{discount}%
           </div>
@@ -64,7 +64,7 @@ const ProductCard = React.memo(function ProductCard({
           {product.name}
         </h3>
         <div className="flex items-center gap-2 mt-3">
-          <span className="text-lg font-bold text-red-500 dark:text-red-400">
+          <span className="text-lg font-bold text-price">
             ${product.price}
           </span>
           {discount > 0 && (
@@ -80,7 +80,7 @@ const ProductCard = React.memo(function ProductCard({
 
 function ProductCardSkeleton() {
   return (
-    <div className="w-full overflow-hidden border-border/50 rounded-lg animate-pulse">
+    <div className="w-full overflow-hidden border-border/50 rounded-xl animate-pulse">
       <Skeleton className="aspect-square w-full rounded-none" />
       <div className="p-4 space-y-3">
         <Skeleton className="h-4 w-full" />

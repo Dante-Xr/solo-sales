@@ -85,7 +85,7 @@ export function UserMenu() {
       >
         {session?.user ? (
           // 已登录：显示用户头像首字母
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-white font-medium text-sm">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gradient-from to-brand-gradient-to flex items-center justify-center text-brand-foreground font-medium text-sm">
             {userName.charAt(0).toUpperCase()}
           </div>
         ) : (

@@ -5,8 +5,17 @@ import { useLocale, useTranslations } from "next-intl"
 import { usePathname, useRouter } from "@/i18n/navigation"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
-import { Menu, X, Globe, Sun, Moon, Monitor, Smartphone, Check } from "lucide-react"
+import { Menu, X, Globe, Sun, Moon, Monitor, Smartphone, Check, Home, ShoppingBag, User, Search } from "lucide-react"
 import { useViewportModeStore } from "@/stores/useViewportModeStore"
+import { Link } from "@/i18n/navigation"
+
+/** 页面导航链接配置 */
+const PAGE_NAV_LINKS = [
+  { href: "/", labelKey: "nav.home", icon: Home },
+  { href: "/search", labelKey: "nav.shop", icon: Search },
+  { href: "/cart", labelKey: "nav.cart", icon: ShoppingBag },
+  { href: "/profile", labelKey: "nav.profile", icon: User },
+]
 
 const LANGUAGES = [
   { code: "zh" as const, label: "中文" },
@@ -67,6 +76,28 @@ export function MobileMenu() {
 
       {isOpen && (
         <div className="absolute right-0 top-full mt-1 w-56 bg-popover border border-border rounded-lg shadow-lg z-50 py-1 animate-in fade-in-0 zoom-in-95">
+          {/* 页面导航链接 */}
+          <div className="px-3 py-2 text-xs font-medium text-muted-foreground border-b">
+            {t("nav.shopName")}
+          </div>
+          {PAGE_NAV_LINKS.map((link) => {
+            const Icon = link.icon
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setIsOpen(false)}
+                className="w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-accent transition-colors"
+              >
+                <Icon className="w-4 h-4" />
+                {t(link.labelKey)}
+              </Link>
+            )
+          })}
+
+          {/* Divider */}
+          <div className="border-t my-1" />
+
           {/* Language Section */}
           <div className="px-3 py-2 text-xs font-medium text-muted-foreground border-b">
             Language/语言

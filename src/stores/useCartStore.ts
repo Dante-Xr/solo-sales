@@ -1,53 +1,42 @@
 /**
- * ============================================
- * 购物车状态管理 (v0.11.0)
- * ============================================
- * 创建日期: 2026-04-13
- * 创建时间: 16:38
+ * 购物车状态管理 (v1.3)
  * 功能说明：
  *   - 管理购物车状态（添加/删除/更新/清空商品）
- *   - 自动计算购物车总价和商品总数量
+ *   - 商品选中状态管理（全选/取消全选/单选）
+ *   - 批量删除已选商品
+ *   - 自动计算购物车总价、商品总数量、已选商品总价
  *   - 使用 Zustand persist middleware 实现 localStorage 持久化
- *   - 解决 React Context 导致的全局重渲染问题
- * ============================================
  */
 
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
-/**
- * 购物车商品项接口
- * @description 包含商品基本信息及数量
- */
 export interface CartItem {
   id: string
   name: string
   price: number
+  originalPrice?: number
   quantity: number
   image: string
+  selected?: boolean
 }
 
-/**
- * 购物车状态接口
- * @description 定义购物车 store 的完整状态和方法
- */
 interface CartState {
   cart: CartItem[]
-  addToCart: (item: Omit<CartItem, "quantity">) => void
+  addToCart: (item: Omit<CartItem, "quantity" | "selected">) => void
   removeFromCart: (id: string) => void
   updateQuantity: (id: string, quantity: number) => void
+  toggleSelect: (id: string) => void
+  toggleSelectAll: () => void
+  removeSelected: () => void
   clearCart: () => void
   cartTotal: number
   cartCount: number
+  selectedTotal: number
+  selectedCount: number
+  isAllSelected: boolean
 }
 
-/**
- * 购物车 Store
- * @description 使用 Zustand 替代 React Context
- * - persist middleware: 自动将购物车数据持久化到 localStorage
- * - partialize: 只持久化 cart 数组，不持久化派生值（cartTotal/cartCount）
- * - subscribe: 监听 cart 变化，自动重新计算 cartTotal 和 cartCount
- */
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
@@ -64,7 +53,7 @@ export const useCartStore = create<CartState>()(
               ),
             }
           }
-          return { cart: [...state.cart, { ...product, quantity: 1 }] }
+          return { cart: [...state.cart, { ...product, quantity: 1, selected: true }] }
         })
       },
       removeFromCart: (id) => {
@@ -80,9 +69,30 @@ export const useCartStore = create<CartState>()(
           ),
         }))
       },
+      toggleSelect: (id) => {
+        set((state) => ({
+          cart: state.cart.map((item) =>
+            item.id === id ? { ...item, selected: !item.selected } : item
+          ),
+        }))
+      },
+      toggleSelectAll: () => {
+        const { cart, isAllSelected } = get()
+        set({
+          cart: cart.map((item) => ({ ...item, selected: !isAllSelected })),
+        })
+      },
+      removeSelected: () => {
+        set((state) => ({
+          cart: state.cart.filter((item) => !item.selected),
+        }))
+      },
       clearCart: () => set({ cart: [] }),
       cartTotal: 0,
       cartCount: 0,
+      selectedTotal: 0,
+      selectedCount: 0,
+      isAllSelected: false,
     }),
     {
       name: "solo:cart",
@@ -98,18 +108,22 @@ export const useCartStore = create<CartState>()(
             (count, item) => count + item.quantity,
             0
           )
+          const selected = cart.filter((item) => item.selected)
+          state.selectedTotal = selected.reduce(
+            (total, item) => total + item.price * item.quantity,
+            0
+          )
+          state.selectedCount = selected.reduce(
+            (count, item) => count + item.quantity,
+            0
+          )
+          state.isAllSelected = cart.length > 0 && cart.every((item) => item.selected)
         }
       },
     }
   )
 )
 
-/**
- * 订阅 cart 变化，自动计算派生值
- * @description 当 cart 数组变化时，自动重新计算 cartTotal 和 cartCount
- *   - cartTotal: 所有商品的总价（price * quantity 求和）
- *   - cartCount: 所有商品的总数量
- */
 useCartStore.subscribe((state) => {
   const cartTotal = state.cart.reduce(
     (total, item) => total + item.price * item.quantity,
@@ -119,7 +133,24 @@ useCartStore.subscribe((state) => {
     (count, item) => count + item.quantity,
     0
   )
-  if (state.cartTotal !== cartTotal || state.cartCount !== cartCount) {
-    useCartStore.setState({ cartTotal, cartCount })
+  const selected = state.cart.filter((item) => item.selected)
+  const selectedTotal = selected.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  )
+  const selectedCount = selected.reduce(
+    (count, item) => count + item.quantity,
+    0
+  )
+  const isAllSelected = state.cart.length > 0 && state.cart.every((item) => item.selected)
+
+  if (
+    state.cartTotal !== cartTotal ||
+    state.cartCount !== cartCount ||
+    state.selectedTotal !== selectedTotal ||
+    state.selectedCount !== selectedCount ||
+    state.isAllSelected !== isAllSelected
+  ) {
+    useCartStore.setState({ cartTotal, cartCount, selectedTotal, selectedCount, isAllSelected })
   }
 })

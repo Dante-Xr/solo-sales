@@ -70,7 +70,7 @@ export function UpsellRecommendation({ isZh = false }: UpsellRecommendationProps
                 key={product.id}
                 className="flex-shrink-0 w-[160px] space-y-2"
               >
-                <div className="relative aspect-square rounded-lg overflow-hidden bg-muted">
+                <div className="relative aspect-square rounded-xl overflow-hidden bg-muted">
                   <img
                     src={product.images[0] || "/placeholder.jpg"}
                     alt={product.name}

@@ -18,7 +18,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
-import { Toaster } from "sonner";
+import { ClientLayout } from "@/components/providers/ClientLayout"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -55,12 +55,14 @@ export default async function RootLayout({
           <ThemeProvider>
             <AuthProvider>
               <TooltipProvider>
-                <QueryProvider>{children}</QueryProvider>
+                <QueryProvider>
+                  {children}
+                  <ClientLayout />
+                </QueryProvider>
               </TooltipProvider>
             </AuthProvider>
           </ThemeProvider>
         </NextIntlClientProvider>
-        <Toaster position="top-center" richColors />
       </body>
     </html>
   );

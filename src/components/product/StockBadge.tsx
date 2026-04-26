@@ -22,7 +22,7 @@ export function StockBadge({ stock }: StockBadgeProps) {
 
   if (stock <= 10) {
     return (
-      <Badge className="bg-red-500 hover:bg-red-600 border-none text-white text-xs px-2.5 py-1">
+      <Badge className="bg-brand hover:bg-brand/90 border-none text-brand-foreground text-xs px-2.5 py-1">
         {t("onlyLeft", { count: stock })}
       </Badge>
     )

@@ -88,7 +88,7 @@ export default function OrderDetailPage() {
   if (isPending || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-red-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-brand" />
       </div>
     )
   }
@@ -210,7 +210,7 @@ export default function OrderDetailPage() {
                   <div className="flex-1">
                     <p className="font-medium line-clamp-2">{item.product.name}</p>
                     <p className="text-sm text-gray-500 mt-1">x{item.quantity}</p>
-                    <p className="font-bold text-red-600 mt-1">
+                    <p className="font-bold text-price mt-1">
                       ${item.price.toFixed(2)}
                     </p>
                   </div>
@@ -221,7 +221,7 @@ export default function OrderDetailPage() {
 
               <div className="flex justify-between items-center">
                 <span className="font-medium">{t("common.total")}</span>
-                <span className="text-xl font-bold text-red-600">
+                <span className="text-xl font-bold text-price">
                   ${order.totalAmount.toFixed(2)}
                 </span>
               </div>

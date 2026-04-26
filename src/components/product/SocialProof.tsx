@@ -127,10 +127,10 @@ export function SocialProof({
             {todaySales !== undefined && todaySales > 0 && (
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
-                  <Flame size={16} className="text-red-600" />
+                  <Flame size={16} className="text-price" />
                 </div>
                 <div>
-                  <p className="text-lg font-bold text-red-600">
+                  <p className="text-lg font-bold text-price">
                     {formatNumber(todaySales)}
                   </p>
                   <p className="text-xs text-muted-foreground">今日销量</p>
@@ -165,7 +165,7 @@ export function SocialProof({
       )}
 
       {todaySales !== undefined && todaySales > 0 && (
-        <div className="flex items-center gap-1.5 text-red-600">
+        <div className="flex items-center gap-1.5 text-price">
           <Flame size={16} />
           <span>
             今日 <strong>{formatNumber(todaySales)}</strong> 件

@@ -46,14 +46,7 @@ export function LanguageSwitcher() {
   const handleSelect = (newLocale: string) => {
     setIsOpen(false)
     if (newLocale === locale) return
-
-    const pathParts = pathname.split("/")
-    if (pathParts.length >= 2) {
-      pathParts[1] = newLocale
-      const newPath = pathParts.join("/")
-      router.push(newPath)
-      setTimeout(() => router.refresh(), 100)
-    }
+    router.push(pathname, { locale: newLocale as "zh" | "en" })
   }
 
   return (

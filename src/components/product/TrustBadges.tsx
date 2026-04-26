@@ -85,7 +85,7 @@ export function TrustBadges({
         {badges.map((badge, index) => (
           <div
             key={index}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${colorStyles[badge.color]}`}
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl border ${colorStyles[badge.color]}`}
           >
             {badge.icon}
             <div>
@@ -114,13 +114,13 @@ export function TrustBadges({
     )
   }
 
-  // 默认 grid 模式
+  // 默认 grid 模式 - 移动端横向滚动，PC端网格
   return (
-    <div className={`grid grid-cols-2 md:grid-cols-4 gap-3 ${className}`}>
+    <div className={`flex overflow-x-auto gap-3 md:grid md:grid-cols-4 pb-2 md:pb-0 snap-x snap-mandatory scrollbar-hide ${className}`}>
       {badges.map((badge, index) => (
         <div
           key={index}
-          className={`flex flex-col items-center text-center p-4 rounded-lg border ${colorStyles[badge.color]}`}
+          className={`flex flex-col items-center text-center p-4 rounded-lg border min-w-[140px] md:min-w-0 snap-start shrink-0 md:shrink ${colorStyles[badge.color]}`}
         >
           <div className="mb-2">{badge.icon}</div>
           <p className="text-sm font-semibold">{badge.title}</p>
@@ -200,7 +200,7 @@ export function TrustBar({
             {defaultBadges.map((badge, index) => (
               <div
                 key={index}
-                className={`flex flex-col items-center text-center p-2 rounded-lg border ${colorStyles[badge.color]}`}
+                className={`flex flex-col items-center text-center p-2 rounded-xl border ${colorStyles[badge.color]}`}
               >
                 <div className="mb-1 scale-75">{badge.icon}</div>
                 <p className="text-xs font-semibold">{badge.title}</p>

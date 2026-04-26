@@ -222,7 +222,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               <User className="w-5 h-5" />
             </button>
             <button
-              onClick={() => router.push(`/${locale === 'zh' ? 'en' : 'zh'}/admin`)}
+              onClick={() => router.push(pathname, { locale: locale === 'zh' ? 'en' : 'zh' })}
               className="p-2 rounded-md hover:bg-muted"
               aria-label={t('switchLanguage')}
             >
@@ -314,7 +314,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             <span className="font-semibold text-lg">{t('shopName')}</span>
             <div className="flex items-center gap-1">
               <button
-                onClick={() => router.push(`/${locale === 'zh' ? 'en' : 'zh'}/admin`)}
+                onClick={() => router.push(pathname, { locale: locale === 'zh' ? 'en' : 'zh' })}
                 className="p-2 rounded-md hover:bg-muted"
                 aria-label={t('switchLanguage')}
               >

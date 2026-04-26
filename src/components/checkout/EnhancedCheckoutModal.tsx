@@ -1,6 +1,6 @@
 "use client"
 
-// 2026-04-13: 更新为使用 next-intl 国际化
+// 2026-04-26: 移动端 Sheet 化 + CSS 变量类名替代硬编码颜色
 
 import { useState } from "react"
 import { useSession } from "@/lib/auth-client"
@@ -12,6 +12,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -21,6 +28,7 @@ import { GuestCheckoutData } from "@/components/auth/GuestCheckoutForm"
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 import { useRouter } from "@/i18n/navigation"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 // 增强版结账弹窗 Props 接口
 interface EnhancedCheckoutModalProps {
@@ -51,6 +59,7 @@ interface ShippingInfo {
 
 // 增强版结账弹窗组件
 // 功能：双重结账路径（登录用户/访客）、收货信息填写、订单创建
+// 移动端使用 Sheet（底部弹出），PC 端使用 Dialog（居中弹窗）
 export function EnhancedCheckoutModal({
   isOpen,
   onClose,
@@ -63,6 +72,8 @@ export function EnhancedCheckoutModal({
   const t = useTranslations()
   const router = useRouter()
   const { csrfHeaders } = useCsrfToken()
+  const isMobile = useIsMobile()  // 检测是否为移动端
+
   const [showAuthModal, setShowAuthModal] = useState(false)  // 是否显示认证弹窗
   const [authMode, setAuthMode] = useState<"login" | "register" | "guest">('login')  // 认证弹窗模式
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({  // 收货信息
@@ -187,8 +198,8 @@ export function EnhancedCheckoutModal({
   const renderCheckoutForm = () => (
     <div className="space-y-4">
       {/* 订单摘要 */}
-      <div className="bg-gray-50 p-4 rounded-lg">
-        <p className="text-sm text-gray-500 mb-1">
+      <div className="bg-brand/5 p-4 rounded-lg">
+        <p className="text-sm text-muted-foreground mb-1">
           {isCart ? t('checkout.cartItems') : t('checkout.product')}
         </p>
         <p className="font-medium line-clamp-2">
@@ -196,7 +207,7 @@ export function EnhancedCheckoutModal({
             ? t('checkout.totalItems', { count: cartItems.length })
             : product.name}
         </p>
-        <p className="text-xl font-bold text-red-600 mt-2">
+        <p className="text-xl font-bold text-brand mt-2">
           ${totalAmount.toFixed(2)}
         </p>
       </div>
@@ -244,12 +255,12 @@ export function EnhancedCheckoutModal({
       </div>
 
       {/* 错误提示 */}
-      {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+      {error && <p className="text-destructive text-sm text-center">{error}</p>}
 
       {/* 操作按钮 */}
       <div className="space-y-2">
         <Button
-          className="w-full bg-[#635BFF] hover:bg-[#5851df] text-white"
+          className="w-full bg-brand hover:bg-brand/90 text-brand-foreground"
           onClick={handleAuthenticatedCheckout}
           disabled={loading}
         >
@@ -279,16 +290,16 @@ export function EnhancedCheckoutModal({
   const renderGuestOptions = () => (
     <div className="space-y-4">
       {/* 订单金额展示 */}
-      <div className="bg-gray-50 p-4 rounded-lg">
-        <p className="text-sm text-gray-500 mb-1">{t('checkout.orderTotal')}</p>
-        <p className="text-xl font-bold text-red-600">
+      <div className="bg-brand/5 p-4 rounded-lg">
+        <p className="text-sm text-muted-foreground mb-1">{t('checkout.orderTotal')}</p>
+        <p className="text-xl font-bold text-brand">
           ${totalAmount.toFixed(2)}
         </p>
       </div>
 
       {/* 登录按钮 */}
       <Button
-        className="w-full bg-[#635BFF] hover:bg-[#5851df] text-white"
+        className="w-full bg-brand hover:bg-brand/90 text-brand-foreground"
         onClick={() => {
           setAuthMode('login')
           setShowAuthModal(true)
@@ -303,7 +314,7 @@ export function EnhancedCheckoutModal({
           <span className="w-full border-t" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white px-2 text-gray-500">{t('common.or')}</span>
+          <span className="bg-background px-2 text-muted-foreground">{t('common.or')}</span>
         </div>
       </div>
 
@@ -333,22 +344,42 @@ export function EnhancedCheckoutModal({
     </div>
   )
 
+  // 弹窗主体内容（Dialog 和 Sheet 共用）
+  const modalContent = session ? renderCheckoutForm() : renderGuestOptions()
+
+  // 弹窗标题区域
+  const modalTitle = t('checkout.confirmOrder')
+  const modalDescription = session
+    ? t('checkout.fillShippingInfo')
+    : t('checkout.loginOrGuest')
+
   return (
     <>
-      {/* 主结账弹窗 */}
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold">{t('checkout.confirmOrder')}</DialogTitle>
-            <DialogDescription>
-              {session ? t('checkout.fillShippingInfo') : t('checkout.loginOrGuest')}
-            </DialogDescription>
-          </DialogHeader>
+      {/* PC 端：居中 Dialog 弹窗 */}
+      {!isMobile && (
+        <Dialog open={isOpen} onOpenChange={onClose}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold">{modalTitle}</DialogTitle>
+              <DialogDescription>{modalDescription}</DialogDescription>
+            </DialogHeader>
+            {modalContent}
+          </DialogContent>
+        </Dialog>
+      )}
 
-          {/* 根据是否登录显示不同内容 */}
-          {session ? renderCheckoutForm() : renderGuestOptions()}
-        </DialogContent>
-      </Dialog>
+      {/* 移动端：底部 Sheet 弹出 */}
+      {isMobile && (
+        <Sheet open={isOpen} onOpenChange={onClose}>
+          <SheetContent side="bottom" className="h-[90vh] rounded-t-2xl overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle className="text-xl font-bold">{modalTitle}</SheetTitle>
+              <SheetDescription>{modalDescription}</SheetDescription>
+            </SheetHeader>
+            {modalContent}
+          </SheetContent>
+        </Sheet>
+      )}
 
       {/* 认证弹窗 */}
       <AuthModal

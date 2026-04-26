@@ -39,6 +39,16 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  /* 品牌与语义色彩 */
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-gradient-from: var(--brand-gradient-from);
+  --color-brand-gradient-to: var(--brand-gradient-to);
+  --color-price: var(--price);
+  --color-price-foreground: var(--price-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -46,6 +56,16 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  /* 品牌与语义色彩注册 */
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-gradient-from: var(--brand-gradient-from);
+  --color-brand-gradient-to: var(--brand-gradient-to);
+  --color-price: var(--price);
+  --color-price-foreground: var(--price-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
 }
 
 :root {
@@ -81,6 +101,16 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  /* 品牌与语义色彩 */
+  --brand: oklch(0.55 0.24 25);
+  --brand-foreground: oklch(0.98 0 0);
+  --brand-gradient-from: oklch(0.6 0.25 20);
+  --brand-gradient-to: oklch(0.55 0.22 350);
+  --price: oklch(0.55 0.24 25);
+  --price-foreground: inherit;
+  --success: oklch(0.52 0.17 145);
+  --warning: oklch(0.6 0.16 75);
+  --info: oklch(0.5 0.18 250);
 }
 
 .dark {
@@ -115,6 +145,16 @@
   --sidebar-accent-foreground: oklch(0.98 0 0);
   --sidebar-border: oklch(0.28 0.015 285);
   --sidebar-ring: oklch(0.5 0 0);
+  /* 品牌与语义色彩（暗色模式） */
+  --brand: oklch(0.7 0.24 20);
+  --brand-foreground: oklch(0.12 0 0);
+  --brand-gradient-from: oklch(0.65 0.24 15);
+  --brand-gradient-to: oklch(0.7 0.22 345);
+  --price: oklch(0.75 0.24 20);
+  --price-foreground: inherit;
+  --success: oklch(0.65 0.17 145);
+  --warning: oklch(0.7 0.16 75);
+  --info: oklch(0.65 0.18 250);
 }
 
 @layer base {
@@ -344,4 +384,37 @@
 [data-viewport="mobile"] select,
 [data-viewport="mobile"] textarea {
   font-size: 16px;
+}
+
+/* ============================================
+ * 排版阶梯工具类
+ * ============================================ */
+@layer utilities {
+  .heading-1 { @apply text-3xl font-bold tracking-tight; }
+  .heading-2 { @apply text-2xl font-bold tracking-tight; }
+  .heading-3 { @apply text-lg font-semibold; }
+  .body-lg   { @apply text-base font-normal; }
+  .body      { @apply text-sm font-normal; }
+  .caption   { @apply text-xs text-muted-foreground; }
+
+  @media (max-width: 767px) {
+    .heading-1 { @apply text-xl; }
+    .heading-2 { @apply text-lg; }
+    .heading-3 { @apply text-base; }
+  }
+
+  /* ============================================
+   * 间距工具类
+   * ============================================ */
+  .page-px { @apply px-4 md:px-6 lg:px-8; }
+  .page-py { @apply py-4 md:py-6 lg:py-8; }
+  .card-p  { @apply p-3 md:p-4 lg:p-6; }
+  .gap-compact { @apply gap-2; }
+  .gap-standard { @apply gap-4; }
+  .gap-relaxed { @apply gap-6; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
 }

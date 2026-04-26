@@ -44,7 +44,7 @@ export function WelcomeModal({ onClose, onClaim }: WelcomeModalProps) {
 
         {/* 内容 */}
         <div className="p-6 text-center">
-          <div className="text-4xl font-black text-red-500 dark:text-red-400 mb-2">$5 OFF</div>
+          <div className="text-4xl font-black text-price mb-2">$5 OFF</div>
           <p className="text-muted-foreground mb-6">
             {t("description")}
           </p>

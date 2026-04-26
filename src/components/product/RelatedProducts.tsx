@@ -93,7 +93,7 @@ export function RelatedProducts({ categoryId, currentProductId }: RelatedProduct
         <div className="flex gap-3">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="flex-none w-[140px] sm:w-[160px]">
-              <Skeleton className="aspect-square rounded-lg" />
+              <Skeleton className="aspect-square rounded-xl" />
               <Skeleton className="h-4 w-3/4 mt-2" />
               <Skeleton className="h-4 w-1/2 mt-1" />
             </div>
@@ -117,7 +117,7 @@ export function RelatedProducts({ categoryId, currentProductId }: RelatedProduct
                 className="flex-none w-[140px] sm:w-[160px] cursor-pointer group"
                 onClick={() => router.push(`/product/${product.id}`)}
               >
-                <div className="relative aspect-square bg-muted rounded-lg overflow-hidden">
+                <div className="relative aspect-square bg-muted rounded-xl overflow-hidden">
                   <Image
                     src={product.image}
                     alt={product.name}
@@ -126,14 +126,14 @@ export function RelatedProducts({ categoryId, currentProductId }: RelatedProduct
                     sizes="160px"
                   />
                   {product.discount && product.discount > 0 && (
-                    <Badge className="absolute top-2 left-2 bg-red-500 hover:bg-red-600 border-none text-[10px] px-1.5 py-0">
+                    <Badge className="absolute top-2 left-2 bg-brand hover:bg-brand/90 border-none text-brand-foreground text-[10px] px-1.5 py-0">
                       -{product.discount}%
                     </Badge>
                   )}
                 </div>
                 <p className="text-sm font-medium mt-2 line-clamp-1">{product.name}</p>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="text-sm font-bold text-red-600 dark:text-red-500">
+                  <span className="text-sm font-bold text-price">
                     ${product.price}
                   </span>
                   {product.originalPrice && (

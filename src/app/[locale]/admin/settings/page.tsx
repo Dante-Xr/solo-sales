@@ -23,13 +23,14 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useTranslations, useLocale } from "next-intl"
-import { useRouter } from "@/i18n/navigation"
+import { useRouter, usePathname } from "@/i18n/navigation"
 
 export default function SettingsPage() {
   const t = useTranslations('admin')
   const commonT = useTranslations('common')
   const locale = useLocale()
   const router = useRouter()
+  const pathname = usePathname()
   const isZh = locale === "zh"
 
   // 基本设置
@@ -77,7 +78,7 @@ export default function SettingsPage() {
 
   // 切换语言
   const handleLanguageChange = (newLanguage: "zh" | "en") => {
-    router.push(`/${newLanguage}/admin/settings`)
+    router.push(pathname, { locale: newLanguage })
   }
 
   return (

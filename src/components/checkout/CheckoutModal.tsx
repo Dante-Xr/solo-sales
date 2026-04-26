@@ -136,7 +136,7 @@ export function CheckoutModal({ isOpen, onClose, product }: CheckoutModalProps) 
           {/* 2026-03-23: 支付方式选择区：Stripe（信用卡）+ PayPal */}
           <div className="mt-4 flex flex-col gap-3">
             <Button
-              className="w-full bg-[#635BFF] hover:bg-[#5851df] text-white"
+              className="w-full bg-brand hover:bg-brand/90 text-brand-foreground"
               onClick={handleStripeCheckout}
               disabled={loadingStripe || loadingPayPal}
             >

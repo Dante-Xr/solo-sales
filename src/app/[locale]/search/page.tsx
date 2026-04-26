@@ -3,28 +3,47 @@
  * 搜索结果页面
  * ============================================
  * 功能说明：
- *   - 搜索商品
- *   - 展示搜索结果
- *   - 商品添加到购物车
+ *   - 搜索商品并展示结果
+ *   - PC 端：左侧筛选栏 + 右侧结果区
+ *   - 移动端：紧凑卡片网格 + Sheet 弹出筛选
+ *   - 排序功能（默认/价格/销量）
  * ============================================
  * 2026-04-13: 迁移到 next-intl 国际化方案
+ * 2026-04-26: 重构为 StorefrontPageLayout + 筛选侧栏
  */
 
 "use client"
 
-import { Suspense, useState } from "react"
+import { Suspense, useState, useCallback, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import { useRouter, Link } from "@/i18n/navigation"
-import { useEffect, useCallback } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { ArrowLeft, Search, ShoppingCart, ShoppingBag } from "lucide-react"
+import {
+  Search,
+  ShoppingCart,
+  SlidersHorizontal,
+  ArrowUpDown,
+} from "lucide-react"
 import { useCartStore } from "@/stores/useCartStore"
-import { useTranslations, useLocale } from "next-intl"
-import { useTheme } from "next-themes"
+import { useTranslations } from "next-intl"
+import { StorefrontPageLayout } from "@/components/storefront/StorefrontPageLayout"
+import {
+  SearchFilterSidebar,
+  DEFAULT_FILTERS,
+  type SearchFilters,
+} from "@/components/storefront/SearchFilterSidebar"
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
 
+/** 搜索商品数据结构 */
 interface SearchProduct {
   id: string
   name: string
@@ -32,8 +51,15 @@ interface SearchProduct {
   originalPrice: number
   image: string
   sales: number
+  category: string
+  rating: number
+  inStock: boolean
 }
 
+/** 排序类型 */
+type SortType = "default" | "priceAsc" | "priceDesc" | "sales"
+
+/** Mock 商品数据 */
 const MOCK_PRODUCTS: SearchProduct[] = [
   {
     id: "prod_mock_001",
@@ -42,6 +68,9 @@ const MOCK_PRODUCTS: SearchProduct[] = [
     originalPrice: 49.99,
     image: "https://images.unsplash.com/photo-1542013936693-884638332954?auto=format&fit=crop&q=80&w=1000",
     sales: 1580,
+    category: "home",
+    rating: 4.5,
+    inStock: true,
   },
   {
     id: "prod_mock_002",
@@ -50,6 +79,9 @@ const MOCK_PRODUCTS: SearchProduct[] = [
     originalPrice: 29.99,
     image: "https://images.unsplash.com/photo-1601593346740-925612772716?auto=format&fit=crop&q=80&w=1000",
     sales: 2340,
+    category: "electronics",
+    rating: 4.2,
+    inStock: true,
   },
   {
     id: "prod_mock_003",
@@ -58,6 +90,9 @@ const MOCK_PRODUCTS: SearchProduct[] = [
     originalPrice: 59.99,
     image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=1000",
     sales: 892,
+    category: "electronics",
+    rating: 4.7,
+    inStock: true,
   },
   {
     id: "prod_mock_004",
@@ -66,6 +101,9 @@ const MOCK_PRODUCTS: SearchProduct[] = [
     originalPrice: 129.99,
     image: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=1000",
     sales: 456,
+    category: "electronics",
+    rating: 3.8,
+    inStock: false,
   },
   {
     id: "prod_mock_005",
@@ -74,43 +112,50 @@ const MOCK_PRODUCTS: SearchProduct[] = [
     originalPrice: 99.99,
     image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=1000",
     sales: 1203,
+    category: "electronics",
+    rating: 4.1,
+    inStock: true,
   },
+]
+
+/** 排序选项列表 */
+const SORT_OPTIONS: { key: SortType; labelKey: string }[] = [
+  { key: "default", labelKey: "sortDefault" },
+  { key: "priceAsc", labelKey: "sortPriceAsc" },
+  { key: "priceDesc", labelKey: "sortPriceDesc" },
+  { key: "sales", labelKey: "sortSales" },
 ]
 
 function SearchPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const t = useTranslations('search')
-  const locale = useLocale()
-  const isZh = locale === "zh"
-  const { theme, setTheme } = useTheme()
-  const { cartCount, addToCart } = useCartStore()
+  const t = useTranslations("search")
+  const { addToCart } = useCartStore()
 
   const query = searchParams.get("q") || ""
   const [searchInput, setSearchInput] = useState(query)
   const [results, setResults] = useState<SearchProduct[]>([])
   const [loading, setLoading] = useState(true)
+  const [filters, setFilters] = useState<SearchFilters>(DEFAULT_FILTERS)
+  const [sortType, setSortType] = useState<SortType>("default")
+  /** 移动端排序下拉是否展开 */
+  const [sortOpen, setSortOpen] = useState(false)
 
-  const navItems = [
-    { labelKey: "nav.home", href: `/${locale}` },
-    { labelKey: "nav.shop", href: `/${locale}/products` },
-    { labelKey: "nav.about", href: `/${locale}/about` },
-    { labelKey: "nav.contact", href: `/${locale}/contact` },
-  ]
-
+  /** 执行搜索 */
   const performSearch = useCallback((searchQuery: string) => {
     if (!searchQuery.trim()) {
       setResults([])
       setLoading(false)
       return
     }
-    const filtered = MOCK_PRODUCTS.filter(p =>
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      searchQuery.toLowerCase().includes("#trending") ||
-      searchQuery.toLowerCase().includes("#flashsale") ||
-      searchQuery.toLowerCase().includes("#viral") ||
-      searchQuery.toLowerCase().includes("#网红") ||
-      searchQuery.toLowerCase().includes("#限时")
+    const filtered = MOCK_PRODUCTS.filter(
+      (p) =>
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        searchQuery.toLowerCase().includes("#trending") ||
+        searchQuery.toLowerCase().includes("#flashsale") ||
+        searchQuery.toLowerCase().includes("#viral") ||
+        searchQuery.toLowerCase().includes("#网红") ||
+        searchQuery.toLowerCase().includes("#限时")
     )
     setResults(filtered)
     setLoading(false)
@@ -124,11 +169,13 @@ function SearchPageContent() {
     return () => clearTimeout(timer)
   }, [query, performSearch])
 
+  /** 搜索表单提交 */
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    router.push(`/${locale}/search?q=${encodeURIComponent(searchInput)}`)
+    router.push(`/search?q=${encodeURIComponent(searchInput)}`)
   }
 
+  /** 加入购物车 */
   const handleAddToCart = (product: SearchProduct) => {
     addToCart({
       id: product.id,
@@ -138,164 +185,281 @@ function SearchPageContent() {
     })
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 relative">
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-red-500/5 to-pink-500/5 rounded-full blur-3xl" />
-        <div className="absolute top-1/3 -left-20 w-72 h-72 bg-gradient-to-br from-purple-500/5 to-blue-500/5 rounded-full blur-3xl" />
+  /** 筛选 + 排序后的结果 */
+  const filteredResults = results
+    .filter((p) => {
+      // 分类筛选
+      if (filters.categories.length > 0 && !filters.categories.includes(p.category)) {
+        return false
+      }
+      // 价格区间
+      if (p.price < filters.priceRange[0] || p.price > filters.priceRange[1]) {
+        return false
+      }
+      // 最低评分
+      if (filters.minRating > 0 && p.rating < filters.minRating) {
+        return false
+      }
+      // 仅显示有货
+      if (filters.inStockOnly && !p.inStock) {
+        return false
+      }
+      return true
+    })
+    .sort((a, b) => {
+      switch (sortType) {
+        case "priceAsc":
+          return a.price - b.price
+        case "priceDesc":
+          return b.price - a.price
+        case "sales":
+          return b.sales - a.sales
+        default:
+          return 0
+      }
+    })
+
+  /** 排序栏组件（PC 端和移动端共用） */
+  const SortBar = ({ compact = false }: { compact?: boolean }) => (
+    <div className="flex items-center gap-2">
+      {SORT_OPTIONS.map((opt) => (
+        <Button
+          key={opt.key}
+          variant={sortType === opt.key ? "default" : "ghost"}
+          size={compact ? "sm" : "sm"}
+          className={sortType === opt.key ? "bg-brand hover:bg-brand/90 text-brand-foreground" : ""}
+          onClick={() => setSortType(opt.key)}
+        >
+          {t(opt.labelKey)}
+        </Button>
+      ))}
+    </div>
+  )
+
+  /** 移动端紧凑搜索卡片 */
+  const MobileProductCard = ({ product }: { product: SearchProduct }) => (
+    <Link href={`/product/${product.id}`} className="block">
+      <div className="rounded-xl overflow-hidden bg-card border border-border">
+        <div className="relative aspect-square bg-muted">
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            className="object-cover"
+            sizes="50vw"
+          />
+        </div>
+        <div className="p-2">
+          <h3 className="text-xs line-clamp-2 leading-tight mb-1">{product.name}</h3>
+          <span className="text-price text-sm font-bold">${product.price}</span>
+        </div>
       </div>
+    </Link>
+  )
 
-      <div className="w-full max-w-[1440px] mx-auto relative">
-        <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
-          <div className="px-4 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <div className="flex items-center gap-8">
-                <Link href={`/${locale}`} className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">S</span>
-                  </div>
-                  <span className="text-xl font-bold text-foreground hidden sm:block">SoloSales</span>
-                </Link>
-                <nav className="hidden lg:flex items-center gap-6">
-                  {navItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {t(item.labelKey)}
-                    </Link>
-                  ))}
-                </nav>
+  /** PC 端搜索卡片 */
+  const DesktopProductCard = ({ product }: { product: SearchProduct }) => (
+    <Card
+      className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+      onClick={() => router.push(`/product/${product.id}`)}
+    >
+      <div className="relative aspect-square bg-muted">
+        <Image
+          src={product.image}
+          alt={product.name}
+          fill
+          className="object-cover hover:scale-105 transition-transform duration-300"
+          sizes="(max-width: 1024px) 50vw, 25vw"
+        />
+      </div>
+      <CardContent className="p-4">
+        <h3 className="font-medium text-sm line-clamp-2 mb-2">{product.name}</h3>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-lg font-bold text-price">${product.price}</span>
+          <span className="text-sm text-muted-foreground line-through">
+            ${product.originalPrice}
+          </span>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            className="flex-1 bg-brand hover:bg-brand/90 text-brand-foreground"
+            onClick={(e) => {
+              e.stopPropagation()
+              handleAddToCart(product)
+            }}
+          >
+            <ShoppingCart className="w-4 h-4 mr-1" />
+            {t("addToCart")}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex-1 border-brand text-brand hover:bg-brand/5"
+            onClick={(e) => {
+              e.stopPropagation()
+              router.push(`/product/${product.id}`)
+            }}
+          >
+            {t("details")}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  )
+
+  return (
+    <StorefrontPageLayout title={t("title")} showBack showDecorBg>
+      <div className="p-3 lg:p-6">
+        {/* 搜索栏 */}
+        <form onSubmit={handleSearch} className="relative mb-4 lg:hidden">
+          <Input
+            type="search"
+            placeholder={t("searchPlaceholder")}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            className="w-full pr-12"
+          />
+          <Button type="submit" variant="ghost" size="icon" className="absolute right-0 top-0">
+            <Search className="w-5 h-5" />
+          </Button>
+        </form>
+
+        {/* 标题 + 结果数量（PC 端） */}
+        <div className="hidden lg:flex items-center gap-4 mb-4">
+          <h1 className="text-2xl font-bold">
+            {query ? `"${query}" ${t("searchResults")}` : t("allProducts")}
+          </h1>
+          {!loading && (
+            <span className="text-muted-foreground">
+              {filteredResults.length} {t("productsFound")}
+            </span>
+          )}
+        </div>
+
+        {/* 移动端：筛选 + 排序按钮行 */}
+        <div className="flex items-center gap-2 mb-3 lg:hidden">
+          {/* 筛选 Sheet */}
+          <Sheet>
+            <SheetTrigger render={<Button variant="outline" size="sm" className="gap-1.5" />}>
+              <SlidersHorizontal className="w-4 h-4" />
+              {t("filterButton")}
+            </SheetTrigger>
+            <SheetContent side="left" className="w-72 overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle>{t("filterButton")}</SheetTitle>
+              </SheetHeader>
+              <div className="px-4 pb-4">
+                <SearchFilterSidebar filters={filters} onFilterChange={setFilters} />
               </div>
+            </SheetContent>
+          </Sheet>
 
-              <div className="flex-1 max-w-xl px-8 hidden lg:block">
-                <form onSubmit={handleSearch} className="relative">
-                  <Input
-                    type="search"
-                    placeholder={t('searchPlaceholder')}
-                    value={searchInput}
-                    onChange={(e) => setSearchInput(e.target.value)}
-                    className="w-full pr-12"
-                  />
-                  <Button type="submit" variant="ghost" size="icon" className="absolute right-0 top-0">
-                    <Search className="w-5 h-5" />
-                  </Button>
-                </form>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-                  {theme === "dark" ? "☀️" : "🌙"}
-                </Button>
-                <Button variant="ghost" size="icon" className="relative" onClick={() => router.push(`/${locale}/cart`)}>
-                  <ShoppingBag className="w-5 h-5" />
-                  {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                      {cartCount}
-                    </span>
-                  )}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <main className="p-4 lg:p-8">
-          <div className="flex items-center gap-4 mb-6 lg:hidden">
-            <Button variant="ghost" size="icon" onClick={() => router.back()}>
-              <ArrowLeft className="w-6 h-6" />
+          {/* 排序下拉 */}
+          <div className="relative">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              onClick={() => setSortOpen(!sortOpen)}
+            >
+              <ArrowUpDown className="w-4 h-4" />
+              {t("sortButton")}
             </Button>
-            <h1 className="text-xl font-bold">
-              {query ? `"${query}" ${t('searchResults')}` : t('allProducts')}
-            </h1>
-          </div>
-
-          <div className="hidden lg:flex items-center gap-4 mb-6">
-            <h1 className="text-2xl font-bold">
-              {query ? `"${query}" ${t('searchResults')}` : t('allProducts')}
-            </h1>
-            {!loading && (
-              <span className="text-muted-foreground">
-                {results.length} {t('productsFound')}
-              </span>
+            {sortOpen && (
+              <>
+                {/* 点击遮罩关闭 */}
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setSortOpen(false)}
+                />
+                <div className="absolute left-0 top-full mt-1 z-50 bg-popover border rounded-md shadow-md py-1 min-w-[140px]">
+                  {SORT_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.key}
+                      type="button"
+                      className={`w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors ${
+                        sortType === opt.key ? "text-brand font-medium" : ""
+                      }`}
+                      onClick={() => {
+                        setSortType(opt.key)
+                        setSortOpen(false)
+                      }}
+                    >
+                      {t(opt.labelKey)}
+                    </button>
+                  ))}
+                </div>
+              </>
             )}
           </div>
+        </div>
 
-          {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <div className="text-muted-foreground text-lg">{t('searching')}</div>
+        {/* 主体：PC 端左侧筛选 + 右侧结果 */}
+        <div className="flex gap-6">
+          {/* PC 端左侧筛选栏 */}
+          <aside className="hidden lg:block w-64 shrink-0">
+            <div className="sticky top-20">
+              <SearchFilterSidebar filters={filters} onFilterChange={setFilters} />
             </div>
-          ) : results.length === 0 ? (
-            <div className="text-center py-20">
-              <Search className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
-              <div className="text-muted-foreground mb-4 text-lg">
-                {t('noProductsFound')}
+          </aside>
+
+          {/* 右侧结果区 */}
+          <div className="flex-1 min-w-0">
+            {/* PC 端排序栏 */}
+            <div className="hidden lg:flex items-center gap-2 mb-4 border-b pb-3">
+              <SortBar />
+            </div>
+
+            {/* 加载状态 */}
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <div className="text-muted-foreground text-lg">{t("searching")}</div>
               </div>
-              <Button variant="outline" onClick={() => router.push(`/${locale}`)}>
-                {t('backToHome')}
-              </Button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {results.map((product) => (
-                <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push(`/${locale}/product/${product.id}`)}>
-                  <div className="relative aspect-square bg-muted">
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      className="object-cover hover:scale-105 transition-transform duration-300"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    />
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-medium text-sm line-clamp-2 mb-2">{product.name}</h3>
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-lg font-bold text-red-600 dark:text-red-500">${product.price}</span>
-                      <span className="text-sm text-muted-foreground line-through">${product.originalPrice}</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        className="flex-1 bg-red-600 hover:bg-red-700 text-white"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleAddToCart(product)
-                        }}
-                      >
-                        <ShoppingCart className="w-4 h-4 mr-1" />
-                        {t('addToCart')}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="flex-1"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          router.push(`/${locale}/product/${product.id}`)
-                        }}
-                      >
-                        {t('details')}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </main>
+            ) : filteredResults.length === 0 ? (
+              /* 空状态 */
+              <div className="text-center py-20">
+                <Search className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
+                <div className="text-muted-foreground mb-4 text-lg">
+                  {t("noProductsFound")}
+                </div>
+                <Button variant="outline" onClick={() => router.push(`/`)}>
+                  {t("backToHome")}
+                </Button>
+              </div>
+            ) : (
+              <>
+                {/* 移动端：2 列紧凑卡片 */}
+                <div className="grid grid-cols-2 gap-3 lg:hidden">
+                  {filteredResults.map((product) => (
+                    <MobileProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+
+                {/* PC 端：多列卡片 */}
+                <div className="hidden lg:grid grid-cols-3 xl:grid-cols-4 gap-6">
+                  {filteredResults.map((product) => (
+                    <DesktopProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+    </StorefrontPageLayout>
   )
 }
 
+/** 加载中占位 */
 function SearchLoading() {
-  const t = useTranslations('search')
+  const t = useTranslations("search")
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center">
-      <div className="text-muted-foreground text-lg">{t('loading')}</div>
-    </div>
+    <StorefrontPageLayout title={t("title")} showBack>
+      <div className="flex items-center justify-center py-20">
+        <div className="text-muted-foreground text-lg">{t("loading")}</div>
+      </div>
+    </StorefrontPageLayout>
   )
 }
 

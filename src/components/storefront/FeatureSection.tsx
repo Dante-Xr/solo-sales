@@ -52,7 +52,7 @@ export function FeatureSection() {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="flex flex-col items-center text-center p-3 md:p-4 bg-background rounded-lg border border-border hover:border-primary/50 hover:shadow-md transition-all duration-200 group"
+              className="flex flex-col items-center text-center p-3 md:p-4 bg-background rounded-xl border border-border hover:border-primary/50 hover:shadow-md transition-all duration-200 group"
             >
               <div
                 className={`p-2 md:p-3 rounded-full mb-2 md:mb-3 ${iconBgColors[index]} group-hover:scale-110 transition-transform duration-200`}
@@ -62,7 +62,7 @@ export function FeatureSection() {
               <h3 className="text-xs md:text-sm font-semibold mb-1 md:mb-2">
                 {t(feature.titleKey)}
               </h3>
-              <p className={`text-[10px] md:text-xs text-muted-foreground ${isMobileView ? "" : "hidden sm:block"}`}>
+              <p className={`text-[10px] md:text-xs text-muted-foreground line-clamp-2 md:line-clamp-none`}>
                 {t(feature.descriptionKey)}
               </p>
             </div>
