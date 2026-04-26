@@ -337,6 +337,7 @@
     "revenue": "收入",
     "loading": "加载中...",
     "refreshData": "刷新数据",
+    "profileLabel": "个人资料",
     "roleManagement": "角色管理",
     "permissionManagement": "权限管理",
     "orderStatus": {
@@ -392,8 +393,98 @@
     },
     "chat": "客服",
     "import": "导入",
-    "knowledge": "知识库",
-    "products": "商品",
+    "knowledge": {
+      "pageTitle": "知识库",
+      "newArticle": "新建文章",
+      "searchPlaceholder": "搜索文章...",
+      "allCategories": "全部分类",
+      "allStatus": "全部状态",
+      "status": {
+        "draft": "草稿",
+        "published": "已发布",
+        "archived": "已归档"
+      },
+      "search": "搜索",
+      "articles": "文章列表",
+      "items": "篇",
+      "loading": "加载中...",
+      "noData": "暂无数据",
+      "previous": "上一页",
+      "next": "下一页",
+      "editArticle": "编辑文章",
+      "form": {
+        "title": "标题",
+        "titlePlaceholder": "输入文章标题",
+        "content": "内容",
+        "contentPlaceholder": "输入文章内容",
+        "category": "分类",
+        "selectCategory": "选择分类",
+        "status": "状态",
+        "tags": "标签",
+        "separatedByComma": "多个标签用逗号分隔",
+        "tagsPlaceholder": "输入标签"
+      },
+      "buttons": {
+        "cancel": "取消",
+        "save": "保存",
+        "delete": "删除",
+        "saving": "保存中...",
+        "close": "关闭"
+      },
+      "confirmDelete": {
+        "title": "确认删除",
+        "description": "确定要删除这篇文章吗？此操作无法撤销。"
+      },
+      "versionHistory": "版本历史",
+      "changedBy": "修改人",
+      "noHistory": "暂无版本记录"
+    },
+    "products": {
+      "pageTitle": "商品管理",
+      "searchPlaceholder": "搜索商品...",
+      "batchDiscount": {
+        "title": "批量设置折扣",
+        "applyingTo": "已为 {count} 个商品选择折扣",
+        "discountType": "折扣类型",
+        "percentage": "百分比折扣",
+        "fixedAmount": "固定金额",
+        "newPrice": "新价格",
+        "discountPercentage": "折扣百分比 (%)",
+        "discountAmount": "减免金额 ($)",
+        "setNewPrice": "新价格 ($)",
+        "preview": "价格预览",
+        "originalPrice": "原价",
+        "discountedPrice": "折后价",
+        "andMore": "还有 {count} 个商品...",
+        "resetPrice": "恢复原价",
+        "applyDiscount": "应用折扣",
+        "applying": "应用中...",
+        "discountSuccess": "已成功为 {count} 个商品设置折扣",
+        "resetSuccess": "已恢复 {count} 个商品的原价",
+        "pleaseSelectProducts": "请先选择商品",
+        "invalidDiscount": "请输入有效的折扣值",
+        "percentageExceed": "百分比折扣不能超过 100%",
+        "discountFailed": "折扣应用失败",
+        "resetFailed": "恢复原价失败"
+      },
+      "quickEdit": {
+        "clickToEdit": "点击编辑",
+        "priceUpdated": "价格已更新",
+        "stockUpdated": "库存已更新",
+        "updateFailed": "更新失败",
+        "invalidPrice": "请输入有效的价格（大于0）",
+        "invalidStock": "请输入有效的库存（大于等于0）"
+      },
+      "stockAdjuster": {
+        "low": "低",
+        "stockInsufficient": "库存不足",
+        "stockIncreased": "库存已增加至 {count}",
+        "stockDecreased": "库存已减少至 {count}",
+        "stockUpdatedTo": "库存已更新为 {count}",
+        "updateFailed": "库存更新失败",
+        "invalidStock": "请输入有效的库存数量"
+      }
+    },
     "orders": "订单",
     "customers": {
       "pageTitle": "客户管理",
@@ -440,73 +531,71 @@
     "chatLabel": "客服消息",
     "importLabel": "商品导入",
     "knowledgeLabel": "知识库",
-    "searchProductPlaceholder": "搜索商品...",
-    "allCategories": "全部分类",
-    "search": "搜索",
-    "batchPublish": "批量上架",
-    "batchUnpublish": "批量下架",
-    "batchDelete": "批量删除",
-    "noData": "暂无数据",
-    "category": "分类",
-    "created": "创建时间",
-    "previous": "上一页",
-    "next": "下一页",
-    "editProduct": "编辑商品",
-    "description": "描述",
-    "enterProductName": "输入商品名称",
-    "enterProductDescription": "输入商品描述",
-    "sku": "SKU",
-    "skuPlaceholder": "输入SKU",
-    "selectCategory": "选择分类",
-    "imageUrls": "图片链接",
-    "separateMultipleUrls": "多个链接用逗号分隔",
-    "saving": "保存中...",
-    "saved": "已保存!",
-    "confirmDelete": "确认删除",
-    "confirmBatchPublish": "确认批量上架",
-    "confirmBatchUnpublish": "确认批量下架",
-    "confirmBatchDelete": "确认批量删除",
-    "batchDiscount": {
-      "title": "批量设置折扣",
-      "applyingTo": "已为 {count} 个商品选择折扣",
-      "discountType": "折扣类型",
-      "percentage": "百分比折扣",
-      "fixedAmount": "固定金额",
-      "newPrice": "新价格",
-      "discountPercentage": "折扣百分比 (%)",
-      "discountAmount": "减免金额 ($)",
-      "setNewPrice": "新价格 ($)",
-      "preview": "价格预览",
-      "originalPrice": "原价",
-      "discountedPrice": "折后价",
-      "andMore": "还有 {count} 个商品...",
-      "resetPrice": "恢复原价",
-      "applyDiscount": "应用折扣",
-      "applying": "应用中...",
-      "discountSuccess": "已成功为 {count} 个商品设置折扣",
-      "resetSuccess": "已恢复 {count} 个商品的原价",
-      "pleaseSelectProducts": "请先选择商品",
-      "invalidDiscount": "请输入有效的折扣值",
-      "percentageExceed": "百分比折扣不能超过 100%",
-      "discountFailed": "折扣应用失败",
-      "resetFailed": "恢复原价失败"
-    },
-    "quickEdit": {
-      "clickToEdit": "点击编辑",
-      "priceUpdated": "价格已更新",
-      "stockUpdated": "库存已更新",
-      "updateFailed": "更新失败",
-      "invalidPrice": "请输入有效的价格（大于0）",
-      "invalidStock": "请输入有效的库存（大于等于0）"
-    },
-    "stockAdjuster": {
-      "low": "低",
-      "stockInsufficient": "库存不足",
-      "stockIncreased": "库存已增加至 {count}",
-      "stockDecreased": "库存已减少至 {count}",
-      "stockUpdatedTo": "库存已更新为 {count}",
-      "updateFailed": "库存更新失败",
-      "invalidStock": "请输入有效的库存数量"
+    "charts": {
+      "dateRange": {
+        "today": "今天",
+        "yesterday": "昨天",
+        "last7days": "最近7天",
+        "last30days": "最近30天",
+        "thisMonth": "本月",
+        "lastMonth": "上月",
+        "custom": "自定义",
+        "apply": "应用"
+      },
+      "metrics": {
+        "sales": "销售额",
+        "orders": "订单数",
+        "revenue": "收入",
+        "conversionRate": "转化率",
+        "aov": "客单价",
+        "visitors": "访客数",
+        "selectMetrics": "选择指标"
+      },
+      "chartType": {
+        "area": "面积图",
+        "bar": "柱状图",
+        "line": "折线图"
+      },
+      "compare": {
+        "none": "无对比",
+        "previous": "环比",
+        "yearAgo": "同比",
+        "label": "对比"
+      },
+      "config": {
+        "title": "图表配置",
+        "dateRange": "日期范围",
+        "metrics": "指标选择",
+        "chartType": "图表类型",
+        "compare": "数据对比",
+        "reset": "重置"
+      },
+      "topProducts": {
+        "title": "商品销售排行",
+        "revenue": "销售额",
+        "quantity": "销量"
+      },
+      "categoryPie": {
+        "title": "分类销售占比",
+        "revenue": "销售额",
+        "quantity": "销量"
+      },
+      "funnel": {
+        "title": "转化漏斗",
+        "visit": "访问",
+        "productView": "商品页",
+        "addToCart": "加购",
+        "checkout": "结账",
+        "payment": "支付",
+        "overallConversion": "总转化率"
+      },
+      "userGrowth": {
+        "title": "用户增长趋势",
+        "newUsers": "新增用户",
+        "activeUsers": "活跃用户",
+        "totalNewUsers": "新增用户总数",
+        "avgActiveUsers": "平均活跃用户"
+      }
     },
     "createUser": "创建用户",
     "searchUserPlaceholder": "搜索用户...",

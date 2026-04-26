@@ -337,6 +337,7 @@
     "revenue": "Revenue",
     "loading": "Loading...",
     "refreshData": "Refresh",
+    "profileLabel": "Profile",
     "roleManagement": "Role Management",
     "permissionManagement": "Permission Management",
     "orderStatus": {
@@ -392,8 +393,98 @@
     },
     "chat": "Chat",
     "import": "Import",
-    "knowledge": "Knowledge",
-    "products": "Products",
+    "knowledge": {
+      "pageTitle": "Knowledge Base",
+      "newArticle": "New Article",
+      "searchPlaceholder": "Search articles...",
+      "allCategories": "All Categories",
+      "allStatus": "All Status",
+      "status": {
+        "draft": "Draft",
+        "published": "Published",
+        "archived": "Archived"
+      },
+      "search": "Search",
+      "articles": "Articles",
+      "items": "items",
+      "loading": "Loading...",
+      "noData": "No data",
+      "previous": "Previous",
+      "next": "Next",
+      "editArticle": "Edit Article",
+      "form": {
+        "title": "Title",
+        "titlePlaceholder": "Enter article title",
+        "content": "Content",
+        "contentPlaceholder": "Enter article content",
+        "category": "Category",
+        "selectCategory": "Select category",
+        "status": "Status",
+        "tags": "Tags",
+        "separatedByComma": "Separate multiple tags with commas",
+        "tagsPlaceholder": "Enter tags"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "save": "Save",
+        "delete": "Delete",
+        "saving": "Saving...",
+        "close": "Close"
+      },
+      "confirmDelete": {
+        "title": "Confirm Delete",
+        "description": "Are you sure you want to delete this article? This action cannot be undone."
+      },
+      "versionHistory": "Version History",
+      "changedBy": "Modified by",
+      "noHistory": "No version records"
+    },
+    "products": {
+      "pageTitle": "Product Management",
+      "searchPlaceholder": "Search products...",
+      "batchDiscount": {
+        "title": "Batch Discount",
+        "applyingTo": "Discount applied to {count} products",
+        "discountType": "Discount Type",
+        "percentage": "Percentage Discount",
+        "fixedAmount": "Fixed Amount",
+        "newPrice": "New Price",
+        "discountPercentage": "Discount Percentage (%)",
+        "discountAmount": "Discount Amount ($)",
+        "setNewPrice": "Set New Price ($)",
+        "preview": "Price Preview",
+        "originalPrice": "Original Price",
+        "discountedPrice": "Discounted Price",
+        "andMore": "and {count} more...",
+        "resetPrice": "Reset to Original",
+        "applyDiscount": "Apply Discount",
+        "applying": "Applying...",
+        "discountSuccess": "Discount applied to {count} products",
+        "resetSuccess": "Reset {count} products to original price",
+        "pleaseSelectProducts": "Please select products first",
+        "invalidDiscount": "Please enter a valid discount value",
+        "percentageExceed": "Percentage cannot exceed 100%",
+        "discountFailed": "Failed to apply discount",
+        "resetFailed": "Failed to reset price"
+      },
+      "quickEdit": {
+        "clickToEdit": "Click to edit",
+        "priceUpdated": "Price updated",
+        "stockUpdated": "Stock updated",
+        "updateFailed": "Update failed",
+        "invalidPrice": "Please enter a valid price (>0)",
+        "invalidStock": "Please enter a valid stock (>=0)"
+      },
+      "stockAdjuster": {
+        "low": "Low",
+        "stockInsufficient": "Low stock",
+        "stockIncreased": "Stock increased to {count}",
+        "stockDecreased": "Stock decreased to {count}",
+        "stockUpdatedTo": "Stock updated to {count}",
+        "updateFailed": "Failed to update stock",
+        "invalidStock": "Please enter a valid stock quantity"
+      }
+    },
     "orders": "Orders",
     "customers": {
       "pageTitle": "Customer Management",
@@ -440,73 +531,71 @@
     "chatLabel": "Chat Messages",
     "importLabel": "Product Import",
     "knowledgeLabel": "Knowledge Base",
-    "searchProductPlaceholder": "Search products...",
-    "allCategories": "All Categories",
-    "search": "Search",
-    "batchPublish": "Batch Publish",
-    "batchUnpublish": "Batch Unpublish",
-    "batchDelete": "Batch Delete",
-    "noData": "No data",
-    "category": "Category",
-    "created": "Created",
-    "previous": "Previous",
-    "next": "Next",
-    "editProduct": "Edit Product",
-    "description": "Description",
-    "enterProductName": "Enter product name",
-    "enterProductDescription": "Enter product description",
-    "sku": "SKU",
-    "skuPlaceholder": "Enter SKU",
-    "selectCategory": "Select category",
-    "imageUrls": "Image URLs",
-    "separateMultipleUrls": "Separate multiple URLs with comma",
-    "saving": "Saving...",
-    "saved": "Saved!",
-    "confirmDelete": "Confirm Delete",
-    "confirmBatchPublish": "Confirm Batch Publish",
-    "confirmBatchUnpublish": "Confirm Batch Unpublish",
-    "confirmBatchDelete": "Confirm Batch Delete",
-    "batchDiscount": {
-      "title": "Batch Discount",
-      "applyingTo": "Applying discount to {count} products",
-      "discountType": "Discount Type",
-      "percentage": "Percentage",
-      "fixedAmount": "Fixed Amount",
-      "newPrice": "New Price",
-      "discountPercentage": "Discount (%)",
-      "discountAmount": "Amount Off ($)",
-      "setNewPrice": "New Price ($)",
-      "preview": "Preview",
-      "originalPrice": "Original",
-      "discountedPrice": "Discounted",
-      "andMore": "And {count} more...",
-      "resetPrice": "Reset",
-      "applyDiscount": "Apply",
-      "applying": "Applying...",
-      "discountSuccess": "Discount applied to {count} products",
-      "resetSuccess": "Restored original price for {count} products",
-      "pleaseSelectProducts": "Please select products first",
-      "invalidDiscount": "Please enter a valid discount value",
-      "percentageExceed": "Percentage discount cannot exceed 100%",
-      "discountFailed": "Failed to apply discount",
-      "resetFailed": "Failed to restore original price"
-    },
-    "quickEdit": {
-      "clickToEdit": "Click to edit",
-      "priceUpdated": "Price updated",
-      "stockUpdated": "Stock updated",
-      "updateFailed": "Update failed",
-      "invalidPrice": "Please enter a valid price (>0)",
-      "invalidStock": "Please enter a valid stock (>=0)"
-    },
-    "stockAdjuster": {
-      "low": "Low",
-      "stockInsufficient": "Low Stock",
-      "stockIncreased": "Stock increased to {count}",
-      "stockDecreased": "Stock decreased to {count}",
-      "stockUpdatedTo": "Stock updated to {count}",
-      "updateFailed": "Failed to update stock",
-      "invalidStock": "Please enter a valid stock quantity"
+    "charts": {
+      "dateRange": {
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "last7days": "Last 7 Days",
+        "last30days": "Last 30 Days",
+        "thisMonth": "This Month",
+        "lastMonth": "Last Month",
+        "custom": "Custom",
+        "apply": "Apply"
+      },
+      "metrics": {
+        "sales": "Sales",
+        "orders": "Orders",
+        "revenue": "Revenue",
+        "conversionRate": "Conversion Rate",
+        "aov": "AOV",
+        "visitors": "Visitors",
+        "selectMetrics": "Select Metrics"
+      },
+      "chartType": {
+        "area": "Area",
+        "bar": "Bar",
+        "line": "Line"
+      },
+      "compare": {
+        "none": "No Compare",
+        "previous": "vs Previous",
+        "yearAgo": "vs Last Year",
+        "label": "Compare"
+      },
+      "config": {
+        "title": "Chart Settings",
+        "dateRange": "Date Range",
+        "metrics": "Metrics",
+        "chartType": "Chart Type",
+        "compare": "Compare",
+        "reset": "Reset"
+      },
+      "topProducts": {
+        "title": "Top Products",
+        "revenue": "Revenue",
+        "quantity": "Quantity"
+      },
+      "categoryPie": {
+        "title": "Category Distribution",
+        "revenue": "Revenue",
+        "quantity": "Quantity"
+      },
+      "funnel": {
+        "title": "Conversion Funnel",
+        "visit": "Visit",
+        "productView": "Product View",
+        "addToCart": "Add to Cart",
+        "checkout": "Checkout",
+        "payment": "Payment",
+        "overallConversion": "Overall Conversion"
+      },
+      "userGrowth": {
+        "title": "User Growth",
+        "newUsers": "New Users",
+        "activeUsers": "Active Users",
+        "totalNewUsers": "Total New Users",
+        "avgActiveUsers": "Avg Active Users"
+      }
     },
     "createUser": "Create User",
     "searchUserPlaceholder": "Search users...",

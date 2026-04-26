@@ -2,12 +2,10 @@
  * ============================================
  * ViewportWrapper 组件 单元测试 (Phase 5 页面模式切换)
  * ============================================
- * 创建日期: 2026-04-14
- * 创建时间: 10:00
  * 测试内容：
  *   - desktop 模式下直接渲染子组件
  *   - mobile 模式下添加手机端容器
- *   - mobile 容器宽度为 375px
+ *   - mobile 容器包含 data-viewport="mobile" 属性
  * ============================================
  */
 
@@ -27,7 +25,7 @@ describe("ViewportWrapper", () => {
       </ViewportWrapper>
     )
     expect(screen.getByTestId("child")).toBeInTheDocument()
-    expect(container.querySelector(".w-\\[375px\\]")).toBeNull()
+    expect(container.querySelector('[data-viewport="mobile"]')).toBeNull()
   })
 
   it("mobile 模式下应渲染手机端容器", () => {
@@ -38,7 +36,7 @@ describe("ViewportWrapper", () => {
       </ViewportWrapper>
     )
     expect(screen.getByTestId("child")).toBeInTheDocument()
-    expect(container.querySelector(".w-\\[375px\\]")).toBeInTheDocument()
+    expect(container.querySelector('[data-viewport="mobile"]')).toBeInTheDocument()
   })
 
   it("mobile 模式下子组件应在手机端容器内", () => {
@@ -49,7 +47,7 @@ describe("ViewportWrapper", () => {
       </ViewportWrapper>
     )
     const child = screen.getByTestId("child")
-    const mobileContainer = child.closest(".w-\\[375px\\]")
+    const mobileContainer = child.closest('[data-viewport="mobile"]')
     expect(mobileContainer).toBeInTheDocument()
   })
 })

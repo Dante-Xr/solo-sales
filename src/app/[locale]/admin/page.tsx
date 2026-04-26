@@ -1,16 +1,17 @@
 /**
  * ============================================
- * 后台管理控制台页面 (Phase 5 管理后台重构)
+ * 后台管理控制台页面 (Phase 2 图表增强)
  * ============================================
  * 功能说明：
  *   - 使用聚合 Dashboard API，单次请求获取所有数据
  *   - 使用 Refine useCustom hook 获取数据
  *   - 集成 Tremor KPI 卡片组件
- *   - 集成 Tremor AreaChart 销售趋势图表
+ *   - 集成增强版销售趋势图表（支持配置面板）
+ *   - 新增商品排行、分类占比、转化漏斗、用户增长图表
  *   - 最近订单列表
  * ============================================
  * 2026-04-13: 集成 Refine + Tremor 组件
- * 2026-04-13 23:50: 迁移到 Refine useCustom hook
+ * 2026-04-24: Phase 2 图表增强，新增多维度图表
  */
 
 "use client"
@@ -19,7 +20,11 @@ import { useState, useMemo } from "react"
 import { useCustom } from "@refinedev/core"
 import { DollarSign, Package, ShoppingCart, Users, RefreshCw } from "lucide-react"
 import { useTranslations, useLocale } from "next-intl"
-import { SalesChart } from "@/components/admin/SalesChart"
+import { SalesChart } from "@/components/admin/charts/SalesChart"
+import { TopProductsChart } from "@/components/admin/charts/TopProductsChart"
+import { CategoryPieChart } from "@/components/admin/charts/CategoryPieChart"
+import { ConversionFunnel } from "@/components/admin/charts/ConversionFunnel"
+import { UserGrowthChart } from "@/components/admin/charts/UserGrowthChart"
 import { KpiGrid } from "@/components/admin/KpiCard"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -185,17 +190,20 @@ export default function AdminDashboard() {
 
       <KpiGrid cards={kpiCards} />
 
+      <SalesChart loading={loading} data={chartData} />
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <TopProductsChart loading={loading} />
+        <CategoryPieChart loading={loading} />
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <ConversionFunnel loading={loading} />
+        <UserGrowthChart loading={loading} />
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4">
-          <CardHeader>
-            <CardTitle>{t("salesTrend")}</CardTitle>
-          </CardHeader>
-          <CardContent className="pl-2">
-            <SalesChart loading={loading} data={chartData} />
-          </CardContent>
-        </Card>
-
-        <Card className="col-span-3">
           <CardHeader>
             <CardTitle>{t("recentOrders")}</CardTitle>
           </CardHeader>
@@ -237,6 +245,40 @@ export default function AdminDashboard() {
                 ))}
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        <Card className="col-span-3">
+          <CardHeader>
+            <CardTitle>{isZh ? "快速入口" : "Quick Access"}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-3">
+              <Button variant="outline" className="h-auto py-4 flex-col gap-2" asChild>
+                <a href="/admin/products">
+                  <Package className="h-6 w-6" />
+                  <span className="text-xs">{t("productManagement")}</span>
+                </a>
+              </Button>
+              <Button variant="outline" className="h-auto py-4 flex-col gap-2" asChild>
+                <a href="/admin/orders">
+                  <ShoppingCart className="h-6 w-6" />
+                  <span className="text-xs">{t("orderManagement")}</span>
+                </a>
+              </Button>
+              <Button variant="outline" className="h-auto py-4 flex-col gap-2" asChild>
+                <a href="/admin/customers">
+                  <Users className="h-6 w-6" />
+                  <span className="text-xs">{t("customers.pageTitle")}</span>
+                </a>
+              </Button>
+              <Button variant="outline" className="h-auto py-4 flex-col gap-2" asChild>
+                <a href="/admin/settings">
+                  <DollarSign className="h-6 w-6" />
+                  <span className="text-xs">{t("settings")}</span>
+                </a>
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>

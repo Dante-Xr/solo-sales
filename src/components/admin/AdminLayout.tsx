@@ -46,9 +46,9 @@ import {
  */
 const NAV_ITEMS = [
   { href: "/admin", icon: LayoutDashboard, label: "dashboard" },
-  { href: "/admin/products", icon: Package, label: "products" },
-  { href: "/admin/knowledge", icon: BookOpen, label: "knowledge" },
-  { href: "/admin/customers", icon: Users, label: "customers" },
+  { href: "/admin/products", icon: Package, label: "products.pageTitle" },
+  { href: "/admin/knowledge", icon: BookOpen, label: "knowledge.pageTitle" },
+  { href: "/admin/customers", icon: Users, label: "customers.pageTitle" },
   { href: "/admin/orders", icon: ShoppingCart, label: "orders" },
   { href: "/admin/import", icon: Upload, label: "import" },
   { href: "/admin/chat", icon: MessageSquare, label: "chat" },
@@ -301,7 +301,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                           className="w-full px-4 py-2.5 text-left text-sm hover:bg-accent flex items-center gap-3 text-foreground"
                         >
                           <UserCircle className="w-4 h-4 text-muted-foreground" />
-                          {t('profile')}
+                          {t('profileLabel')}
                         </button>
                         <div className="border-t border-border my-1" />
                         <button
@@ -384,7 +384,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 className="w-full px-4 py-2.5 text-left text-sm hover:bg-accent flex items-center gap-3 text-foreground"
               >
                 <UserCircle className="w-4 h-4 text-muted-foreground" />
-                {t('profile')}
+                {t('profileLabel')}
               </button>
               <div className="border-t border-border my-1" />
               <button

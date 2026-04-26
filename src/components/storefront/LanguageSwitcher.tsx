@@ -1,3 +1,14 @@
+/**
+ * ============================================
+ * 语言切换组件 (Phase 4 国际化升级)
+ * ============================================
+ * 功能说明：
+ *   - 切换中英文语言
+ *   - 自动处理 URL 中的语言前缀
+ *   - 保持当前页面路径
+ * ============================================
+ */
+
 "use client"
 
 import { useState, useRef, useEffect } from "react"
@@ -32,10 +43,15 @@ export function LanguageSwitcher() {
     }
   }, [isOpen])
 
-  const handleSelect = (code: string) => {
+  const handleSelect = (newLocale: string) => {
     setIsOpen(false)
-    if (code !== locale) {
-      router.push(pathname, { locale: code })
+    if (newLocale === locale) return
+
+    const pathParts = pathname.split("/")
+    if (pathParts.length >= 2) {
+      pathParts[1] = newLocale
+      const newPath = pathParts.join("/")
+      router.push(newPath)
       setTimeout(() => router.refresh(), 100)
     }
   }
