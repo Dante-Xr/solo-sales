@@ -8,7 +8,8 @@ Comprehensive version history documenting all functional modules and features fr
 
 | Version | Release Date | Status |
 |---------|-------------|--------|
-| [1.0.2](#v102---2026-04-23) | 2026-04-23 | Latest |
+| [1.2.0](#v120---2026-04-26) | 2026-04-26 | Latest |
+| [1.0.2](#v102---2026-04-23) | 2026-04-23 | Stable |
 | [1.0.0](#v100---2026-04-21) | 2026-04-21 | Stable |
 
 ---
