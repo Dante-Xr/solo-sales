@@ -119,7 +119,7 @@ SoloSales 是一个现代化的独立站电商系统，基于 Next.js 16 App Rou
 | 模块 | 功能描述 |
 |------|----------|
 | **仪表盘** | Tremor 数据面板、销售数据可视化、图表统计 |
-| **商品管理** | Refine CRUD、库存管理、图片管理 |
+| **商品管理** | Refine CRUD、库存管理、图片管理、商品变体管理 |
 | **订单管理** | 订单列表、状态管理、订单详情 |
 | **客户管理** | 客户信息、订单历史、积分查看 |
 | **权限管理** | RBAC 权限系统 - 角色、权限、用户管理 |
@@ -127,6 +127,15 @@ SoloSales 是一个现代化的独立站电商系统，基于 Next.js 16 App Rou
 | **商品导入** | 批发商 API 导入（支持 1866 批发商） |
 | **客服聊天** | 管理员客服会话界面 |
 | **系统设置** | 系统配置管理 |
+
+#### 高级管理组件 (v1.2.0+)
+
+| 模块 | 功能描述 |
+|------|----------|
+| **VariantManager** | 商品变体管理 - 属性组配置、变体组合生成（笛卡尔积）、批量编辑 |
+| **InventoryAlert** | 智能库存预警 - 四级预警、可售天数预测、建议补货计算 |
+| **AuditLog** | 操作日志 - 多维度筛选、修改前后对比、分页导航 |
+| **DataExporter** | 数据导出 - CSV/JSON/Excel/PDF 多格式支持 |
 
 ### 批发商集成
 
@@ -163,17 +172,18 @@ solo_sales/
 │   │   ├── [locale]/              # 国际化路由 (next-intl)
 │   │   │   ├── admin/             # 后台管理系统
 │   │   │   │   ├── (auth)/login/  # 管理员登录页
+│   │   │   │   ├── advanced/      # 高级功能页（变体管理、库存预警、操作日志）
 │   │   │   │   ├── chat/          # 客服聊天页面
 │   │   │   │   ├── customers/     # 客户管理
 │   │   │   │   ├── import/        # 商品导入
 │   │   │   │   ├── knowledge/     # 知识库管理
 │   │   │   │   ├── orders/        # 订单管理
-│   │   │   │   ├── permissions/   # 权限管理
-│   │   │   │   ├── products/      # 商品管理
+│   │   │   │   ├── permissions/  # 权限管理
+│   │   │   │   ├── products/     # 商品管理
 │   │   │   │   ├── profile/       # 个人资料
 │   │   │   │   ├── roles/         # 角色管理
-│   │   │   │   ├── settings/      # 系统设置
-│   │   │   │   └── users/         # 用户管理
+│   │   │   │   ├── settings/     # 系统设置
+│   │   │   │   └── users/        # 用户管理
 │   │   │   ├── cart/              # 购物车页面
 │   │   │   ├── demo/              # 演示页面
 │   │   │   ├── orders/            # 订单页面
@@ -212,6 +222,10 @@ solo_sales/
 │   │
 │   ├── components/
 │   │   ├── admin/                 # 后台管理组件 (Refine)
+│   │   │   ├── advanced/          # 高级组件 (VariantManager, InventoryAlert, AuditLog)
+│   │   │   ├── charts/            # 图表组件
+│   │   │   ├── layout/            # 布局组件 (Breadcrumb, PageTabs, GlobalSearch)
+│   │   │   └── table/             # 表格组件 (ColumnCustomizer, TableSorter, DataExporter)
 │   │   ├── analytics/             # 数据分析组件
 │   │   ├── auth/                  # 认证组件
 │   │   ├── chatbot/               # 智能客服组件
