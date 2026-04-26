@@ -1,6 +1,6 @@
 # SoloSales - 独立站电商系统
 
-[![版本](https://img.shields.io/badge/version-1.0.2-blue.svg)](https://github.com/Dante-Xr/solo-sales)
+[![版本](https://img.shields.io/badge/version-1.2.0-blue.svg)](https://github.com/Dante-Xr/solo-sales)
 [![Next.js](https://img.shields.io/badge/Next.js-16.2.1-black.svg)](https://nextjs.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-5.22.0-2A52BE.svg)](https://prisma.io/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)

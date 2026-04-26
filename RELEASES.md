@@ -14,43 +14,51 @@ Comprehensive version history documenting all functional modules and features fr
 
 ---
 
-## [Unreleased] - 2026-04-23
+## v1.2.0 - 2026-04-26
 
-### Today's Changes
+### Phase 4: Admin Feature Enhancement - Advanced Components
 
-#### UI/UX Optimization
-
-| Module | Change | Commit Reference |
-|--------|--------|------------------|
-| MobileMenu | 工具菜单语言切换: "语言"标题改为"Language/语言"，选项固定为"中文"和"English"（不随语言切换变化） | - |
-| StorefrontFooter | Footer 布局调整: PC 端"商城"与"公司"列从纵向改为横向排列 | - |
-| Global | 响应式布局: 新增移动端独立响应式方案，优化不同屏幕尺寸下的显示效果、间距、字体和触控体验 | - |
-
-#### Icon Updates
-
-| Module | Change | Commit Reference |
-|--------|--------|------------------|
-| StorefrontFooter | Twitter → X: 更新所有 Twitter 相关图标和链接为 X (x.com) | - |
-| ShareMenu | Twitter → X: 更新所有 Twitter 相关图标和链接为 X (x.com) | - |
-| ProductMeta | Twitter → X: 更新 Twitter Card 为 X Card | - |
-| Global | TikTok Logo: 替换为官方最新 SVG 图标 | - |
-
-#### Viewport Mode Switching
+#### New Components
 
 | Module | Feature | Description |
 |--------|---------|-------------|
-| ViewportWrapper | PC 端手机模式 | 在 PC 端浏览器中实现手机端页面模式切换功能 |
-| useViewportModeStore | 状态管理 | Zustand store 管理视口模式状态 |
-| globals.css | CSS 覆盖层 | 通过 `[data-viewport="mobile"]` 选择器覆盖 Tailwind 响应式断点 |
+| VariantManager | 商品变体管理 | 支持属性组配置、变体组合生成、批量编辑功能 |
+| VariantManager | 属性组管理 | 颜色、尺寸、材质等自定义属性组 |
+| VariantManager | 变体生成 | 笛卡尔积算法生成变体组合 |
+| VariantManager | 批量编辑 | 批量价格/库存编辑，SKU 自动生成 |
+| InventoryAlert | 智能库存预警 | 基于销量的智能库存预警系统 |
+| InventoryAlert | 预警级别 | 紧急/警告/注意/正常 四级预警 |
+| InventoryAlert | 补货建议 | 可售天数预测，建议补货量计算 |
+| AuditLog | 操作日志 | 完整的操作审计追踪 |
+| AuditLog | 日志筛选 | 多维度筛选（操作类型、操作人、时间范围） |
+| AuditLog | 详情对比 | 展开式详情查看（修改前后对比） |
 
-**Key Technical Details:**
-- 页面布局严格受"切换 PC 端/手机端"按钮控制，不受浏览器窗口大小影响
-- 动态修改 viewport meta 标签 (`width=375` for mobile, `width=device-width` for PC)
-- 添加 `data-viewport` 属性到 html 元素
+#### Feature Enhancements
 
-#### Dependency Updates
+| Module | Feature | Description |
+|--------|---------|-------------|
+| DataExporter | PDF 导出 | 新增 PDF 格式导出支持 |
+| DataExporter | jsPDF | 集成 jsPDF 和 jspdf-autotable |
+| GlobalSearch | TypeScript Fix | 修复变量引用问题 |
 
-- 移除 lucide-react 的 Twitter 图标，使用自定义 SVG 组件
+#### Internationalization
+
+| Module | Change | Description |
+|--------|--------|-------------|
+| zh.json | 新增 67 个翻译键 | 覆盖所有 Phase 4 新增功能 |
+| en.json | 新增 67 个翻译键 | 英文翻译同步 |
+
+#### Performance Optimization
+
+| Module | Change | Description |
+|--------|--------|-------------|
+| AdminLayout | 重渲染优化 | Zustand 状态订阅精确化 |
+
+#### Security Fixes
+
+| Issue | Module | Fix Description |
+|-------|--------|----------------|
+| CSV Injection | DataExporter | CSV 导出注入漏洞防护 |
 
 ---
 
