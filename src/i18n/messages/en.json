@@ -728,6 +728,53 @@
       "permissionUsedByRoles": "This permission is used by roles and cannot be deleted",
       "operationFailed": "Operation failed",
       "deleteFailed": "Delete failed"
+    },
+    "tabs": {
+      "close": "Close Tab",
+      "refresh": "Refresh Tab",
+      "closeOthers": "Close Others",
+      "closeRight": "Close Right"
+    },
+    "search": {
+      "placeholder": "Search pages, products, orders...",
+      "hint": "Type to search page navigation",
+      "noResults": "No results found",
+      "pages": "Page Navigation",
+      "products": "Products",
+      "orders": "Orders",
+      "customers": "Customers"
+    },
+    "favorites": {
+      "title": "Favorites",
+      "add": "Add to Favorites",
+      "remove": "Remove from Favorites",
+      "noFavorites": "No favorites yet"
+    },
+    "recentVisits": {
+      "title": "Recent Visits",
+      "clear": "Clear History"
+    },
+    "table": {
+      "columns": "Columns",
+      "columnCustomize": "Customize Columns",
+      "filter": "Filter",
+      "clearFilters": "Clear Filters",
+      "searchPlaceholder": "Search...",
+      "all": "All",
+      "min": "Min",
+      "max": "Max",
+      "apply": "Apply",
+      "cancel": "Cancel",
+      "sort": "Sort",
+      "clickToSort": "Click to sort",
+      "ascending": "Ascending (click for descending)",
+      "descending": "Descending (click to remove sort)",
+      "export": "Export",
+      "exportData": "Export Data",
+      "format": "Format",
+      "exportCurrent": "Export Current Page",
+      "exportAll": "Export All",
+      "exportSelected": "Export Selected ({count})"
     }
   },
   "search": {

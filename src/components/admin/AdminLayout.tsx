@@ -1,6 +1,6 @@
 /**
  * ============================================
- * 管理后台响应式布局组件 (v0.6.1)
+ * 管理后台响应式布局组件 (v1.2 Phase 3)
  * ============================================
  * 功能说明：
  *   - PC 端：固定左侧边栏 + 右侧内容区
@@ -9,6 +9,7 @@
  *   - 目标设备：iPhone 13 Pro Max (428px), Xiaomi 14 Ultra (393px)
  *   - v0.6.1: 右上角添加管理员用户菜单
  *   - 2026-04-13: 更新为使用 next-intl 国际化
+ *   - v1.2 Phase 3: 集成面包屑导航、页面标签、全局搜索、收藏、最近访问
  * ============================================
  */
 
@@ -39,7 +40,14 @@ import {
   User,
   UserCircle,
   LogOut,
+  Search,
 } from "lucide-react"
+import { Breadcrumb } from "@/components/admin/layout/Breadcrumb"
+import { PageTabs } from "@/components/admin/layout/PageTabs"
+import { GlobalSearch } from "@/components/admin/layout/GlobalSearch"
+import { FavoritesList } from "@/components/admin/layout/FavoritesList"
+import { RecentVisits } from "@/components/admin/layout/RecentVisits"
+import { useAdminUIStore } from "@/stores/useAdminUIStore"
 
 /**
  * 导航菜单项配置
@@ -92,6 +100,52 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [loading, setLoading] = useState(true)
+
+  // 使用 selector 精准订阅方法引用，避免不必要的重渲染
+  const setActiveTab = useAdminUIStore((s) => s.setActiveTab)
+  const addTab = useAdminUIStore((s) => s.addTab)
+  const addVisit = useAdminUIStore((s) => s.addVisit)
+  const setSearchOpen = useAdminUIStore((s) => s.setSearchOpen)
+
+  /** 根据路由路径生成标签页 ID 和标签 */
+  const getTabFromPath = (): { id: string; href: string; label: string } => {
+    // 提取不含 locale 的路径
+    const parts = pathname.split("/").filter(Boolean)
+    const adminPath = "/" + parts.slice(1).join("/")
+    const firstTwo = "/" + parts.slice(1, 3).join("/")
+
+    // 精确匹配一级路径
+    const exactLabels: Record<string, string> = {
+      "/admin": "dashboard",
+      "/admin/products": "products.pageTitle",
+      "/admin/orders": "orders",
+      "/admin/customers": "customers.pageTitle",
+      "/admin/knowledge": "knowledge.pageTitle",
+      "/admin/settings": "settings",
+      "/admin/users": "userManagement",
+      "/admin/roles": "roleManagement",
+      "/admin/permissions": "permissionManagement",
+      "/admin/import": "import",
+      "/admin/chat": "chat",
+      "/admin/profile": "profileLabel",
+      "/admin/knowledge/new": "knowledge.pageTitle",
+    }
+
+    const label = exactLabels[firstTwo] || "dashboard"
+    return {
+      id: firstTwo.replace(/\//g, "-").slice(1) || "dashboard",
+      href: adminPath,
+      label,
+    }
+  }
+
+  /** 路径变化时同步标签页和访问记录 */
+  useEffect(() => {
+    const tab = getTabFromPath()
+    addTab(tab)
+    setActiveTab(tab.id)
+    addVisit(tab)
+  }, [pathname])
 
   useEffect(() => {
     const fetchAdminUser = async () => {
@@ -244,6 +298,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   </Link>
                 )
               })}
+              <div className="mt-4 border-t border-border pt-2">
+                <FavoritesList />
+                <RecentVisits />
+              </div>
             </nav>
           </aside>
         </>
@@ -357,6 +415,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 </Link>
               )
             })}
+            <div className="mt-4 border-t border-border pt-2">
+              <FavoritesList />
+              <RecentVisits />
+            </div>
           </nav>
         </aside>
       )}
@@ -406,8 +468,33 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           isMobile ? "pt-14" : "lg:pl-64"
         )}
       >
+        {/* 全局搜索触发按钮 (仅PC端) */}
+        {!isMobile && (
+          <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-sm border-b border-border px-4 lg:px-6">
+            <div className="flex items-center justify-between gap-4">
+              <Breadcrumb />
+              <button
+                onClick={() => setSearchOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground bg-muted/50 hover:bg-muted border border-border rounded-md transition-colors"
+              >
+                <Search className="h-3.5 w-3.5" />
+                <span className="hidden md:inline">{t("search.placeholder")}</span>
+                <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-xs text-muted-foreground bg-background rounded font-mono border border-border">
+                  <span className="text-[10px]">⌘</span>K
+                </kbd>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 页面标签栏 */}
+        <PageTabs />
+
         <div className="p-4 lg:p-6">{children}</div>
       </main>
+
+      {/* 全局搜索面板 */}
+      <GlobalSearch />
     </div>
   )
 }

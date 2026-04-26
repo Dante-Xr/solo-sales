@@ -728,6 +728,53 @@
       "permissionUsedByRoles": "该权限正被角色使用，无法删除",
       "operationFailed": "操作失败",
       "deleteFailed": "删除失败"
+    },
+    "tabs": {
+      "close": "关闭标签",
+      "refresh": "刷新标签",
+      "closeOthers": "关闭其他标签",
+      "closeRight": "关闭右侧标签"
+    },
+    "search": {
+      "placeholder": "搜索页面、商品、订单...",
+      "hint": "输入关键词搜索页面导航",
+      "noResults": "未找到相关结果",
+      "pages": "页面导航",
+      "products": "商品",
+      "orders": "订单",
+      "customers": "客户"
+    },
+    "favorites": {
+      "title": "收藏页面",
+      "add": "添加到收藏",
+      "remove": "取消收藏",
+      "noFavorites": "暂无收藏页面"
+    },
+    "recentVisits": {
+      "title": "最近访问",
+      "clear": "清空历史"
+    },
+    "table": {
+      "columns": "列",
+      "columnCustomize": "自定义列",
+      "filter": "筛选",
+      "clearFilters": "清除筛选",
+      "searchPlaceholder": "搜索...",
+      "all": "全部",
+      "min": "最小值",
+      "max": "最大值",
+      "apply": "应用",
+      "cancel": "取消",
+      "sort": "排序",
+      "clickToSort": "点击排序",
+      "ascending": "升序 (点击切换降序)",
+      "descending": "降序 (点击取消排序)",
+      "export": "导出",
+      "exportData": "导出数据",
+      "format": "格式",
+      "exportCurrent": "导出当前页",
+      "exportAll": "导出全部",
+      "exportSelected": "导出选中 ({count} 条)"
     }
   },
   "search": {
