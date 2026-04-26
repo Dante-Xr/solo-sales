@@ -4,6 +4,51 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.3.0] - 2026-04-27
+
+### Phase 6: UI/UX Enhancement - Mobile-First Optimization
+
+#### 新增组件
+- **BottomNav (底部导航栏)**: 移动端固定底部 Tab 导航栏
+  - 首页/搜索/购物车/我的 四个导航项
+  - 当前页高亮、购物车角标、safe-area 适配
+- **HeroBanner (Hero Banner)**: 首页视觉焦点区域
+  - 蓝红交织渐变背景
+  - 玻璃态浮动统计卡片（评分、销量）
+  - CTA 按钮组
+- **CategoryNav (分类导航)**: 首页分类快捷入口
+  - 6 个默认分类：数码、家居、美妆、服饰、运动、图书
+  - 点击跳转搜索页并筛选对应分类
+- **StorefrontPageLayout (统一页面布局)**: 店铺统一页面布局组件
+  - 移动端：返回按钮 + Logo + 移动端菜单 + 购物车 + 用户
+  - 桌面端：完整导航链接 + 视口切换 + 语言切换
+  - ViewportWrapper 包裹支持视口模式切换
+- **SearchFilterSidebar (搜索筛选侧栏)**: PC 端筛选组件
+  - 分类筛选（多选 Checkbox）
+  - 价格区间输入（min / max）
+  - 评分筛选（星级按钮）
+  - 仅显示有货（Checkbox）
+  - 重置按钮
+- **SwipeToDelete (滑动删除)**: 购物车滑动删除组件
+  - 左滑显示删除按钮
+  - 支持触摸手势和点击关闭
+
+#### 功能增强
+- **购物车固定底部结账栏**: 移动端购物车底部固定显示总价和结账按钮
+- **购物车触控区域优化**: 数量调节按钮扩大至 44x44px
+- **搜索页 PC 端筛选侧栏**: 左侧固定筛选栏，右侧结果网格
+- **商品网格响应式**: 移动端 2 列、平板 3 列、PC 4 列、大屏 5 列
+
+#### 设计系统
+- **品牌色彩变量**: 新增 CSS 变量 `--brand`, `--price`, `--success`, `--warning`, `--info`
+  - 使用 oklch 色彩系统，WCAG AA 对比度达标
+  - 暗色模式对应色彩
+- **触控区域优化**: 移动端最小 44x44px 触控区域
+- **排版阶梯**: heading-1/2/3, body-lg, caption 等工具类
+
+#### 性能优化
+- **ProductCard React.memo**: 商品卡片组件 memo 化，减少不必要的重渲染
+
 ## [1.2.0] - 2026-04-26
 
 ### Phase 4: 管理员功能增强 - 高级组件

@@ -69,13 +69,16 @@ SoloSales 是一个现代化的独立站电商系统，基于 Next.js 16 App Rou
 | 模块 | 功能描述 |
 |------|----------|
 | **商品展示** | 商品列表、详情页、品牌展示，支持分类筛选和搜索 |
-| **购物车** | Zustand 持久化购物车，支持增减数量、删除、折扣码应用 |
+| **购物车** | Zustand 持久化购物车，支持增减数量、删除、折扣码应用、优惠券、Upsell 推荐 |
 | **用户认证** | Better Auth 邮箱注册登录、访客结账、管理员插件 |
 | **订单管理** | 订单创建、支付、状态追踪、物流信息展示 |
 | **多语言** | next-intl 国际化支持（中英文切换，默认中文） |
 | **主题切换** | 亮色/暗色主题切换 (next-themes) |
 | **PWA 支持** | 渐进式应用支持 |
 | **多币种** | 实时汇率转换 (CurrencyService) |
+| **底部导航** | 移动端固定底部 Tab 导航栏（首页/搜索/购物车/我的） |
+| **Hero Banner** | 首页轮播展示、分类快捷入口 |
+| **统一布局** | StorefrontPageLayout 提供一致的页面布局体验 |
 
 ### 支付集成
 
@@ -142,6 +145,15 @@ SoloSales 是一个现代化的独立站电商系统，基于 Next.js 16 App Rou
 | 批发商 | 状态 | 功能 |
 |--------|------|------|
 | 1866 批发商 | ✅ 已集成 | API 导入、数据映射、去重处理 |
+
+### 设计系统 (v1.3+)
+
+| 类别 | 描述 |
+|------|------|
+| **品牌色彩** | CSS 变量 `--brand`, `--price`, `--success`, `--warning`, `--info` |
+| **响应式网格** | 商品网格：移动端 2 列、平板 3 列、PC 4 列、大屏 5 列 |
+| **触控优化** | 移动端最小 44x44px 触控区域 |
+| **统一布局** | StorefrontPageLayout 组件提供一致的页面结构 |
 
 ### API 服务
 
@@ -229,17 +241,23 @@ solo_sales/
 │   │   ├── analytics/             # 数据分析组件
 │   │   ├── auth/                  # 认证组件
 │   │   ├── chatbot/               # 智能客服组件
-│   │   ├── checkout/              # 结账组件
+│   │   ├── checkout/              # 结账组件 (EnhancedCheckoutModal, CouponInput, UpsellRecommendation)
 │   │   ├── cookie/                # Cookie 同意组件
 │   │   ├── currency/              # 货币选择组件
 │   │   ├── error/                 # 错误边界
 │   │   ├── logistics/             # 物流组件
 │   │   ├── order/                 # 订单组件
 │   │   ├── points/                # 积分组件
-│   │   ├── product/               # 商品展示组件
+│   │   ├── product/               # 商品展示组件 (ProductCard, StockBadge)
 │   │   ├── providers/             # Context 提供者 (Auth, Query, Theme)
 │   │   ├── seo/                   # SEO 组件
 │   │   ├── storefront/            # 商城前台组件
+│   │   │   ├── BottomNav.tsx      # 底部 Tab 导航栏
+│   │   │   ├── CategoryNav.tsx    # 分类导航
+│   │   │   ├── HeroBanner.tsx     # Hero Banner 区域
+│   │   │   ├── StorefrontPageLayout.tsx # 统一页面布局
+│   │   │   ├── SwipeToDelete.tsx  # 滑动删除组件
+│   │   │   └── SearchFilterSidebar.tsx # 搜索筛选侧栏
 │   │   └── ui/                    # 基础 UI 组件 (shadcn/ui)
 │   │
 │   ├── hooks/                     # 自定义 Hooks

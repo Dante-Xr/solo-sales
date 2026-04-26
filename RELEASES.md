@@ -8,9 +8,53 @@ Comprehensive version history documenting all functional modules and features fr
 
 | Version | Release Date | Status |
 |---------|-------------|--------|
-| [1.2.0](#v120---2026-04-26) | 2026-04-26 | Latest |
+| [1.3.0](#v130---2026-04-27) | 2026-04-27 | Latest |
+| [1.2.0](#v120---2026-04-26) | 2026-04-26 | Stable |
 | [1.0.2](#v102---2026-04-23) | 2026-04-23 | Stable |
 | [1.0.0](#v100---2026-04-21) | 2026-04-21 | Stable |
+
+---
+
+## v1.3.0 - 2026-04-27
+
+### Phase 6: UI/UX Enhancement - Mobile-First Optimization
+
+#### New Components
+
+| Module | Feature | Description |
+|--------|---------|-------------|
+| BottomNav | 底部导航栏 | 移动端固定底部 Tab 导航（首页/搜索/购物车/我的） |
+| HeroBanner | Hero Banner | 首页视觉焦点区域，蓝红渐变背景、浮动统计卡片 |
+| CategoryNav | 分类导航 | 首页分类快捷入口（数码/家居/美妆/服饰/运动/图书） |
+| StorefrontPageLayout | 统一页面布局 | 移动端和桌面端统一的 Header、内容容器、装饰背景 |
+| SearchFilterSidebar | 搜索筛选侧栏 | PC 端固定侧栏，支持分类/价格/评分/库存筛选 |
+| SwipeToDelete | 滑动删除 | 购物车商品左滑显示删除按钮 |
+
+#### Feature Enhancements
+
+| Module | Feature | Description |
+|--------|---------|-------------|
+| Cart | 固定底部结账栏 | 移动端购物车底部固定显示总价和结账按钮 |
+| Cart | 触控区域优化 | 数量调节按钮扩大至 44x44px |
+| Cart | 优惠券输入 | CouponInput 组件，支持折扣码应用 |
+| Cart | Upsell 推荐 | 结账前推荐相关商品 |
+| Search | PC 端筛选侧栏 | 左侧固定筛选栏，右侧结果网格 |
+| ProductGrid | 响应式网格 | 移动端 2 列、平板 3 列、PC 4 列、大屏 5 列 |
+
+#### Design System
+
+| Module | Change | Description |
+|--------|--------|-------------|
+| CSS Variables | 品牌色彩 | 新增 `--brand`, `--price`, `--success`, `--warning`, `--info` |
+| Touch Optimization | 触控区域 | 移动端最小 44x44px 触控区域 |
+| Color Token | 价格色 | oklch 色彩系统，WCAG AA 对比度达标 |
+
+#### Performance Optimization
+
+| Module | Change | Description |
+|--------|--------|-------------|
+| ProductCard | React.memo | 商品卡片组件 memo 化，减少重渲染 |
+| Cart | 布局优化 | 移动端单列、PC 端双列布局 |
 
 ---
 
