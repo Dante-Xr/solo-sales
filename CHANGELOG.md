@@ -4,7 +4,43 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased] - 2026-04-23
+## [Unreleased] - 2026-04-26
+
+### Phase 4: 管理员功能增强 - 高级组件
+
+#### 新增组件
+- **VariantManager (商品变体管理)**: 支持属性组配置、变体组合生成、批量编辑功能
+  - 属性组管理：颜色、尺寸、材质等自定义属性组
+  - 笛卡尔积算法生成变体组合
+  - 批量价格/库存编辑
+  - SKU 自动生成
+- **InventoryAlert (智能库存预警)**: 基于销量的智能库存预警系统
+  - 预警级别计算（紧急/警告/注意/正常）
+  - 可售天数预测
+  - 建议补货量计算
+  - 最后补货时间追踪
+- **AuditLog (操作日志)**: 完整的操作审计追踪
+  - 多维度筛选（操作类型、操作人、时间范围）
+  - 展开式详情查看（修改前后对比）
+  - 分页导航
+
+#### 功能增强
+- **DataExporter (数据导出)**: 新增 PDF 格式导出支持
+  - 集成 jsPDF 和 jsPDF-autotable
+  - 横向排版、网格主题
+  - 数字列右对齐
+- **GlobalSearch (全局搜索)**: 修复 TypeScript 变量引用问题
+
+#### 国际化
+- 新增 67 个翻译键（zh.json/en.json）
+- 覆盖所有 Phase 4 新增功能
+
+#### 性能优化
+- AdminLayout 组件重渲染优化
+- Zustand 状态订阅精确化
+
+#### 安全修复
+- CSV 导出注入漏洞防护
 
 ### Today's Changes
 
