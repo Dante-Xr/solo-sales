@@ -52,6 +52,7 @@ next-env.d.ts
 .trae/documents/
 .trae/plans/
 .trae/specs/
+.trae/skills/
 
 #ao
 ao-output/
