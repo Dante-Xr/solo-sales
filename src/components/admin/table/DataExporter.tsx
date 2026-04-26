@@ -1,11 +1,12 @@
 /**
  * ============================================
- * 数据导出组件 (v1.2 Phase 3)
+ * 数据导出组件 (v1.2 Phase 3 + Phase 4 增强)
  * ============================================
  * 功能说明：
- *   - 支持导出 CSV 和 Excel (xlsx) 格式
+ *   - 支持导出 CSV、Excel (xlsx) 和 PDF 格式
  *   - 导出当前页/全部/选中行
  *   - 使用 xlsx 库生成 Excel 文件
+ *   - v1.2 Phase 4: 增加 PDF 导出（jsPDF + autoTable）
  * ============================================
  */
 
@@ -13,11 +14,13 @@
 
 import { useState, useRef, useEffect } from "react"
 import { useTranslations } from "next-intl"
-import { Download, FileSpreadsheet, FileText } from "lucide-react"
+import { Download, FileSpreadsheet, FileText, FileType } from "lucide-react"
 import { cn } from "@/lib/utils"
 import * as XLSX from "xlsx"
+import { jsPDF } from "jspdf"
+import "jspdf-autotable"
 
-export type ExportFormat = "csv" | "xlsx"
+export type ExportFormat = "csv" | "xlsx" | "pdf"
 export type ExportScope = "current" | "all" | "selected"
 
 interface DataExporterProps {
@@ -148,6 +151,27 @@ export function DataExporter({
               </button>
             )}
 
+            {/* PDF 格式 */}
+            <div className="px-2 py-1 text-xs font-medium text-muted-foreground">
+              {t("format")}: PDF
+            </div>
+            <button
+              onClick={() => doExport("pdf", "current")}
+              className="w-full px-3 py-2 text-left text-sm hover:bg-muted rounded-md transition-colors flex items-center gap-2"
+            >
+              <FileType className="h-3.5 w-3.5" />
+              {t("exportCurrent")}
+            </button>
+            {allData && (
+              <button
+                onClick={() => doExport("pdf", "all")}
+                className="w-full px-3 py-2 text-left text-sm hover:bg-muted rounded-md transition-colors flex items-center gap-2"
+              >
+                <FileType className="h-3.5 w-3.5" />
+                {t("exportAll")}
+              </button>
+            )}
+
             {/* 导出选中行 */}
             {hasSelected && (
               <>
@@ -186,8 +210,10 @@ export function exportData(
 
   if (format === "csv") {
     exportCSV(exportRows, filename)
-  } else {
+  } else if (format === "xlsx") {
     exportExcel(exportRows, filename)
+  } else {
+    exportPDF(data, columns, filename)
   }
 }
 
@@ -242,6 +268,55 @@ function exportExcel(data: Record<string, unknown>[], filename: string) {
   link.download = `${filename}.xlsx`
   link.click()
   URL.revokeObjectURL(url)
+}
+
+/** 导出 PDF 格式 */
+function exportPDF(
+  data: Record<string, unknown>[],
+  columns: { key: string; label: string }[],
+  filename: string
+) {
+  if (data.length === 0) return
+
+  const doc = new jsPDF({ orientation: "landscape", unit: "mm" })
+
+  // 标题
+  doc.setFontSize(14)
+  doc.text(filename.replace(/_/g, " "), 14, 15)
+  doc.setFontSize(10)
+  doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 22)
+
+  // autoTable 表格
+  ;(doc as any).autoTable({
+    startY: 28,
+    head: [columns.map((c) => c.label)],
+    body: data.map((row) => columns.map((col) => String(row[col.key] ?? ""))),
+    theme: "grid",
+    headStyles: {
+      fillColor: [59, 130, 246],
+      textColor: 255,
+      fontStyle: "bold",
+      fontSize: 9,
+    },
+    bodyStyles: {
+      fontSize: 8,
+      cellPadding: 2,
+    },
+    alternateRowStyles: {
+      fillColor: [245, 247, 250],
+    },
+    margin: { left: 14, right: 14 },
+    didParseCell: (hookData: any) => {
+      // 数字列右对齐
+      const colIndex = hookData.column.index
+      const rawValue = data[hookData.row.index]?.[columns[colIndex]?.key]
+      if (typeof rawValue === "number") {
+        hookData.cell.styles.halign = "right"
+      }
+    },
+  })
+
+  doc.save(`${filename}.pdf`)
 }
 
 /** 通用 Blob 下载 */

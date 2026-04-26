@@ -59,8 +59,7 @@ export function GlobalSearch() {
   const router = useRouter()
   const t = useTranslations("admin")
   const inputRef = useRef<HTMLInputElement>(null)
-  const searchOpenRef = useRef(searchOpen)
-  searchOpenRef.current = searchOpen
+  const searchOpenRef = useRef(false)
 
   const {
     searchOpen,
@@ -70,6 +69,8 @@ export function GlobalSearch() {
     searchResults,
     setSearchResults,
   } = useAdminUIStore()
+
+  searchOpenRef.current = searchOpen
 
   /** 过滤搜索结果 */
   const filterResults = useCallback(
