@@ -38,15 +38,13 @@ export function MetricSelector({ value, onChange }: MetricSelectorProps) {
   }, [value])
 
   const handleToggle = useCallback((metric: MetricKey) => {
-    onChange((prev: MetricKey[]) => {
-      if (prev.includes(metric)) {
-        if (prev.length <= 1) return prev
-        return prev.filter((m) => m !== metric)
-      }
-      if (prev.length >= MAX_METRICS) return prev
-      return [...prev, metric]
-    })
-  }, [onChange])
+    if (value.includes(metric)) {
+      if (value.length <= 1) return
+      onChange(value.filter((m) => m !== metric))
+    } else if (value.length < MAX_METRICS) {
+      onChange([...value, metric])
+    }
+  }, [onChange, value])
 
   const getMetricLabel = (key: MetricKey): string => {
     const labels: Record<MetricKey, string> = {

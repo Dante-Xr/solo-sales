@@ -120,13 +120,13 @@ export function CategoryPieChart({ data: propData, loading: propLoading }: Categ
                   outerRadius={80}
                   paddingAngle={2}
                   dataKey="value"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }: { name?: string; percent?: number }) => `${name ?? ""} ${((percent ?? 0) * 100).toFixed(0)}%`}
                 >
                   {chartData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value: number) => formatValue(value)} />
+                <Tooltip formatter={(value: unknown) => formatValue(Number(value ?? 0))} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>

@@ -54,6 +54,9 @@ interface ChartDataPoint {
   sales: number
   orders: number
   revenue: number
+  conversionRate: number
+  aov: number
+  visitors: number
 }
 
 interface DashboardData {
@@ -254,30 +257,22 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" className="h-auto py-4 flex-col gap-2" asChild>
-                <a href="/admin/products">
-                  <Package className="h-6 w-6" />
-                  <span className="text-xs">{t("productManagement")}</span>
-                </a>
-              </Button>
-              <Button variant="outline" className="h-auto py-4 flex-col gap-2" asChild>
-                <a href="/admin/orders">
-                  <ShoppingCart className="h-6 w-6" />
-                  <span className="text-xs">{t("orderManagement")}</span>
-                </a>
-              </Button>
-              <Button variant="outline" className="h-auto py-4 flex-col gap-2" asChild>
-                <a href="/admin/customers">
-                  <Users className="h-6 w-6" />
-                  <span className="text-xs">{t("customers.pageTitle")}</span>
-                </a>
-              </Button>
-              <Button variant="outline" className="h-auto py-4 flex-col gap-2" asChild>
-                <a href="/admin/settings">
-                  <DollarSign className="h-6 w-6" />
-                  <span className="text-xs">{t("settings")}</span>
-                </a>
-              </Button>
+              <a href="/admin/products" className="inline-flex flex-col items-center justify-center gap-2 h-auto py-4 rounded-lg border border-border bg-background hover:bg-muted hover:text-foreground text-sm font-medium transition-colors">
+                <Package className="h-6 w-6" />
+                <span className="text-xs">{t("productManagement")}</span>
+              </a>
+              <a href="/admin/orders" className="inline-flex flex-col items-center justify-center gap-2 h-auto py-4 rounded-lg border border-border bg-background hover:bg-muted hover:text-foreground text-sm font-medium transition-colors">
+                <ShoppingCart className="h-6 w-6" />
+                <span className="text-xs">{t("orderManagement")}</span>
+              </a>
+              <a href="/admin/customers" className="inline-flex flex-col items-center justify-center gap-2 h-auto py-4 rounded-lg border border-border bg-background hover:bg-muted hover:text-foreground text-sm font-medium transition-colors">
+                <Users className="h-6 w-6" />
+                <span className="text-xs">{t("customers.pageTitle")}</span>
+              </a>
+              <a href="/admin/settings" className="inline-flex flex-col items-center justify-center gap-2 h-auto py-4 rounded-lg border border-border bg-background hover:bg-muted hover:text-foreground text-sm font-medium transition-colors">
+                <DollarSign className="h-6 w-6" />
+                <span className="text-xs">{t("settings")}</span>
+              </a>
             </div>
           </CardContent>
         </Card>

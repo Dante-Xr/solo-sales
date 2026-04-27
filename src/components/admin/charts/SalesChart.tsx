@@ -253,7 +253,7 @@ export function SalesChart({ data: propData, compareData: propCompareData, loadi
           <XAxis dataKey="date" tick={{ fontSize: 12 }} />
           <YAxis width={48} tick={{ fontSize: 12 }} />
           <Tooltip
-            formatter={(value: number) => valueFormatter(value)}
+            formatter={(value: unknown) => valueFormatter(Number(value ?? 0))}
             contentStyle={{ borderRadius: "8px", fontSize: "12px" }}
           />
           <Legend />

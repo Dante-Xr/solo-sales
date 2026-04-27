@@ -1,6 +1,6 @@
 "use client"
 
-import { ToggleRight, ToggleLeft, Trash2, X } from "lucide-react"
+import { ToggleRight, ToggleLeft, Trash2, X, Percent } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface BatchActionBarProps {
@@ -8,6 +8,7 @@ interface BatchActionBarProps {
   onPublish: () => void
   onUnpublish: () => void
   onDelete: () => void
+  onDiscount?: () => void
   onClear: () => void
   isZh: boolean
 }
@@ -17,6 +18,7 @@ export function BatchActionBar({
   onPublish,
   onUnpublish,
   onDelete,
+  onDiscount,
   onClear,
   isZh,
 }: BatchActionBarProps) {
@@ -42,6 +44,13 @@ export function BatchActionBar({
         <Trash2 className="w-4 h-4" />
         {isZh ? "删除" : "Delete"}
       </Button>
+
+      {onDiscount && (
+        <Button variant="outline" size="sm" onClick={onDiscount} className="gap-1">
+          <Percent className="w-4 h-4" />
+          {isZh ? "折扣" : "Discount"}
+        </Button>
+      )}
 
       <div className="w-px h-6 bg-border" />
 
