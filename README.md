@@ -1,64 +1,108 @@
 # SoloSales - 独立站电商系统
 
-[![版本](https://img.shields.io/badge/version-1.2.0-blue.svg)](https://github.com/Dante-Xr/solo-sales)
-[![Next.js](https://img.shields.io/badge/Next.js-16.2.1-black.svg)](https://nextjs.org/)
+[![版本](https://img.shields.io/badge/version-1.4.0-blue.svg)](https://github.com/Dante-Xr/solo-sales)
+[![Next.js](https://img.shields.io/badge/Next.js-16.2.4-black.svg)](https://nextjs.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-5.22.0-2A52BE.svg)](https://prisma.io/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-SoloSales 是一个现代化的独立站电商系统，基于 Next.js 16 App Router 构建，支持前后台一体化。涵盖商品展示、购物车、订单管理、支付集成、智能客服（RAG）、联盟营销、积分系统，以及完整的 RBAC 后台管理系统。
+SoloSales 是一个现代化的独立站电商系统，基于 Next.js 16 App Router 构建，支持前后台一体化。涵盖商品展示、购物车、订单管理、支付集成、智能客服（RAG）、联盟营销、积分系统，以及完整的 RBAC 后台管理系统。v1.4 引入 `src/server` 模块化单体架构，将业务逻辑收敛到 service/repository/contracts 分层。
 
 ---
 
 ## 技术栈
 
-### 核心框架
-
-| 类别 | 技术 | 版本 |
-|------|------|------|
-| 前端框架 | Next.js (App Router + Turbopack) | 16.2.1 |
-| UI 框架 | React | 19.2.4 |
-| 语言 | TypeScript | 5.x |
-
-### 数据与后端
-
 | 类别 | 技术 | 版本 | 说明 |
 |------|------|------|------|
+| 前端框架 | Next.js (App Router + Turbopack) | 16.2.4 | 全栈 React 框架 |
+| UI 框架 | React | 19.2.4 | |
+| 语言 | TypeScript | 5.x | |
 | 数据库 | PostgreSQL (Neon) | - | Serverless PostgreSQL |
 | ORM | Prisma | 5.22.0 | 含 `@prisma/adapter-pg` |
 | 缓存 | Upstash Redis | 1.37.0 | 分布式缓存 + 限流 |
-| 认证 | Better Auth | 1.6.2 | 替代 NextAuth，支持 admin 插件 |
-
-### UI 与样式
-
-| 类别 | 技术 | 版本 |
-|------|------|------|
-| 样式框架 | Tailwind CSS | 4.x |
-| UI 组件库 | shadcn/ui | 4.1.0 |
-| 基础组件 | @base-ui/react | 1.3.0 |
-| 图表可视化 | Recharts | 3.8.0 |
-| 数据面板 | @tremor/react | 4.0.0-beta |
-| 图标库 | Lucide React | 0.577.0 |
-| 动画 | Tw Animate CSS | 1.4.0 |
-| 轮播 | Embla Carousel | 8.6.0 |
-
-### 状态管理与数据
-
-| 类别 | 技术 | 版本 | 说明 |
-|------|------|------|------|
+| 认证 | Better Auth | 1.6.2 | 支持 admin 插件 |
+| 样式 | Tailwind CSS | 4.x | |
+| UI 组件 | shadcn/ui | 4.1.0 | |
+| 基础组件 | @base-ui/react | 1.3.0 | |
+| 图表 | Recharts | 3.8.0 | |
+| 数据面板 | @tremor/react | 4.0.0-beta | |
+| 图标 | Lucide React | 0.577.0 | |
+| 动画 | Tw Animate CSS | 1.4.0 | |
+| 轮播 | Embla Carousel | 8.6.0 | |
 | 客户端状态 | Zustand | 5.0.12 | 购物车、愿望清单、视口模式 |
 | 服务端状态 | TanStack React Query | 5.95.2 | 数据请求与缓存 |
 | 后台框架 | Refine | 5.0.12 | 管理后台 CRUD 框架 |
+| 国际化 | next-intl | 4.9.1 | 中英文切换 |
+| 表单验证 | Zod | 4.3.6 | |
+| 支付 | Stripe / PayPal | 20.4.1 / 1.8.1 | |
+| 错误监控 | Sentry | 10.46.0 | |
+| 日期处理 | date-fns | 4.1.0 | |
+| 测试 | Jest | 30.3.0 | |
+| E2E 测试 | Playwright | 1.59.1 | |
 
-### 业务与工具
+---
 
-| 类别 | 技术 | 版本 |
-|------|------|------|
-| 国际化 | next-intl | 4.9.1 |
-| 表单验证 | Zod | 4.3.6 |
-| 支付集成 | Stripe / PayPal | 20.4.1 / 1.8.1 |
-| 错误监控 | Sentry | 10.46.0 |
-| 打包分析 | @next/bundle-analyzer | 16.2.1 |
-| 日期处理 | date-fns | 4.1.0 |
+## 架构概览
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Next.js App Router                    │
+├──────────────┬──────────────────────┬───────────────────┤
+│  前台页面     │    API Routes        │   后台页面         │
+│  [locale]/*  │    /api/*            │   admin/*         │
+├──────────────┼──────────────────────┼───────────────────┤
+│  Storefront  │    src/server        │   Refine + Tremor │
+│  Components  │  ┌───────────────┐   │   Components      │
+│              │  │  Services     │   │                   │
+│              │  │  Repositories │   │                   │
+│              │  │  Contracts    │   │                   │
+│              │  └───────────────┘   │                   │
+├──────────────┴──────────────────────┴───────────────────┤
+│              Prisma ORM + Neon PostgreSQL                │
+│              Upstash Redis (缓存/限流)                    │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 服务端分层架构 (v1.4+)
+
+v1.4 引入 `src/server` 模块化单体架构，将业务逻辑从 API Route 中剥离到独立的服务层：
+
+```
+src/server/
+├── contracts/          # 统一 API 响应契约与错误模型
+│   ├── api.ts          # successResponse / handleApiError
+│   └── errors.ts       # ErrorCodes / AppError / StatusCodeMap
+├── services/           # 业务服务层
+│   ├── order-service.ts
+│   ├── payment-service.ts
+│   ├── product-service.ts
+│   ├── promotion-service.ts
+│   ├── inventory-service.ts
+│   └── admin-service.ts
+├── repositories/       # 数据访问层 (Prisma 封装)
+│   ├── order-repository.ts
+│   ├── product-repository.ts
+│   ├── promotion-repository.ts
+│   ├── inventory-repository.ts
+│   └── admin-repository.ts
+├── auth/               # 服务端鉴权
+│   └── session.ts
+├── payments/           # 支付 SDK 封装
+│   └── stripe.ts
+└── __mocks__/          # 测试 Mock
+    └── server-only.ts
+```
+
+**统一 API 响应格式：**
+
+```typescript
+// 成功响应
+{ success: true, data: T, meta?: Record<string, unknown> }
+
+// 错误响应
+{ success: false, error: { code: string, message: string, details?: unknown } }
+```
+
+所有服务端模块引入 `server-only`，确保不被 Client Component 误导入。
 
 ---
 
@@ -69,7 +113,7 @@ SoloSales 是一个现代化的独立站电商系统，基于 Next.js 16 App Rou
 | 模块 | 功能描述 |
 |------|----------|
 | **商品展示** | 商品列表、详情页、品牌展示，支持分类筛选和搜索 |
-| **购物车** | Zustand 持久化购物车，支持增减数量、删除、折扣码应用、优惠券、Upsell 推荐 |
+| **购物车** | Zustand 持久化购物车，支持增减数量、删除、折扣码、Upsell 推荐 |
 | **用户认证** | Better Auth 邮箱注册登录、访客结账、管理员插件 |
 | **订单管理** | 订单创建、支付、状态追踪、物流信息展示 |
 | **多语言** | next-intl 国际化支持（中英文切换，默认中文） |
@@ -79,14 +123,15 @@ SoloSales 是一个现代化的独立站电商系统，基于 Next.js 16 App Rou
 | **底部导航** | 移动端固定底部 Tab 导航栏（首页/搜索/购物车/我的） |
 | **Hero Banner** | 首页轮播展示、分类快捷入口 |
 | **统一布局** | StorefrontPageLayout 提供一致的页面布局体验 |
+| **视口切换** | PC 端手机模式切换，强制控制布局不受窗口大小影响 |
 
 ### 支付集成
 
 | 支付方式 | 状态 | 说明 |
 |----------|------|------|
-| Stripe | ✅ 已集成 | 支持信用卡、借记卡支付 |
-| PayPal | ✅ 已集成 | 支持 PayPal 账户支付 |
-| 折扣码 | ✅ 已集成 | Stripe Coupon 折扣系统 |
+| Stripe | ✅ | 信用卡/借记卡支付，webhook 签名校验 + 幂等保护 |
+| PayPal | ✅ | PayPal 账户支付 |
+| 折扣码 | ✅ | Stripe Coupon 折扣系统 |
 
 ### 智能客服 (RAG)
 
@@ -131,7 +176,7 @@ SoloSales 是一个现代化的独立站电商系统，基于 Next.js 16 App Rou
 | **客服聊天** | 管理员客服会话界面 |
 | **系统设置** | 系统配置管理 |
 
-#### 高级管理组件 (v1.2.0+)
+#### 高级管理组件
 
 | 模块 | 功能描述 |
 |------|----------|
@@ -139,30 +184,18 @@ SoloSales 是一个现代化的独立站电商系统，基于 Next.js 16 App Rou
 | **InventoryAlert** | 智能库存预警 - 四级预警、可售天数预测、建议补货计算 |
 | **AuditLog** | 操作日志 - 多维度筛选、修改前后对比、分页导航 |
 | **DataExporter** | 数据导出 - CSV/JSON/Excel/PDF 多格式支持 |
+| **BatchActionBar** | 批量操作栏 - 批量上下架、批量删除、批量折扣 |
+| **KpiCard** | KPI 卡片 - 关键指标展示 |
 
-### 批发商集成
-
-| 批发商 | 状态 | 功能 |
-|--------|------|------|
-| 1866 批发商 | ✅ 已集成 | API 导入、数据映射、去重处理 |
-
-### 设计系统 (v1.3+)
+### 设计系统
 
 | 类别 | 描述 |
 |------|------|
-| **品牌色彩** | CSS 变量 `--brand`, `--price`, `--success`, `--warning`, `--info` |
+| **品牌色彩** | CSS 变量 `--brand`, `--price`, `--success`, `--warning`, `--info` (oklch 色彩系统) |
 | **响应式网格** | 商品网格：移动端 2 列、平板 3 列、PC 4 列、大屏 5 列 |
 | **触控优化** | 移动端最小 44x44px 触控区域 |
 | **统一布局** | StorefrontPageLayout 组件提供一致的页面结构 |
-
-### API 服务
-
-| 模块 | 功能描述 |
-|------|----------|
-| **健康检查** | `/api/health` - 服务健康状态 |
-| **货币服务** | CurrencyService - 实时汇率获取与转换 |
-| **评论管理** | 商品评论、回复、审核 |
-| **搜索服务** | 热门搜索、趋势搜索 |
+| **系统字体** | 移除 Google Fonts 网络依赖，使用系统字体变量 |
 
 ---
 
@@ -173,6 +206,7 @@ solo_sales/
 ├── prisma/
 │   ├── schema.prisma              # Prisma 数据模型定义
 │   ├── seed-admin.ts              # 管理员数据初始化脚本
+│   ├── seed-products.ts           # 商品数据初始化脚本
 │   └── migrations/                # 数据库迁移文件
 │
 ├── public/
@@ -184,22 +218,26 @@ solo_sales/
 │   │   ├── [locale]/              # 国际化路由 (next-intl)
 │   │   │   ├── admin/             # 后台管理系统
 │   │   │   │   ├── (auth)/login/  # 管理员登录页
-│   │   │   │   ├── advanced/      # 高级功能页（变体管理、库存预警、操作日志）
-│   │   │   │   ├── chat/          # 客服聊天页面
+│   │   │   │   ├── chat/          # 客服聊天
 │   │   │   │   ├── customers/     # 客户管理
 │   │   │   │   ├── import/        # 商品导入
 │   │   │   │   ├── knowledge/     # 知识库管理
 │   │   │   │   ├── orders/        # 订单管理
-│   │   │   │   ├── permissions/  # 权限管理
-│   │   │   │   ├── products/     # 商品管理
+│   │   │   │   ├── permissions/   # 权限管理
+│   │   │   │   ├── products/      # 商品管理
 │   │   │   │   ├── profile/       # 个人资料
 │   │   │   │   ├── roles/         # 角色管理
-│   │   │   │   ├── settings/     # 系统设置
-│   │   │   │   └── users/        # 用户管理
+│   │   │   │   ├── settings/      # 系统设置
+│   │   │   │   └── users/         # 用户管理
+│   │   │   ├── about/             # 关于页面
 │   │   │   ├── cart/              # 购物车页面
+│   │   │   ├── contact/           # 联系页面
 │   │   │   ├── demo/              # 演示页面
+│   │   │   ├── faq/               # FAQ 页面
 │   │   │   ├── orders/            # 订单页面
+│   │   │   ├── privacy/           # 隐私政策
 │   │   │   ├── product/[id]/      # 商品详情页
+│   │   │   ├── products/          # 商品列表页
 │   │   │   ├── profile/           # 用户资料页
 │   │   │   ├── search/            # 搜索结果页
 │   │   │   ├── layout.tsx         # 前台布局
@@ -216,6 +254,7 @@ solo_sales/
 │   │   │   ├── chat/              # 客服聊天
 │   │   │   ├── checkout/          # 支付 API (Stripe/PayPal)
 │   │   │   ├── coupons/           # 折扣码 API
+│   │   │   ├── csrf-token/        # CSRF Token
 │   │   │   ├── currency/          # 货币服务
 │   │   │   ├── customers/         # 客户 API
 │   │   │   ├── health/            # 健康检查
@@ -232,102 +271,59 @@ solo_sales/
 │   │   ├── globals.css            # 全局样式
 │   │   └── favicon.ico            # 网站图标
 │   │
+│   ├── server/                    # 服务端业务层 (v1.4+)
+│   │   ├── contracts/             # API 响应契约与错误模型
+│   │   ├── services/              # 业务服务 (6 个领域服务)
+│   │   ├── repositories/          # 数据访问层 (5 个仓储)
+│   │   ├── auth/                  # 服务端鉴权
+│   │   ├── payments/              # 支付 SDK 封装
+│   │   └── __mocks__/             # 测试 Mock
+│   │
 │   ├── components/
-│   │   ├── admin/                 # 后台管理组件 (Refine)
+│   │   ├── admin/                 # 后台管理组件
 │   │   │   ├── advanced/          # 高级组件 (VariantManager, InventoryAlert, AuditLog)
-│   │   │   ├── charts/            # 图表组件
+│   │   │   ├── charts/            # 图表组件 (11 个图表组件)
 │   │   │   ├── layout/            # 布局组件 (Breadcrumb, PageTabs, GlobalSearch)
+│   │   │   ├── products/          # 商品管理 (BatchDiscountModal, QuickEditCell, StockAdjuster)
 │   │   │   └── table/             # 表格组件 (ColumnCustomizer, TableSorter, DataExporter)
 │   │   ├── analytics/             # 数据分析组件
 │   │   ├── auth/                  # 认证组件
 │   │   ├── chatbot/               # 智能客服组件
-│   │   ├── checkout/              # 结账组件 (EnhancedCheckoutModal, CouponInput, UpsellRecommendation)
+│   │   ├── checkout/              # 结账组件 (EnhancedCheckoutModal, CouponInput, Upsell)
 │   │   ├── cookie/                # Cookie 同意组件
 │   │   ├── currency/              # 货币选择组件
 │   │   ├── error/                 # 错误边界
 │   │   ├── logistics/             # 物流组件
 │   │   ├── order/                 # 订单组件
 │   │   ├── points/                # 积分组件
-│   │   ├── product/               # 商品展示组件 (ProductCard, StockBadge)
+│   │   ├── product/               # 商品展示组件 (16 个组件)
 │   │   ├── providers/             # Context 提供者 (Auth, Query, Theme)
 │   │   ├── seo/                   # SEO 组件
-│   │   ├── storefront/            # 商城前台组件
-│   │   │   ├── BottomNav.tsx      # 底部 Tab 导航栏
-│   │   │   ├── CategoryNav.tsx    # 分类导航
-│   │   │   ├── HeroBanner.tsx     # Hero Banner 区域
-│   │   │   ├── StorefrontPageLayout.tsx # 统一页面布局
-│   │   │   ├── SwipeToDelete.tsx  # 滑动删除组件
-│   │   │   └── SearchFilterSidebar.tsx # 搜索筛选侧栏
-│   │   └── ui/                    # 基础 UI 组件 (shadcn/ui)
+│   │   ├── storefront/            # 商城前台组件 (24 个组件)
+│   │   └── ui/                    # 基础 UI 组件 (shadcn/ui, 25 个组件)
 │   │
-│   ├── hooks/                     # 自定义 Hooks
-│   │   ├── use-mobile.ts          # 移动端检测
-│   │   ├── useCurrency.ts         # 货币 Hook
-│   │   ├── useOrders.ts           # 订单数据 Hook
-│   │   ├── useProducts.ts         # 商品数据 Hook
-│   │   ├── usePWA.ts              # PWA Hook
-│   │   ├── usePermissions.tsx     # 权限 Hook
-│   │   ├── usePullToRefresh.ts    # 下拉刷新 Hook
-│   │   └── useTrending.ts         # 趋势搜索 Hook
-│   │
-│   ├── i18n/
-│   │   ├── messages/              # 翻译文件 (en.json, zh.json)
-│   │   ├── navigation.ts          # 国际化导航
-│   │   ├── request.ts             # 请求配置
-│   │   └── routing.ts             # 路由配置 (en, zh)
-│   │
-│   ├── lib/
+│   ├── hooks/                     # 自定义 Hooks (8 个)
+│   ├── i18n/                      # 国际化配置与翻译文件
+│   ├── lib/                       # 工具库与服务
 │   │   ├── affiliate/             # 联盟营销服务
 │   │   ├── analytics/             # 数据分析服务
 │   │   ├── bundle/                # 套餐服务
 │   │   ├── currency/              # 货币服务
 │   │   ├── marketing/             # 营销引擎
-│   │   │   └── EmailSequenceEngine.ts
 │   │   ├── rag/                   # RAG 知识库
-│   │   │   ├── ConversationManager.ts
-│   │   │   ├── IntentDetection.ts
-│   │   │   └── RAGService.ts
-│   │   ├── services/              # 业务服务
-│   │   │   ├── AbandonedCartService.ts
-│   │   │   ├── EmailService.ts
-│   │   │   └── StockAlertService.ts
-│   │   ├── wholesalers/           # 批发商客户端
-│   │   │   └── 1866/              # 1866 批发商实现
-│   │   ├── adminAuth.ts           # 管理员认证
-│   │   ├── api-client.ts          # API 客户端
-│   │   ├── auth.ts                # Better Auth 配置
-│   │   ├── auth-client.ts         # 认证客户端
-│   │   ├── cache.ts               # 缓存工具
-│   │   ├── env-validator.ts       # 环境变量验证
-│   │   ├── prisma.ts              # Prisma 客户端
-│   │   ├── redis.ts               # Redis 客户端
-│   │   ├── refine-auth-provider.ts # Refine 认证适配
+│   │   ├── services/              # 业务服务 (AbandonedCart, Email, StockAlert)
+│   │   ├── wholesalers/           # 批发商客户端 (1866)
+│   │   ├── api-client.ts          # API 客户端 (自动解包标准响应)
 │   │   ├── refine-data-provider.ts # Refine 数据适配
-│   │   ├── sentry.ts              # Sentry 配置
-│   │   ├── utils.ts               # 通用工具函数
-│   │   └── validators.ts          # Zod 验证器
-│   │
-│   ├── middleware/
-│   │   └── rate-limit.ts          # API 限流中间件
-│   │
-│   └── stores/                    # Zustand 状态管理
-│       ├── useCartStore.ts        # 购物车状态
-│       ├── useViewportModeStore.ts # 视口模式状态
-│       └── useWishlistStore.ts    # 愿望清单状态
-│
-├── .trae/                         # 项目文档与规格
-│   ├── documents/                 # 需求与计划文档
-│   ├── plans/                     # 优化计划
-│   └── specs/                     # 详细规格说明
+│   │   ├── refine-auth-provider.ts # Refine 认证适配
+│   │   └── ...                    # 其他工具
+│   ├── stores/                    # Zustand 状态管理 (3 个 Store)
+│   └── middleware/                # API 限流中间件
 │
 ├── netlify.toml                   # Netlify 部署配置
 ├── next.config.ts                 # Next.js 配置
-├── sentry.client.config.ts        # Sentry 客户端配置
-├── sentry.server.config.ts        # Sentry 服务端配置
 ├── jest.config.ts                 # Jest 测试配置
 ├── eslint.config.mjs              # ESLint 配置
-├── postcss.config.mjs             # PostCSS 配置
-├── components.json                # shadcn/ui 配置
 └── package.json                   # 项目依赖
 ```
 
@@ -352,20 +348,13 @@ solo_sales/
 |------|------|
 | `CustomerPoints` | 客户积分 |
 | `PointsTransaction` | 积分交易记录 |
-| `Affiliate` | 联盟商信息 |
-| `AffiliateLink` | 推广链接 |
-| `AffiliateCommission` | 佣金记录 |
-| `AffiliatePayout` | 佣金提现 |
-| `Coupon` | 折扣码 |
-| `CouponUsage` | 折扣码使用记录 |
-| `Bundle` | 套餐 |
-| `BundleItem` | 套餐商品项 |
-| `Review` | 商品评论 |
-| `ReviewReply` | 评论回复 |
+| `Affiliate` / `AffiliateLink` / `AffiliateCommission` / `AffiliatePayout` | 联盟营销 |
+| `Coupon` / `CouponUsage` | 折扣码 |
+| `Bundle` / `BundleItem` | 套餐 |
+| `Review` / `ReviewReply` | 商品评论 |
 | `CurrencyRate` | 货币汇率缓存 |
 | `AbandonedCart` | 遗弃购物车 |
-| `EmailSequence` | 邮件序列 |
-| `EmailSequenceEnrollment` | 序列 enrollment |
+| `EmailSequence` / `EmailSequenceEnrollment` | 邮件序列 |
 
 ### RAG 知识库模型
 
@@ -513,6 +502,7 @@ solo_sales/
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | GET | `/api/health` | 健康检查 |
+| GET | `/api/csrf-token` | CSRF Token |
 | GET | `/api/currency/rates` | 实时汇率 |
 | POST | `/api/stock-alert` | 库存预警 |
 | POST | `/api/abandoned-cart` | 遗弃购物车记录 |
@@ -563,13 +553,6 @@ npm run dev
 | `npm run test:watch` | 监听模式运行测试 |
 | `npm run analyze` | 分析打包体积 |
 
-### 构建生产版本
-
-```bash
-npm run build
-npm start
-```
-
 ---
 
 ## 部署
@@ -586,10 +569,6 @@ npm install -g netlify-cli
 npx netlify deploy --prod
 ```
 
-### Vercel + Supabase 部署
-
-详见 [DEPLOYMENT.md](DEPLOYMENT.md) 获取完整的 Vercel + Supabase 部署指南。
-
 ### 环境变量
 
 | 变量名 | 必填 | 说明 |
@@ -601,6 +580,7 @@ npx netlify deploy --prod
 | `UPSTASH_REDIS_REST_TOKEN` | ✅ | Upstash Redis REST Token |
 | `STRIPE_SECRET_KEY` | ❌ | Stripe Secret Key |
 | `STRIPE_PUBLIC_KEY` | ❌ | Stripe Publishable Key |
+| `STRIPE_WEBHOOK_SECRET` | ❌ | Stripe Webhook 签名密钥 |
 | `PAYPAL_CLIENT_ID` | ❌ | PayPal Client ID |
 | `PAYPAL_CLIENT_SECRET` | ❌ | PayPal Client Secret |
 | `SENTRY_DSN` | ❌ | Sentry DSN |
@@ -618,6 +598,31 @@ npx netlify deploy --prod
 | API 参数验证 | Zod 验证所有 API 输入 |
 | 密码加密 | bcryptjs 哈希存储 |
 | RBAC | 完整的角色权限管理系统 |
+| 订单金额信任边界 | 服务端按数据库价格重新计算，不信任客户端传入金额 |
+| Stripe Webhook 幂等 | 签名校验 + 重复事件幂等保护 |
+| server-only 约束 | 服务端模块不可被 Client Component 导入 |
+
+---
+
+## 测试
+
+| 测试类型 | 框架 | 覆盖范围 |
+|----------|------|----------|
+| 单元测试 | Jest | 服务层、客户端工具、页面组件 |
+| E2E 测试 | Playwright | 浏览器端到端测试 |
+
+### 服务层测试 (33 suites / 145 tests)
+
+| 测试文件 | 覆盖内容 |
+|----------|----------|
+| `order-service.test.ts` | 订单金额信任边界、库存不足、事务扣库存 |
+| `payment-service.test.ts` | Stripe checkout、webhook、幂等保护 |
+| `product-service.test.ts` | 商品查询、SKU 冲突、分类保护、断连重试 |
+| `promotion-service.test.ts` | 优惠券封顶、使用次数限制、积分余额 |
+| `inventory-service.test.ts` | 导入进度、失败统计、库存预警 |
+| `admin-service.test.ts` | 管理员唯一性、角色保护、权限分页 |
+| `api-client.test.ts` | 标准响应解包与错误处理 |
+| `refine-data-provider.test.ts` | 列表解包、旧数组兼容、结构化错误 |
 
 ---
 
