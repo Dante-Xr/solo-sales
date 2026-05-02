@@ -8,10 +8,89 @@ Comprehensive version history documenting all functional modules and features fr
 
 | Version | Release Date | Status |
 |---------|-------------|--------|
-| [1.3.0](#v130---2026-04-27) | 2026-04-27 | Latest |
+| [1.4.0](#v140---2026-05-02) | 2026-05-02 | Latest |
+| [1.3.0](#v130---2026-04-27) | 2026-04-27 | Stable |
 | [1.2.0](#v120---2026-04-26) | 2026-04-26 | Stable |
 | [1.0.2](#v102---2026-04-23) | 2026-04-23 | Stable |
 | [1.0.0](#v100---2026-04-21) | 2026-04-21 | Stable |
+
+---
+
+## v1.4.0 - 2026-05-02
+
+### PLAN2 Modular Monolith Refactor - Server Architecture
+
+#### Architecture Foundation
+
+| Module | Feature | Description |
+|--------|---------|-------------|
+| src/server | Service Layer | New `src/server/services` for business logic separation |
+| src/server | Repository Layer | New `src/server/repositories` for Prisma query encapsulation |
+| src/server | Contracts | Unified API response, error codes, HTTP status mapping, AppError |
+| src/server | Auth | Server-side session and authentication helpers |
+| src/server | Payments | Stripe SDK encapsulation and payment capabilities |
+| server-only | Import Constraint | All server runtime modules import `server-only` |
+
+#### API Response Standardization
+
+| Module | Feature | Description |
+|--------|---------|-------------|
+| Success Response | Standard Format | `{ success: true, data, meta? }` |
+| Error Response | Standard Format | `{ success: false, error: { code, message, details? } }` |
+| successResponse | Extended | Supports status, headers, fromCache, meta, and top-level compatibility |
+| handleApiError | Unified | Handles AppError and unknown exceptions consistently |
+
+#### Order & Payment Security
+
+| Module | Feature | Description |
+|--------|---------|-------------|
+| Order Amount | Trust Boundary | Server recalculates order amount from database product prices |
+| Inventory | Transaction | Inventory deduction in transaction during order creation |
+| Stripe Checkout | Line Items | Uses database prices to generate Stripe line items |
+| Stripe Webhook | Security | Signature verification, payment success handling, idempotency protection |
+
+#### Service Migration
+
+| Domain | Services |
+|--------|----------|
+| Order | Order creation, query, amount calculation, inventory deduction |
+| Payment | Stripe checkout, webhook validation, payment record updates |
+| Product | List, detail, CRUD, featured, batch operations |
+| Promotion | Coupon CRUD/validation, points account/query/redeem |
+| Inventory | Wholesale import, mapping, SKU deduplication, alerts |
+| Admin | Users, roles, permissions, profile, RBAC, audit logs |
+
+#### Frontend Adaptations
+
+| Module | Feature | Description |
+|--------|---------|-------------|
+| api-client | Auto Unwrap | Automatically unwraps standard response format |
+| refine-data-provider | Adapter | Adapts to standard response, pagination, and legacy array format |
+| refine-auth-provider | Error Compatible | Structured login error compatibility |
+| PayPal/PayPal Checkout | Response Compatible | Standard response compatibility |
+| Google Fonts | Removed | Build-time network dependency removed, system font variables |
+
+#### Test Coverage
+
+| Suite | Tests | Coverage |
+|-------|-------|----------|
+| order-service.test.ts | Order amount trust boundary, inventory shortage, transaction | 100% |
+| payment-service.test.ts | Stripe checkout, webhook, idempotency | 100% |
+| product-service.test.ts | Product query, SKU conflict, category protection, retry | 100% |
+| promotion-service.test.ts | Coupon cap, usage limit, points balance | 100% |
+| inventory-service.test.ts | Import progress, failure stats, alerts | 100% |
+| admin-service.test.ts | Admin uniqueness, role protection, pagination | 100% |
+| api-client.test.ts | Response unwrap, error handling | 100% |
+| refine-data-provider.test.ts | List unwrap, legacy compatibility, custom query | 100% |
+
+**Test Results:** 33 suites / 145 tests passed
+
+#### Verified Commands
+
+- `npm run lint` - Passed
+- `npx tsc --noEmit` - Passed
+- `npm test -- --runInBand` - Passed
+- `npm run build` - Passed
 
 ---
 

@@ -4,6 +4,41 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.4.0] - 2026-05-02
+
+### Architecture Refactor - Modular Monolith (PLAN2)
+
+#### Architecture Foundation
+- **src/server 分层**: 新增 `src/server/services`、`src/server/repositories`、`src/server/contracts` 分层骨架
+- **server-only 约束**: 所有服务端 runtime 模块引入 `server-only`，避免 Client Component 误导入
+- **统一 API 响应契约**: 成功响应 `{ success: true, data, meta? }`，错误响应 `{ success: false, error: { code, message, details? } }`
+- **统一错误模型**: `AppError` 类和 `handleApiError` 统一处理所有 API 异常
+
+#### Service Layer Migration
+- **订单支付重构**: 订单创建/查询/金额计算/库存扣减迁移到 `order-service`；Stripe checkout/webhook/支付记录迁移到 `payment-service`
+- **商品交易域重构**: 商品/分类/featured/批量操作/优惠券/积分/库存/导入迁移到服务层
+- **后台域重构**: 后台用户/角色/权限/管理员资料/RBAC/审计日志迁移到 `admin-service`
+- **分析 API 收敛**: `analytics/overview`、`analytics/sales`、`analytics/products`、`analytics/customers`、`analytics/inventory` 完成标准响应收敛
+
+#### Security Enhancements
+- **订单金额信任边界**: 服务端按数据库商品价格重新计算订单金额，不再信任客户端传入的价格
+- **Stripe webhook 幂等**: 增加签名校验、支付成功处理、重复事件幂等保护
+- **库存事务**: 创建订单时在事务内扣减库存
+
+#### Client Adaptations
+- **api-client 解包**: 自动解包标准响应格式，兼容新旧错误格式
+- **refine-data-provider**: 适配标准响应、分页结构 `{ list, pagination }` 和旧数组响应
+- **Google Fonts 移除**: 移除 `next/font/google` 构建期网络依赖，改用系统字体变量
+
+#### Performance & Stability
+- **商品查询保护**: Prisma 断连重试和查询超时保护，避免数据库抖动造成页面长时间阻塞
+- **兜底商品**: 数据库不可用时首页和商品页展示兜底商品，避免 500 错误
+
+#### Testing
+- **新增测试**: order-service、payment-service、product-service、promotion-service、inventory-service、admin-service 全量覆盖
+- **测试结果**: 33 suites / 145 tests passed
+- **验证通过**: lint、TypeScript、jest、build
+
 ## [1.3.0] - 2026-04-27
 
 ### Phase 6: UI/UX Enhancement - Mobile-First Optimization
