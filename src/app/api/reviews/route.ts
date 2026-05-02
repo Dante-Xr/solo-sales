@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 20:27:37 +08:00
+ * 修改内容：统一商品评价列表和创建路由响应与错误处理，清理手写 NextResponse 模板。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 商品评价 API 路由 (v0.5.0)
  * ============================================
@@ -9,12 +13,13 @@
  * ============================================
  */
 
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
-import { successResponse } from "@/lib/api-wrapper"
 import { csrfGuard } from "@/middleware/csrf-guard"
+import { createdResponse, handleApiError, successResponse } from "@/server/contracts/api"
+import { badRequest, conflict, notFound, unauthorized } from "@/server/contracts/errors"
 
 /**
  * 获取评论列表
@@ -30,10 +35,7 @@ export async function GET(request: NextRequest) {
     const order = searchParams.get("order") || "desc"
 
     if (!productId) {
-      return NextResponse.json(
-        { success: false, error: { code: "BAD_REQUEST", message: "缺少 productId 参数" } },
-        { status: 400 }
-      )
+      throw badRequest("缺少 productId 参数")
     }
 
     const where: Record<string, unknown> = {
@@ -41,6 +43,7 @@ export async function GET(request: NextRequest) {
       isApproved: true,
     }
 
+    // 只允许白名单排序字段，避免把任意查询参数透传到 Prisma orderBy。
     const sortField = ["createdAt", "rating", "helpfulCount"].includes(sort) ? sort : "createdAt"
     const sortOrder = order === "asc" ? "asc" : "desc"
 
@@ -94,11 +97,7 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error("获取评论列表失败:", error)
-    return NextResponse.json(
-      { success: false, error: { code: "INTERNAL_ERROR", message: "获取评论列表失败" } },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
@@ -116,10 +115,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (!session?.user) {
-      return NextResponse.json(
-        { success: false, error: { code: "UNAUTHORIZED", message: "请先登录" } },
-        { status: 401 }
-      )
+      throw unauthorized("请先登录")
     }
 
     const body = await request.json()
@@ -127,17 +123,11 @@ export async function POST(request: NextRequest) {
     const userId = session.user.id
 
     if (!productId || !rating) {
-      return NextResponse.json(
-        { success: false, error: { code: "BAD_REQUEST", message: "缺少必填字段" } },
-        { status: 400 }
-      )
+      throw badRequest("缺少必填字段")
     }
 
     if (rating < 1 || rating > 5) {
-      return NextResponse.json(
-        { success: false, error: { code: "BAD_REQUEST", message: "评分必须在 1-5 之间" } },
-        { status: 400 }
-      )
+      throw badRequest("评分必须在 1-5 之间")
     }
 
     const product = await prisma.product.findUnique({
@@ -145,10 +135,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (!product) {
-      return NextResponse.json(
-        { success: false, error: { code: "NOT_FOUND", message: "商品不存在" } },
-        { status: 404 }
-      )
+      throw notFound("商品")
     }
 
     const existingReview = await prisma.review.findFirst({
@@ -156,10 +143,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (existingReview) {
-      return NextResponse.json(
-        { success: false, error: { code: "DUPLICATE", message: "您已评价过该商品" } },
-        { status: 409 }
-      )
+      throw conflict("您已评价过该商品")
     }
 
     const review = await prisma.review.create({
@@ -170,6 +154,7 @@ export async function POST(request: NextRequest) {
         title: title || null,
         content: content || null,
         isApproved: false,
+        // 评论图片按传入顺序保存 position，前端展示时可稳定排序。
         images: images && images.length > 0
           ? {
               create: images.map((url: string, index: number) => ({
@@ -191,19 +176,8 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    return NextResponse.json(
-      {
-        success: true,
-        data: review,
-        message: "评论提交成功，等待审核",
-      },
-      { status: 201 }
-    )
+    return createdResponse(review)
   } catch (error) {
-    console.error("创建评论失败:", error)
-    return NextResponse.json(
-      { success: false, error: { code: "INTERNAL_ERROR", message: "创建评论失败" } },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

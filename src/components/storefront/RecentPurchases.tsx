@@ -1,3 +1,9 @@
+/**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：清理最近购买提示中未使用的英文地区列表，推进 M5 lint warnings 收敛。
+ * 修改模型：gpt-5.5
+ */
+
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
@@ -9,12 +15,6 @@ const REGIONS_ZH = [
   "北京", "上海", "广州", "深圳", "杭州", "成都", "武汉", "南京",
   "重庆", "西安", "苏州", "长沙", "天津", "青岛", "郑州", "东莞",
   "纽约", "洛杉矶", "伦敦", "东京", "首尔", "新加坡", "悉尼",
-]
-
-const REGIONS_EN = [
-  "New York", "Los Angeles", "London", "Tokyo", "Seoul", "Singapore",
-  "Sydney", "Toronto", "Paris", "Berlin", "Dubai", "Mumbai",
-  "Beijing", "Shanghai", "Shenzhen", "Hangzhou",
 ]
 
 const PRODUCTS = [

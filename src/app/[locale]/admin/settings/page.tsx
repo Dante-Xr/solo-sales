@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：清理系统设置页未使用的翻译与语言判断变量，推进 M5 lint warnings 收敛。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 系统设置页面 (Task 3.2)
  * ============================================
@@ -27,11 +31,9 @@ import { useRouter, usePathname } from "@/i18n/navigation"
 
 export default function SettingsPage() {
   const t = useTranslations('admin')
-  const commonT = useTranslations('common')
   const locale = useLocale()
   const router = useRouter()
   const pathname = usePathname()
-  const isZh = locale === "zh"
 
   // 基本设置
   const [storeSettings, setStoreSettings] = useState({
@@ -76,7 +78,7 @@ export default function SettingsPage() {
     setTimeout(() => setSaved(false), 3000)
   }
 
-  // 切换语言
+  // 切换语言时只替换 locale，保留当前设置页路径，避免用户离开当前配置上下文。
   const handleLanguageChange = (newLanguage: "zh" | "en") => {
     router.push(pathname, { locale: newLanguage })
   }

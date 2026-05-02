@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:14:38 +08:00
+ * 修改内容：统一健康检查路由响应结构，同时保留顶层 status/checks 供监控平台兼容读取。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 健康检查 API 端点 (v0.4.3)
  * ============================================
@@ -10,9 +14,9 @@
  * ============================================
  */
 
-import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import redis from "@/lib/redis"
+import { successResponse } from "@/server/contracts/api"
 
 /**
  * 健康检查响应数据结构
@@ -41,7 +45,7 @@ interface HealthCheckItem {
  * GET /api/health
  * 返回服务健康状况
  */
-export async function GET(): Promise<NextResponse<HealthCheckResponse>> {
+export async function GET() {
   const _startTime = Date.now()
   const response: HealthCheckResponse = {
     status: "healthy",
@@ -80,7 +84,10 @@ export async function GET(): Promise<NextResponse<HealthCheckResponse>> {
     // response.status = "unhealthy"
   }
 
-  // 返回响应
+  // HTTP 状态码仍按健康状态返回；响应体同时提供标准 data 和旧顶层字段，兼容负载均衡器探针。
   const statusCode = response.status === "healthy" ? 200 : 503
-  return NextResponse.json(response, { status: statusCode })
+  return successResponse(response, {
+    status: statusCode,
+    topLevel: response,
+  })
 }

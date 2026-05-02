@@ -1,52 +1,30 @@
 /**
- * ============================================
- * 优惠券详情 API 路由 (v0.5.5)
- * ============================================
- * 功能说明：
- *   - 获取优惠券详情
- *   - 更新优惠券
- *   - 删除优惠券
- * ============================================
+ * 修改时间：2026-05-02 18:13:41 +08:00
+ * 修改内容：将优惠券详情、更新、删除路由收敛为薄控制器，业务规则迁移到 promotion-service。
+ * 修改模型：gpt-5.5
  */
-
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import { NextRequest } from "next/server"
 import { verifyAdminToken } from "@/lib/adminAuth"
+import { handleApiError, successResponse } from "@/server/contracts/api"
+import { unauthorized } from "@/server/contracts/errors"
+import {
+  deleteCouponById,
+  getCouponDetail,
+  parseUpdateCouponInput,
+  updateCouponFromInput,
+} from "@/server/services/promotion-service"
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params
+    const coupon = await getCouponDetail(id)
 
-    const coupon = await prisma.coupon.findUnique({
-      where: { id },
-      include: {
-        usages: {
-          take: 10,
-          orderBy: { usedAt: "desc" },
-        },
-      },
-    })
-
-    if (!coupon) {
-      return NextResponse.json(
-        { success: false, error: { code: "NOT_FOUND", message: "优惠券不存在" } },
-        { status: 404 }
-      )
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: coupon,
-    })
+    return successResponse(coupon)
   } catch (error) {
-    console.error("获取优惠券详情失败:", error)
-    return NextResponse.json(
-      { success: false, error: { code: "INTERNAL_ERROR", message: "获取优惠券详情失败" } },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
@@ -56,67 +34,15 @@ export async function PUT(
 ) {
   try {
     const admin = await verifyAdminToken(request)
-    if (!admin) {
-      return NextResponse.json(
-        { success: false, error: { code: "UNAUTHORIZED", message: "请先登录" } },
-        { status: 401 }
-      )
-    }
+    if (!admin) throw unauthorized("请先登录")
 
     const { id } = await params
-    const body = await request.json()
-    const {
-      name,
-      description,
-      type,
-      value,
-      minAmount,
-      maxDiscount,
-      maxUses,
-      perUserLimit,
-      startsAt,
-      expiresAt,
-      isActive,
-    } = body
+    const input = parseUpdateCouponInput(await request.json())
+    const coupon = await updateCouponFromInput(id, input)
 
-    const existingCoupon = await prisma.coupon.findUnique({
-      where: { id },
-    })
-
-    if (!existingCoupon) {
-      return NextResponse.json(
-        { success: false, error: { code: "NOT_FOUND", message: "优惠券不存在" } },
-        { status: 404 }
-      )
-    }
-
-    const coupon = await prisma.coupon.update({
-      where: { id },
-      data: {
-        ...(name !== undefined && { name }),
-        ...(description !== undefined && { description }),
-        ...(type !== undefined && { type }),
-        ...(value !== undefined && { value: parseFloat(value) }),
-        ...(minAmount !== undefined && { minAmount: minAmount ? parseFloat(minAmount) : null }),
-        ...(maxDiscount !== undefined && { maxDiscount: maxDiscount ? parseFloat(maxDiscount) : null }),
-        ...(maxUses !== undefined && { maxUses: maxUses ? parseInt(maxUses) : null }),
-        ...(perUserLimit !== undefined && { perUserLimit: perUserLimit ? parseInt(perUserLimit) : 1 }),
-        ...(startsAt !== undefined && { startsAt: startsAt ? new Date(startsAt) : null }),
-        ...(expiresAt !== undefined && { expiresAt: expiresAt ? new Date(expiresAt) : null }),
-        ...(isActive !== undefined && { isActive }),
-      },
-    })
-
-    return NextResponse.json({
-      success: true,
-      data: coupon,
-    })
+    return successResponse(coupon)
   } catch (error) {
-    console.error("更新优惠券失败:", error)
-    return NextResponse.json(
-      { success: false, error: { code: "INTERNAL_ERROR", message: "更新优惠券失败" } },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
@@ -126,39 +52,13 @@ export async function DELETE(
 ) {
   try {
     const admin = await verifyAdminToken(request)
-    if (!admin) {
-      return NextResponse.json(
-        { success: false, error: { code: "UNAUTHORIZED", message: "请先登录" } },
-        { status: 401 }
-      )
-    }
+    if (!admin) throw unauthorized("请先登录")
 
     const { id } = await params
+    const result = await deleteCouponById(id)
 
-    const existingCoupon = await prisma.coupon.findUnique({
-      where: { id },
-    })
-
-    if (!existingCoupon) {
-      return NextResponse.json(
-        { success: false, error: { code: "NOT_FOUND", message: "优惠券不存在" } },
-        { status: 404 }
-      )
-    }
-
-    await prisma.coupon.delete({
-      where: { id },
-    })
-
-    return NextResponse.json({
-      success: true,
-      message: "优惠券已删除",
-    })
+    return successResponse(result)
   } catch (error) {
-    console.error("删除优惠券失败:", error)
-    return NextResponse.json(
-      { success: false, error: { code: "INTERNAL_ERROR", message: "删除优惠券失败" } },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

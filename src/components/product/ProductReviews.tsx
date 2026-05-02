@@ -1,3 +1,9 @@
+/**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：清理商品评论组件未使用的 ReviewForm 导入，推进 M5 lint warnings 收敛。
+ * 修改模型：gpt-5.5
+ */
+
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
@@ -6,7 +12,6 @@ import { PenLine } from "lucide-react"
 import { useCsrfToken } from "@/hooks/useCsrfToken"
 import { ReviewSummary } from "./ReviewSummary"
 import { ReviewList } from "./ReviewList"
-import { ReviewForm } from "./ReviewForm"
 import { StarRating } from "./StarRating"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"

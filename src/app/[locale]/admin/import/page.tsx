@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：清理导入页未使用 hook，并用 ImportLog 类型约束导入日志列表。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 批发商品导入管理页面 (Phase 5 管理后台重构)
  * ============================================
@@ -16,7 +20,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { useList, useCustom } from "@refinedev/core"
+import { useList } from "@refinedev/core"
 import {
   RefreshCw,
   CheckCircle,
@@ -82,8 +86,9 @@ export default function ImportPage() {
     },
   })
 
-  const logs = useMemo(() => {
-    const raw = logsData?.data as any
+  const logs = useMemo<ImportLog[]>(() => {
+    const raw = logsData?.data as ImportLog[] | { list?: ImportLog[] } | undefined
+    // 兼容列表接口直接返回数组或分页对象两种结构，统一收敛为 ImportLog[]。
     if (Array.isArray(raw)) return raw
     return raw?.list || []
   }, [logsData])
@@ -238,7 +243,7 @@ export default function ImportPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {logs.map((log: any) => (
+                {logs.map((log) => (
                   <div
                     key={log.id}
                     className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"

@@ -1,12 +1,16 @@
 /**
+ * 修改时间：2026-05-02 19:00:54 +08:00
+ * 修改内容：统一后台仪表盘路由响应与错误处理，修正缓存命中时的非标准响应。
+ * 修改模型：gpt-5.5
+ *
  * 聚合仪表盘 API (v0.4.1)
  * 单一端点返回所有仪表盘所需数据
  * 服务端并行查询，减少网络请求次数
  */
 
-import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { cacheGet, cacheSet, CACHE_KEYS, CACHE_TTL } from "@/lib/cache"
+import { handleApiError, successResponse } from "@/server/contracts/api"
 
 // 图表数据点类型
 interface ChartDataPoint {
@@ -83,7 +87,7 @@ export async function GET() {
     // 尝试从缓存获取
     const cached = await cacheGet<DashboardData>(CACHE_KEYS.ADMIN_DASHBOARD())
     if (cached) {
-      return NextResponse.json({ ...cached, fromCache: true })
+      return successResponse(cached, { fromCache: true })
     }
 
     // 并行查询所有数据
@@ -153,12 +157,8 @@ export async function GET() {
     // 缓存 5 分钟
     await cacheSet(CACHE_KEYS.ADMIN_DASHBOARD(), result, CACHE_TTL.MEDIUM)
 
-    return NextResponse.json({ success: true, data: result })
+    return successResponse(result)
   } catch (error) {
-    console.error("获取仪表盘数据失败:", error)
-    return NextResponse.json(
-      { success: false, error: "获取仪表盘数据失败" },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

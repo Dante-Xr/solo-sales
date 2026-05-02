@@ -1,5 +1,11 @@
 "use client"
 
+/**
+ * 修改时间：2026-05-02 18:13:41 +08:00
+ * 修改内容：修复商品详情页渲染期间调用 Date.now 的 purity lint 错误，使用模块级默认倒计时。
+ * 修改模型：gpt-5.5
+ */
+
 import { useState, useEffect, useCallback } from "react"
 import { useParams } from "next/navigation"
 import { useRouter, Link } from "@/i18n/navigation"
@@ -28,6 +34,9 @@ import { CountdownTimer } from "@/components/product/CountdownTimer"
 import { StockBadge } from "@/components/product/StockBadge"
 import { RecentPurchases } from "@/components/storefront/RecentPurchases"
 import Image from "next/image"
+
+// 默认促销结束时间只在模块加载时计算一次，避免组件渲染期间调用非纯函数。
+const DEFAULT_SALE_END = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
 
 export default function ProductDetailPage() {
   const params = useParams()
@@ -270,7 +279,7 @@ export default function ProductDetailPage() {
               {/* 库存和倒计时 */}
               <div className="flex items-center gap-2 mb-3">
                 <StockBadge stock={product.stock ?? 0} />
-                <CountdownTimer targetDate={product.saleEndsAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()} label={t('product.saleEndsIn')} />
+                <CountdownTimer targetDate={product.saleEndsAt || DEFAULT_SALE_END} label={t('product.saleEndsIn')} />
               </div>
 
               {/* 描述 */}
@@ -363,7 +372,7 @@ export default function ProductDetailPage() {
 
                 <div className="flex items-center gap-2 mb-4">
                   <StockBadge stock={product.stock ?? 0} />
-                  <CountdownTimer targetDate={product.saleEndsAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()} label={t('product.saleEndsIn')} />
+                  <CountdownTimer targetDate={product.saleEndsAt || DEFAULT_SALE_END} label={t('product.saleEndsIn')} />
                 </div>
 
                 <div className="mb-4">

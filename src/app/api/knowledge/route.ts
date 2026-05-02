@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 20:35:22 +08:00
+ * 修改内容：统一知识库列表和创建路由响应与错误处理，保留列表缓存行为。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * RAG 知识库 - 列表和创建 API (v0.4.1 优化版)
  * ============================================
@@ -9,10 +13,12 @@
  * ============================================
  */
 
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { cacheGet, cacheSet, cacheDelPattern, CACHE_TTL } from "@/lib/cache"
+import { createdResponse, handleApiError, successResponse } from "@/server/contracts/api"
+import { validationError } from "@/server/contracts/errors"
 
 /**
  * 创建知识条目的请求体验证 Schema
@@ -38,6 +44,16 @@ const GetKnowledgeSchema = z.object({
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional(), // 状态筛选
 })
 
+type KnowledgeListResult = {
+  list: unknown[]
+  pagination: { page: number; pageSize: number; total: number; totalPages: number }
+}
+
+type LegacyKnowledgeListCache = {
+  success?: boolean
+  data?: KnowledgeListResult
+}
+
 /**
  * GET handler - 获取知识库列表
  * 支持分页、分类筛选、关键词搜索
@@ -54,13 +70,12 @@ export async function GET(request: NextRequest) {
     const cacheKey = "cache:knowledge:list:" + JSON.stringify({ page, pageSize, category, keyword, status })
 
     // 尝试从缓存获取
-    const cached = await cacheGet<{
-      list: unknown[]
-      pagination: { page: number; pageSize: number; total: number; totalPages: number }
-    }>(cacheKey)
+    const cached = await cacheGet<KnowledgeListResult>(cacheKey)
 
     if (cached) {
-      return NextResponse.json({ ...cached, fromCache: true })
+      // 兼容旧缓存中已包了一层 { success, data } 的形态，避免短 TTL 内返回 data 嵌套。
+      const legacyCached = cached as KnowledgeListResult & LegacyKnowledgeListCache
+      return successResponse(legacyCached.data ?? cached, { fromCache: true })
     }
 
     // 构建 where 条件
@@ -103,39 +118,27 @@ export async function GET(request: NextRequest) {
       prisma.knowledgeBase.count({ where }),
     ])
 
-    const result = {
-      success: true,
-      data: {
-        list: knowledgeList,
-        pagination: {
-          page,
-          pageSize,
-          total,
-          totalPages: Math.ceil(total / pageSize),
-        },
+    const result: KnowledgeListResult = {
+      list: knowledgeList,
+      pagination: {
+        page,
+        pageSize,
+        total,
+        totalPages: Math.ceil(total / pageSize),
       },
     }
 
-    // 缓存 5 分钟
+    // 缓存标准响应中的 data 部分，读取时再由统一响应 helper 包装。
     await cacheSet(cacheKey, result, CACHE_TTL.MEDIUM)
 
     // 返回分页结果
-    return NextResponse.json(result)
+    return successResponse(result)
   } catch (error) {
-    // 错误处理
-    console.error("获取知识库列表失败:", error)
-
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { success: false, error: "参数验证失败", details: error.issues },
-        { status: 400 }
-      )
+      return handleApiError(validationError("参数验证失败", error.issues))
     }
 
-    return NextResponse.json(
-      { success: false, error: "获取知识库列表失败" },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
@@ -183,24 +186,12 @@ export async function POST(request: NextRequest) {
     await cacheDelPattern("cache:knowledge:list:*")
 
     // 返回创建结果
-    return NextResponse.json(
-      { success: true, data: result },
-      { status: 201 }
-    )
+    return createdResponse(result)
   } catch (error) {
-    // 错误处理
-    console.error("创建知识条目失败:", error)
-
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { success: false, error: "参数验证失败", details: error.issues },
-        { status: 400 }
-      )
+      return handleApiError(validationError("参数验证失败", error.issues))
     }
 
-    return NextResponse.json(
-      { success: false, error: "创建知识条目失败" },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:02:01 +08:00
+ * 修改内容：兼容管理员登录标准错误响应，避免结构化 error 直接渲染到页面。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 管理员登录页面
  * ============================================
@@ -21,6 +25,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Loader2, Lock, Mail, AlertCircle } from "lucide-react"
 import { useTranslations } from "next-intl"
+
+function getApiErrorMessage(result: { error?: unknown }, fallback: string): string {
+  // 登录接口已标准化为 { error: { message } }，这里保留旧字符串错误兼容。
+  if (typeof result.error === "string") {
+    return result.error
+  }
+
+  if (
+    result.error &&
+    typeof result.error === "object" &&
+    "message" in result.error &&
+    typeof result.error.message === "string"
+  ) {
+    return result.error.message
+  }
+
+  return fallback
+}
 
 export default function AdminLoginPage() {
   const router = useRouter()
@@ -49,7 +71,7 @@ export default function AdminLoginPage() {
       if (result.success) {
         router.push("/admin")
       } else {
-        setError(result.error || t('loginFailed'))
+        setError(getApiErrorMessage(result, t('loginFailed')))
       }
     } catch {
       setError(t('networkError'))

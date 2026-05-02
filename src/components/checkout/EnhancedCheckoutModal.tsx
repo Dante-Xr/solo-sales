@@ -1,5 +1,11 @@
 "use client"
 
+/**
+ * 修改时间：2026-05-02 18:13:41 +08:00
+ * 修改内容：下单请求不再提交客户端价格和总金额，并兼容统一 API 响应解包。
+ * 修改模型：gpt-5.5
+ */
+
 // 2026-04-26: 移动端 Sheet 化 + CSS 变量类名替代硬编码颜色
 
 import { useState } from "react"
@@ -112,10 +118,8 @@ export function EnhancedCheckoutModal({
             ? cartItems.map((item) => ({
                 productId: item.id,
                 quantity: item.quantity,
-                price: item.price,
               }))
-            : [{ productId: product.id, quantity: 1, price: product.price }],
-          totalAmount,
+            : [{ productId: product.id, quantity: 1 }],
           shippingAddress: data.address,
           contactInfo: {
             name: data.name,
@@ -130,7 +134,8 @@ export function EnhancedCheckoutModal({
         throw new Error(t('checkout.createOrderFailed'))
       }
 
-      const order = await res.json()
+      const responseData = await res.json()
+      const order = responseData?.success ? responseData.data : responseData
       toast.success(t('checkout.orderCreated', { id: order.id }))
       onClose()
       router.push(`/orders/confirmation/${order.id}`)
@@ -160,10 +165,8 @@ export function EnhancedCheckoutModal({
             ? cartItems.map((item) => ({
                 productId: item.id,
                 quantity: item.quantity,
-                price: item.price,
               }))
-            : [{ productId: product.id, quantity: 1, price: product.price }],
-          totalAmount,
+            : [{ productId: product.id, quantity: 1 }],
           shippingAddress: shippingInfo.address,
           contactInfo: {
             name: shippingInfo.name,
@@ -178,7 +181,8 @@ export function EnhancedCheckoutModal({
         throw new Error(t('checkout.createOrderFailed'))
       }
 
-      const order = await res.json()
+      const data = await res.json()
+      const order = data?.success ? data.data : data
       toast.success(t('checkout.orderCreated', { id: order.id }))
       onClose()
       router.push(`/orders/confirmation/${order.id}`)

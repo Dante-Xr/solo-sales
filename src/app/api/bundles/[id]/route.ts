@@ -1,7 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import BundleService from '@/lib/bundle/BundleService'
-import { safeErrorLog } from '@/lib/safeLog'
+/**
+ * 修改时间：2026-05-02 19:27:31 +08:00
+ * 修改内容：统一商品组合详情、更新和删除路由响应与错误处理，清理手写 NextResponse 模板。
+ * 修改模型：gpt-5.5
+ */
+import { NextRequest } from "next/server"
+import { prisma } from "@/lib/prisma"
+import BundleService from "@/lib/bundle/BundleService"
+import { safeErrorLog } from "@/lib/safeLog"
+import { handleApiError, successResponse } from "@/server/contracts/api"
+import { notFound } from "@/server/contracts/errors"
 
 const bundleService = new BundleService(prisma)
 
@@ -14,16 +21,13 @@ export async function GET(
     const bundle = await bundleService.getBundleById(id)
 
     if (!bundle) {
-      return NextResponse.json({ error: 'Bundle not found' }, { status: 404 })
+      throw notFound("商品组合")
     }
 
-    return NextResponse.json({ bundle })
+    return successResponse({ bundle })
   } catch (error) {
     safeErrorLog('Failed to get bundle', error)
-    return NextResponse.json(
-      { error: 'Failed to get bundle' },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
@@ -37,13 +41,10 @@ export async function PUT(
 
     const bundle = await bundleService.updateBundle(id, body)
 
-    return NextResponse.json({ bundle })
+    return successResponse({ bundle })
   } catch (error) {
     safeErrorLog('Failed to update bundle', error)
-    return NextResponse.json(
-      { error: 'Failed to update bundle' },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
@@ -55,12 +56,9 @@ export async function DELETE(
     const { id } = await params
     await bundleService.deleteBundle(id)
 
-    return NextResponse.json({ success: true })
+    return successResponse({ deleted: true })
   } catch (error) {
     safeErrorLog('Failed to delete bundle', error)
-    return NextResponse.json(
-      { error: 'Failed to delete bundle' },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

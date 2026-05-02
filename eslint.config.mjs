@@ -1,3 +1,8 @@
+/**
+ * 修改时间：2026-05-02 18:13:41 +08:00
+ * 修改内容：更新 ESLint 忽略范围，避免扫描本地 Python 虚拟环境，并保留 Next/TypeScript lint 基线。
+ * 修改模型：gpt-5.5
+ */
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
@@ -19,6 +24,7 @@ const eslintConfig = defineConfig([
   },
   globalIgnores([
     ".next/**",
+    ".venv/**",
     "out/**",
     "build/**",
     "next-env.d.ts",

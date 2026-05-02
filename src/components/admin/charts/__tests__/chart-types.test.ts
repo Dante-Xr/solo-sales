@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：清理图表类型测试中未使用的类型导入，推进 M5 lint warnings 收敛。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 图表类型定义单元测试 (Phase 2 图表增强)
  * ============================================
@@ -10,7 +14,7 @@
  */
 
 import { METRIC_COLORS, DEFAULT_CHART_CONFIG } from "../chart-types"
-import type { MetricKey, ChartType, CompareMode, PresetRange } from "../chart-types"
+import type { MetricKey } from "../chart-types"
 
 describe("chart-types", () => {
   describe("METRIC_COLORS", () => {

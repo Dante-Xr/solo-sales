@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 20:52:58 +08:00
+ * 修改内容：统一用户注册路由响应与错误处理，保留注册限流和邮箱冲突提示。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 用户注册 API 路由 (Phase 2 安全修复)
  * ============================================
@@ -15,9 +19,10 @@
  * ============================================
  */
 
-import { NextResponse } from "next/server"
 import { registerRateLimiter } from "@/middleware/rate-limit"
 import { registerSchema, parseWithValidation } from "@/lib/validators"
+import { conflict, internalError, validationError } from "@/server/contracts/errors"
+import { errorResponse, handleApiError, successResponse } from "@/server/contracts/api"
 
 /**
  * POST: 用户注册
@@ -33,8 +38,13 @@ import { registerSchema, parseWithValidation } from "@/lib/validators"
  */
 export async function POST(request: Request) {
   const rateLimitResult = registerRateLimiter(request)
-  if (!rateLimitResult.allowed && rateLimitResult.errorResponse) {
-    return rateLimitResult.errorResponse
+  if (!rateLimitResult.allowed) {
+    // 注册限流同样走标准错误响应，避免同一路由出现两种错误体格式。
+    return errorResponse(
+      { code: "TOO_MANY_REQUESTS", message: "请求过于频繁，请稍后再试" },
+      429,
+      { headers: rateLimitResult.headers }
+    )
   }
 
   try {
@@ -42,10 +52,7 @@ export async function POST(request: Request) {
 
     const validation = parseWithValidation(registerSchema, body)
     if (!validation.success) {
-      return NextResponse.json(
-        { error: validation.errors[0].message, field: validation.errors[0].field },
-        { status: 400 }
-      )
+      throw validationError(validation.errors[0].message, validation.errors[0])
     }
 
     const { email, password, name } = validation.data
@@ -60,13 +67,11 @@ export async function POST(request: Request) {
     })
 
     if (!result) {
-      return NextResponse.json(
-        { error: "注册失败，请稍后重试" },
-        { status: 500 }
-      )
+      throw internalError("注册失败，请稍后重试")
     }
 
-    return NextResponse.json({
+    // 对外只返回注册后前端需要展示的基础身份信息，不暴露 Better Auth 内部结果。
+    return successResponse({
       id: (result as { user?: { id?: string } }).user?.id,
       email,
       name,
@@ -74,15 +79,8 @@ export async function POST(request: Request) {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "注册失败"
     if (message.includes("already") || message.includes("exist")) {
-      return NextResponse.json(
-        { error: "该邮箱已被注册" },
-        { status: 400 }
-      )
+      return handleApiError(conflict("该邮箱已被注册"))
     }
-    console.error("注册错误:", error)
-    return NextResponse.json(
-      { error: "注册失败，请稍后重试" },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

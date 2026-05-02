@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 20:27:37 +08:00
+ * 修改内容：统一商品评价详情、更新和删除路由响应与错误处理，清理手写 NextResponse 模板。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 商品评价详情 API 路由 (v0.5.0)
  * ============================================
@@ -9,15 +13,17 @@
  * ============================================
  */
 
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { handleApiError, successResponse } from "@/server/contracts/api"
+import { badRequest, notFound } from "@/server/contracts/errors"
 
 /**
  * 获取评论详情
  * GET /api/reviews/[id]
  */
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -47,22 +53,12 @@ export async function GET(
     })
 
     if (!review) {
-      return NextResponse.json(
-        { success: false, error: { code: "NOT_FOUND", message: "评论不存在" } },
-        { status: 404 }
-      )
+      throw notFound("评论")
     }
 
-    return NextResponse.json({
-      success: true,
-      data: review,
-    })
+    return successResponse(review)
   } catch (error) {
-    console.error("获取评论详情失败:", error)
-    return NextResponse.json(
-      { success: false, error: { code: "INTERNAL_ERROR", message: "获取评论详情失败" } },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
@@ -84,19 +80,13 @@ export async function PUT(
     })
 
     if (!existingReview) {
-      return NextResponse.json(
-        { success: false, error: { code: "NOT_FOUND", message: "评论不存在" } },
-        { status: 404 }
-      )
+      throw notFound("评论")
     }
 
     const updateData: Record<string, unknown> = {}
     if (rating !== undefined) {
       if (rating < 1 || rating > 5) {
-        return NextResponse.json(
-          { success: false, error: { code: "BAD_REQUEST", message: "评分必须在 1-5 之间" } },
-          { status: 400 }
-        )
+        throw badRequest("评分必须在 1-5 之间")
       }
       updateData.rating = rating
     }
@@ -104,6 +94,7 @@ export async function PUT(
     if (content !== undefined) updateData.content = content
 
     if (images !== undefined) {
+      // 图片是整体替换语义：先删除旧图，再按新顺序重建 position。
       await prisma.reviewImage.deleteMany({
         where: { reviewId: id },
       })
@@ -134,16 +125,9 @@ export async function PUT(
       },
     })
 
-    return NextResponse.json({
-      success: true,
-      data: review,
-    })
+    return successResponse(review)
   } catch (error) {
-    console.error("更新评论失败:", error)
-    return NextResponse.json(
-      { success: false, error: { code: "INTERNAL_ERROR", message: "更新评论失败" } },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
@@ -152,7 +136,7 @@ export async function PUT(
  * DELETE /api/reviews/[id]
  */
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -163,25 +147,15 @@ export async function DELETE(
     })
 
     if (!existingReview) {
-      return NextResponse.json(
-        { success: false, error: { code: "NOT_FOUND", message: "评论不存在" } },
-        { status: 404 }
-      )
+      throw notFound("评论")
     }
 
     await prisma.review.delete({
       where: { id },
     })
 
-    return NextResponse.json({
-      success: true,
-      message: "评论已删除",
-    })
+    return successResponse({ deleted: true }, { meta: { message: "评论已删除" } })
   } catch (error) {
-    console.error("删除评论失败:", error)
-    return NextResponse.json(
-      { success: false, error: { code: "INTERNAL_ERROR", message: "删除评论失败" } },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

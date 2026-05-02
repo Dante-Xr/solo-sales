@@ -1,11 +1,16 @@
+/**
+ * 修改时间：2026-05-02 22:14:07 +08:00
+ * 修改内容：商品列表页改为复用服务层 storefront 查询，修复异步错误未被兜底捕获的问题。
+ * 修改模型：gpt-5.5
+ */
 import { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
-import { prisma } from "@/lib/prisma"
 import { ProductGridClient } from "@/components/storefront/ProductGridClient"
 import { StorefrontHeaderClient } from "@/components/storefront/StorefrontHeaderClient"
 import { StorefrontFooter } from "@/components/storefront/StorefrontFooter"
 import { ViewportWrapper } from "@/components/storefront/ViewportWrapper"
 import type { ProductItem } from "@/components/storefront/HomeCarouselClient"
+import { getStorefrontProducts } from "@/server/services/product-service"
 
 interface ProductsPageProps {
   searchParams: Promise<{ filter?: string; q?: string }>
@@ -15,29 +20,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "All Products - SoloSales",
     description: "Browse all products in our store",
-  }
-}
-
-function transformProduct(product: {
-  id: string
-  name: string
-  description: string
-  price: { toNumber: () => number }
-  stock: number
-  images: string[]
-  isPublished: boolean
-  _count?: { orderItems: number }
-}): ProductItem {
-  const price = product.price.toNumber()
-  return {
-    id: product.id,
-    name: product.name,
-    description: product.description,
-    price,
-    originalPrice: Math.round(price * 1.4 * 100) / 100,
-    image: product.images[0] || "",
-    sales: product._count?.orderItems ?? 0,
-    stock: product.stock,
   }
 }
 
@@ -106,22 +88,9 @@ const FALLBACK_PRODUCTS: ProductItem[] = [
 
 async function getProducts(filter?: string): Promise<ProductItem[]> {
   try {
-    const where: { isPublished: boolean; createdAt?: { gte: Date } } = { isPublished: true }
-
-    if (filter === "new") {
-      where.createdAt = { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
-    }
-
-    const products = await prisma.product.findMany({
-      where,
-      orderBy: filter === "best" ? { orderItems: { _count: "desc" } } : { createdAt: "desc" },
-      include: {
-        _count: { select: { orderItems: true } },
-      },
-    })
-
-    return products.map(transformProduct)
+    return await getStorefrontProducts(filter)
   } catch (error) {
+    // 商品页保留兜底商品，避免数据库短暂不可用时影响用户继续浏览基础页面结构。
     console.error("Error fetching products:", error)
     return FALLBACK_PRODUCTS
   }

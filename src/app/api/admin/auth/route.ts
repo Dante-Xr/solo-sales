@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:02:01 +08:00
+ * 修改内容：统一管理员登录、登出和当前管理员查询路由响应与错误处理。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 管理员认证 API 路由 (Phase 2 安全修复)
  * ============================================
@@ -14,17 +18,37 @@
  * ============================================
  */
 
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { randomUUID } from "crypto"
+import { handleApiError, successResponse } from "@/server/contracts/api"
+import { badRequest, internalError, unauthorized } from "@/server/contracts/errors"
 
 /** Better Auth Session Cookie 名称 */
 const SESSION_COOKIE_NAME = "better-auth.session_token"
 /** Session 有效期：7 天 */
 const SESSION_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000
+
+function adminSessionPayload(admin: {
+  id: string
+  username: string
+  email: string
+  role: { id: string; name: string; label: string }
+}) {
+  return {
+    id: admin.id,
+    username: admin.username,
+    email: admin.email,
+    role: {
+      id: admin.role.id,
+      name: admin.role.name,
+      label: admin.role.label,
+    },
+  }
+}
 
 /**
  * POST: 管理员登录
@@ -43,10 +67,7 @@ export async function POST(request: NextRequest) {
 
     // 验证必填字段
     if (!email || !password) {
-      return NextResponse.json(
-        { success: false, error: "邮箱和密码不能为空" },
-        { status: 400 }
-      )
+      throw badRequest("邮箱和密码不能为空")
     }
 
     // 查询管理员记录（包含角色信息）
@@ -63,27 +84,18 @@ export async function POST(request: NextRequest) {
 
     // 管理员不存在
     if (!admin) {
-      return NextResponse.json(
-        { success: false, error: "邮箱或密码错误" },
-        { status: 401 }
-      )
+      throw unauthorized("邮箱或密码错误")
     }
 
     // 管理员已被禁用
     if (!admin.isActive) {
-      return NextResponse.json(
-        { success: false, error: "账号已被禁用" },
-        { status: 401 }
-      )
+      throw unauthorized("账号已被禁用")
     }
 
     // 使用 bcrypt 验证密码
     const isPasswordValid = await bcrypt.compare(password, admin.password)
     if (!isPasswordValid) {
-      return NextResponse.json(
-        { success: false, error: "邮箱或密码错误" },
-        { status: 401 }
-      )
+      throw unauthorized("邮箱或密码错误")
     }
 
     // 更新最后登录时间
@@ -146,19 +158,7 @@ export async function POST(request: NextRequest) {
           },
         })
 
-        const response = NextResponse.json({
-          success: true,
-          data: {
-            id: admin.id,
-            username: admin.username,
-            email: admin.email,
-            role: {
-              id: admin.role.id,
-              name: admin.role.name,
-              label: admin.role.label,
-            },
-          },
-        })
+        const response = successResponse(adminSessionPayload(admin))
 
         // 设置 HTTP-Only Cookie（防 XSS）
         response.cookies.set(SESSION_COOKIE_NAME, token, {
@@ -202,19 +202,7 @@ export async function POST(request: NextRequest) {
         },
       })
 
-      const response = NextResponse.json({
-        success: true,
-        data: {
-          id: admin.id,
-          username: admin.username,
-          email: admin.email,
-          role: {
-            id: admin.role.id,
-            name: admin.role.name,
-            label: admin.role.label,
-          },
-        },
-      })
+      const response = successResponse(adminSessionPayload(admin))
 
       response.cookies.set(SESSION_COOKIE_NAME, token, {
         httpOnly: true,
@@ -228,24 +216,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Better Auth 登录成功
-    return NextResponse.json({
-      success: true,
-      data: {
-        id: admin.id,
-        username: admin.username,
-        email: admin.email,
-        role: {
-          id: admin.role.id,
-          name: admin.role.name,
-          label: admin.role.label,
-        },
-      },
-    })
+    return successResponse(adminSessionPayload(admin))
   } catch (error) {
-    console.error("管理员登录失败:", error)
-    return NextResponse.json(
-      { success: false, error: "登录失败，请稍后重试" },
-      { status: 500 }
+    return handleApiError(
+      error instanceof Error && error.name !== "AppError"
+        ? internalError("登录失败，请稍后重试", error.message)
+        : error
     )
   }
 }
@@ -265,7 +241,7 @@ export async function PUT(_request: NextRequest) {
   }
 
   // 清除本地 Session Cookie
-  const response = NextResponse.json({ success: true, message: "登出成功" })
+  const response = successResponse({ loggedOut: true }, { meta: { message: "登出成功" } })
   response.cookies.set(SESSION_COOKIE_NAME, "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -288,10 +264,7 @@ export async function GET(request: NextRequest) {
     })
 
     if (!session?.user) {
-      return NextResponse.json(
-        { success: false, error: "未登录" },
-        { status: 401 }
-      )
+      throw unauthorized("未登录")
     }
 
     // 查询管理员详细信息
@@ -307,32 +280,19 @@ export async function GET(request: NextRequest) {
     })
 
     if (!admin || !admin.isActive) {
-      return NextResponse.json(
-        { success: false, error: "账号不存在或已被禁用" },
-        { status: 401 }
-      )
+      throw unauthorized("账号不存在或已被禁用")
     }
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        id: admin.id,
-        username: admin.username,
-        email: admin.email,
-        role: {
-          id: admin.role.id,
-          name: admin.role.name,
-          label: admin.role.label,
-        },
-        permissions: admin.role.permissions.map((p) => p.name),
-        lastLoginAt: admin.lastLoginAt,
-      },
+    return successResponse({
+      ...adminSessionPayload(admin),
+      permissions: admin.role.permissions.map((p) => p.name),
+      lastLoginAt: admin.lastLoginAt,
     })
   } catch (error) {
-    console.error("获取管理员信息失败:", error)
-    return NextResponse.json(
-      { success: false, error: "获取信息失败" },
-      { status: 500 }
+    return handleApiError(
+      error instanceof Error && error.name !== "AppError"
+        ? internalError("获取信息失败", error.message)
+        : error
     )
   }
 }

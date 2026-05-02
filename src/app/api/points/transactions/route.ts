@@ -1,76 +1,22 @@
 /**
- * ============================================
- * 积分交易记录 API 路由 (v0.5.5)
- * ============================================
- * 功能说明：
- *   - 获取积分交易记录
- * ============================================
+ * 修改时间：2026-05-02 18:13:41 +08:00
+ * 修改内容：将积分交易记录路由收敛为薄控制器，分页和账户缺省逻辑迁移到 promotion-service。
+ * 修改模型：gpt-5.5
  */
-
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import { NextRequest } from "next/server"
+import { handleApiError, successResponse } from "@/server/contracts/api"
+import {
+  listPointTransactions,
+  parsePointTransactionsQuery,
+} from "@/server/services/promotion-service"
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get("userId")
-    const page = parseInt(searchParams.get("page") || "1")
-    const pageSize = parseInt(searchParams.get("pageSize") || "20")
-    const type = searchParams.get("type")
+    const query = parsePointTransactionsQuery(request.nextUrl.searchParams)
+    const result = await listPointTransactions(query)
 
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: { code: "BAD_REQUEST", message: "缺少 userId 参数" } },
-        { status: 400 }
-      )
-    }
-
-    const where: Record<string, unknown> = { userId }
-    if (type) where.type = type
-
-    const customerPoints = await prisma.customerPoints.findUnique({
-      where: { userId },
-    })
-
-    if (!customerPoints) {
-      return NextResponse.json({
-        success: true,
-        data: {
-          transactions: [],
-          pagination: { page, pageSize, total: 0, totalPages: 0 },
-        },
-      })
-    }
-
-    where.customerPointsId = customerPoints.id
-
-    const [transactions, total] = await Promise.all([
-      prisma.pointTransaction.findMany({
-        where,
-        orderBy: { createdAt: "desc" },
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-      }),
-      prisma.pointTransaction.count({ where }),
-    ])
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        transactions,
-        pagination: {
-          page,
-          pageSize,
-          total,
-          totalPages: Math.ceil(total / pageSize),
-        },
-      },
-    })
+    return successResponse(result)
   } catch (error) {
-    console.error("获取积分记录失败:", error)
-    return NextResponse.json(
-      { success: false, error: { code: "INTERNAL_ERROR", message: "获取积分记录失败" } },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

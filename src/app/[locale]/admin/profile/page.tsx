@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：用 AdminProfile 类型替代个人资料页 profile any。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 管理员个人资料页面 (Phase 5 管理后台重构)
  * ============================================
@@ -26,6 +30,15 @@ import { Separator } from "@/components/ui/separator"
 import { useTranslations, useLocale } from "next-intl"
 import { toast } from "sonner"
 
+interface AdminProfile {
+  username: string
+  email: string
+  role?: {
+    label: string
+  }
+  lastLoginAt: string | null
+}
+
 export default function AdminProfilePage() {
   const t = useTranslations('admin.profile')
   const locale = useLocale()
@@ -36,8 +49,8 @@ export default function AdminProfilePage() {
     queryOptions: { enabled: true },
   })
 
-  const profile = useMemo(() => {
-    const raw = profileData?.data as any
+  const profile = useMemo<AdminProfile | null>(() => {
+    const raw = profileData?.data as AdminProfile | undefined
     return raw || null
   }, [profileData])
 

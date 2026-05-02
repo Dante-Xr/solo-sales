@@ -1,3 +1,8 @@
+/**
+ * 修改时间：2026-05-02 18:13:41 +08:00
+ * 修改内容：兼容统一 API 响应模型，订单详情请求自动解包 success/data。
+ * 修改模型：gpt-5.5
+ */
 "use client"
 
 import { useEffect, useState } from "react"
@@ -68,7 +73,7 @@ export default function OrderDetailPage() {
       const res = await fetch(`/api/orders?id=${params.id}`)
       if (res.ok) {
         const data = await res.json()
-        setOrder(data)
+        setOrder(data?.success ? data.data : data)
       }
     } catch (error) {
       console.error(t("admin.fetchingOrders"), error)

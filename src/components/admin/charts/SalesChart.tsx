@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：清理销售图表未使用的 ChartType 类型导入，推进 M5 lint warnings 收敛。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 销售趋势图表组件 (Phase 2 图表增强 - 重构)
  * ============================================
@@ -22,7 +26,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useTranslations, useLocale } from "next-intl"
 import { ChartConfigPanel } from "./ChartConfigPanel"
 import { loadSavedMetrics } from "./MetricSelector"
-import type { ChartConfig, MetricKey, ChartType } from "./chart-types"
+import type { ChartConfig, MetricKey } from "./chart-types"
 import { DEFAULT_CHART_CONFIG, METRIC_COLORS } from "./chart-types"
 
 interface SalesData {

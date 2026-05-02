@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 18:13:41 +08:00
+ * 修改内容：兼容标准 API 响应模型，成功自动解包 data，错误支持结构化 message。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * API 客户端工具 (Phase 1 零成本修复)
  * ============================================
@@ -30,6 +34,45 @@ export class ApiError extends Error {
   }
 }
 
+interface StandardApiResponse<T> {
+  success: boolean
+  data?: T
+  error?: string | {
+    code?: string
+    message?: string
+    details?: unknown
+  }
+}
+
+function isStandardApiResponse<T>(data: unknown): data is StandardApiResponse<T> {
+  // 新旧 API 迁移期：只有带 success 布尔值的响应才按标准模型解包。
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "success" in data &&
+    typeof (data as { success: unknown }).success === "boolean"
+  )
+}
+
+function getErrorMessage(data: unknown, fallback: string): string {
+  // 兼容旧格式 { error: string } 和新格式 { error: { message } }。
+  if (!data || typeof data !== "object" || !("error" in data)) {
+    return fallback
+  }
+
+  const error = (data as { error: unknown }).error
+
+  if (typeof error === "string") {
+    return error
+  }
+
+  if (error && typeof error === "object" && "message" in error) {
+    return String((error as { message: unknown }).message)
+  }
+
+  return fallback
+}
+
 /**
  * 统一 API 请求函数
  *
@@ -56,14 +99,21 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
     const errorData = await res.json().catch(() => null)
     throw new ApiError(
       res.status,
-      // 尝试从响应中提取 error 字段
-      errorData && typeof errorData === "object" && "error" in errorData
-        ? String((errorData as { error: string }).error)
-        : `API Error: ${res.status}`,
+      getErrorMessage(errorData, `API Error: ${res.status}`),
       errorData
     )
   }
 
-  // 成功响应，返回解析后的 JSON
-  return res.json()
+  const data = await res.json()
+
+  if (isStandardApiResponse<T>(data)) {
+    // 成功响应只把 data 暴露给调用方，避免业务代码散落 response.data 解包逻辑。
+    if (!data.success) {
+      throw new ApiError(res.status, getErrorMessage(data, "API Error"), data)
+    }
+
+    return data.data as T
+  }
+
+  return data
 }

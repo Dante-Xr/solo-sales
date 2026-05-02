@@ -1,3 +1,9 @@
+/**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：清理店铺页脚未使用的 ChevronDown 图标导入，推进 M5 lint warnings 收敛。
+ * 修改模型：gpt-5.5
+ */
+
 "use client"
 
 // 2026-04-13: 更新为使用 next-intl 国际化
@@ -14,7 +20,7 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion"
-import { Facebook, Instagram, Mail, ArrowRight, ChevronDown } from "lucide-react"
+import { Facebook, Instagram, Mail, ArrowRight } from "lucide-react"
 
 const XLogo = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="currentColor">

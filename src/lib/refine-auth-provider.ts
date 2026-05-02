@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:02:01 +08:00
+ * 修改内容：兼容管理员认证标准错误响应，避免结构化 error 直接作为登录错误文案。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * Refine 认证提供者 (Phase 5 管理后台重构)
  * ============================================
@@ -12,6 +16,24 @@
  */
 
 import type { AuthProvider } from "@refinedev/core"
+
+function getApiErrorMessage(result: { error?: unknown }, fallback: string): string {
+  // 兼容旧字符串错误和新标准 { error: { message } }，保证 Refine 登录页只接收字符串。
+  if (typeof result.error === "string") {
+    return result.error
+  }
+
+  if (
+    result.error &&
+    typeof result.error === "object" &&
+    "message" in result.error &&
+    typeof result.error.message === "string"
+  ) {
+    return result.error.message
+  }
+
+  return fallback
+}
 
 export const authProvider: AuthProvider = {
   login: async ({ email, password }) => {
@@ -34,7 +56,7 @@ export const authProvider: AuthProvider = {
       return {
         success: false,
         error: {
-          message: result.error || "Login failed",
+          message: getApiErrorMessage(result, "Login failed"),
           name: "LoginError",
         },
       }

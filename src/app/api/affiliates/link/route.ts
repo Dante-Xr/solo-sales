@@ -1,7 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import AffiliateService from '@/lib/affiliate/AffiliateService'
-import { safeErrorLog } from '@/lib/safeLog'
+/**
+ * 修改时间：2026-05-02 19:42:24 +08:00
+ * 修改内容：统一联盟链接查询路由响应与错误处理，清理手写 NextResponse 模板。
+ * 修改模型：gpt-5.5
+ */
+import { NextRequest } from "next/server"
+import { prisma } from "@/lib/prisma"
+import AffiliateService from "@/lib/affiliate/AffiliateService"
+import { safeErrorLog } from "@/lib/safeLog"
+import { handleApiError, successResponse } from "@/server/contracts/api"
+import { badRequest, notFound } from "@/server/contracts/errors"
 
 const affiliateService = new AffiliateService(prisma)
 
@@ -11,27 +18,18 @@ export async function GET(request: NextRequest) {
     const code = searchParams.get('code')
 
     if (!code) {
-      return NextResponse.json(
-        { error: 'Affiliate code is required' },
-        { status: 400 }
-      )
+      throw badRequest("Affiliate code is required")
     }
 
     const link = await affiliateService.getAffiliateLinkByCode(code)
 
     if (!link) {
-      return NextResponse.json(
-        { error: 'Affiliate link not found' },
-        { status: 404 }
-      )
+      throw notFound("联盟链接")
     }
 
-    return NextResponse.json({ link })
+    return successResponse({ link })
   } catch (error) {
     safeErrorLog('Failed to get affiliate link by code', error)
-    return NextResponse.json(
-      { error: 'Failed to get affiliate link' },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

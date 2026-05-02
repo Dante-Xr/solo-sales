@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 18:13:41 +08:00
+ * 修改内容：补齐快速编辑回调依赖，满足 React Compiler manual memoization 校验。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 快速编辑单元格组件 (v1.2 Phase 1)
  * ============================================
@@ -71,6 +75,7 @@ export function QuickEditCell({
    * 进入编辑模式
    */
   const handleStartEdit = useCallback(() => {
+    // 进入编辑时记录原值，保存失败或取消时用它回滚 UI。
     setIsEditing(true)
     setEditValue(value.toString())
     originalValueRef.current = value
@@ -79,7 +84,7 @@ export function QuickEditCell({
       inputRef.current?.focus()
       inputRef.current?.select()
     }, 0)
-  }, [value])
+  }, [value, setEditValue])
 
   /**
    * 验证输入值
@@ -96,6 +101,7 @@ export function QuickEditCell({
    * 保存编辑
    */
   const handleSave = useCallback(async () => {
+    // 保存前统一校验输入，避免非法价格/库存进入乐观更新流程。
     const validatedValue = validateValue(editValue)
 
     if (validatedValue === null) {
@@ -122,7 +128,7 @@ export function QuickEditCell({
     } else {
       toast.success(type === "price" ? t("priceUpdated") : t("stockUpdated"))
     }
-  }, [editValue, validateValue, onSave, productId, type, t])
+  }, [editValue, validateValue, onSave, productId, type, t, setEditValue])
 
   /**
    * 取消编辑
@@ -130,7 +136,7 @@ export function QuickEditCell({
   const handleCancel = useCallback(() => {
     setEditValue(originalValueRef.current.toString())
     setIsEditing(false)
-  }, [])
+  }, [setEditValue])
 
   /**
    * 键盘事件处理

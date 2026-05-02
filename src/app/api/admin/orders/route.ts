@@ -1,5 +1,11 @@
-import { NextResponse } from "next/server"
+/**
+ * 修改时间：2026-05-02 19:00:54 +08:00
+ * 修改内容：统一后台订单路由响应与错误处理，清理手写 NextResponse.json 模板。
+ * 修改模型：gpt-5.5
+ */
 import { prisma } from "@/lib/prisma"
+import { handleApiError, successResponse } from "@/server/contracts/api"
+import { badRequest } from "@/server/contracts/errors"
 
 export async function GET() {
   try {
@@ -20,13 +26,9 @@ export async function GET() {
       },
     })
 
-    return NextResponse.json(orders)
+    return successResponse(orders)
   } catch (error) {
-    console.error("获取订单列表错误:", error)
-    return NextResponse.json(
-      { error: "获取订单列表失败" },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
@@ -36,14 +38,12 @@ export async function PATCH(request: Request) {
     const { orderId, trackingNumber, status } = body
 
     if (!orderId) {
-      return NextResponse.json(
-        { error: "订单ID不能为空" },
-        { status: 400 }
-      )
+      throw badRequest("订单ID不能为空")
     }
 
     const updateData: Record<string, string> = {}
 
+    // 只允许后台订单页更新物流单号和状态，避免透传未知字段污染订单记录。
     if (trackingNumber !== undefined) {
       updateData.trackingNumber = trackingNumber
     }
@@ -57,12 +57,8 @@ export async function PATCH(request: Request) {
       data: updateData,
     })
 
-    return NextResponse.json(order)
+    return successResponse(order)
   } catch (error) {
-    console.error("更新订单错误:", error)
-    return NextResponse.json(
-      { error: "更新订单失败" },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

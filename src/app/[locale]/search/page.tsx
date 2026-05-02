@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 18:13:41 +08:00
+ * 修改内容：修复搜索页渲染期创建 SortBar 组件的 lint 错误，改为稳定 render 函数。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 搜索结果页面
  * ============================================
@@ -220,7 +224,8 @@ function SearchPageContent() {
     })
 
   /** 排序栏组件（PC 端和移动端共用） */
-  const SortBar = ({ compact = false }: { compact?: boolean }) => (
+  // 排序栏依赖当前 sortType 和翻译，使用 render 函数避免在渲染期声明组件。
+  const renderSortBar = (compact = false) => (
     <div className="flex items-center gap-2">
       {SORT_OPTIONS.map((opt) => (
         <Button
@@ -408,7 +413,7 @@ function SearchPageContent() {
           <div className="flex-1 min-w-0">
             {/* PC 端排序栏 */}
             <div className="hidden lg:flex items-center gap-2 mb-4 border-b pb-3">
-              <SortBar />
+              {renderSortBar()}
             </div>
 
             {/* 加载状态 */}

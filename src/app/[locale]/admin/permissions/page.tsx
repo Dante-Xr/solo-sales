@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：用 Permission 列表类型替代权限页 any。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 管理员权限管理页面 (Phase 5 管理后台重构)
  * ============================================
@@ -60,6 +64,10 @@ interface Permission {
   usedByRoles?: number
 }
 
+interface PermissionListPayload {
+  list?: Permission[]
+}
+
 const PERMISSION_TYPES = [
   { value: "PAGE", label: "页面权限" },
   { value: "ACTION", label: "操作权限" },
@@ -74,8 +82,9 @@ export default function PermissionsPage() {
     pagination: { currentPage: 1, pageSize: 100 },
   })
 
-  const permissions = useMemo(() => {
-    const raw = permissionsData?.data as any
+  const permissions = useMemo<Permission[]>(() => {
+    const raw = permissionsData?.data as PermissionListPayload | undefined
+    // 权限接口返回分页对象，页面统一消费 list 中的 Permission[]。
     return raw?.list || []
   }, [permissionsData])
 
@@ -237,7 +246,7 @@ export default function PermissionsPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  permissions.map((permission: any) => (
+                  permissions.map((permission) => (
                     <TableRow key={permission.id}>
                       <TableCell className="font-medium">{permission.label}</TableCell>
                       <TableCell>

@@ -1,27 +1,14 @@
 /**
- * Task 3: 首页 Server Component - 单元测试
+ * 修改时间：2026-05-02 21:59:08 +08:00
+ * 修改内容：首页 Server Component 测试改为验证带重试商品服务层的数据与降级兜底渲染。
+ * 修改模型：gpt-5.5
  */
 
 import { render, screen } from "@testing-library/react"
 import Storefront from "./page"
 
-jest.mock("@/lib/prisma", () => ({
-  prisma: {
-    product: {
-      findMany: jest.fn(),
-    },
-  },
-}))
-
-jest.mock("@/lib/cache", () => ({
-  cacheGet: jest.fn(),
-  cacheSet: jest.fn(),
-  CACHE_KEYS: {
-    FEATURED_PRODUCTS: "featured_products",
-  },
-  CACHE_TTL: {
-    FEATURED_PRODUCTS: 3600,
-  },
+jest.mock("@/server/services/product-service", () => ({
+  getFeaturedProducts: jest.fn(),
 }))
 
 jest.mock("@/components/storefront/HomeCarouselClient", () => ({
@@ -56,8 +43,9 @@ jest.mock("@/components/storefront/WelcomeModalWrapper", () => ({
   WelcomeModalWrapper: () => <div data-testid="welcome">Welcome</div>,
 }))
 
-import { prisma } from "@/lib/prisma"
-import { cacheGet } from "@/lib/cache"
+import { getFeaturedProducts } from "@/server/services/product-service"
+
+const getFeaturedProductsMock = getFeaturedProducts as jest.MockedFunction<typeof getFeaturedProducts>
 
 describe("Storefront (HomePage)", () => {
   const mockProducts = [
@@ -65,21 +53,21 @@ describe("Storefront (HomePage)", () => {
       id: "1",
       name: "Product 1",
       description: "Desc 1",
-      price: { toNumber: () => 29.99 },
+      price: 29.99,
+      originalPrice: 49.99,
+      image: "/img1.jpg",
+      sales: 50,
       stock: 100,
-      images: ["/img1.jpg"],
-      isPublished: true,
-      _count: { orderItems: 50 },
     },
     {
       id: "2",
       name: "Product 2",
       description: "Desc 2",
-      price: { toNumber: () => 39.99 },
+      price: 39.99,
+      originalPrice: 59.99,
+      image: "/img2.jpg",
+      sales: 30,
       stock: 50,
-      images: ["/img2.jpg"],
-      isPublished: true,
-      _count: { orderItems: 30 },
     },
   ]
 
@@ -87,9 +75,11 @@ describe("Storefront (HomePage)", () => {
     jest.clearAllMocks()
   })
 
-  it("应该从数据库获取商品并渲染", async () => {
-    ;(cacheGet as jest.Mock).mockResolvedValue(null)
-    ;(prisma.product.findMany as jest.Mock).mockResolvedValue(mockProducts)
+  it("应该从商品服务获取商品并渲染", async () => {
+    getFeaturedProductsMock.mockResolvedValue({
+      products: mockProducts,
+      fromCache: false,
+    })
 
     const Page = await Storefront()
     render(Page)
@@ -98,22 +88,52 @@ describe("Storefront (HomePage)", () => {
     expect(screen.getByTestId("product-grid")).toHaveTextContent("2 products")
   })
 
-  it("应该使用缓存数据", async () => {
+  it("应该使用商品服务返回的缓存数据", async () => {
     const cachedProducts = [
-      { id: "1", name: "Cached", price: 10, originalPrice: 20, image: "/c.jpg", sales: 5, stock: 10 },
+      {
+        id: "1",
+        name: "Cached",
+        description: "Cached product",
+        price: 10,
+        originalPrice: 20,
+        image: "/c.jpg",
+        sales: 5,
+        stock: 10,
+      },
     ]
-    ;(cacheGet as jest.Mock).mockResolvedValue(cachedProducts)
+    getFeaturedProductsMock.mockResolvedValue({
+      products: cachedProducts,
+      fromCache: true,
+    })
 
     const Page = await Storefront()
     render(Page)
 
-    expect(prisma.product.findMany).not.toHaveBeenCalled()
+    expect(getFeaturedProductsMock).toHaveBeenCalledTimes(1)
     expect(screen.getByTestId("carousel")).toHaveTextContent("1 products")
   })
 
+  it("应该在商品服务失败时渲染兜底商品", async () => {
+    const errorSpy = jest.spyOn(console, "error").mockImplementation(() => undefined)
+    getFeaturedProductsMock.mockRejectedValue(new Error("database unavailable"))
+
+    try {
+      const Page = await Storefront()
+      render(Page)
+
+      // 服务层重试耗尽后页面仍应展示兜底商品，避免首页白屏。
+      expect(screen.getByTestId("carousel")).toHaveTextContent("6 products")
+      expect(screen.getByTestId("product-grid")).toHaveTextContent("6 products")
+    } finally {
+      errorSpy.mockRestore()
+    }
+  })
+
   it("应该渲染页面结构组件", async () => {
-    ;(cacheGet as jest.Mock).mockResolvedValue(null)
-    ;(prisma.product.findMany as jest.Mock).mockResolvedValue(mockProducts)
+    getFeaturedProductsMock.mockResolvedValue({
+      products: mockProducts,
+      fromCache: false,
+    })
 
     const Page = await Storefront()
     render(Page)

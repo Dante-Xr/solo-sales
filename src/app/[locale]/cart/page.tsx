@@ -1,3 +1,9 @@
+/**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：清理购物车页未使用的汇总字段，并将修改说明移动到文件头部。
+ * 修改模型：gpt-5.5
+ */
+
 "use client"
 
 import { useState, useMemo } from "react"
@@ -21,7 +27,7 @@ export default function CartPage() {
   const t = useTranslations()
   const {
     cart, removeFromCart, updateQuantity, toggleSelect, toggleSelectAll,
-    removeSelected, cartTotal, cartCount, selectedTotal, selectedCount, isAllSelected,
+    removeSelected, selectedTotal, selectedCount, isAllSelected,
   } = useCartStore()
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
   const [couponDiscount, setCouponDiscount] = useState(0)
@@ -157,7 +163,8 @@ export default function CartPage() {
     )
   }
 
-  const OrderSummary = () => (
+  // 用 render 函数代替组件声明，避免每次渲染创建新组件导致状态被重置。
+  const renderOrderSummary = () => (
     <div className="bg-card rounded-xl border shadow-sm p-4">
       <h2 className="text-base font-bold mb-3">{t('checkout.orderSummary')}</h2>
 
@@ -239,7 +246,8 @@ export default function CartPage() {
     </div>
   )
 
-  const EmptyCart = () => (
+  // 空购物车视图依赖当前翻译和 router，保留在组件作用域内以复用上下文。
+  const renderEmptyCart = () => (
     <div className="bg-card rounded-xl border shadow-sm">
       <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
         <ShoppingBag className="w-16 h-16 mb-4 text-muted-foreground/30" />
@@ -256,7 +264,7 @@ export default function CartPage() {
     <StorefrontPageLayout title={t('cart.title')} showBack>
       <div className="p-3 pb-28 md:pb-6">
         {cart.length === 0 ? (
-          <EmptyCart />
+          renderEmptyCart()
         ) : (
           <>
             {/* 全选栏 */}
@@ -313,7 +321,7 @@ export default function CartPage() {
               </div>
               <div className="md:w-1/3">
                 <div className="sticky top-16">
-                  <OrderSummary />
+                  {renderOrderSummary()}
                 </div>
               </div>
             </div>
@@ -328,7 +336,7 @@ export default function CartPage() {
                 ))}
               </div>
               <div className="mt-4">
-                <OrderSummary />
+                {renderOrderSummary()}
               </div>
               <div className="mt-4">
                 <UpsellRecommendation />

@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 19:10:31 +08:00
+ * 修改内容：移除 next/font/google 网络字体依赖，改用 globals.css 中的系统字体变量以解除离线 build 阻塞。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 应用根布局 (Phase 4 国际化升级)
  * ============================================
@@ -9,7 +13,6 @@
  * ============================================
  */
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { headers } from "next/headers";
@@ -19,16 +22,6 @@ import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { ClientLayout } from "@/components/providers/ClientLayout"
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "SoloSales Shop",
@@ -48,9 +41,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning nonce={nonce}>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className="antialiased">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ThemeProvider>
             <AuthProvider>

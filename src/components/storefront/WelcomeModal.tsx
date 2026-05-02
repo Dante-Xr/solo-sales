@@ -1,10 +1,16 @@
+/**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：清理欢迎弹窗未使用的 locale 读取，推进 M5 lint warnings 收敛。
+ * 修改模型：gpt-5.5
+ */
+
 "use client"
 
 // 2026-04-13: 更新为使用 next-intl 国际化
 
 import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
-import { useTranslations, useLocale } from "next-intl"
+import { useTranslations } from "next-intl"
 
 interface WelcomeModalProps {
   onClose: () => void
@@ -13,7 +19,6 @@ interface WelcomeModalProps {
 
 export function WelcomeModal({ onClose, onClaim }: WelcomeModalProps) {
   const t = useTranslations('welcome')
-  const locale = useLocale()
 
   const handleClaim = () => {
     const couponCode = "NEWUSER5"

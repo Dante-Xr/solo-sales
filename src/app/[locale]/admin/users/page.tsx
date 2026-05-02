@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：用 AdminUser/Role 分页类型替代用户管理页 any，并清理未使用回调。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 管理员用户管理页面 (Phase 5 管理后台重构)
  * ============================================
@@ -14,7 +18,7 @@
 
 "use client"
 
-import { useState, useEffect, useCallback, useMemo } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useList } from "@refinedev/core"
 import { Users, UserPlus, Search, Pencil, Trash2, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -72,6 +76,18 @@ interface UserFormData {
   roleId: string | null
 }
 
+interface PaginationState {
+  page: number
+  pageSize: number
+  total: number
+  totalPages: number
+}
+
+interface ListPayload<T> {
+  list?: T[]
+  pagination?: PaginationState
+}
+
 export default function UsersPage() {
   const t = useTranslations('admin')
   const commonT = useTranslations('common')
@@ -79,7 +95,7 @@ export default function UsersPage() {
   const isZh = locale === "zh"
 
   const [searchKeyword, setSearchKeyword] = useState("")
-  const [pagination, setPagination] = useState({ page: 1, pageSize: 20, total: 0, totalPages: 0 })
+  const [pagination, setPagination] = useState<PaginationState>({ page: 1, pageSize: 20, total: 0, totalPages: 0 })
 
   const { query: { data: usersData, isLoading: loading, refetch: refetchUsers } } = useList({
     resource: "users",
@@ -92,7 +108,7 @@ export default function UsersPage() {
     ],
   })
 
-  const { query: { data: rolesData, refetch: refetchRoles } } = useList({
+  const { query: { data: rolesData } } = useList({
     resource: "roles",
     pagination: {
       currentPage: 1,
@@ -100,15 +116,16 @@ export default function UsersPage() {
     },
   })
 
-  const users = useMemo(() => {
-    const raw = usersData?.data as any
+  const users = useMemo<AdminUser[]>(() => {
+    const raw = usersData?.data as ListPayload<AdminUser> | undefined
+    // 后台用户接口返回分页对象，统一从 list 字段收窄为 AdminUser[]。
     return raw?.list || []
   }, [usersData])
 
-  const roles = useMemo(() => {
-    const raw = rolesData?.data as any
+  const roles = useMemo<Role[]>(() => {
+    const raw = rolesData?.data as Role[] | ListPayload<Role> | undefined
     const list = Array.isArray(raw) ? raw : (raw?.list || [])
-    return list.map((role: Role & { permissions?: unknown[]; adminCount?: number }) => ({
+    return list.map((role) => ({
       id: role.id,
       name: role.name,
       label: role.label,
@@ -117,7 +134,7 @@ export default function UsersPage() {
 
   useEffect(() => {
     if (usersData?.total !== undefined) {
-      const raw = usersData?.data as any
+      const raw = usersData?.data as ListPayload<AdminUser> | undefined
       if (raw?.pagination) {
         setPagination(raw.pagination)
       }
@@ -131,11 +148,6 @@ export default function UsersPage() {
   const [formData, setFormData] = useState<UserFormData>({ username: "", email: "", password: "", roleId: "" })
   const [formLoading, setFormLoading] = useState(false)
   const [switchLoading, setSwitchLoading] = useState<string | null>(null)
-
-  const handleSearch = () => {
-    setPagination(prev => ({ ...prev, page: 1 }))
-    refetchUsers()
-  }
 
   const handleOpenCreateDialog = () => {
     setEditingUser(null)
@@ -308,7 +320,7 @@ export default function UsersPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.map((user: any) => (
+                  {users.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">{user.username}</TableCell>
                       <TableCell>{user.email}</TableCell>
@@ -411,7 +423,7 @@ export default function UsersPage() {
                   <SelectValue placeholder={t("selectRole")} />
                 </SelectTrigger>
                 <SelectContent>
-                  {roles.map((role: any) => (
+                  {roles.map((role) => (
                     <SelectItem key={role.id} value={role.id}>
                       {role.label}
                     </SelectItem>

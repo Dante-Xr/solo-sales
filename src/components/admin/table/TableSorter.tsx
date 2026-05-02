@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：清理表格排序组件未使用的 cn 导入，推进 M5 lint warnings 收敛。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 表格排序组件 (v1.2 Phase 3)
  * ============================================
@@ -13,7 +17,6 @@
 
 import { useTranslations } from "next-intl"
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
-import { cn } from "@/lib/utils"
 
 export type SortDirection = "asc" | "desc"
 

@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：用 Customer 列表类型替代客户页 any，并修复详情点击传参为客户 ID。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 客户管理页面 (Phase 5 管理后台重构)
  * ============================================
@@ -55,6 +59,10 @@ interface CustomerDetail extends Customer {
   }>
 }
 
+interface CustomerListPayload {
+  list?: Customer[]
+}
+
 export default function CustomersPage() {
   const t = useTranslations('admin.customers')
   const locale = useLocale()
@@ -72,8 +80,9 @@ export default function CustomersPage() {
     ],
   })
 
-  const customers = useMemo(() => {
-    const raw = customersData?.data as any
+  const customers = useMemo<Customer[]>(() => {
+    const raw = customersData?.data as CustomerListPayload | undefined
+    // 客户列表接口返回分页对象，页面只消费 list 中的 Customer[]。
     return raw?.list || []
   }, [customersData])
 
@@ -165,11 +174,11 @@ export default function CustomersPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {customers.map((customer: any) => (
+                {customers.map((customer) => (
                   <div
                     key={customer.id}
                     className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
-                    onClick={() => handleViewDetail(customer)}
+                    onClick={() => handleViewDetail(customer.id)}
                   >
                     <div className="flex items-center gap-4">
                       {/* 头像 */}

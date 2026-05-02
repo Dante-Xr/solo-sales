@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：清理分析服务未使用的 SalesReport 类型导入，推进 M5 lint warnings 收敛。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 数据分析服务 (v0.6.0)
  * ============================================
@@ -22,7 +26,6 @@ import {
   Segmentation,
   CategoryStats,
   StockAlert,
-  SalesReport,
   TopProduct,
   ProductReport,
   InventoryReport

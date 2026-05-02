@@ -1,7 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import AffiliateService from '@/lib/affiliate/AffiliateService'
-import { safeErrorLog } from '@/lib/safeLog'
+/**
+ * 修改时间：2026-05-02 19:42:24 +08:00
+ * 修改内容：统一联盟会员链接列表和创建路由响应与错误处理，清理手写 NextResponse 模板。
+ * 修改模型：gpt-5.5
+ */
+import { NextRequest } from "next/server"
+import { prisma } from "@/lib/prisma"
+import AffiliateService from "@/lib/affiliate/AffiliateService"
+import { safeErrorLog } from "@/lib/safeLog"
+import { createdResponse, handleApiError, successResponse } from "@/server/contracts/api"
 
 const affiliateService = new AffiliateService(prisma)
 
@@ -13,13 +19,10 @@ export async function GET(
     const { id } = await params
     const links = await affiliateService.getAffiliateLinks(id)
 
-    return NextResponse.json({ links })
+    return successResponse({ links })
   } catch (error) {
     safeErrorLog('Failed to get affiliate links', error)
-    return NextResponse.json(
-      { error: 'Failed to get affiliate links' },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
@@ -39,12 +42,9 @@ export async function POST(
       expiresAt
     })
 
-    return NextResponse.json({ link }, { status: 201 })
+    return createdResponse({ link })
   } catch (error) {
     safeErrorLog('Failed to create affiliate link', error)
-    return NextResponse.json(
-      { error: 'Failed to create affiliate link' },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

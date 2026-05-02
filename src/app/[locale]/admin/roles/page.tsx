@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：用 Role/Permission 列表类型替代角色页 any。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 管理员角色管理页面 (Phase 5 管理后台重构)
  * ============================================
@@ -59,6 +63,10 @@ interface Role {
   adminCount: number
 }
 
+interface ListPayload<T> {
+  list?: T[]
+}
+
 export default function RolesPage() {
   const t = useTranslations('admin.roles')
 
@@ -72,13 +80,13 @@ export default function RolesPage() {
     pagination: { currentPage: 1, pageSize: 100 },
   })
 
-  const roles = useMemo(() => {
-    const raw = rolesData?.data as any
+  const roles = useMemo<Role[]>(() => {
+    const raw = rolesData?.data as Role[] | ListPayload<Role> | undefined
     return Array.isArray(raw) ? raw : (raw?.list || [])
   }, [rolesData])
 
-  const permissions = useMemo(() => {
-    const raw = permissionsData?.data as any
+  const permissions = useMemo<Permission[]>(() => {
+    const raw = permissionsData?.data as ListPayload<Permission> | undefined
     return raw?.list || []
   }, [permissionsData])
 
@@ -101,11 +109,11 @@ export default function RolesPage() {
   const [submitting, setSubmitting] = useState(false)
 
   const pagePermissions = useMemo(
-    () => permissions.filter((p: any) => p.type === "PAGE"),
+    () => permissions.filter((p) => p.type === "PAGE"),
     [permissions]
   )
   const actionPermissions = useMemo(
-    () => permissions.filter((p: any) => p.type === "ACTION"),
+    () => permissions.filter((p) => p.type === "ACTION"),
     [permissions]
   )
 
@@ -270,7 +278,7 @@ export default function RolesPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  roles.map((role: any) => (
+                  roles.map((role) => (
                     <TableRow key={role.id}>
                       <TableCell className="font-medium">{role.label}</TableCell>
                       <TableCell>

@@ -1,229 +1,71 @@
 /**
- * ============================================
- * 商品分类管理 API 路由
- * ============================================
- * 功能说明：
- *   - 获取分类列表
- *   - 创建分类
- *   - 更新分类
- *   - 删除分类
- * ============================================
+ * 修改时间：2026-05-02 18:13:41 +08:00
+ * 修改内容：将分类 CRUD 路由收敛为薄控制器，名称冲突和删除保护迁移到 product-service。
+ * 修改模型：gpt-5.5
  */
+import { NextRequest } from "next/server"
+import { createdResponse, handleApiError, successResponse } from "@/server/contracts/api"
+import { badRequest } from "@/server/contracts/errors"
+import {
+  createCategoryFromInput,
+  deleteCategoryById,
+  listCategories,
+  parseCreateCategoryInput,
+  parseUpdateCategoryInput,
+  updateCategoryFromInput,
+} from "@/server/services/product-service"
 
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { z } from "zod"
-
-/**
- * 创建分类请求体校验 schema
- */
-const createCategorySchema = z.object({
-  name: z.string().min(1, "分类名称不能为空"),
-  description: z.string().optional(),
-})
-
-/**
- * 更新分类请求体校验 schema
- */
-const updateCategorySchema = z.object({
-  name: z.string().min(1).optional(),
-  description: z.string().nullable().optional(),
-})
-
-/**
- * GET /api/categories - 获取分类列表
- */
 export async function GET() {
   try {
-    const categories = await prisma.category.findMany({
-      include: {
-        _count: {
-          select: { products: true },
-        },
-      },
-      orderBy: { createdAt: "asc" },
-    })
-
-    return NextResponse.json({ success: true, data: categories })
+    const categories = await listCategories()
+    return successResponse(categories)
   } catch (error) {
-    console.error("获取分类列表失败:", error)
-    return NextResponse.json(
-      { success: false, error: "获取分类列表失败" },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
-/**
- * POST /api/categories - 创建分类
- */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const parsed = createCategorySchema.safeParse(body)
+    const input = parseCreateCategoryInput(await request.json())
+    const category = await createCategoryFromInput(input)
 
-    if (!parsed.success) {
-      return NextResponse.json(
-        { success: false, error: "参数错误", details: parsed.error.issues },
-        { status: 400 }
-      )
-    }
-
-    const data = parsed.data
-
-    // 检查名称是否已存在
-    const existing = await prisma.category.findFirst({
-      where: { name: data.name },
-    })
-
-    if (existing) {
-      return NextResponse.json(
-        { success: false, error: "该分类名称已存在" },
-        { status: 409 }
-      )
-    }
-
-    const category = await prisma.category.create({
-      data: {
-        name: data.name,
-        description: data.description,
-      },
-      include: {
-        _count: {
-          select: { products: true },
-        },
-      },
-    })
-
-    return NextResponse.json({ success: true, data: category }, { status: 201 })
+    return createdResponse(category)
   } catch (error) {
-    console.error("创建分类失败:", error)
-    return NextResponse.json(
-      { success: false, error: "创建分类失败" },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
-/**
- * PATCH /api/categories - 更新分类
- */
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json()
     const { id, ...updateData } = body
 
-    if (!id) {
-      return NextResponse.json(
-        { success: false, error: "缺少分类 ID" },
-        { status: 400 }
-      )
+    // 分类更新接口沿用旧请求体格式：id 放在 body，其余字段作为更新数据。
+    if (!id || typeof id !== "string") {
+      throw badRequest("缺少分类 ID")
     }
 
-    const parsed = updateCategorySchema.safeParse(updateData)
+    const input = parseUpdateCategoryInput(updateData)
+    const category = await updateCategoryFromInput(id, input)
 
-    if (!parsed.success) {
-      return NextResponse.json(
-        { success: false, error: "参数错误", details: parsed.error.issues },
-        { status: 400 }
-      )
-    }
-
-    // 检查分类是否存在
-    const existing = await prisma.category.findUnique({
-      where: { id },
-    })
-
-    if (!existing) {
-      return NextResponse.json(
-        { success: false, error: "分类不存在" },
-        { status: 404 }
-      )
-    }
-
-    // 检查名称是否与其他分类冲突（如果提供了新名称）
-    if (parsed.data.name && parsed.data.name !== existing.name) {
-      const conflict = await prisma.category.findFirst({
-        where: { name: parsed.data.name, id: { not: id } },
-      })
-      if (conflict) {
-        return NextResponse.json(
-          { success: false, error: "该分类名称已存在" },
-          { status: 409 }
-        )
-      }
-    }
-
-    const category = await prisma.category.update({
-      where: { id },
-      data: parsed.data,
-      include: {
-        _count: {
-          select: { products: true },
-        },
-      },
-    })
-
-    return NextResponse.json({ success: true, data: category })
+    return successResponse(category)
   } catch (error) {
-    console.error("更新分类失败:", error)
-    return NextResponse.json(
-      { success: false, error: "更新分类失败" },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
-/**
- * DELETE /api/categories - 删除分类
- */
 export async function DELETE(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const id = searchParams.get("id")
+    const id = request.nextUrl.searchParams.get("id")
 
     if (!id) {
-      return NextResponse.json(
-        { success: false, error: "缺少分类 ID" },
-        { status: 400 }
-      )
+      throw badRequest("缺少分类 ID")
     }
 
-    // 检查分类是否存在
-    const existing = await prisma.category.findUnique({
-      where: { id },
-      include: {
-        _count: {
-          select: { products: true },
-        },
-      },
-    })
+    const result = await deleteCategoryById(id)
 
-    if (!existing) {
-      return NextResponse.json(
-        { success: false, error: "分类不存在" },
-        { status: 404 }
-      )
-    }
-
-    // 检查是否有产品关联
-    if (existing._count.products > 0) {
-      return NextResponse.json(
-        { success: false, error: "该分类下存在产品，无法删除" },
-        { status: 400 }
-      )
-    }
-
-    await prisma.category.delete({
-      where: { id },
-    })
-
-    return NextResponse.json({ success: true, message: "删除成功" })
+    return successResponse(result)
   } catch (error) {
-    console.error("删除分类失败:", error)
-    return NextResponse.json(
-      { success: false, error: "删除分类失败" },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

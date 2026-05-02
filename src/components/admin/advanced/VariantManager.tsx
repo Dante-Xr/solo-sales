@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：清理未使用的变体操作图标导入，推进 M5 lint warnings 收敛。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 商品变体管理组件 (v1.2 Phase 4)
  * ============================================
@@ -21,9 +25,6 @@ import {
   X,
   Package,
   AlertTriangle,
-  Check,
-  Pencil,
-  Copy,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -61,6 +62,14 @@ const PRESET_GROUPS: { name: string; options: string[] }[] = [
   { name: "Material", options: ["Cotton", "Polyester", "Leather", "Wool", "Silk"] },
   { name: "Style", options: ["Classic", "Modern", "Vintage", "Sport"] },
 ]
+
+let attributeGroupSequence = 0
+
+function createAttributeGroupId(): string {
+  // 属性组 ID 只需在当前页面会话内稳定唯一，模块级递增避免渲染期 impure 调用。
+  attributeGroupSequence += 1
+  return `group-${attributeGroupSequence}`
+}
 
 // ==================== 工具函数 ====================
 
@@ -134,7 +143,7 @@ function AttributeGroupsEditor({
     const trimmed = name.trim()
     if (groups.some((g) => g.name === trimmed)) return
     const newGroup: AttributeGroup = {
-      id: `group-${Date.now()}`,
+      id: createAttributeGroupId(),
       name: trimmed,
       options: [],
     }
@@ -146,7 +155,7 @@ function AttributeGroupsEditor({
   const addPresetGroup = (preset: (typeof PRESET_GROUPS)[0]) => {
     if (groups.some((g) => g.name === preset.name)) return
     const newGroup: AttributeGroup = {
-      id: `group-${Date.now()}`,
+      id: createAttributeGroupId(),
       name: preset.name,
       options: preset.options.map((v) => ({ value: v })),
     }

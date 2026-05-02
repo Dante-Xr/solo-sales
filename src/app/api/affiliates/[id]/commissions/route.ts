@@ -1,8 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import AffiliateService from '@/lib/affiliate/AffiliateService'
-import { CommissionStatus } from '@prisma/client'
-import { safeErrorLog } from '@/lib/safeLog'
+/**
+ * 修改时间：2026-05-02 19:42:24 +08:00
+ * 修改内容：统一联盟佣金列表路由响应与错误处理，清理手写 NextResponse 模板。
+ * 修改模型：gpt-5.5
+ */
+import { NextRequest } from "next/server"
+import { prisma } from "@/lib/prisma"
+import AffiliateService from "@/lib/affiliate/AffiliateService"
+import { CommissionStatus } from "@prisma/client"
+import { safeErrorLog } from "@/lib/safeLog"
+import { handleApiError, successResponse } from "@/server/contracts/api"
 
 const affiliateService = new AffiliateService(prisma)
 
@@ -19,12 +25,9 @@ export async function GET(
       status: status || undefined
     })
 
-    return NextResponse.json({ commissions })
+    return successResponse({ commissions })
   } catch (error) {
     safeErrorLog('Failed to get commissions', error)
-    return NextResponse.json(
-      { error: 'Failed to get commissions' },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

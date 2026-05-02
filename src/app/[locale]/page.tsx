@@ -1,5 +1,8 @@
-import { prisma } from "@/lib/prisma"
-import { cacheGet, cacheSet, CACHE_KEYS, CACHE_TTL } from "@/lib/cache"
+/**
+ * 修改时间：2026-05-02 21:59:08 +08:00
+ * 修改内容：首页商品读取改为复用带 Prisma 断连重试的服务层，避免页面直接访问数据库绕过容错逻辑。
+ * 修改模型：gpt-5.5
+ */
 import { HomeCarouselClient } from "@/components/storefront/HomeCarouselClient"
 import type { ProductItem } from "@/components/storefront/HomeCarouselClient"
 import { ProductGridClient } from "@/components/storefront/ProductGridClient"
@@ -9,6 +12,7 @@ import { FeatureSection } from "@/components/storefront/FeatureSection"
 import { StorefrontFooter } from "@/components/storefront/StorefrontFooter"
 import { ViewportWrapper } from "@/components/storefront/ViewportWrapper"
 import { WelcomeModalWrapper } from "@/components/storefront/WelcomeModalWrapper"
+import { getFeaturedProducts as getFeaturedProductsFromService } from "@/server/services/product-service"
 
 const FALLBACK_PRODUCTS: ProductItem[] = [
   {
@@ -73,50 +77,12 @@ const FALLBACK_PRODUCTS: ProductItem[] = [
   },
 ]
 
-function transformProduct(product: {
-  id: string
-  name: string
-  description: string
-  price: { toNumber: () => number }
-  stock: number
-  images: string[]
-  isPublished: boolean
-  _count?: { orderItems: number }
-}): ProductItem {
-  const price = product.price.toNumber()
-  return {
-    id: product.id,
-    name: product.name,
-    description: product.description,
-    price,
-    originalPrice: Math.round(price * 1.4 * 100) / 100,
-    image: product.images[0] || "",
-    sales: product._count?.orderItems ?? 0,
-    stock: product.stock,
-  }
-}
-
 async function getFeaturedProducts(): Promise<ProductItem[]> {
   try {
-    const cached = await cacheGet<ProductItem[]>(CACHE_KEYS.FEATURED_PRODUCTS)
-    if (cached) return cached
-
-    const products = await prisma.product.findMany({
-      where: { isPublished: true },
-      orderBy: { createdAt: "desc" },
-      include: {
-        _count: {
-          select: { orderItems: true },
-        },
-      },
-    })
-
-    const transformed = products.map(transformProduct)
-
-    await cacheSet(CACHE_KEYS.FEATURED_PRODUCTS, transformed, CACHE_TTL.FEATURED_PRODUCTS)
-
-    return transformed
+    const result = await getFeaturedProductsFromService()
+    return result.products
   } catch (error) {
+    // 首页不能因为商品库短暂不可用而白屏，服务层重试耗尽后降级到演示商品。
     console.error("Error fetching featured products:", error)
     return FALLBACK_PRODUCTS
   }

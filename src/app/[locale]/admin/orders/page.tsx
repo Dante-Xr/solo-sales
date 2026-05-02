@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：清理订单页未使用 locale，并用 Order 类型替代订单列表 any。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 订单管理页面 (Phase 5 管理后台重构)
  * ============================================
@@ -29,7 +33,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Loader2, Truck } from "lucide-react"
-import { useTranslations, useLocale } from "next-intl"
+import { useTranslations } from "next-intl"
 
 interface Order {
   id: string
@@ -59,7 +63,6 @@ export default function AdminOrdersPage() {
   const t = useTranslations('admin')
   const ordersT = useTranslations('orders')
   const commonT = useTranslations('common')
-  const locale = useLocale()
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [trackingNumber, setTrackingNumber] = useState("")
   const [updating, setUpdating] = useState(false)
@@ -72,7 +75,7 @@ export default function AdminOrdersPage() {
     },
   })
 
-  const orders = (ordersData?.data as any) || []
+  const orders = (ordersData?.data as Order[] | undefined) || []
 
   const statusLabels: Record<string, { label: string; color: string }> = {
     PENDING: { label: ordersT("pending"), color: "bg-yellow-500" },
@@ -158,7 +161,7 @@ export default function AdminOrdersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {orders.map((order: any) => (
+              {orders.map((order) => (
                 <TableRow key={order.id}>
                   <TableCell className="font-mono text-sm">
                     {order.id.slice(0, 8)}...

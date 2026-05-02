@@ -1,32 +1,20 @@
 /**
- * ============================================
- * 批发商品导入日志查询 API
- * ============================================
+ * 修改时间：2026-05-02 18:37:11 +08:00
+ * 修改内容：将批发商品导入日志路由收敛为薄控制器，分页查询迁移到 inventory-service。
+ * 修改模型：gpt-5.5
  */
+import { NextRequest } from "next/server"
+import { handleApiError, successResponse } from "@/server/contracts/api"
+import { listImportLogs, parseImportLogsQuery } from "@/server/services/inventory-service"
 
-import { NextRequest, NextResponse } from "next/server"
-import { getImportLogs } from "@/lib/wholesalers/logger"
-
-/**
- * GET handler - 获取导入日志列表
- */
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const page = parseInt(searchParams.get("page") || "1")
-    const pageSize = parseInt(searchParams.get("pageSize") || "20")
+    // 分页参数统一交给 service schema 校验，避免 route 内散落 parseInt 默认值。
+    const query = parseImportLogsQuery(request.nextUrl.searchParams)
+    const result = await listImportLogs(query)
 
-    const result = await getImportLogs(page, pageSize)
-
-    return NextResponse.json({
-      success: true,
-      data: result,
-    })
+    return successResponse(result)
   } catch (error) {
-    console.error("获取导入日志失败:", error)
-    return NextResponse.json(
-      { success: false, error: "获取导入日志失败" },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

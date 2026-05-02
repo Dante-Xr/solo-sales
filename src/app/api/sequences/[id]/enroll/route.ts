@@ -1,7 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import EmailSequenceEngine from '@/lib/marketing/EmailSequenceEngine'
-import { safeErrorLog } from '@/lib/safeLog'
+/**
+ * 修改时间：2026-05-02 19:21:48 +08:00
+ * 修改内容：统一邮件序列报名、取消报名和状态更新路由响应与错误处理，清理手写 NextResponse 模板。
+ * 修改模型：gpt-5.5
+ */
+import { NextRequest } from "next/server"
+import { prisma } from "@/lib/prisma"
+import EmailSequenceEngine from "@/lib/marketing/EmailSequenceEngine"
+import { safeErrorLog } from "@/lib/safeLog"
+import { createdResponse, handleApiError, successResponse } from "@/server/contracts/api"
+import { badRequest } from "@/server/contracts/errors"
 
 const engine = new EmailSequenceEngine(prisma)
 
@@ -15,28 +22,19 @@ export async function POST(
     const { userId, triggerData } = body
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      )
+      throw badRequest("User ID is required")
     }
 
     const enrollment = await engine.enrollUser(id, userId, triggerData)
 
     if (!enrollment) {
-      return NextResponse.json(
-        { error: 'Failed to enroll user' },
-        { status: 400 }
-      )
+      throw badRequest("Failed to enroll user")
     }
 
-    return NextResponse.json({ enrollment }, { status: 201 })
+    return createdResponse({ enrollment })
   } catch (error) {
     safeErrorLog('Failed to enroll user', error)
-    return NextResponse.json(
-      { error: 'Failed to enroll user' },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
@@ -50,21 +48,15 @@ export async function DELETE(
     const userId = searchParams.get('userId')
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      )
+      throw badRequest("User ID is required")
     }
 
     const enrollment = await engine.unenroll(id, userId)
 
-    return NextResponse.json({ enrollment })
+    return successResponse({ enrollment })
   } catch (error) {
     safeErrorLog('Failed to unenroll user', error)
-    return NextResponse.json(
-      { error: 'Failed to unenroll user' },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
@@ -78,10 +70,7 @@ export async function PATCH(
     const { userId, action } = body
 
     if (!userId || !action) {
-      return NextResponse.json(
-        { error: 'User ID and action are required' },
-        { status: 400 }
-      )
+      throw badRequest("User ID and action are required")
     }
 
     let enrollment
@@ -91,18 +80,12 @@ export async function PATCH(
     } else if (action === 'resume') {
       enrollment = await engine.resumeEnrollment(id, userId)
     } else {
-      return NextResponse.json(
-        { error: 'Invalid action. Use pause or resume' },
-        { status: 400 }
-      )
+      throw badRequest("Invalid action. Use pause or resume")
     }
 
-    return NextResponse.json({ enrollment })
+    return successResponse({ enrollment })
   } catch (error) {
     safeErrorLog('Failed to update enrollment', error)
-    return NextResponse.json(
-      { error: 'Failed to update enrollment' },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

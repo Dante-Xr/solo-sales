@@ -1,6 +1,11 @@
+/**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：清理店铺统一布局未使用的翻译导入，推进 M5 lint warnings 收敛。
+ * 修改模型：gpt-5.5
+ */
+
 "use client"
 
-import { useTranslations } from "next-intl"
 import { useTheme } from "next-themes"
 import { useRouter, Link } from "@/i18n/navigation"
 import { ShoppingBag, Sun, Moon, ArrowLeft } from "lucide-react"

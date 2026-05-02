@@ -1,8 +1,13 @@
+/**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：清理功能区未使用的视口模式状态读取，推进 M5 lint warnings 收敛。
+ * 修改模型：gpt-5.5
+ */
+
 "use client"
 
 import { Rocket, Shield, Package, MessageCircle } from "lucide-react"
 import { useTranslations } from "next-intl"
-import { useViewportModeStore } from "@/stores/useViewportModeStore"
 
 interface Feature {
   icon: React.ReactNode
@@ -42,8 +47,6 @@ const iconBgColors = [
 
 export function FeatureSection() {
   const t = useTranslations('feature')
-  const { mode: viewportMode } = useViewportModeStore()
-  const isMobileView = viewportMode === "mobile"
 
   return (
     <section className="bg-muted/30 py-8">

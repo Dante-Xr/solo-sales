@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：清理日期范围选择器未使用的 locale 中间变量，推进 M5 lint warnings 收敛。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 日期范围选择器组件 (Phase 2 图表增强)
  * ============================================
@@ -67,8 +71,6 @@ export function DateRangePicker({ value, presetRange, onChange }: DateRangePicke
   const [customStart, setCustomStart] = useState(format(value.startDate, "yyyy-MM-dd"))
   const [customEnd, setCustomEnd] = useState(format(value.endDate, "yyyy-MM-dd"))
   const [showCustom, setShowCustom] = useState(presetRange === "custom")
-
-  const dateLocale = locale === "zh" ? "zh-CN" : "en-US"
 
   const handlePresetClick = useCallback((option: PresetOption) => {
     const range = option.getRange()

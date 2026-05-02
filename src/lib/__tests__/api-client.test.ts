@@ -1,3 +1,8 @@
+/**
+ * 修改时间：2026-05-02 18:13:41 +08:00
+ * 修改内容：补充 apiFetch 对统一响应 success/data/error 的解包和错误消息测试。
+ * 修改模型：gpt-5.5
+ */
 import { ApiError, apiFetch } from "../api-client"
 
 beforeEach(() => {
@@ -54,6 +59,34 @@ describe("apiFetch", () => {
       expect((error as ApiError).status).toBe(404)
       expect((error as ApiError).message).toBe("Product not found")
     }
+  })
+
+  it("should unwrap standard API success responses", async () => {
+    const mockData = { id: "1", name: "Test Product" }
+    global.fetch = jest.fn().mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ success: true, data: mockData }),
+    })
+
+    const result = await apiFetch("/api/products/1")
+    expect(result).toEqual(mockData)
+  })
+
+  it("should read standard API error message", async () => {
+    global.fetch = jest.fn().mockResolvedValueOnce({
+      ok: false,
+      status: 422,
+      json: () =>
+        Promise.resolve({
+          success: false,
+          error: { code: "INSUFFICIENT_STOCK", message: "库存不足" },
+        }),
+    })
+
+    await expect(apiFetch("/api/orders")).rejects.toMatchObject({
+      status: 422,
+      message: "库存不足",
+    })
   })
 
   it("should throw ApiError with status code when response has no error field", async () => {

@@ -1,3 +1,9 @@
+/*
+ * 修改时间：2026-05-02 19:10:31 +08:00
+ * 修改内容：新增离线可用的系统字体变量，替代 next/font/google 生成的 Geist 变量以保障 build 不依赖网络。
+ * 修改模型：gpt-5.5
+ */
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -7,7 +13,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -69,6 +75,9 @@
 }
 
 :root {
+  /* 保留 Geist 变量名给 Tailwind 与既有样式使用，实际值落到系统字体栈，避免构建期联网拉取 Google Fonts。 */
+  --font-geist-sans: Arial, "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+  --font-geist-mono: "Cascadia Mono", Consolas, "Courier New", monospace;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);

@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 20:52:58 +08:00
+ * 修改内容：兼容 Stripe 与 PayPal Checkout 标准响应 success/data，保留旧响应格式回退。
+ * 修改模型：gpt-5.5
+ *
  * 2026-03-23: 结账弹窗组件 CheckoutModal
  * 作用：作为前台商品页面的结账入口，收集买家联系信息并提供 Stripe/PayPal 两种支付选项
  * 逻辑：
@@ -69,8 +73,9 @@ export function CheckoutModal({ isOpen, onClose, product }: CheckoutModalProps) 
         }),
       })
       const data = await res.json()
-      if (data.url) {
-        window.location.href = data.url
+      const checkout = data?.success ? data.data : data
+      if (checkout?.url) {
+        window.location.href = checkout.url
       }
     } catch (error) {
       console.error(error)
@@ -98,11 +103,13 @@ export function CheckoutModal({ isOpen, onClose, product }: CheckoutModalProps) 
         }),
       })
       const data = await res.json()
-      if (data.orderId) {
-        if (data.isDemo) {
+      // PayPal route 已切到标准响应；保留旧格式回退，避免演示环境旧缓存或代理响应导致按钮失效。
+      const checkout = data?.success ? data.data : data
+      if (checkout?.orderId) {
+        if (checkout.isDemo) {
           setPaypalIsDemo(true)
         }
-        toast.success(`PayPal 订单已生成: ${data.orderId}`)
+        toast.success(`PayPal 订单已生成: ${checkout.orderId}`)
         onClose()
       }
     } catch (error) {

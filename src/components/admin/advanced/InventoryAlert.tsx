@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：标记建议补货计算中的兼容参数，清理未使用参数 lint warning。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 智能库存预警组件 (v1.2 Phase 4)
  * ============================================
@@ -57,9 +61,9 @@ function calculateAlertLevel(daysRemaining: number): AlertLevel {
 }
 
 /** 计算建议补货量（补足30天库存） */
-function calculateSuggestedOrder(currentStock: number, dailyAvgSales: number, daysRemaining: number): number {
+function calculateSuggestedOrder(currentStock: number, dailyAvgSales: number, _daysRemaining: number): number {
   if (dailyAvgSales <= 0) return 0
-  // 建议补足到30天的库存量
+  // 保留 _daysRemaining 入参以兼容现有调用签名，当前策略按 30 天目标库存统一计算。
   const target = Math.ceil(dailyAvgSales * 30)
   const suggested = Math.max(0, target - currentStock)
   return suggested

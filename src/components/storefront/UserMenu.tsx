@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：清理用户菜单未使用的语言切换导入与 locale 变量，推进 M5 lint warnings 收敛。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 用户菜单组件 (Phase 4 国际化升级)
  * ============================================
@@ -17,19 +21,17 @@
 import { useState } from "react"
 import { useSession, signOut } from "@/lib/auth-client"
 import { useRouter } from "@/i18n/navigation"
-import { User, ChevronDown, UserCircle, Package, Settings, LogOut, Sun, Moon, Globe, Monitor, Smartphone } from "lucide-react"
+import { User, ChevronDown, UserCircle, Package, Settings, LogOut, Sun, Moon, Monitor, Smartphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useTranslations, useLocale } from "next-intl"
+import { useTranslations } from "next-intl"
 import { useTheme } from "next-themes"
 import { AuthModal } from "@/components/auth/AuthModal"
 import { useViewportModeStore } from "@/stores/useViewportModeStore"
-import { LanguageSwitcher } from "@/components/storefront/LanguageSwitcher"
 
 export function UserMenu() {
   const { data: session } = useSession()
   const router = useRouter()
   const t = useTranslations()
-  const locale = useLocale()
   const { theme, setTheme } = useTheme()
   const { mode, setMode } = useViewportModeStore()
   const [isOpen, setIsOpen] = useState(false)

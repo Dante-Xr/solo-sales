@@ -1,13 +1,17 @@
 /**
+ * 修改时间：2026-05-02 19:16:38 +08:00
+ * 修改内容：统一客户列表路由响应与错误处理，改用 Prisma 单例并清理手写 NextResponse 模板。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 客户列表 API
  * ============================================
  */
 
-import { NextRequest, NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
-
-const prisma = new PrismaClient()
+import { NextRequest } from "next/server"
+import { Prisma } from "@prisma/client"
+import { prisma } from "@/lib/prisma"
+import { handleApiError, successResponse } from "@/server/contracts/api"
 
 /**
  * GET handler - 获取客户列表
@@ -19,9 +23,10 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1")
     const pageSize = parseInt(searchParams.get("pageSize") || "20")
 
-    const where: Record<string, unknown> = {}
+    const where: Prisma.UserWhereInput = {}
 
     if (keyword) {
+      // 后台客户搜索只匹配邮箱和昵称，保持原有查询口径不扩大数据面。
       where.OR = [
         { email: { contains: keyword, mode: "insensitive" } },
         { name: { contains: keyword, mode: "insensitive" } },
@@ -43,23 +48,16 @@ export async function GET(request: NextRequest) {
       prisma.user.count({ where }),
     ])
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        list,
-        pagination: {
-          page,
-          pageSize,
-          total,
-          totalPages: Math.ceil(total / pageSize),
-        },
+    return successResponse({
+      list,
+      pagination: {
+        page,
+        pageSize,
+        total,
+        totalPages: Math.ceil(total / pageSize),
       },
     })
   } catch (error) {
-    console.error("获取客户列表失败:", error)
-    return NextResponse.json(
-      { success: false, error: "获取客户列表失败" },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

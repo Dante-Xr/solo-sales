@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 20:43:25 +08:00
+ * 修改内容：统一客服反馈路由响应与错误处理，并兼容前端小写满意度评分。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * RAG 客服反馈 API (v0.6.0)
  * ============================================
@@ -10,11 +14,22 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getConversationManager } from "@/lib/rag/ConversationManager"
 import { SatisfactionRating } from "@/lib/rag/types"
+import { handleApiError, successResponse } from "@/server/contracts/api"
+import { badRequest } from "@/server/contracts/errors"
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, DELETE, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization"
+}
+
+const ratingMap: Record<string, SatisfactionRating> = {
+  SATISFIED: "SATISFIED",
+  NEUTRAL: "NEUTRAL",
+  DISSATISFIED: "DISSATISFIED",
+  satisfied: "SATISFIED",
+  neutral: "NEUTRAL",
+  dissatisfied: "DISSATISFIED",
 }
 
 export async function OPTIONS() {
@@ -30,34 +45,24 @@ export async function POST(request: NextRequest) {
     const { sessionId, rating, comment } = body
 
     if (!sessionId || !rating) {
-      return NextResponse.json(
-        { error: "缺少必要参数 sessionId 或 rating" },
-        { status: 400, headers: corsHeaders }
-      )
+      throw badRequest("缺少必要参数 sessionId 或 rating")
     }
 
-    const validRatings: SatisfactionRating[] = ["SATISFIED", "NEUTRAL", "DISSATISFIED"]
-    if (!validRatings.includes(rating)) {
-      return NextResponse.json(
-        { error: "无效的评分值" },
-        { status: 400, headers: corsHeaders }
-      )
+    // 前端组件发送小写评分，后端持久化前统一映射为 RAG 领域类型。
+    const normalizedRating = typeof rating === "string" ? ratingMap[rating] : undefined
+    if (!normalizedRating) {
+      throw badRequest("无效的评分值")
     }
 
     const conversationManager = getConversationManager()
-    await conversationManager.submitFeedback(sessionId, rating, comment)
+    await conversationManager.submitFeedback(sessionId, normalizedRating, comment)
 
-    return NextResponse.json({
-      success: true,
+    return successResponse({
       message: "反馈已提交，感谢您的评价"
     }, { headers: corsHeaders })
 
   } catch (error) {
-    console.error("Feedback API error:", error)
-    return NextResponse.json(
-      { error: "提交反馈失败" },
-      { status: 500, headers: corsHeaders }
-    )
+    return handleApiError(error, { headers: corsHeaders })
   }
 }
 
@@ -70,25 +75,17 @@ export async function DELETE(request: NextRequest) {
     const sessionId = searchParams.get("sessionId")
 
     if (!sessionId) {
-      return NextResponse.json(
-        { error: "缺少 sessionId 参数" },
-        { status: 400, headers: corsHeaders }
-      )
+      throw badRequest("缺少 sessionId 参数")
     }
 
     const conversationManager = getConversationManager()
     await conversationManager.clearHistory(sessionId)
 
-    return NextResponse.json({
-      success: true,
+    return successResponse({
       message: "对话历史已清除"
     }, { headers: corsHeaders })
 
   } catch (error) {
-    console.error("Clear history API error:", error)
-    return NextResponse.json(
-      { error: "清除对话历史失败" },
-      { status: 500, headers: corsHeaders }
-    )
+    return handleApiError(error, { headers: corsHeaders })
   }
 }

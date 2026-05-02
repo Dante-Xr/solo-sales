@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 18:13:41 +08:00
+ * 修改内容：修复全局搜索组件渲染期间写 ref 的 lint 错误，改为 effect 同步快捷键状态。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 全局搜索组件 (v1.2 Phase 3)
  * ============================================
@@ -70,7 +74,10 @@ export function GlobalSearch() {
     setSearchResults,
   } = useAdminUIStore()
 
-  searchOpenRef.current = searchOpen
+  useEffect(() => {
+    // 快捷键监听只绑定一次，ref 用来读取最新打开状态，避免重复绑定全局事件。
+    searchOpenRef.current = searchOpen
+  }, [searchOpen])
 
   /** 过滤搜索结果 */
   const filterResults = useCallback(

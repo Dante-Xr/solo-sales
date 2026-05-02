@@ -1,7 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import AffiliateService from '@/lib/affiliate/AffiliateService'
-import { safeErrorLog } from '@/lib/safeLog'
+/**
+ * 修改时间：2026-05-02 19:42:24 +08:00
+ * 修改内容：统一联盟提现列表和申请路由响应与错误处理，清理手写 NextResponse 模板。
+ * 修改模型：gpt-5.5
+ */
+import { NextRequest } from "next/server"
+import { prisma } from "@/lib/prisma"
+import AffiliateService from "@/lib/affiliate/AffiliateService"
+import { safeErrorLog } from "@/lib/safeLog"
+import { createdResponse, handleApiError, successResponse } from "@/server/contracts/api"
+import { badRequest } from "@/server/contracts/errors"
 
 const affiliateService = new AffiliateService(prisma)
 
@@ -13,13 +20,10 @@ export async function GET(
     const { id } = await params
     const payouts = await affiliateService.getPayouts(id)
 
-    return NextResponse.json({ payouts })
+    return successResponse({ payouts })
   } catch (error) {
     safeErrorLog('Failed to get payouts', error)
-    return NextResponse.json(
-      { error: 'Failed to get payouts' },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
@@ -33,12 +37,10 @@ export async function POST(
     const { amount, method, payoutInfo } = body
 
     if (!amount || !method) {
-      return NextResponse.json(
-        { error: 'Amount and method are required' },
-        { status: 400 }
-      )
+      throw badRequest("Amount and method are required")
     }
 
+    // 提现金额、账户信息与余额校验集中交给 AffiliateService，route 不复制业务规则。
     const payout = await affiliateService.requestPayout({
       affiliateId: id,
       amount,
@@ -46,12 +48,9 @@ export async function POST(
       payoutInfo
     })
 
-    return NextResponse.json({ payout }, { status: 201 })
+    return createdResponse({ payout })
   } catch (error) {
     safeErrorLog('Failed to request payout', error)
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to request payout' },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

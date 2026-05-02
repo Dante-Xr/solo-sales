@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：清理管理员认证工具中未使用的 next/headers 导入，推进 M5 lint warnings 收敛。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 管理员认证与权限验证库 (Phase 2 安全修复)
  * ============================================
@@ -18,7 +22,6 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "./prisma"
 import { cacheGet, cacheSet, cacheDel, cacheDelPattern, CACHE_KEYS } from "./cache"
 import { auth } from "./auth"
-import { headers } from "next/headers"
 
 /** 权限缓存 TTL（秒） */
 const CACHE_TTL = {

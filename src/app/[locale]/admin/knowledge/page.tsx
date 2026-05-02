@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：用知识库文章、分类与分页类型替代 knowledge 页 any。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * RAG 知识库管理页面 (Phase 5 管理后台重构)
  * ============================================
@@ -69,6 +73,22 @@ interface KnowledgeCategory {
   _count?: { articles: number }
 }
 
+interface PaginationState {
+  page: number
+  pageSize: number
+  total: number
+  totalPages: number
+}
+
+interface KnowledgeListPayload {
+  list?: KnowledgeItem[]
+  pagination?: PaginationState
+}
+
+interface KnowledgeCategoryPayload {
+  list?: KnowledgeCategory[]
+}
+
 interface KnowledgeFormData {
   title: string
   content: string
@@ -92,7 +112,7 @@ export default function KnowledgePage() {
   const [searchKeyword, setSearchKeyword] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("")
   const [selectedStatus, setSelectedStatus] = useState<KnowledgeStatus | "">("")
-  const [pagination, setPagination] = useState({ page: 1, pageSize: 10, total: 0, totalPages: 0 })
+  const [pagination, setPagination] = useState<PaginationState>({ page: 1, pageSize: 10, total: 0, totalPages: 0 })
 
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -127,8 +147,8 @@ export default function KnowledgePage() {
     },
   })
 
-  const knowledgeList = useMemo(() => {
-    const raw = knowledgeData?.data as any
+  const knowledgeList = useMemo<KnowledgeItem[]>(() => {
+    const raw = knowledgeData?.data as KnowledgeListPayload | undefined
     const list = raw?.list || []
     if (raw?.pagination) {
       setPagination(raw.pagination)
@@ -136,8 +156,8 @@ export default function KnowledgePage() {
     return list
   }, [knowledgeData])
 
-  const categories = useMemo(() => {
-    const raw = categoriesData?.data as any
+  const categories = useMemo<KnowledgeCategory[]>(() => {
+    const raw = categoriesData?.data as KnowledgeCategory[] | KnowledgeCategoryPayload | undefined
     if (Array.isArray(raw)) return raw
     return raw?.list || []
   }, [categoriesData])
@@ -304,7 +324,7 @@ export default function KnowledgePage() {
                 className="px-3 py-2 border rounded-md bg-background"
               >
                 <option value="">{t('allCategories')}</option>
-                {categories.map((cat: any) => (
+                {categories.map((cat) => (
                   <option key={cat.id} value={cat.name}>
                     {cat.name}
                   </option>
@@ -354,7 +374,7 @@ export default function KnowledgePage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {knowledgeList.map((item: any) => (
+                {knowledgeList.map((item) => (
                   <div
                     key={item.id}
                     className="flex items-start justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
@@ -465,7 +485,7 @@ export default function KnowledgePage() {
                   className="w-full px-3 py-2 border rounded-md bg-background"
                 >
                   <option value="">{t('form.selectCategory')}</option>
-                  {categories.map((cat: any) => (
+                  {categories.map((cat) => (
                     <option key={cat.id} value={cat.name}>
                       {cat.name}
                     </option>

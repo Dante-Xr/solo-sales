@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：清理客服会话页未使用 hook，并用 Conversation 类型替代消息列表 any。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 客服会话页面 (Phase 5 管理后台重构)
  * ============================================
@@ -15,8 +19,8 @@
 
 "use client"
 
-import { useState, useCallback, useRef } from "react"
-import { useList, useCustom } from "@refinedev/core"
+import { useState, useRef } from "react"
+import { useList } from "@refinedev/core"
 import { MessageSquare, Search, Send, User, Bot, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -65,9 +69,10 @@ export default function ChatPage() {
   })
 
   const conversations: Conversation[] = (() => {
-    const raw = messagesData?.data as any
+    const raw = messagesData?.data
+    // Refine 的 useList 在当前数据源下直接返回会话数组，这里做运行时守卫后再收窄类型。
     if (Array.isArray(raw) && raw.length > 0) {
-      return raw
+      return raw as Conversation[]
     }
     return [
       {

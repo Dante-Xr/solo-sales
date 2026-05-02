@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 20:27:37 +08:00
+ * 修改内容：统一评论回复创建和删除路由响应与错误处理，清理手写 NextResponse 模板。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 评论回复 API 路由 (v0.5.0)
  * ============================================
@@ -8,8 +12,10 @@
  * ============================================
  */
 
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { createdResponse, handleApiError, successResponse } from "@/server/contracts/api"
+import { badRequest, notFound } from "@/server/contracts/errors"
 
 export async function POST(
   request: NextRequest,
@@ -21,10 +27,7 @@ export async function POST(
     const { content, userId, adminId } = body
 
     if (!content) {
-      return NextResponse.json(
-        { success: false, error: { code: "BAD_REQUEST", message: "回复内容不能为空" } },
-        { status: 400 }
-      )
+      throw badRequest("回复内容不能为空")
     }
 
     const review = await prisma.review.findUnique({
@@ -32,35 +35,22 @@ export async function POST(
     })
 
     if (!review) {
-      return NextResponse.json(
-        { success: false, error: { code: "NOT_FOUND", message: "评论不存在" } },
-        { status: 404 }
-      )
+      throw notFound("评论")
     }
 
     const reply = await prisma.reviewReply.create({
       data: {
         reviewId,
         content,
+        // 用户回复和管理员回复共用一张表，通过 userId/adminId 区分来源。
         userId: userId || null,
         adminId: adminId || null,
       },
     })
 
-    return NextResponse.json(
-      {
-        success: true,
-        data: reply,
-        message: "回复成功",
-      },
-      { status: 201 }
-    )
+    return createdResponse(reply)
   } catch (error) {
-    console.error("添加回复失败:", error)
-    return NextResponse.json(
-      { success: false, error: { code: "INTERNAL_ERROR", message: "添加回复失败" } },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
@@ -74,25 +64,15 @@ export async function DELETE(
     const replyId = searchParams.get("replyId")
 
     if (!replyId) {
-      return NextResponse.json(
-        { success: false, error: { code: "BAD_REQUEST", message: "缺少 replyId" } },
-        { status: 400 }
-      )
+      throw badRequest("缺少 replyId")
     }
 
     await prisma.reviewReply.delete({
       where: { id: replyId },
     })
 
-    return NextResponse.json({
-      success: true,
-      message: "回复已删除",
-    })
+    return successResponse({ deleted: true }, { meta: { message: "回复已删除" } })
   } catch (error) {
-    console.error("删除回复失败:", error)
-    return NextResponse.json(
-      { success: false, error: { code: "INTERNAL_ERROR", message: "删除回复失败" } },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

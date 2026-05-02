@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：用商品与分类分页类型替代商品管理页 any，并清理未使用翻译变量。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 商品管理页面 (Phase 5 管理后台重构 + v1.2 Phase 1 快速操作)
  * ============================================
@@ -102,6 +106,18 @@ interface ProductFormData {
 /** 折扣类型 */
 type DiscountType = "percentage" | "fixed" | "override"
 
+interface PaginationState {
+  page: number
+  pageSize: number
+  total: number
+  totalPages: number
+}
+
+interface ProductListPayload {
+  list?: Product[]
+  pagination?: PaginationState
+}
+
 // ============================================
 // 默认表单数据
 // ============================================
@@ -122,14 +138,13 @@ const DEFAULT_FORM_DATA: ProductFormData = {
 // ============================================
 
 export default function ProductsPage() {
-  const t = useTranslations('product')
   const adminT = useTranslations('admin')
   const locale = useLocale()
   const isZh = locale === "zh"
 
   const [searchKeyword, setSearchKeyword] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("")
-  const [pagination, setPagination] = useState({ page: 1, pageSize: 10, total: 0, totalPages: 0 })
+  const [pagination, setPagination] = useState<PaginationState>({ page: 1, pageSize: 10, total: 0, totalPages: 0 })
 
   const { query: { data: productListData, isLoading: loading, refetch } } = useList({
     resource: "products",
@@ -154,19 +169,20 @@ export default function ProductsPage() {
     },
   })
 
-  const productList = useMemo(() => {
-    const raw = productListData?.data as any
+  const productList = useMemo<Product[]>(() => {
+    const raw = productListData?.data as ProductListPayload | undefined
+    // 产品列表 API 返回分页对象，页面统一从 list 字段读取 Product[]。
     return raw?.list || []
   }, [productListData])
 
-  const categories = useMemo(() => {
-    const raw = categoryData?.data as any
+  const categories = useMemo<Category[]>(() => {
+    const raw = categoryData?.data as Category[] | undefined
     return Array.isArray(raw) ? raw : []
   }, [categoryData])
 
   useEffect(() => {
     if (productListData?.total !== undefined) {
-      const raw = productListData?.data as any
+      const raw = productListData?.data as ProductListPayload | undefined
       if (raw?.pagination) {
         setPagination(raw.pagination)
       }
@@ -423,7 +439,7 @@ export default function ProductsPage() {
   // 全选/取消全选
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedProducts(new Set(productList.map((p: any) => p.id)))
+      setSelectedProducts(new Set(productList.map((p) => p.id)))
     } else {
       setSelectedProducts(new Set())
     }
@@ -496,8 +512,8 @@ export default function ProductsPage() {
   }
 
   // useMemo 优化：格式化后的产品列表
-  const formattedProducts = useMemo(() => {
-    return productList.map((product: any) => ({
+  const formattedProducts = useMemo<Array<Product & { formattedPrice: string; formattedDate: string }>>(() => {
+    return productList.map((product) => ({
       ...product,
       formattedPrice: new Intl.NumberFormat("en-US", {
         style: "currency",
@@ -510,8 +526,8 @@ export default function ProductsPage() {
   // 选中的商品数据（用于批量折扣）
   const selectedProductData = useMemo(() => {
     return productList
-      .filter((p: any) => selectedProducts.has(p.id))
-      .map((p: any) => ({
+      .filter((p) => selectedProducts.has(p.id))
+      .map((p) => ({
         id: p.id,
         name: p.name,
         price: p.price,
@@ -695,7 +711,7 @@ export default function ProductsPage() {
           ) : isMobile ? (
             // 移动端卡片视图
             <div className="md:hidden">
-              {productList.map((product:any) => (
+              {productList.map((product) => (
                 <MobileProductCard
                   key={product.id}
                   product={product}
@@ -728,7 +744,7 @@ export default function ProductsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {productList.map((product:any) => (
+                  {productList.map((product) => (
                     <tr key={product.id} className="border-b hover:bg-muted/50">
                       <td className="py-3 px-4">
                         <Checkbox
@@ -799,7 +815,7 @@ export default function ProductsPage() {
                         </div>
                       </td>
                       <td className="py-3 px-4 text-muted-foreground text-sm">
-                        {formattedProducts.find((p: any) => p.id === product.id)?.formattedDate}
+                        {formattedProducts.find((p) => p.id === product.id)?.formattedDate}
                       </td>
                       <td className="py-3 px-4 text-right">
                         <div className="flex items-center justify-end gap-2">

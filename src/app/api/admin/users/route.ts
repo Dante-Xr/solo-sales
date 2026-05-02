@@ -1,190 +1,41 @@
 /**
- * ============================================
- * 管理员用户管理 API 路由
- * ============================================
- * 功能说明：
- *   - 获取用户列表
- *   - 创建用户
- * ============================================
+ * 修改时间：2026-05-02 18:52:25 +08:00
+ * 修改内容：将管理员用户列表和创建路由收敛为薄控制器，鉴权、校验、哈希和审计迁移到 admin-service。
+ * 修改模型：gpt-5.5
  */
+import { NextRequest } from "next/server"
+import { createdResponse, handleApiError, successResponse } from "@/server/contracts/api"
+import {
+  createAdminUserFromInput,
+  listAdminUsers,
+  parseCreateAdminUserInput,
+  parseListAdminUsersQuery,
+  requireAdminPermission,
+} from "@/server/services/admin-service"
 
-import { NextRequest, NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
-import bcrypt from "bcryptjs"
-import { verifyAdminToken, hasPermission, invalidatePermissionCache as _invalidatePermissionCache } from "@/lib/adminAuth"
-import { logCreate } from "@/lib/permissionLog"
-import { TargetType } from "@prisma/client"
-
-const prisma = new PrismaClient()
-
-/**
- * GET /api/admin/users - 获取用户列表
- */
 export async function GET(request: NextRequest) {
   try {
-    const admin = await verifyAdminToken(request)
-    if (!admin) {
-      return NextResponse.json({ success: false, error: "未登录" }, { status: 401 })
-    }
+    await requireAdminPermission(request, "users.view")
 
-    const hasAccess = await hasPermission(admin.id, "users.view")
-    if (!hasAccess) {
-      return NextResponse.json({ success: false, error: "没有访问权限" }, { status: 403 })
-    }
+    const query = parseListAdminUsersQuery(request.nextUrl.searchParams)
+    const result = await listAdminUsers(query)
 
-    const { searchParams } = new URL(request.url)
-    const page = parseInt(searchParams.get("page") || "1")
-    const pageSize = parseInt(searchParams.get("pageSize") || "20")
-    const isActive = searchParams.get("isActive")
-    const keyword = searchParams.get("keyword")
-
-    const where: Record<string, unknown> = {}
-
-    if (isActive !== null && isActive !== undefined) {
-      where.isActive = isActive === "true"
-    }
-
-    if (keyword) {
-      where.OR = [
-        { username: { contains: keyword, mode: "insensitive" } },
-        { email: { contains: keyword, mode: "insensitive" } },
-      ]
-    }
-
-    const [list, total] = await Promise.all([
-      prisma.adminUser.findMany({
-        where,
-        include: {
-          role: {
-            select: {
-              id: true,
-              name: true,
-              label: true,
-            },
-          },
-        },
-        orderBy: { createdAt: "desc" },
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-      }),
-      prisma.adminUser.count({ where }),
-    ])
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        list: list.map((user) => ({
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          role: user.role,
-          isActive: user.isActive,
-          lastLoginAt: user.lastLoginAt,
-          createdAt: user.createdAt,
-        })),
-        pagination: {
-          page,
-          pageSize,
-          total,
-          totalPages: Math.ceil(total / pageSize),
-        },
-      },
-    })
+    return successResponse(result)
   } catch (error) {
-    console.error("获取用户列表失败:", error)
-    return NextResponse.json({ success: false, error: "获取用户列表失败" }, { status: 500 })
+    return handleApiError(error)
   }
 }
 
-/**
- * POST /api/admin/users - 创建用户
- */
 export async function POST(request: NextRequest) {
   try {
-    const admin = await verifyAdminToken(request)
-    if (!admin) {
-      return NextResponse.json({ success: false, error: "未登录" }, { status: 401 })
-    }
+    const admin = await requireAdminPermission(request, "users.create")
 
-    const hasAccess = await hasPermission(admin.id, "users.create")
-    if (!hasAccess) {
-      return NextResponse.json({ success: false, error: "没有访问权限" }, { status: 403 })
-    }
+    // 创建用户涉及密码哈希、唯一性检查和审计日志，全部集中在 service 保持 route 简洁。
+    const input = parseCreateAdminUserInput(await request.json())
+    const user = await createAdminUserFromInput(request, admin.id, input)
 
-    const body = await request.json()
-    const { username, email, password, roleId } = body
-
-    if (!username || !email || !password || !roleId) {
-      return NextResponse.json({ success: false, error: "用户名、邮箱、密码和角色不能为空" }, { status: 400 })
-    }
-
-    const existingEmail = await prisma.adminUser.findUnique({ where: { email } })
-
-    if (existingEmail) {
-      return NextResponse.json({ success: false, error: "该邮箱已被使用" }, { status: 409 })
-    }
-
-    const existingUsername = await prisma.adminUser.findUnique({ where: { username } })
-
-    if (existingUsername) {
-      return NextResponse.json({ success: false, error: "该用户名已被使用" }, { status: 409 })
-    }
-
-    const role = await prisma.role.findUnique({ where: { id: roleId } })
-
-    if (!role) {
-      return NextResponse.json({ success: false, error: "指定的角色不存在" }, { status: 400 })
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10)
-
-    const user = await prisma.adminUser.create({
-      data: {
-        username,
-        email,
-        password: hashedPassword,
-        roleId,
-      },
-      include: {
-        role: {
-          select: {
-            id: true,
-            name: true,
-            label: true,
-          },
-        },
-      },
-    })
-
-    await logCreate(
-      request,
-      admin.id,
-      TargetType.ADMIN_USER,
-      user.id,
-      {
-        username: user.username,
-        email: user.email,
-        roleId: user.roleId,
-        isActive: user.isActive,
-      }
-    )
-
-    return NextResponse.json(
-      {
-        success: true,
-        data: {
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          role: user.role,
-          isActive: user.isActive,
-          createdAt: user.createdAt,
-        },
-      },
-      { status: 201 }
-    )
+    return createdResponse(user)
   } catch (error) {
-    console.error("创建用户失败:", error)
-    return NextResponse.json({ success: false, error: "创建用户失败" }, { status: 500 })
+    return handleApiError(error)
   }
 }

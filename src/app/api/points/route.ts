@@ -1,127 +1,41 @@
 /**
- * ============================================
- * 积分 API 路由 (v0.5.5)
- * ============================================
- * 功能说明：
- *   - 获取用户积分余额
- *   - 获取积分计划信息
- * ============================================
+ * 修改时间：2026-05-02 18:13:41 +08:00
+ * 修改内容：将积分余额查询和账户创建路由收敛为薄控制器，账户逻辑迁移到 promotion-service。
+ * 修改模型：gpt-5.5
  */
-
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import { NextRequest } from "next/server"
+import { handleApiError, successResponse } from "@/server/contracts/api"
+import { badRequest } from "@/server/contracts/errors"
+import {
+  createPointsAccount,
+  getPointsInfo,
+  parsePointsQuery,
+} from "@/server/services/promotion-service"
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get("userId")
+    const { userId } = parsePointsQuery(request.nextUrl.searchParams)
+    const result = await getPointsInfo(userId)
 
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: { code: "BAD_REQUEST", message: "缺少 userId 参数" } },
-        { status: 400 }
-      )
-    }
-
-    const customerPoints = await prisma.customerPoints.findUnique({
-      where: { userId },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
-    })
-
-    if (!customerPoints) {
-      const defaultProgram = await prisma.loyaltyProgram.findFirst({
-        where: { isActive: true },
-      })
-
-      return NextResponse.json({
-        success: true,
-        data: {
-          balance: 0,
-          totalEarned: 0,
-          totalRedeemed: 0,
-          tier: "BRONZE",
-          program: defaultProgram,
-        },
-      })
-    }
-
-    const program = await prisma.loyaltyProgram.findFirst({
-      where: { isActive: true },
-    })
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        ...customerPoints,
-        program,
-      },
-    })
+    return successResponse(result)
   } catch (error) {
-    console.error("获取积分信息失败:", error)
-    return NextResponse.json(
-      { success: false, error: { code: "INTERNAL_ERROR", message: "获取积分信息失败" } },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { userId, action } = body
+    const userId = typeof body?.userId === "string" ? body.userId : ""
+    const action = body?.action
 
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: { code: "BAD_REQUEST", message: "缺少 userId 参数" } },
-        { status: 400 }
-      )
-    }
+    // 保留旧 action=create 协议，避免前端创建积分账户调用同步改动。
+    if (!userId) throw badRequest("缺少 userId 参数")
+    if (action !== "create") throw badRequest("无效的操作")
 
-    if (action === "create") {
-      const existing = await prisma.customerPoints.findUnique({
-        where: { userId },
-      })
-
-      if (existing) {
-        return NextResponse.json(
-          { success: false, error: { code: "BAD_REQUEST", message: "积分账户已存在" } },
-          { status: 400 }
-        )
-      }
-
-      const customerPoints = await prisma.customerPoints.create({
-        data: {
-          userId,
-          balance: 0,
-          totalEarned: 0,
-          totalRedeemed: 0,
-          tier: "BRONZE",
-        },
-      })
-
-      return NextResponse.json({
-        success: true,
-        data: customerPoints,
-      })
-    }
-
-    return NextResponse.json(
-      { success: false, error: { code: "BAD_REQUEST", message: "无效的操作" } },
-      { status: 400 }
-    )
+    const account = await createPointsAccount(userId)
+    return successResponse(account)
   } catch (error) {
-    console.error("积分操作失败:", error)
-    return NextResponse.json(
-      { success: false, error: { code: "INTERNAL_ERROR", message: "积分操作失败" } },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

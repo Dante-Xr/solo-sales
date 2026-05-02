@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 20:43:25 +08:00
+ * 修改内容：统一智能客服对话路由响应与错误处理，保留 Edge runtime 与 CORS 响应头。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * RAG 智能客服对话 API (v0.6.0)
  * ============================================
@@ -14,6 +18,8 @@ import { getIntentDetectionService } from "@/lib/rag/IntentDetection"
 import { getRAGService } from "@/lib/rag/RAGService"
 import { getConversationManager } from "@/lib/rag/ConversationManager"
 import { RAGResponse } from "@/lib/rag/types"
+import { handleApiError, successResponse } from "@/server/contracts/api"
+import { badRequest } from "@/server/contracts/errors"
 
 export const runtime = "edge"
 
@@ -36,10 +42,7 @@ export async function POST(request: NextRequest) {
     const { sessionId, message, userId, userEmail } = body
 
     if (!sessionId || !message) {
-      return NextResponse.json(
-        { error: "缺少必要参数 sessionId 或 message" },
-        { status: 400, headers: corsHeaders }
-      )
+      throw badRequest("缺少必要参数 sessionId 或 message")
     }
 
     // 获取服务实例
@@ -78,7 +81,7 @@ export async function POST(request: NextRequest) {
     // 构建回复
     let response: RAGResponse
 
-    // 根据状态构建不同回复
+    // 根据对话状态构建不同回复：信息不足时优先追问，信息足够时执行 RAG 检索。
     if (state === "awaiting_confirmation") {
       // 需要确认信息
       const missingField = Object.keys(entities).find(
@@ -136,25 +139,18 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        sessionId,
-        response,
-        context: {
-          currentIntent: intent,
-          currentState: state,
-          entities
-        }
+    return successResponse({
+      sessionId,
+      response,
+      context: {
+        currentIntent: intent,
+        currentState: state,
+        entities
       }
     }, { headers: corsHeaders })
 
   } catch (error) {
-    console.error("Chat API error:", error)
-    return NextResponse.json(
-      { error: "处理消息失败，请稍后重试" },
-      { status: 500, headers: corsHeaders }
-    )
+    return handleApiError(error, { headers: corsHeaders })
   }
 }
 
@@ -168,10 +164,7 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get("limit")
 
     if (!sessionId) {
-      return NextResponse.json(
-        { error: "缺少 sessionId 参数" },
-        { status: 400, headers: corsHeaders }
-      )
+      throw badRequest("缺少 sessionId 参数")
     }
 
     const conversationManager = getConversationManager()
@@ -180,20 +173,13 @@ export async function GET(request: NextRequest) {
       limit ? parseInt(limit) : undefined
     )
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        sessionId,
-        messages: history,
-        count: history.length
-      }
+    return successResponse({
+      sessionId,
+      messages: history,
+      count: history.length
     }, { headers: corsHeaders })
 
   } catch (error) {
-    console.error("Chat history API error:", error)
-    return NextResponse.json(
-      { error: "获取对话历史失败" },
-      { status: 500, headers: corsHeaders }
-    )
+    return handleApiError(error, { headers: corsHeaders })
   }
 }

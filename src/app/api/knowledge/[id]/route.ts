@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 20:35:22 +08:00
+ * 修改内容：统一知识库详情、更新和删除路由响应与错误处理，改用共享 Prisma 实例。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * RAG 知识库 - 单条知识操作 API (Task 1.3)
  * ============================================
@@ -9,12 +13,11 @@
  * ============================================
  */
 
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { z } from "zod"
-import { PrismaClient } from "@prisma/client"
-
-// Prisma 客户端实例
-const prisma = new PrismaClient()
+import { prisma } from "@/lib/prisma"
+import { handleApiError, successResponse } from "@/server/contracts/api"
+import { notFound, validationError } from "@/server/contracts/errors"
 
 /**
  * 更新知识条目的请求体验证 Schema
@@ -39,7 +42,7 @@ const ParamsSchema = z.object({
  * GET handler - 获取单条知识详情
  */
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -69,30 +72,16 @@ export async function GET(
 
     // 如果知识不存在，返回404
     if (!knowledge) {
-      return NextResponse.json(
-        { success: false, error: "知识条目不存在" },
-        { status: 404 }
-      )
+      throw notFound("知识条目")
     }
 
-    return NextResponse.json({
-      success: true,
-      data: knowledge,
-    })
+    return successResponse(knowledge)
   } catch (error) {
-    console.error("获取知识详情失败:", error)
-
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { success: false, error: "参数验证失败", details: error.issues },
-        { status: 400 }
-      )
+      return handleApiError(validationError("参数验证失败", error.issues))
     }
 
-    return NextResponse.json(
-      { success: false, error: "获取知识详情失败" },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
@@ -119,16 +108,13 @@ export async function PATCH(
 
     // 如果知识不存在，返回404
     if (!currentKnowledge) {
-      return NextResponse.json(
-        { success: false, error: "知识条目不存在" },
-        { status: 404 }
-      )
+      throw notFound("知识条目")
     }
 
     // 计算新版本号
     const newVersion = currentKnowledge.version + 1
 
-    // 更新知识条目并创建历史版本（事务保证一致性）
+    // 更新知识条目并创建历史版本，保证当前内容和历史版本号一致提交。
     const result = await prisma.$transaction(async (tx) => {
       // 更新知识条目
       const updated = await tx.knowledgeBase.update({
@@ -157,25 +143,15 @@ export async function PATCH(
       return updated
     })
 
-    return NextResponse.json({
-      success: true,
-      data: result,
-      message: `更新成功，当前版本：v${newVersion}`,
+    return successResponse(result, {
+      meta: { message: `更新成功，当前版本：v${newVersion}` },
     })
   } catch (error) {
-    console.error("更新知识失败:", error)
-
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { success: false, error: "参数验证失败", details: error.issues },
-        { status: 400 }
-      )
+      return handleApiError(validationError("参数验证失败", error.issues))
     }
 
-    return NextResponse.json(
-      { success: false, error: "更新知识失败" },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
@@ -184,14 +160,14 @@ export async function PATCH(
  * 同时删除关联的历史版本记录
  */
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 解析路由参数
     const { id } = ParamsSchema.parse(await params)
 
-    // 删除知识条目及其历史版本（事务保证一致性）
+    // 删除知识条目及其历史版本，避免留下不可访问的版本记录。
     await prisma.$transaction(async (tx) => {
       // 先删除关联的历史版本
       await tx.knowledgeHistory.deleteMany({
@@ -204,31 +180,17 @@ export async function DELETE(
       })
     })
 
-    return NextResponse.json({
-      success: true,
-      message: "删除成功",
-    })
+    return successResponse({ deleted: true }, { meta: { message: "删除成功" } })
   } catch (error) {
-    console.error("删除知识失败:", error)
-
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { success: false, error: "参数验证失败", details: error.issues },
-        { status: 400 }
-      )
+      return handleApiError(validationError("参数验证失败", error.issues))
     }
 
     // 处理 Prisma 记录不存在的错误
     if (typeof error === "object" && error !== null && "code" in error && error.code === "P2025") {
-      return NextResponse.json(
-        { success: false, error: "知识条目不存在" },
-        { status: 404 }
-      )
+      return handleApiError(notFound("知识条目"))
     }
 
-    return NextResponse.json(
-      { success: false, error: "删除知识失败" },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

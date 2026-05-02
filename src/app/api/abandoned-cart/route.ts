@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 20:43:25 +08:00
+ * 修改内容：统一废弃购物车路由响应与错误处理，保留手动检查和记录购物车行为。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 废弃购物车 API (v0.5.8)
  * ============================================
@@ -9,9 +13,11 @@
  * ============================================
  */
 
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { z } from "zod"
 import { checkAbandonedCarts, recordAbandonedCart } from "@/lib/services/AbandonedCartService"
+import { handleApiError, successResponse } from "@/server/contracts/api"
+import { validationError } from "@/server/contracts/errors"
 
 const cartItemSchema = z.object({
   productId: z.string(),
@@ -37,23 +43,16 @@ export async function GET(request: NextRequest) {
 
     if (action === "check") {
       const result = await checkAbandonedCarts()
-      return NextResponse.json({
-        success: true,
-        data: {
-          processed: result.processed,
-          emailsSent: result.emailsSent,
-          recovered: result.recovered,
-        },
+      return successResponse({
+        processed: result.processed,
+        emailsSent: result.emailsSent,
+        recovered: result.recovered,
       })
     }
 
-    return NextResponse.json({ success: true, data: null })
+    return successResponse(null)
   } catch (error) {
-    console.error("Error in abandoned cart API:", error)
-    return NextResponse.json(
-      { success: false, error: "Failed to process request" },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
@@ -63,14 +62,12 @@ export async function POST(request: NextRequest) {
     const parsed = recordCartSchema.safeParse(body)
 
     if (!parsed.success) {
-      return NextResponse.json(
-        { success: false, error: "Invalid parameters", details: parsed.error.issues },
-        { status: 400 }
-      )
+      throw validationError("Invalid parameters", parsed.error.issues)
     }
 
     const { userId, userEmail, userName, cartData, totalAmount, locale } = parsed.data
 
+    // 只把通过 schema 校验的购物车快照交给服务层，避免保存结构不完整的恢复数据。
     const cartId = await recordAbandonedCart({
       userId,
       userEmail,
@@ -80,15 +77,8 @@ export async function POST(request: NextRequest) {
       locale,
     })
 
-    return NextResponse.json({
-      success: true,
-      data: { cartId },
-    })
+    return successResponse({ cartId })
   } catch (error) {
-    console.error("Error recording abandoned cart:", error)
-    return NextResponse.json(
-      { success: false, error: "Failed to record abandoned cart" },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

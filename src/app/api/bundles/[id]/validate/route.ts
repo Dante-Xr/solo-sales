@@ -1,7 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import BundleService from '@/lib/bundle/BundleService'
-import { safeErrorLog } from '@/lib/safeLog'
+/**
+ * 修改时间：2026-05-02 19:27:31 +08:00
+ * 修改内容：统一商品组合校验路由响应与错误处理，清理手写 NextResponse 模板。
+ * 修改模型：gpt-5.5
+ */
+import { NextRequest } from "next/server"
+import { prisma } from "@/lib/prisma"
+import BundleService from "@/lib/bundle/BundleService"
+import { safeErrorLog } from "@/lib/safeLog"
+import { handleApiError, successResponse } from "@/server/contracts/api"
+import { badRequest } from "@/server/contracts/errors"
 
 const bundleService = new BundleService(prisma)
 
@@ -15,18 +22,16 @@ export async function POST(
     const { items } = body
 
     if (!items || !Array.isArray(items) || items.length === 0) {
-      return NextResponse.json(
-        { error: 'Items array is required' },
-        { status: 400 }
-      )
+      throw badRequest("Items array is required")
     }
 
     const validation = await bundleService.validateBundleForOrder(id, items)
 
     if (!validation.valid) {
-      return NextResponse.json({ valid: false, errors: validation.errors }, { status: 400 })
+      throw badRequest("Bundle validation failed", { errors: validation.errors })
     }
 
+    // 校验通过后按当前商品价格计算折扣，避免信任调用方传入的价格。
     const itemsWithPrices = await Promise.all(
       items.map(async (item: { productId: string; quantity: number }) => {
         const product = await prisma.product.findUnique({
@@ -42,7 +47,7 @@ export async function POST(
 
     const { discount, finalTotal } = await bundleService.calculateOrderDiscount(id, itemsWithPrices)
 
-    return NextResponse.json({
+    return successResponse({
       valid: true,
       discount,
       finalTotal,
@@ -50,9 +55,6 @@ export async function POST(
     })
   } catch (error) {
     safeErrorLog('Failed to validate bundle for order', error)
-    return NextResponse.json(
-      { error: 'Failed to validate bundle' },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

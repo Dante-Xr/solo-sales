@@ -1,6 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import CurrencyService from '@/lib/currency/CurrencyService'
+/**
+ * 修改时间：2026-05-02 19:16:38 +08:00
+ * 修改内容：统一货币查询与换算路由响应和错误处理，清理手写 NextResponse 模板。
+ * 修改模型：gpt-5.5
+ */
+import { NextRequest } from "next/server"
+import { prisma } from "@/lib/prisma"
+import CurrencyService from "@/lib/currency/CurrencyService"
+import { handleApiError, successResponse } from "@/server/contracts/api"
+import { badRequest } from "@/server/contracts/errors"
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,7 +20,7 @@ export async function GET(request: NextRequest) {
       case 'rates': {
         const base = searchParams.get('base') || 'USD'
         const rates = await currencyService.getExchangeRates(base)
-        return NextResponse.json({
+        return successResponse({
           base,
           rates,
           timestamp: new Date().toISOString()
@@ -26,21 +33,18 @@ export async function GET(request: NextRequest) {
         const to = searchParams.get('to') || 'USD'
 
         if (amount <= 0) {
-          return NextResponse.json(
-            { error: 'Invalid amount' },
-            { status: 400 }
-          )
+          throw badRequest("Invalid amount")
         }
 
         const converted = await currencyService.convertPrice(amount, from, to)
-        return NextResponse.json(converted)
+        return successResponse(converted)
       }
 
       default: {
         const currencies = await currencyService.getSupportedCurrencies()
         const defaultCurrency = await currencyService.getDefaultCurrency()
 
-        return NextResponse.json({
+        return successResponse({
           currencies,
           default: defaultCurrency,
           timestamp: new Date().toISOString()
@@ -48,10 +52,6 @@ export async function GET(request: NextRequest) {
       }
     }
   } catch (error) {
-    console.error('Currency API error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

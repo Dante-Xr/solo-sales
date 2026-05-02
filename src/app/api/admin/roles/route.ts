@@ -1,115 +1,36 @@
 /**
- * ============================================
- * 管理员角色管理 API 路由
- * ============================================
- * 功能说明：
- *   - 获取角色列表
- *   - 创建角色
- * ============================================
+ * 修改时间：2026-05-02 18:52:25 +08:00
+ * 修改内容：将管理员角色列表和创建路由收敛为薄控制器，角色校验和审计迁移到 admin-service。
+ * 修改模型：gpt-5.5
  */
+import { NextRequest } from "next/server"
+import { createdResponse, handleApiError, successResponse } from "@/server/contracts/api"
+import {
+  createRoleFromInput,
+  listRoles,
+  parseCreateRoleInput,
+  requireAdminPermission,
+} from "@/server/services/admin-service"
 
-import { NextRequest, NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
-import { verifyAdminToken, hasPermission, invalidateRoleCache } from "@/lib/adminAuth"
-import { logCreate } from "@/lib/permissionLog"
-import { TargetType } from "@prisma/client"
-
-const prisma = new PrismaClient()
-
-/**
- * GET /api/admin/roles - 获取角色列表
- */
 export async function GET() {
   try {
-    const roles = await prisma.role.findMany({
-      include: {
-        permissions: true,
-        _count: {
-          select: { admins: true },
-        },
-      },
-      orderBy: { createdAt: "asc" },
-    })
-
-    return NextResponse.json({
-      success: true,
-      data: roles.map((role) => ({
-        ...role,
-        permissions: role.permissions.map((p) => ({
-          id: p.id,
-          name: p.name,
-          label: p.label,
-        })),
-        adminCount: role._count.admins,
-      })),
-    })
+    const roles = await listRoles()
+    return successResponse(roles)
   } catch (error) {
-    console.error("获取角色列表失败:", error)
-    return NextResponse.json({ success: false, error: "获取角色列表失败" }, { status: 500 })
+    return handleApiError(error)
   }
 }
 
-/**
- * POST /api/admin/roles - 创建角色
- */
 export async function POST(request: NextRequest) {
   try {
-    const admin = await verifyAdminToken(request)
-    if (!admin) {
-      return NextResponse.json({ success: false, error: "未登录" }, { status: 401 })
-    }
+    const admin = await requireAdminPermission(request, "roles.create")
 
-    const hasAccess = await hasPermission(admin.id, "roles.create")
-    if (!hasAccess) {
-      return NextResponse.json({ success: false, error: "没有访问权限" }, { status: 403 })
-    }
+    // 角色唯一性、权限连接和审计日志都由 service 处理。
+    const input = parseCreateRoleInput(await request.json())
+    const role = await createRoleFromInput(request, admin.id, input)
 
-    const body = await request.json()
-    const { name, label, description, permissionIds } = body
-
-    if (!name || !label) {
-      return NextResponse.json({ success: false, error: "角色标识和名称不能为空" }, { status: 400 })
-    }
-
-    const existing = await prisma.role.findUnique({ where: { name } })
-
-    if (existing) {
-      return NextResponse.json({ success: false, error: "该角色标识已存在" }, { status: 409 })
-    }
-
-    const role = await prisma.role.create({
-      data: {
-        name,
-        label,
-        description: description || null,
-        permissions: permissionIds?.length
-          ? { connect: permissionIds.map((id: string) => ({ id })) }
-          : undefined,
-      },
-      include: {
-        permissions: true,
-      },
-    })
-
-    await logCreate(request, admin.id, TargetType.ROLE, role.id, role as unknown as Record<string, unknown>)
-
-    if (permissionIds?.length) {
-      await Promise.all(permissionIds.map((pid: string) => invalidateRoleCache(pid)))
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        ...role,
-        permissions: role.permissions.map((p) => ({
-          id: p.id,
-          name: p.name,
-          label: p.label,
-        })),
-      }
-    }, { status: 201 })
+    return createdResponse(role)
   } catch (error) {
-    console.error("创建角色失败:", error)
-    return NextResponse.json({ success: false, error: "创建角色失败" }, { status: 500 })
+    return handleApiError(error)
   }
 }

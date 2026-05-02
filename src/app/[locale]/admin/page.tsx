@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：清理仪表盘未使用 useState，并用聚合响应类型替代 dashboard any。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 后台管理控制台页面 (Phase 2 图表增强)
  * ============================================
@@ -16,10 +20,11 @@
 
 "use client"
 
-import { useState, useMemo } from "react"
+import { useMemo } from "react"
 import { useCustom } from "@refinedev/core"
 import { DollarSign, Package, ShoppingCart, Users, RefreshCw } from "lucide-react"
 import { useTranslations, useLocale } from "next-intl"
+import { Link } from "@/i18n/navigation"
 import { SalesChart } from "@/components/admin/charts/SalesChart"
 import { TopProductsChart } from "@/components/admin/charts/TopProductsChart"
 import { CategoryPieChart } from "@/components/admin/charts/CategoryPieChart"
@@ -65,6 +70,12 @@ interface DashboardData {
   chartData: ChartDataPoint[]
 }
 
+interface DashboardResponse {
+  success?: boolean
+  data?: DashboardData
+  fromCache?: boolean
+}
+
 export default function AdminDashboard() {
   const t = useTranslations('admin')
   const locale = useLocale()
@@ -79,7 +90,8 @@ export default function AdminDashboard() {
   })
 
   const dashboardData = useMemo<DashboardData | null>(() => {
-    const result = dashboardResponse?.data as any
+    const result = dashboardResponse?.data as DashboardResponse | undefined
+    // Dashboard API 采用统一响应壳，页面只在 success/data 同时存在时渲染真实数据。
     if (result?.success && result?.data) {
       return result.data
     }
@@ -87,7 +99,7 @@ export default function AdminDashboard() {
   }, [dashboardResponse])
 
   const fromCache = useMemo(() => {
-    const result = dashboardResponse?.data as any
+    const result = dashboardResponse?.data as DashboardResponse | undefined
     return result?.fromCache || false
   }, [dashboardResponse])
 
@@ -257,22 +269,23 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-3">
-              <a href="/admin/products" className="inline-flex flex-col items-center justify-center gap-2 h-auto py-4 rounded-lg border border-border bg-background hover:bg-muted hover:text-foreground text-sm font-medium transition-colors">
+              {/* 使用 Next Link 保持客户端路由能力，避免后台快速入口触发整页刷新。 */}
+              <Link href="/admin/products" className="inline-flex flex-col items-center justify-center gap-2 h-auto py-4 rounded-lg border border-border bg-background hover:bg-muted hover:text-foreground text-sm font-medium transition-colors">
                 <Package className="h-6 w-6" />
                 <span className="text-xs">{t("productManagement")}</span>
-              </a>
-              <a href="/admin/orders" className="inline-flex flex-col items-center justify-center gap-2 h-auto py-4 rounded-lg border border-border bg-background hover:bg-muted hover:text-foreground text-sm font-medium transition-colors">
+              </Link>
+              <Link href="/admin/orders" className="inline-flex flex-col items-center justify-center gap-2 h-auto py-4 rounded-lg border border-border bg-background hover:bg-muted hover:text-foreground text-sm font-medium transition-colors">
                 <ShoppingCart className="h-6 w-6" />
                 <span className="text-xs">{t("orderManagement")}</span>
-              </a>
-              <a href="/admin/customers" className="inline-flex flex-col items-center justify-center gap-2 h-auto py-4 rounded-lg border border-border bg-background hover:bg-muted hover:text-foreground text-sm font-medium transition-colors">
+              </Link>
+              <Link href="/admin/customers" className="inline-flex flex-col items-center justify-center gap-2 h-auto py-4 rounded-lg border border-border bg-background hover:bg-muted hover:text-foreground text-sm font-medium transition-colors">
                 <Users className="h-6 w-6" />
                 <span className="text-xs">{t("customers.pageTitle")}</span>
-              </a>
-              <a href="/admin/settings" className="inline-flex flex-col items-center justify-center gap-2 h-auto py-4 rounded-lg border border-border bg-background hover:bg-muted hover:text-foreground text-sm font-medium transition-colors">
+              </Link>
+              <Link href="/admin/settings" className="inline-flex flex-col items-center justify-center gap-2 h-auto py-4 rounded-lg border border-border bg-background hover:bg-muted hover:text-foreground text-sm font-medium transition-colors">
                 <DollarSign className="h-6 w-6" />
                 <span className="text-xs">{t("settings")}</span>
-              </a>
+              </Link>
             </div>
           </CardContent>
         </Card>

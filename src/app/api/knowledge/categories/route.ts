@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 20:35:22 +08:00
+ * 修改内容：统一知识库分类路由响应与错误处理，改用共享 Prisma 实例。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * RAG 知识库 - 分类管理 API
  * ============================================
@@ -9,11 +13,11 @@
  * ============================================
  */
 
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { z } from "zod"
-import { PrismaClient } from "@prisma/client"
-
-const prisma = new PrismaClient()
+import { prisma } from "@/lib/prisma"
+import { createdResponse, handleApiError, successResponse } from "@/server/contracts/api"
+import { badRequest, notFound, validationError } from "@/server/contracts/errors"
 
 /** 创建分类的请求体验证 Schema */
 const CreateCategorySchema = z.object({
@@ -36,16 +40,9 @@ export async function GET() {
       },
     })
 
-    return NextResponse.json({
-      success: true,
-      data: categories,
-    })
+    return successResponse(categories)
   } catch (error) {
-    console.error("获取分类列表失败:", error)
-    return NextResponse.json(
-      { success: false, error: "获取分类列表失败" },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
@@ -65,24 +62,13 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    return NextResponse.json(
-      { success: true, data: category },
-      { status: 201 }
-    )
+    return createdResponse(category)
   } catch (error) {
-    console.error("创建分类失败:", error)
-
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { success: false, error: "参数验证失败", details: error.issues },
-        { status: 400 }
-      )
+      return handleApiError(validationError("参数验证失败", error.issues))
     }
 
-    return NextResponse.json(
-      { success: false, error: "创建分类失败" },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
@@ -95,33 +81,20 @@ export async function DELETE(request: NextRequest) {
     const id = searchParams.get("id")
 
     if (!id) {
-      return NextResponse.json(
-        { success: false, error: "分类ID不能为空" },
-        { status: 400 }
-      )
+      throw badRequest("分类ID不能为空")
     }
 
+    // 分类删除依赖数据库外键约束保护已关联文章的分类。
     await prisma.knowledgeCategory.delete({
       where: { id },
     })
 
-    return NextResponse.json({
-      success: true,
-      message: "删除成功",
-    })
+    return successResponse({ deleted: true }, { meta: { message: "删除成功" } })
   } catch (error) {
-    console.error("删除分类失败:", error)
-
     if (typeof error === "object" && error !== null && "code" in error && error.code === "P2025") {
-      return NextResponse.json(
-        { success: false, error: "分类不存在" },
-        { status: 404 }
-      )
+      return handleApiError(notFound("分类"))
     }
 
-    return NextResponse.json(
-      { success: false, error: "删除分类失败" },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

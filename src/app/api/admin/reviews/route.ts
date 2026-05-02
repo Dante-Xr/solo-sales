@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 20:33:38 +08:00
+ * 修改内容：统一后台评论审核路由响应与错误处理，并补齐批量精选/取消精选操作。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 后台管理评论审核 API (v0.5.0)
  * ============================================
@@ -9,18 +13,17 @@
  * ============================================
  */
 
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { verifyAdminToken } from "@/lib/adminAuth"
+import { handleApiError, successResponse } from "@/server/contracts/api"
+import { badRequest, notFound, unauthorized } from "@/server/contracts/errors"
 
 export async function GET(request: NextRequest) {
   try {
     const admin = await verifyAdminToken(request)
     if (!admin) {
-      return NextResponse.json(
-        { success: false, error: { code: "UNAUTHORIZED", message: "请先登录" } },
-        { status: 401 }
-      )
+      throw unauthorized("请先登录")
     }
 
     const { searchParams } = new URL(request.url)
@@ -68,24 +71,17 @@ export async function GET(request: NextRequest) {
       prisma.review.count({ where }),
     ])
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        reviews,
-        pagination: {
-          page,
-          pageSize,
-          total,
-          totalPages: Math.ceil(total / pageSize),
-        },
+    return successResponse({
+      reviews,
+      pagination: {
+        page,
+        pageSize,
+        total,
+        totalPages: Math.ceil(total / pageSize),
       },
     })
   } catch (error) {
-    console.error("获取评论列表失败:", error)
-    return NextResponse.json(
-      { success: false, error: { code: "INTERNAL_ERROR", message: "获取评论列表失败" } },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
@@ -93,10 +89,7 @@ export async function POST(request: NextRequest) {
   try {
     const admin = await verifyAdminToken(request)
     if (!admin) {
-      return NextResponse.json(
-        { success: false, error: { code: "UNAUTHORIZED", message: "请先登录" } },
-        { status: 401 }
-      )
+      throw unauthorized("请先登录")
     }
 
     const body = await request.json()
@@ -127,14 +120,10 @@ export async function POST(request: NextRequest) {
           where: { id: reviewId },
         })
       } else {
-        return NextResponse.json(
-          { success: false, error: { code: "BAD_REQUEST", message: "无效的操作" } },
-          { status: 400 }
-        )
+        throw badRequest("无效的操作")
       }
 
-      return NextResponse.json({
-        success: true,
+      return successResponse({
         message: `评论 ${action} 操作成功`,
       })
     }
@@ -142,24 +131,29 @@ export async function POST(request: NextRequest) {
     if (reviewIds && Array.isArray(reviewIds)) {
       const updateData: Record<string, unknown> = {}
 
+      // 后台表格单条按钮也会走 reviewIds 分支，因此这里必须覆盖精选和取消精选。
       if (action === "approve") {
         updateData.isApproved = true
+      } else if (action === "feature") {
+        updateData.isFeatured = true
+      } else if (action === "unfeature") {
+        updateData.isFeatured = false
       } else if (action === "reject") {
         await prisma.review.deleteMany({
           where: { id: { in: reviewIds } },
         })
-        return NextResponse.json({
-          success: true,
+        return successResponse({
           message: `已拒绝 ${reviewIds.length} 条评论`,
         })
       } else if (action === "delete") {
         await prisma.review.deleteMany({
           where: { id: { in: reviewIds } },
         })
-        return NextResponse.json({
-          success: true,
+        return successResponse({
           message: `已删除 ${reviewIds.length} 条评论`,
         })
+      } else {
+        throw badRequest("无效的操作")
       }
 
       await prisma.review.updateMany({
@@ -167,22 +161,14 @@ export async function POST(request: NextRequest) {
         data: updateData,
       })
 
-      return NextResponse.json({
-        success: true,
+      return successResponse({
         message: `已更新 ${reviewIds.length} 条评论`,
       })
     }
 
-    return NextResponse.json(
-      { success: false, error: { code: "BAD_REQUEST", message: "缺少 reviewId 或 reviewIds" } },
-      { status: 400 }
-    )
+    throw badRequest("缺少 reviewId 或 reviewIds")
   } catch (error) {
-    console.error("评论操作失败:", error)
-    return NextResponse.json(
-      { success: false, error: { code: "INTERNAL_ERROR", message: "评论操作失败" } },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
@@ -190,20 +176,14 @@ export async function PUT(request: NextRequest) {
   try {
     const admin = await verifyAdminToken(request)
     if (!admin) {
-      return NextResponse.json(
-        { success: false, error: { code: "UNAUTHORIZED", message: "请先登录" } },
-        { status: 401 }
-      )
+      throw unauthorized("请先登录")
     }
 
     const body = await request.json()
     const { reviewId, action } = body
 
     if (!reviewId || !action) {
-      return NextResponse.json(
-        { success: false, error: { code: "BAD_REQUEST", message: "缺少 reviewId 或 action" } },
-        { status: 400 }
-      )
+      throw badRequest("缺少 reviewId 或 action")
     }
 
     const existingReview = await prisma.review.findUnique({
@@ -211,12 +191,10 @@ export async function PUT(request: NextRequest) {
     })
 
     if (!existingReview) {
-      return NextResponse.json(
-        { success: false, error: { code: "NOT_FOUND", message: "评论不存在" } },
-        { status: 404 }
-      )
+      throw notFound("评论")
     }
 
+    // PUT 保留审核专用语义，只接受通过/拒绝，精选类操作统一走 POST。
     if (action === "approve") {
       await prisma.review.update({
         where: { id: reviewId },
@@ -227,21 +205,13 @@ export async function PUT(request: NextRequest) {
         where: { id: reviewId },
       })
     } else {
-      return NextResponse.json(
-        { success: false, error: { code: "BAD_REQUEST", message: "无效的操作，支持 approve/reject" } },
-        { status: 400 }
-      )
+      throw badRequest("无效的操作，支持 approve/reject")
     }
 
-    return NextResponse.json({
-      success: true,
+    return successResponse({
       message: action === "approve" ? "评论已通过审核" : "评论已拒绝",
     })
   } catch (error) {
-    console.error("审核操作失败:", error)
-    return NextResponse.json(
-      { success: false, error: { code: "INTERNAL_ERROR", message: "审核操作失败" } },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

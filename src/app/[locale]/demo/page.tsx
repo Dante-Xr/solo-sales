@@ -1,3 +1,8 @@
+/**
+ * 修改时间：2026-05-02 21:09:54 +08:00
+ * 修改内容：兼容 featured 产品标准响应 success/data，保留旧响应格式回退。
+ * 修改模型：gpt-5.5
+ */
 "use client"
 
 import { useState, useCallback, useEffect } from "react"
@@ -33,8 +38,10 @@ export default function DemoPage() {
     fetch("/api/products/featured")
       .then(res => res.json())
       .then(data => {
-        if (data.products) {
-          setProducts(data.products)
+        // featured route 已标准化；保留旧顶层 products 兼容，避免演示页因响应升级空白。
+        const featured = data?.success ? data.data : data
+        if (featured?.products) {
+          setProducts(featured.products)
         }
       })
       .catch(console.error)

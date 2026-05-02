@@ -1,4 +1,8 @@
 /**
+ * 修改时间：2026-05-02 21:19:13 +08:00
+ * 修改内容：为 jsPDF autoTable 扩展补充局部类型，清理 PDF 导出 any。
+ * 修改模型：gpt-5.5
+ *
  * ============================================
  * 数据导出组件 (v1.2 Phase 3 + Phase 4 增强)
  * ============================================
@@ -22,6 +26,26 @@ import "jspdf-autotable"
 
 export type ExportFormat = "csv" | "xlsx" | "pdf"
 export type ExportScope = "current" | "all" | "selected"
+
+interface AutoTableHookData {
+  column: { index: number }
+  row: { index: number }
+  cell: { styles: { halign?: "left" | "center" | "right" } }
+}
+
+interface JsPDFWithAutoTable extends jsPDF {
+  autoTable: (options: {
+    startY: number
+    head: string[][]
+    body: string[][]
+    theme: string
+    headStyles: Record<string, unknown>
+    bodyStyles: Record<string, unknown>
+    alternateRowStyles: Record<string, unknown>
+    margin: { left: number; right: number }
+    didParseCell: (hookData: AutoTableHookData) => void
+  }) => void
+}
 
 interface DataExporterProps {
   /** 导出的列配置 */
@@ -287,7 +311,7 @@ function exportPDF(
   doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 22)
 
   // autoTable 表格
-  ;(doc as any).autoTable({
+  ;(doc as JsPDFWithAutoTable).autoTable({
     startY: 28,
     head: [columns.map((c) => c.label)],
     body: data.map((row) => columns.map((col) => String(row[col.key] ?? ""))),
@@ -306,8 +330,8 @@ function exportPDF(
       fillColor: [245, 247, 250],
     },
     margin: { left: 14, right: 14 },
-    didParseCell: (hookData: any) => {
-      // 数字列右对齐
+    didParseCell: (hookData) => {
+      // 数字列右对齐，保留文本列默认对齐，避免 PDF 表格可读性下降。
       const colIndex = hookData.column.index
       const rawValue = data[hookData.row.index]?.[columns[colIndex]?.key]
       if (typeof rawValue === "number") {

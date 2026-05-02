@@ -1,160 +1,64 @@
 /**
- * ============================================
- * 管理员权限详情 API 路由
- * ============================================
- * 功能说明：
- *   - 获取权限详情
- *   - 更新权限
- *   - 删除权限
- * ============================================
+ * 修改时间：2026-05-02 18:52:25 +08:00
+ * 修改内容：将管理员权限详情、更新和删除路由收敛为薄控制器，删除保护和缓存失效迁移到 admin-service。
+ * 修改模型：gpt-5.5
  */
+import { NextRequest } from "next/server"
+import { handleApiError, successResponse } from "@/server/contracts/api"
+import {
+  deletePermissionById,
+  getPermissionDetail,
+  parseUpdatePermissionInput,
+  requireAdminPermission,
+  updatePermissionFromInput,
+} from "@/server/services/admin-service"
 
-import { NextRequest, NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
-import { verifyAdminToken, hasPermission, invalidateAllPermissionsCache } from "@/lib/adminAuth"
-import { logUpdate, logDelete } from "@/lib/permissionLog"
-import { TargetType } from "@prisma/client"
-
-const prisma = new PrismaClient()
-
-/**
- * GET /api/admin/permissions/[id] - 获取权限详情
- */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const admin = await verifyAdminToken(request)
-    if (!admin) {
-      return NextResponse.json({ success: false, error: "未登录" }, { status: 401 })
-    }
-
-    const hasAccess = await hasPermission(admin.id, "permissions.view")
-    if (!hasAccess) {
-      return NextResponse.json({ success: false, error: "没有访问权限" }, { status: 403 })
-    }
+    await requireAdminPermission(request, "permissions.view")
 
     const { id } = await params
-    const permission = await prisma.permission.findUnique({
-      where: { id },
-      include: {
-        _count: {
-          select: { roles: true },
-        },
-      },
-    })
+    const permission = await getPermissionDetail(id)
 
-    if (!permission) {
-      return NextResponse.json({ success: false, error: "权限不存在" }, { status: 404 })
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        ...permission,
-        usedByRoles: permission._count.roles,
-      },
-    })
+    return successResponse(permission)
   } catch (error) {
-    console.error("获取权限详情失败:", error)
-    return NextResponse.json({ success: false, error: "获取权限详情失败" }, { status: 500 })
+    return handleApiError(error)
   }
 }
 
-/**
- * PATCH /api/admin/permissions/[id] - 更新权限
- */
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const admin = await verifyAdminToken(request)
-    if (!admin) {
-      return NextResponse.json({ success: false, error: "未登录" }, { status: 401 })
-    }
-
-    const hasAccess = await hasPermission(admin.id, "permissions.update")
-    if (!hasAccess) {
-      return NextResponse.json({ success: false, error: "没有访问权限" }, { status: 403 })
-    }
+    const admin = await requireAdminPermission(request, "permissions.update")
 
     const { id } = await params
-    const body = await request.json()
-    const { label, description, type } = body
+    const input = parseUpdatePermissionInput(await request.json())
+    const permission = await updatePermissionFromInput(request, admin.id, id, input)
 
-    const existing = await prisma.permission.findUnique({ where: { id } })
-
-    if (!existing) {
-      return NextResponse.json({ success: false, error: "权限不存在" }, { status: 404 })
-    }
-
-    const permission = await prisma.permission.update({
-      where: { id },
-      data: {
-        label: label ?? existing.label,
-        description: description ?? existing.description,
-        type: type ?? existing.type,
-      },
-    })
-
-    await logUpdate(request, admin.id, TargetType.PERMISSION, id, existing as Record<string, unknown>, permission as Record<string, unknown>)
-
-    await invalidateAllPermissionsCache()
-
-    return NextResponse.json({ success: true, data: permission })
+    return successResponse(permission)
   } catch (error) {
-    console.error("更新权限失败:", error)
-    return NextResponse.json({ success: false, error: "更新权限失败" }, { status: 500 })
+    return handleApiError(error)
   }
 }
 
-/**
- * DELETE /api/admin/permissions/[id] - 删除权限
- */
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const admin = await verifyAdminToken(request)
-    if (!admin) {
-      return NextResponse.json({ success: false, error: "未登录" }, { status: 401 })
-    }
+    const admin = await requireAdminPermission(request, "permissions.delete")
 
-    const hasAccess = await hasPermission(admin.id, "permissions.delete")
-    if (!hasAccess) {
-      return NextResponse.json({ success: false, error: "没有访问权限" }, { status: 403 })
-    }
-
+    // 删除权限前由 service 检查角色占用，避免破坏 RBAC 配置。
     const { id } = await params
+    const result = await deletePermissionById(request, admin.id, id)
 
-    const existing = await prisma.permission.findUnique({
-      where: { id },
-      include: { roles: true },
-    })
-
-    if (!existing) {
-      return NextResponse.json({ success: false, error: "权限不存在" }, { status: 404 })
-    }
-
-    if (existing.roles.length > 0) {
-      return NextResponse.json(
-        { success: false, error: "该权限已被角色使用，无法删除" },
-        { status: 400 }
-      )
-    }
-
-    await prisma.permission.delete({ where: { id } })
-
-    await logDelete(request, admin.id, TargetType.PERMISSION, id, existing as Record<string, unknown>)
-
-    await invalidateAllPermissionsCache()
-
-    return NextResponse.json({ success: true, message: "删除成功" })
+    return successResponse(result, { meta: { message: "删除成功" } })
   } catch (error) {
-    console.error("删除权限失败:", error)
-    return NextResponse.json({ success: false, error: "删除权限失败" }, { status: 500 })
+    return handleApiError(error)
   }
 }
