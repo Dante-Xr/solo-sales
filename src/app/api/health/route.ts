@@ -1,10 +1,10 @@
 /**
- * 修改时间：2026-06-04 16:28:48 +08:00
- * 修改内容：健康检查接入统一外部依赖故障保护，数据库和 Redis 检查统一使用短超时与标准错误映射。
+ * 修改时间：2026-06-05 11:39:06 +08:00
+ * 修改内容：健康检查版本标识同步至 1.5.0，并保留统一外部依赖故障保护。
  * 修改模型：gpt-5.5
  *
  * ============================================
- * 健康检查 API 端点 (v0.4.3)
+ * 健康检查 API 端点 (v1.5.0)
  * ============================================
  * 功能说明：
  *   - 检查数据库连接状态
@@ -51,7 +51,7 @@ export async function GET() {
   const response: HealthCheckResponse = {
     status: "healthy",
     timestamp: new Date().toISOString(),
-    version: process.env.npm_package_version || "0.4.3",
+    version: process.env.npm_package_version || "1.5.0",
     uptime: process.uptime(),
     checks: {
       database: { status: "ok" },
