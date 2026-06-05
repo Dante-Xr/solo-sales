@@ -1,12 +1,14 @@
 /**
- * 修改时间：2026-05-02 18:37:11 +08:00
- * 修改内容：新增库存与批发导入服务测试，覆盖图片解析、批量导入进度、失败统计和库存预警查询。
+ * 修改时间：2026-06-05 10:11:44 +08:00
+ * 修改内容：扩展库存与批发导入服务测试，覆盖异步执行参数解析和导入任务入队。
  * 修改模型：gpt-5.5
  */
 import {
+  enqueueWholesalerImport,
   getStockAlertData,
   importMappedProducts,
   listImportLogs,
+  parseImportRequest,
   parseMappedImages,
 } from "../inventory-service"
 
@@ -16,6 +18,9 @@ jest.mock("@/lib/prisma", () => ({
       count: jest.fn(),
       findMany: jest.fn(),
       update: jest.fn(),
+    },
+    backgroundJob: {
+      create: jest.fn(),
     },
     product: {
       upsert: jest.fn(),
@@ -37,6 +42,9 @@ const { prisma } = jest.requireMock("@/lib/prisma") as {
       findMany: jest.Mock
       update: jest.Mock
     }
+    backgroundJob: {
+      create: jest.Mock
+    }
     product: {
       upsert: jest.Mock
     }
@@ -57,6 +65,35 @@ describe("inventory-service", () => {
       "b.png",
     ])
     expect(parseMappedImages("not-json")).toEqual([])
+  })
+
+  it("parses async import requests and enqueues the long-running import job", async () => {
+    const input = parseImportRequest({
+      wholesaler: "1866",
+      execution: "async",
+      options: { pageSize: 25, skipDuplicates: false },
+    })
+    prisma.backgroundJob.create.mockResolvedValue({
+      id: "job_import_1",
+      type: "WHOLESALER_IMPORT",
+      status: "QUEUED",
+    })
+
+    const job = await enqueueWholesalerImport(input)
+
+    expect(input.execution).toBe("async")
+    expect(prisma.backgroundJob.create).toHaveBeenCalledWith({
+      data: {
+        type: "WHOLESALER_IMPORT",
+        payload: {
+          wholesaler: "1866",
+          options: { pageSize: 25, skipDuplicates: false },
+        },
+        maxAttempts: 3,
+        availableAt: undefined,
+      },
+    })
+    expect(job.id).toBe("job_import_1")
   })
 
   it("imports mapped products with parsed images and updates progress", async () => {

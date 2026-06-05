@@ -1,10 +1,11 @@
 /**
- * 修改时间：2026-05-02 18:13:41 +08:00
- * 修改内容：新增订单领域服务，封装下单校验、服务端金额重算、库存扣减和权限查询。
+ * 修改时间：2026-06-04 16:40:36 +08:00
+ * 修改内容：新增订单创建幂等键支持，用稳定订单 ID 处理重复下单，并补强库存竞争失败语义。
  * 修改模型：gpt-5.5
  */
 import "server-only"
 
+import { createHash } from "node:crypto"
 import { Prisma } from "@prisma/client"
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
@@ -30,6 +31,9 @@ export const createOrderInputSchema = z.object({
 })
 
 export type CreateOrderInput = z.infer<typeof createOrderInputSchema>
+export interface CreateOrderOptions {
+  idempotencyKey?: string | null
+}
 
 export function parseCreateOrderInput(body: unknown): CreateOrderInput {
   // 输入 schema 会剥离 price/totalAmount 等非白名单字段，形成订单金额信任边界。
@@ -110,83 +114,139 @@ async function resolveOrderUserId(
   return guest.id
 }
 
-export async function createOrder(input: CreateOrderInput, sessionUser: ServerSessionUser | null) {
-  return prisma.$transaction(async (tx) => {
-    // 在同一个事务里读取商品、校验库存、扣减库存和创建订单，降低并发超卖风险。
-    const uniqueProductIds = [...new Set(input.items.map((item) => item.productId))]
-    const products = await findProductsForOrder(tx, uniqueProductIds)
-    const productsById = new Map(products.map((product) => [product.id, product]))
+export async function createOrder(
+  input: CreateOrderInput,
+  sessionUser: ServerSessionUser | null,
+  options: CreateOrderOptions = {}
+) {
+  const idempotentOrderId = buildIdempotentOrderId(input, sessionUser, options.idempotencyKey)
+  if (idempotentOrderId) {
+    const existingOrder = await findOrderById(prisma, idempotentOrderId)
+    if (existingOrder) return existingOrder
+  }
 
-    const orderItems = input.items.map((item) => {
-      const product = productsById.get(item.productId)
+  try {
+    return await prisma.$transaction(async (tx) => {
+      // 在同一个事务里读取商品、校验库存、扣减库存和创建订单，降低并发超卖风险。
+      const uniqueProductIds = [...new Set(input.items.map((item) => item.productId))]
+      const products = await findProductsForOrder(tx, uniqueProductIds)
+      const productsById = new Map(products.map((product) => [product.id, product]))
 
-      if (!product) {
-        throw notFound(`商品 ${item.productId}`)
-      }
+      const orderItems = input.items.map((item) => {
+        const product = productsById.get(item.productId)
 
-      if (product.stock < item.quantity) {
-        throw unprocessable(
-          ErrorCodes.INSUFFICIENT_STOCK,
-          `商品「${product.name}」库存不足，当前库存: ${product.stock}`
-        )
-      }
+        if (!product) {
+          throw notFound(`商品 ${item.productId}`)
+        }
 
-      return {
-        product,
-        quantity: item.quantity,
-        price: new Prisma.Decimal(product.price),
-        // 金额信任边界：订单金额只按数据库价格和数量计算，忽略客户端 totalAmount/price。
-        lineTotal: new Prisma.Decimal(product.price).mul(item.quantity),
-      }
-    })
+        if (product.stock < item.quantity) {
+          throw unprocessable(
+            ErrorCodes.INSUFFICIENT_STOCK,
+            `商品「${product.name}」库存不足，当前库存: ${product.stock}`
+          )
+        }
 
-    for (const item of orderItems) {
-      // updateMany 带 stock >= quantity 条件，作为并发扣库存的最后防线。
-      const updated = await tx.product.updateMany({
-        where: {
-          id: item.product.id,
-          stock: { gte: item.quantity },
-        },
-        data: {
-          stock: { decrement: item.quantity },
-        },
+        return {
+          product,
+          quantity: item.quantity,
+          price: new Prisma.Decimal(product.price),
+          // 金额信任边界：订单金额只按数据库价格和数量计算，忽略客户端 totalAmount/price。
+          lineTotal: new Prisma.Decimal(product.price).mul(item.quantity),
+        }
       })
 
-      if (updated.count === 0) {
-        throw unprocessable(
-          ErrorCodes.INSUFFICIENT_STOCK,
-          `商品「${item.product.name}」库存不足，请重试`
-        )
+      for (const item of orderItems) {
+        // updateMany 带 stock >= quantity 条件，作为并发扣库存的最后防线。
+        const updated = await tx.product.updateMany({
+          where: {
+            id: item.product.id,
+            stock: { gte: item.quantity },
+          },
+          data: {
+            stock: { decrement: item.quantity },
+          },
+        })
+
+        if (updated.count === 0) {
+          throw unprocessable(
+            ErrorCodes.INSUFFICIENT_STOCK,
+            `商品「${item.product.name}」库存不足，请重试`
+          )
+        }
       }
-    }
 
-    const totalAmount = orderItems.reduce(
-      (sum, item) => sum.add(item.lineTotal),
-      new Prisma.Decimal(0)
-    )
-    const userId = await resolveOrderUserId(tx, sessionUser, input.contactInfo)
+      const totalAmount = orderItems.reduce(
+        (sum, item) => sum.add(item.lineTotal),
+        new Prisma.Decimal(0)
+      )
+      const userId = await resolveOrderUserId(tx, sessionUser, input.contactInfo)
 
-    return tx.order.create({
-      data: {
-        userId,
-        totalAmount,
-        status: "PENDING",
-        shippingAddress: input.shippingAddress,
-        items: {
-          create: orderItems.map((item) => ({
-            productId: item.product.id,
-            quantity: item.quantity,
-            price: item.price,
-          })),
-        },
-      },
-      include: {
-        items: {
-          include: {
-            product: true,
+      return tx.order.create({
+        data: {
+          ...(idempotentOrderId ? { id: idempotentOrderId } : {}),
+          userId,
+          totalAmount,
+          status: "PENDING",
+          shippingAddress: input.shippingAddress,
+          items: {
+            create: orderItems.map((item) => ({
+              productId: item.product.id,
+              quantity: item.quantity,
+              price: item.price,
+            })),
           },
         },
-      },
+        include: {
+          items: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      })
     })
-  })
+  } catch (error) {
+    const duplicatedOrder = await findDuplicatedIdempotentOrder(error, idempotentOrderId)
+    if (duplicatedOrder) return duplicatedOrder
+    throw error
+  }
+}
+
+function buildIdempotentOrderId(
+  input: CreateOrderInput,
+  sessionUser: ServerSessionUser | null,
+  idempotencyKey?: string | null
+): string | null {
+  const key = idempotencyKey?.trim()
+  if (!key) return null
+
+  const identity =
+    sessionUser?.id ||
+    sessionUser?.email ||
+    input.contactInfo?.email ||
+    "guest@solo-sales.local"
+  const payload = {
+    identity,
+    key,
+    shippingAddress: input.shippingAddress,
+    items: [...input.items].sort((a, b) => a.productId.localeCompare(b.productId)),
+  }
+  const digest = createHash("sha256").update(JSON.stringify(payload)).digest("hex").slice(0, 24)
+
+  // 不新增数据库表时，用稳定订单 ID 承载幂等结果；同一用户、同一幂等键、同一订单输入只会得到同一个订单。
+  return `ord_${digest}`
+}
+
+async function findDuplicatedIdempotentOrder(error: unknown, orderId: string | null) {
+  if (!orderId || !isUniqueConstraintError(error)) return null
+  return findOrderById(prisma, orderId)
+}
+
+function isUniqueConstraintError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: unknown }).code === "P2002"
+  )
 }

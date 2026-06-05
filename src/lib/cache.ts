@@ -1,6 +1,7 @@
 /**
- * 缓存工具模块 (v0.4.1)
- * 支持 Redis 缓存和内存缓存降级
+ * 修改时间：2026-06-05 00:36:49 +08:00
+ * 修改内容：补充 storefront 商品读路径缓存键与 TTL，明确高频读路径缓存边界。
+ * 修改模型：gpt-5.5
  */
 
 import redis from "@/lib/redis"
@@ -16,6 +17,7 @@ export const CACHE_KEYS = {
   CART: (userId: string) => `solo:cart:${userId}`,
   ADMIN_DASHBOARD: () => "solo:admin:dashboard",
   PRODUCT_LIST: (params: string) => `solo:products:list:${params}`,
+  STOREFRONT_PRODUCTS: (filter: string) => `solo:products:storefront:${filter}`,
   CUSTOMER_LIST: () => "solo:admin:customers",
   ADMIN_PERMISSIONS: (adminId: string) => `solo:admin:permissions:${adminId}`,
   ROLE_PERMISSIONS: (roleId: string) => `solo:admin:role:${roleId}`,
@@ -32,6 +34,7 @@ export const CACHE_KEYS = {
 // 缓存 TTL 常量
 export const CACHE_TTL = {
   FEATURED_PRODUCTS: 300,
+  STOREFRONT_PRODUCTS: 300,
   CATEGORY_PRODUCTS: 300,
   PRODUCT: 600,
   TRENDING_SEARCHES: 60,

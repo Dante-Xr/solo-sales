@@ -1,6 +1,6 @@
 /**
- * 修改时间：2026-05-02 19:00:54 +08:00
- * 修改内容：统一后台仪表盘路由响应与错误处理，修正缓存命中时的非标准响应。
+ * 修改时间：2026-06-04 16:28:48 +08:00
+ * 修改内容：后台仪表盘数据库聚合查询接入统一外部依赖故障保护，避免数据库抖动时长时间阻塞后台高频查询。
  * 修改模型：gpt-5.5
  *
  * 聚合仪表盘 API (v0.4.1)
@@ -11,6 +11,7 @@
 import { prisma } from "@/lib/prisma"
 import { cacheGet, cacheSet, CACHE_KEYS, CACHE_TTL } from "@/lib/cache"
 import { handleApiError, successResponse } from "@/server/contracts/api"
+import { withDependencyGuard } from "@/server/services/dependency-guard"
 
 // 图表数据点类型
 interface ChartDataPoint {
@@ -91,31 +92,39 @@ export async function GET() {
     }
 
     // 并行查询所有数据
-    const [orders, products, users, recentOrders] = await Promise.all([
-      // 最近30天的订单
-      prisma.order.findMany({
-        where: { createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } },
-        select: { totalAmount: true, status: true, createdAt: true },
-      }),
-      // 已上架商品数量
-      prisma.product.count({
-        where: { isPublished: true },
-      }),
-      // 普通用户数量
-      prisma.user.count({
-        where: { role: "USER" },
-      }),
-      // 最近5条订单
-      prisma.order.findMany({
-        take: 5,
-        orderBy: { createdAt: "desc" },
-        include: {
-          user: {
-            select: { name: true, email: true },
-          },
-        },
-      }),
-    ])
+    const [orders, products, users, recentOrders] = await withDependencyGuard({
+      dependency: "database",
+      label: "admin.dashboard.aggregate",
+      timeoutMs: 3000,
+      maxAttempts: 1,
+      unavailableMessage: "后台仪表盘数据暂时不可用，请稍后重试",
+      operation: () =>
+        Promise.all([
+          // 最近30天的订单
+          prisma.order.findMany({
+            where: { createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } },
+            select: { totalAmount: true, status: true, createdAt: true },
+          }),
+          // 已上架商品数量
+          prisma.product.count({
+            where: { isPublished: true },
+          }),
+          // 普通用户数量
+          prisma.user.count({
+            where: { role: "USER" },
+          }),
+          // 最近5条订单
+          prisma.order.findMany({
+            take: 5,
+            orderBy: { createdAt: "desc" },
+            include: {
+              user: {
+                select: { name: true, email: true },
+              },
+            },
+          }),
+        ]),
+    })
 
     // 计算统计数据
     const totalRevenue = orders.reduce((sum, o) => sum + Number(o.totalAmount), 0)

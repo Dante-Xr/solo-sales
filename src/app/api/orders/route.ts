@@ -1,6 +1,6 @@
 /**
- * 修改时间：2026-05-02 18:13:41 +08:00
- * 修改内容：将订单列表和创建逻辑迁移到服务层，并改为服务端重算订单金额。
+ * 修改时间：2026-06-04 16:40:36 +08:00
+ * 修改内容：订单创建 route 透传 Idempotency-Key，请求幂等策略由服务层统一处理。
  * 修改模型：gpt-5.5
  */
 import { csrfGuard } from "@/middleware/csrf-guard"
@@ -40,7 +40,9 @@ export async function POST(request: Request) {
     const body = await request.json()
     const input = parseCreateOrderInput(body)
     const sessionUser = await getServerSessionUser()
-    const order = await createOrder(input, sessionUser)
+    const order = await createOrder(input, sessionUser, {
+      idempotencyKey: request.headers.get("Idempotency-Key"),
+    })
 
     return createdResponse(order)
   } catch (error) {

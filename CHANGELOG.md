@@ -1,8 +1,81 @@
+<!--
+修改时间：2026-06-05 11:25:22 +08:00
+修改内容：新增 v1.5.0 高并发准备能力更新日志，记录依赖故障、交易幂等、缓存、smoke、后台任务和压测基线。
+修改模型：gpt-5.5
+-->
+
 # SoloSales Changelog
 
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+## [1.5.0] - 2026-06-05
+
+### High Concurrency Readiness - Baseline, Reliability, and Operational Gates
+
+#### Dependency Failure Strategy
+- **统一依赖故障包装**: 新增 `src/server/services/dependency-guard.ts`，集中处理 Prisma/Neon/Redis 等外部依赖的超时、有限重试、快速失败和标准错误映射。
+- **标准 SERVICE_UNAVAILABLE 契约**: 数据库不可达、Redis 异常和请求超时时统一收敛为可观测、可测试的服务不可用响应。
+- **关键 API 接入**: `/api/health`、`/api/products`、`/api/products/featured`、后台 dashboard 高频查询路径接入统一依赖策略。
+- **健康检查降级**: Redis 不可用时允许健康检查保留主链路可用状态，数据库不可用时明确返回 unhealthy 和 503。
+
+#### Transaction Idempotency and Concurrency Hardening
+- **订单幂等键**: `/api/orders` 支持 `Idempotency-Key`，服务层使用用户、幂等键和请求内容生成确定性订单 ID，重复请求可重放既有订单结果。
+- **交易域状态边界**: 下单、库存扣减、支付状态迁移、Stripe webhook 重复投递均补充并发和幂等测试。
+- **Stripe webhook 幂等约束**: `Payment` 新增 `provider + transactionId` 唯一约束，并新增迁移 `20260604164036_add_payment_provider_transaction_unique`。
+- **支付双写事务**: Stripe webhook 中订单状态和支付记录写入纳入事务，唯一约束冲突时按既有支付记录重放成功路径。
+
+#### High Frequency Read Cache and Query Governance
+- **前台商品缓存**: 新增 storefront 商品列表缓存 key 和 TTL，`getStorefrontProducts` 支持按筛选条件缓存。
+- **Featured/Products 读路径加固**: 商品列表、featured、首页/商品页高频读取路径补齐缓存命中、未命中、缓存失败降级和依赖故障测试。
+- **后台 dashboard 缓存**: 后台仪表盘聚合结果支持缓存命中跳过 Prisma，缓存未命中后写回。
+- **查询收口**: limit 查询规避不必要精确 `count`，减少高频读路径上的数据库负载。
+
+#### Smoke and Synthetic Contracts
+- **新增 smoke/synthetic 脚本**: 新增 `scripts/smoke-synthetic.mjs` 和 `npm run smoke:synthetic`。
+- **关键入口覆盖**: 覆盖 `/zh`、`/zh/products`、`/zh/cart`、`/zh/admin/login`、`/api/health`、`/api/csrf-token`、`/api/products`、`/api/products/featured`、Stripe/PayPal 支付负向路径和后台当前用户查询。
+- **依赖故障可接受判断**: 标准 `503 SERVICE_UNAVAILABLE` 被识别为已知依赖故障，不误判为页面或契约崩溃。
+- **结构化报告**: smoke 输出 JSON，包含成功/失败、依赖故障数、每个检查项的状态、分类和失败原因。
+
+#### Background Job Readiness
+- **后台任务模型**: 新增 `BackgroundJob`、`BackgroundJobType`、`BackgroundJobStatus`，并新增迁移 `20260605101144_add_background_jobs`。
+- **任务类型定义**: 支持 `WHOLESALER_IMPORT`、`ANALYTICS_REFRESH`、`STRIPE_WEBHOOK_POST_PROCESS`、`NOTIFICATION_DISPATCH` 四类重任务。
+- **任务服务与仓储**: 新增 `background-job-service` 和 `background-job-repository`，支持入队、可运行任务查询、运行标记、完成标记、失败重试和死信状态。
+- **导入异步入口**: `/api/import` 支持 `execution: "async"`，异步模式返回 202 和 job 信息；默认同步行为保持兼容。
+- **资源隔离准备**: 明确导入、分析刷新、webhook 后处理、通知派发的同步/异步边界，避免后台重任务占满前台交易资源。
+
+#### Minimal Load Baseline and Observability
+- **新增最小压测脚本**: 新增 `scripts/load-baseline.mjs` 和 `npm run perf:baseline`。
+- **非 100k QPS 承诺**: 明确 v1.5 仅建立基线和门禁，10 万级每秒请求只作为长期压力模型，不作为当前真实交付目标。
+- **核心指标输出**: 输出 QPS、P95/P99、错误率、503 比例、缓存命中率、DB/Redis 观测耗时、队列堆积观测值。
+- **代表性路径覆盖**: 覆盖商品 featured 读、商品列表读、PayPal 支付参数负向写校验。
+- **门禁规则**: 非预期 5xx 或异常状态会让基线脚本以非 0 退出，便于 CI 或发布前手动验证。
+
+#### Testing and Verification
+- **新增测试套件**:
+  - `dependency-guard.test.ts`
+  - `health/route.test.ts`
+  - `admin/dashboard/route.test.ts`
+  - `background-job-service.test.ts`
+  - `import/route.test.ts`
+  - `smoke-synthetic.test.ts`
+  - `load-baseline.test.ts`
+- **增强既有测试**:
+  - `order-service.test.ts`: 幂等键、重复下单、库存竞争。
+  - `payment-service.test.ts`: 重复 webhook、唯一约束冲突重放、支付状态重复写入。
+  - `product-service.test.ts`: storefront 缓存、缓存失败降级、limit 查询跳过 count、依赖故障。
+  - `inventory-service.test.ts`: 异步导入参数解析和后台任务入队。
+- **验证结果**:
+  - Prisma validate/generate passed.
+  - TypeScript `tsc --noEmit` passed.
+  - ESLint passed.
+  - Jest passed: 41 suites / 179 tests.
+  - Next.js production build passed.
+
+#### Notes
+- `.trae/documents` and `.trae/specs` remain ignored by git, so the source-of-truth release documentation for GitHub is this changelog plus `RELEASES.md`.
+- `.codex/agents` is local agent configuration and is intentionally not included in this release commit.
 
 ## [1.4.0] - 2026-05-02
 

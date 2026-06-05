@@ -1,3 +1,7 @@
+// 修改时间：2026-06-05 10:11:44 +08:00
+// 修改内容：新增 BackgroundJob 后台任务模型与枚举，支撑导入、分析、webhook 后处理和通知类重任务的异步化准备。
+// 修改模型：gpt-5.5
+//
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
@@ -149,6 +153,7 @@ model Payment {
   @@index([orderId])
   @@index([transactionId])
   @@index([status])
+  @@unique([provider, transactionId])
 }
 
 enum PaymentStatus {
@@ -388,6 +393,45 @@ enum ImportStatus {
   RUNNING // 运行中
   COMPLETED // 已完成
   FAILED // 失败
+}
+
+// ============================================
+// 后台重任务队列准备模块 (v1.5)
+// 用于记录可重试、可恢复的导入、分析刷新、webhook 后处理和通知派发任务
+// ============================================
+
+model BackgroundJob {
+  id          String              @id @default(cuid())
+  type        BackgroundJobType
+  status      BackgroundJobStatus @default(QUEUED)
+  payload     Json
+  attempts    Int                 @default(0)
+  maxAttempts Int                 @default(3)
+  lastError   String?
+  lockedAt    DateTime?
+  availableAt DateTime            @default(now())
+  completedAt DateTime?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  @@index([status, availableAt])
+  @@index([type, status])
+  @@index([createdAt])
+}
+
+enum BackgroundJobType {
+  WHOLESALER_IMPORT
+  ANALYTICS_REFRESH
+  STRIPE_WEBHOOK_POST_PROCESS
+  NOTIFICATION_DISPATCH
+}
+
+enum BackgroundJobStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+  DEAD_LETTER
 }
 
 // ============================================

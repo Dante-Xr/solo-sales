@@ -1,6 +1,6 @@
 /**
- * 修改时间：2026-05-02 21:59:08 +08:00
- * 修改内容：补齐商品读路径多次断连重试与 storefront 商品筛选读取测试，以及批量删除事务边界测试。
+ * 修改时间：2026-06-05 00:36:49 +08:00
+ * 修改内容：补充商品列表 limit 跳过精确 count、storefront 缓存命中/未命中和缓存失败降级测试。
  * 修改模型：gpt-5.5
  */
 import { Prisma } from "@prisma/client"
@@ -17,10 +17,12 @@ jest.mock("@/lib/cache", () => ({
   CACHE_KEYS: {
     PRODUCT_LIST: (params: string) => `solo:products:list:${params}`,
     FEATURED_PRODUCTS: "solo:products:featured",
+    STOREFRONT_PRODUCTS: (filter: string) => `solo:products:storefront:${filter}`,
   },
   CACHE_TTL: {
     MEDIUM: 300,
     FEATURED_PRODUCTS: 300,
+    STOREFRONT_PRODUCTS: 300,
   },
   cacheDelPattern: jest.fn().mockResolvedValue(0),
   cacheGet: jest.fn().mockResolvedValue(null),
@@ -63,8 +65,10 @@ const { prisma } = jest.requireMock("@/lib/prisma") as {
   }
 }
 
-const { cacheDelPattern } = jest.requireMock("@/lib/cache") as {
+const { cacheDelPattern, cacheGet, cacheSet } = jest.requireMock("@/lib/cache") as {
   cacheDelPattern: jest.Mock
+  cacheGet: jest.Mock
+  cacheSet: jest.Mock
 }
 
 describe("product-service", () => {
@@ -125,12 +129,14 @@ describe("product-service", () => {
 
       // 商品列表是只读路径，P1017 连接瞬断时允许多次短重试，避免临时连接抖动变成页面 500。
       expect(prisma.product.findMany).toHaveBeenCalledTimes(3)
-      expect(prisma.product.count).toHaveBeenCalledTimes(3)
-      expect(warnSpy).toHaveBeenCalledTimes(2)
-      expect(warnSpy).toHaveBeenNthCalledWith(
-        1,
-        expect.stringContaining("retrying transient Prisma read failure"),
-        expect.objectContaining({ code: "P1017" })
+      expect(prisma.product.count).toHaveBeenCalledTimes(1)
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining("[dependency-guard] retrying database.listProducts.findMany"),
+        expect.objectContaining({
+          dependency: "database",
+          label: "listProducts.findMany",
+          code: "P1017",
+        })
       )
       expect(prisma.$disconnect).toHaveBeenCalledTimes(2)
       expect(result.data.list).toEqual([{ id: "prod_1" }])
@@ -138,6 +144,47 @@ describe("product-service", () => {
     } finally {
       warnSpy.mockRestore()
     }
+  })
+
+  it("skips exact product count for limit queries", async () => {
+    prisma.product.findMany.mockResolvedValue([{ id: "prod_1" }, { id: "prod_2" }])
+
+    const result = await listProducts({
+      page: 1,
+      pageSize: 10,
+      limit: 2,
+      isPublished: "true",
+    })
+
+    // limit 场景用于高频推荐/首页读取，不执行精确 count，避免每次热点请求都压数据库统计。
+    expect(prisma.product.count).not.toHaveBeenCalled()
+    expect(result.data.pagination).toEqual({
+      page: 1,
+      pageSize: 10,
+      total: 2,
+      totalPages: 1,
+    })
+  })
+
+  it("returns cached product lists without hitting Prisma", async () => {
+    cacheGet.mockResolvedValueOnce({
+      success: true,
+      data: {
+        list: [{ id: "cached_prod" }],
+        pagination: { page: 1, pageSize: 10, total: 1, totalPages: 1 },
+      },
+    })
+
+    const result = await listProducts({ page: 1, pageSize: 10 })
+
+    expect(result).toMatchObject({
+      fromCache: true,
+      data: {
+        list: [{ id: "cached_prod" }],
+      },
+    })
+    expect(prisma.product.findMany).not.toHaveBeenCalled()
+    expect(prisma.product.count).not.toHaveBeenCalled()
   })
 
   it("rejects duplicate SKU when creating a product", async () => {
@@ -219,6 +266,74 @@ describe("product-service", () => {
         image: "/best.jpg",
         sales: 12,
         stock: 8,
+      },
+    ])
+    expect(cacheSet).toHaveBeenCalledWith(
+      "solo:products:storefront:best",
+      products,
+      300
+    )
+  })
+
+  it("returns cached storefront products without hitting Prisma", async () => {
+    cacheGet.mockResolvedValueOnce([
+      {
+        id: "prod_cached",
+        name: "Cached",
+        description: "Cached product",
+        price: 10,
+        originalPrice: 14,
+        image: "/cached.jpg",
+        sales: 1,
+        stock: 2,
+      },
+    ])
+
+    const products = await getStorefrontProducts("new")
+
+    expect(products).toEqual([
+      {
+        id: "prod_cached",
+        name: "Cached",
+        description: "Cached product",
+        price: 10,
+        originalPrice: 14,
+        image: "/cached.jpg",
+        sales: 1,
+        stock: 2,
+      },
+    ])
+    expect(prisma.product.findMany).not.toHaveBeenCalled()
+  })
+
+  it("continues storefront reads when cache write fails", async () => {
+    cacheSet.mockResolvedValueOnce(false)
+    prisma.product.findMany.mockResolvedValue([
+      {
+        id: "prod_1",
+        name: "No Cache Product",
+        description: "Description",
+        price: new Prisma.Decimal(30),
+        stock: 5,
+        images: [],
+        isPublished: true,
+        _count: { orderItems: 0 },
+      },
+    ])
+
+    const products = await getStorefrontProducts()
+
+    // 缓存写入失败只能降级为无缓存读取，不能影响商品页正常返回。
+    expect(products).toEqual([
+      {
+        id: "prod_1",
+        name: "No Cache Product",
+        description: "Description",
+        price: 30,
+        originalPrice: 42,
+        image: "",
+        sales: 0,
+        stock: 5,
       },
     ])
   })

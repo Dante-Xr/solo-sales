@@ -1,3 +1,9 @@
+<!--
+修改时间：2026-06-05 11:25:22 +08:00
+修改内容：新增 v1.5.0 发布说明，汇总高并发准备能力、后台任务、smoke/synthetic 和压测基线。
+修改模型：gpt-5.5
+-->
+
 # SoloSales Release Notes
 
 Comprehensive version history documenting all functional modules and features from version 1.0 to current release.
@@ -8,11 +14,109 @@ Comprehensive version history documenting all functional modules and features fr
 
 | Version | Release Date | Status |
 |---------|-------------|--------|
-| [1.4.0](#v140---2026-05-02) | 2026-05-02 | Latest |
+| [1.5.0](#v150---2026-06-05) | 2026-06-05 | Latest |
+| [1.4.0](#v140---2026-05-02) | 2026-05-02 | Stable |
 | [1.3.0](#v130---2026-04-27) | 2026-04-27 | Stable |
 | [1.2.0](#v120---2026-04-26) | 2026-04-26 | Stable |
 | [1.0.2](#v102---2026-04-23) | 2026-04-23 | Stable |
 | [1.0.0](#v100---2026-04-21) | 2026-04-21 | Stable |
+
+---
+
+## v1.5.0 - 2026-06-05
+
+### High Concurrency Readiness - Reliability and Operational Baseline
+
+v1.5.0 does not claim production readiness for 100k requests per second. It establishes the engineering foundation required before any serious capacity claim: dependency failure contracts, transaction idempotency, read-path caching, smoke/synthetic checks, background job readiness, and a repeatable lightweight load baseline.
+
+#### Reliability and Dependency Strategy
+
+| Module | Feature | Description |
+|--------|---------|-------------|
+| dependency-guard | Dependency Wrapper | Central timeout, retry, fast-fail, and error mapping for external dependencies |
+| Health API | Degraded Checks | Database failures return unhealthy 503; Redis failures are reported without breaking the main health path |
+| Products API | Failure Contract | Products and featured products return standard `SERVICE_UNAVAILABLE` when external database dependency fails |
+| Admin Dashboard | Guarded Aggregation | Dashboard high-frequency aggregation path is protected by dependency guard and cache behavior |
+
+#### Transaction and Payment Hardening
+
+| Module | Feature | Description |
+|--------|---------|-------------|
+| Orders | Idempotency-Key | Order creation supports deterministic replay for duplicate client requests |
+| Inventory | Concurrency Tests | Stock deduction boundary covered by negative and concurrency tests |
+| Payment | Unique Provider Transaction | `Payment(provider, transactionId)` unique constraint prevents duplicate webhook payment writes |
+| Stripe Webhook | Transactional Processing | Order/payment updates are handled inside a transaction with duplicate replay behavior |
+
+#### Read Path Governance
+
+| Module | Feature | Description |
+|--------|---------|-------------|
+| Storefront Products | Cache Key | Filter-aware storefront products cache key and TTL |
+| Product List | Count Avoidance | Limit-based queries avoid unnecessary exact count where possible |
+| Featured Products | Cached Reads | Featured path covered by cache hit, miss, and failure fallback tests |
+| Admin Dashboard | Cache Contract | Cache hit skips Prisma aggregation, cache miss writes dashboard result back |
+
+#### Smoke, Synthetic, and Load Baseline Tooling
+
+| Command | Purpose | Output |
+|---------|---------|--------|
+| `npm run smoke:synthetic` | Validates key pages, APIs, negative payment paths, and dependency-failure contracts | Structured JSON smoke report |
+| `npm run perf:baseline` | Runs a small repeatable baseline over representative read/write paths | QPS, P95/P99, error rate, 503 rate, cache hit rate, dependency and queue observations |
+
+#### Smoke/Synthetic Coverage
+
+| Area | Paths |
+|------|-------|
+| Storefront Pages | `/zh`, `/zh/products`, `/zh/cart` |
+| Admin Page | `/zh/admin/login` |
+| Core APIs | `/api/health`, `/api/csrf-token`, `/api/products`, `/api/products/featured` |
+| Negative Paths | Stripe invalid request, PayPal invalid request, admin current-user unauthorized query |
+
+#### Background Job Readiness
+
+| Module | Feature | Description |
+|--------|---------|-------------|
+| Prisma | BackgroundJob Model | Adds generic background job table with status, retry, payload, lock, and dead-letter fields |
+| Background Job Service | Queue Preparation | Enqueue, runnable query, running/completed/failed updates, exponential backoff |
+| Import API | Async Mode | `execution: "async"` returns 202 and a job id, while default sync mode remains compatible |
+| Task Boundaries | Resource Isolation | Import, analytics refresh, webhook post-processing, and notification dispatch boundaries documented in code |
+
+#### Database Migrations
+
+| Migration | Description |
+|-----------|-------------|
+| `20260604164036_add_payment_provider_transaction_unique` | Adds unique constraint for payment provider transaction idempotency |
+| `20260605101144_add_background_jobs` | Adds background job type/status enums and `BackgroundJob` table |
+
+#### Test Coverage
+
+| Suite | Coverage |
+|-------|----------|
+| dependency-guard.test.ts | Timeout, retry, Redis/database dependency mapping |
+| health route tests | Database unavailable and Redis degraded contracts |
+| product-service.test.ts | Storefront cache, retry behavior, cache failure degradation, count avoidance |
+| order-service.test.ts | Order idempotency and stock concurrency boundaries |
+| payment-service.test.ts | Webhook duplicate replay and transaction idempotency |
+| background-job-service.test.ts | Job definitions, enqueue, retry, dead-letter handling |
+| import route tests | Async import returns 202; sync import remains compatible |
+| smoke-synthetic.test.ts | Synthetic dependency failures and required page failures |
+| load-baseline.test.ts | Metrics output and baseline gate failure behavior |
+
+#### Verified Commands
+
+- `node .\node_modules\prisma\build\index.js validate` - Passed
+- `node .\node_modules\prisma\build\index.js generate` - Passed
+- `node .\node_modules\typescript\bin\tsc --noEmit` - Passed
+- `node .\node_modules\eslint\bin\eslint.js ...` - Passed
+- `node .\node_modules\jest\bin\jest.js --runInBand` - Passed: 41 suites / 179 tests
+- `node .\node_modules\next\dist\bin\next build` - Passed
+
+#### Known Operational Notes
+
+- v1.5.0 does not introduce microservices, CQRS, or a full event bus.
+- v1.5.0 does not claim 100k QPS production capacity.
+- Neon/database unavailability is treated as an explicit dependency failure contract rather than a page crash.
+- `.codex/agents` remains local configuration and is not part of the release artifact.
 
 ---
 

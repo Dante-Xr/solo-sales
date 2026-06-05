@@ -8,6 +8,8 @@
     "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint",
+    "perf:baseline": "node scripts/load-baseline.mjs",
+    "smoke:synthetic": "node scripts/smoke-synthetic.mjs",
     "test": "jest",
     "test:watch": "jest --watch",
     "analyze": "ANALYZE=true npm run build"

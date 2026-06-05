@@ -1,6 +1,6 @@
 /**
- * 修改时间：2026-05-02 22:10:24 +08:00
- * 修改内容：加厚商品只读查询的 Prisma 断连重试和查询超时保护，并统一首页与商品页可复用的 storefront 商品读取入口。
+ * 修改时间：2026-06-05 00:36:49 +08:00
+ * 修改内容：补充 storefront 商品页缓存，并在 limit 列表查询中跳过不必要的精确 count。
  * 修改模型：gpt-5.5
  */
 import "server-only"
@@ -13,7 +13,6 @@ import {
   badRequest,
   conflict,
   notFound,
-  serviceUnavailable,
   validationError,
 } from "@/server/contracts/errors"
 import {
@@ -33,6 +32,7 @@ import {
   updateProduct,
   updateProductsPublished,
 } from "@/server/repositories/product-repository"
+import { withDependencyGuard } from "@/server/services/dependency-guard"
 
 export const listProductsQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
@@ -100,7 +100,16 @@ export type StorefrontProductItem = {
   stock: number
 }
 
+type ProductListResult = {
+  success: true
+  data: {
+    list: unknown[]
+    pagination: { page: number; pageSize: number; total: number; totalPages: number }
+  }
+}
+
 const PRISMA_READ_TIMEOUT_MS = 3000
+const PRISMA_READ_MAX_ATTEMPTS = 3
 
 function parseWithSchema<T>(schema: z.ZodSchema<T>, data: unknown, message = "参数错误"): T {
   const parsed = schema.safeParse(data)
@@ -110,68 +119,26 @@ function parseWithSchema<T>(schema: z.ZodSchema<T>, data: unknown, message = "�
   return parsed.data
 }
 
-function isTransientPrismaConnectionError(error: unknown): boolean {
-  if (typeof error !== "object" || error === null) return false
-  const code = "code" in error ? (error as { code?: unknown }).code : undefined
-  const message = "message" in error ? (error as { message?: unknown }).message : undefined
-  // P1017 是当前 smoke 里出现的“连接已关闭”；P1001/P1002 是常见短暂连接不可达/超时。
-  return (
-    code === "P1017" ||
-    code === "P1001" ||
-    code === "P1002" ||
-    (typeof message === "string" &&
-      (message.includes("Can't reach database server") ||
-        message.includes("Server has closed the connection") ||
-        message.includes("Timed out fetching a new connection")))
-  )
-}
-
-function withPrismaReadTimeout<T>(promise: Promise<T>, label: string): Promise<T> {
-  let timeout: ReturnType<typeof setTimeout> | undefined
-
-  // 外部数据库不可达时 Prisma 初始化可能长时间阻塞；只读路径用短超时快速降级为 503/页面兜底。
-  const timeoutPromise = new Promise<T>((_, reject) => {
-    timeout = setTimeout(() => {
-      reject(serviceUnavailable(`${label} 查询超时，请稍后重试`))
-    }, PRISMA_READ_TIMEOUT_MS)
-  })
-
-  return Promise.race([promise, timeoutPromise]).finally(() => {
-    if (timeout) clearTimeout(timeout)
-  })
-}
-
 async function withTransientPrismaRetry<T>(
   label: string,
   operation: () => Promise<T>
 ): Promise<T> {
-  const maxAttempts = 3
-  let lastError: unknown
-
-  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    try {
-      return await withPrismaReadTimeout(operation(), label)
-    } catch (error) {
-      lastError = error
-      if (!isTransientPrismaConnectionError(error) || attempt === maxAttempts) {
-        throw isTransientPrismaConnectionError(error)
-          ? serviceUnavailable("数据库连接暂时不可用，请稍后重试")
-          : error
-      }
-
-      // 只读查询允许多次轻量重试；每次先断开旧连接，强制下一轮使用新连接池，降低本地数据库短暂抖动导致的 500。
-      console.warn(
-        `[product-service] retrying transient Prisma read failure: ${label} (${attempt}/${maxAttempts})`,
-        error
-      )
+  return withDependencyGuard({
+    dependency: "database",
+    label,
+    operation,
+    timeoutMs: PRISMA_READ_TIMEOUT_MS,
+    maxAttempts: PRISMA_READ_MAX_ATTEMPTS,
+    unavailableMessage: "数据库连接暂时不可用，请稍后重试",
+    timeoutMessage: `${label} 查询超时，请稍后重试`,
+    async onRetry(_error, attempt) {
+      // 只读查询允许轻量重试；重试前断开旧连接，下一轮强制走新连接池，降低 P1017 抖动造成的 500。
       await prisma.$disconnect().catch((disconnectError) => {
         console.warn("[product-service] failed to disconnect stale Prisma client", disconnectError)
       })
-      await new Promise((resolve) => setTimeout(resolve, attempt * 100))
-    }
-  }
-
-  throw lastError
+      console.warn(`[product-service] disconnected stale Prisma client before retry ${attempt}`)
+    },
+  })
 }
 
 export function parseListProductsQuery(params: URLSearchParams): ListProductsQuery {
@@ -242,13 +209,7 @@ export async function listProducts(query: ListProductsQuery) {
     })
   )
 
-  const cached = await cacheGet<{
-    success: true
-    data: {
-      list: unknown[]
-      pagination: { page: number; pageSize: number; total: number; totalPages: number }
-    }
-  }>(cacheKey)
+  const cached = await cacheGet<ProductListResult>(cacheKey)
 
   if (cached) {
     return { ...cached, fromCache: true }
@@ -258,14 +219,15 @@ export async function listProducts(query: ListProductsQuery) {
   const skip = (query.page - 1) * (query.limit || query.pageSize)
   const where = buildProductWhere(query)
 
-  const [list, total] = await withTransientPrismaRetry("listProducts", () =>
-    Promise.all([
-      findProducts(prisma, { where, skip, take }),
-      countProducts(prisma, where),
-    ])
+  const list = await withTransientPrismaRetry("listProducts.findMany", () =>
+    findProducts(prisma, { where, skip, take })
   )
-  const totalPages = Math.ceil(total / query.pageSize)
-  const result = {
+  // limit 查询通常用于高频首页/推荐位，不需要精确 count；后台分页没有 limit 时才计算总数。
+  const total = query.limit
+    ? list.length
+    : await withTransientPrismaRetry("listProducts.count", () => countProducts(prisma, where))
+  const totalPages = query.limit ? 1 : Math.ceil(total / query.pageSize)
+  const result: ProductListResult = {
     success: true as const,
     data: {
       list,
@@ -424,6 +386,12 @@ export async function getFeaturedProducts(): Promise<{
 export async function getStorefrontProducts(
   filter?: StorefrontProductFilter
 ): Promise<StorefrontProductItem[]> {
+  const cacheKey = CACHE_KEYS.STOREFRONT_PRODUCTS(filter || "all")
+  const cached = await cacheGet<StorefrontProductItem[]>(cacheKey)
+  if (cached) {
+    return cached
+  }
+
   const where: Prisma.ProductWhereInput = { isPublished: true }
 
   if (filter === "new") {
@@ -441,7 +409,10 @@ export async function getStorefrontProducts(
     })
   )
 
-  return products.map(transformFeaturedProduct)
+  const transformed = products.map(transformFeaturedProduct)
+  await cacheSet(cacheKey, transformed, CACHE_TTL.STOREFRONT_PRODUCTS)
+
+  return transformed
 }
 
 export async function batchUpdateProducts(input: BatchUpdateProductsInput) {

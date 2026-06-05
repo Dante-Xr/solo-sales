@@ -1,6 +1,6 @@
 /**
- * 修改时间：2026-05-02 21:14:38 +08:00
- * 修改内容：统一健康检查路由响应结构，同时保留顶层 status/checks 供监控平台兼容读取。
+ * 修改时间：2026-06-04 16:28:48 +08:00
+ * 修改内容：健康检查接入统一外部依赖故障保护，数据库和 Redis 检查统一使用短超时与标准错误映射。
  * 修改模型：gpt-5.5
  *
  * ============================================
@@ -17,6 +17,7 @@
 import { prisma } from "@/lib/prisma"
 import redis from "@/lib/redis"
 import { successResponse } from "@/server/contracts/api"
+import { withDependencyGuard } from "@/server/services/dependency-guard"
 
 /**
  * 健康检查响应数据结构
@@ -61,7 +62,14 @@ export async function GET() {
   // 检查数据库连接
   try {
     const dbStart = Date.now()
-    await prisma.$queryRaw`SELECT 1`
+    await withDependencyGuard({
+      dependency: "database",
+      label: "health.database",
+      operation: () => prisma.$queryRaw`SELECT 1`,
+      timeoutMs: 3000,
+      maxAttempts: 1,
+      unavailableMessage: "数据库连接暂时不可用，请稍后重试",
+    })
     response.checks.database.latency = Date.now() - dbStart
   } catch (error) {
     response.checks.database.status = "error"
@@ -73,7 +81,14 @@ export async function GET() {
   // 检查 Redis 连接
   try {
     const redisStart = Date.now()
-    await redis.ping()
+    await withDependencyGuard({
+      dependency: "redis",
+      label: "health.redis",
+      operation: () => redis.ping(),
+      timeoutMs: 1500,
+      maxAttempts: 1,
+      unavailableMessage: "缓存服务暂时不可用，请稍后重试",
+    })
     response.checks.redis.latency = Date.now() - redisStart
   } catch (error) {
     response.checks.redis.status = "error"

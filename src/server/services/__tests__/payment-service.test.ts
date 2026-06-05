@@ -1,6 +1,6 @@
 /**
- * 修改时间：2026-05-02 18:13:41 +08:00
- * 修改内容：新增支付服务测试，验证 Stripe Checkout 使用数据库价格、库存异常和 Webhook 幂等处理。
+ * 修改时间：2026-06-04 16:40:36 +08:00
+ * 修改内容：补充 Stripe Webhook 事务双写与唯一约束冲突重放测试，覆盖 Phase 2 支付幂等边界。
  * 修改模型：gpt-5.5
  */
 import { Prisma } from "@prisma/client"
@@ -10,6 +10,7 @@ const mockSessionsCreate = jest.fn()
 
 jest.mock("@/lib/prisma", () => ({
   prisma: {
+    $transaction: jest.fn(),
     order: {
       create: jest.fn(),
       findFirst: jest.fn(),
@@ -43,6 +44,7 @@ jest.mock("@/server/payments/stripe", () => ({
 
 const { prisma } = jest.requireMock("@/lib/prisma") as {
   prisma: {
+    $transaction: jest.Mock
     order: {
       create: jest.Mock
       findFirst: jest.Mock
@@ -66,6 +68,7 @@ const { prisma } = jest.requireMock("@/lib/prisma") as {
 describe("payment-service", () => {
   beforeEach(() => {
     jest.resetAllMocks()
+    prisma.$transaction.mockImplementation(async (callback) => callback(prisma))
   })
 
   it("creates Stripe Checkout Sessions from database product pricing", async () => {
@@ -210,6 +213,48 @@ describe("payment-service", () => {
         provider: "stripe",
         transactionId: "pi_test_123",
       },
+    })
+    expect(prisma.$transaction).toHaveBeenCalledTimes(1)
+  })
+
+  it("replays duplicate webhook delivery when payment unique constraint already exists", async () => {
+    prisma.payment.findFirst
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({
+        id: "pay_1",
+        orderId: "order_1",
+        order: { id: "order_1" },
+      })
+    prisma.order.findFirst.mockResolvedValue(null)
+    prisma.product.findUnique.mockResolvedValue({
+      id: "prod_1",
+      price: new Prisma.Decimal(19.99),
+    })
+    prisma.user.findUnique.mockResolvedValue({ id: "user_1" })
+    prisma.order.create.mockResolvedValue({ id: "order_1" })
+    prisma.payment.create.mockRejectedValue({ code: "P2002" })
+
+    await handleStripeWebhookEvent({
+      type: "checkout.session.completed",
+      data: {
+        object: {
+          id: "cs_test_123",
+          amount_total: 1999,
+          currency: "usd",
+          payment_intent: "pi_test_123",
+          metadata: { productId: "prod_1", quantity: "2" },
+          customer_details: { email: "buyer@example.com" },
+        },
+      },
+    } as never)
+
+    expect(prisma.payment.findFirst).toHaveBeenLastCalledWith({
+      where: { provider: "stripe", transactionId: "pi_test_123" },
+      include: { order: true },
+    })
+    expect(prisma.order.update).toHaveBeenCalledWith({
+      where: { id: "order_1" },
+      data: { status: "PAID", paymentMethod: "stripe" },
     })
   })
 })

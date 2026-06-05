@@ -1,10 +1,11 @@
 /**
- * 修改时间：2026-05-02 18:13:41 +08:00
- * 修改内容：新增支付领域服务，封装 Stripe Checkout 创建、Webhook 签名校验和幂等处理。
+ * 修改时间：2026-06-04 16:40:36 +08:00
+ * 修改内容：强化 Stripe Webhook 幂等边界，将订单/支付双写包入事务并兼容唯一约束冲突重放。
  * 修改模型：gpt-5.5
  */
 import "server-only"
 
+import { Prisma } from "@prisma/client"
 import Stripe from "stripe"
 import { prisma } from "@/lib/prisma"
 import { AppError, ErrorCodes, notFound, validationError } from "@/server/contracts/errors"
@@ -166,86 +167,119 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
     return
   }
 
-  let order = await prisma.order.findFirst({
-    where: {
-      payments: {
-        some: {
-          OR: [{ transactionId }, { transactionId: sessionId }],
-        },
-      },
-    },
-  })
-
   const amountInDollars = amountTotal / 100
 
-  if (!order) {
-    // 兼容未预创建订单的 Checkout 流程：用 metadata 里的商品信息补建订单。
-    if (!productId) {
-      throw validationError("Webhook 缺少商品信息", { sessionId })
-    }
-
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-      select: { id: true, price: true },
-    })
-
-    if (!product) {
-      throw notFound("商品")
-    }
-
-    let userId: string | undefined
-
-    if (customerEmail) {
-      const user = await prisma.user.findUnique({ where: { email: customerEmail } })
-      userId = user?.id
-    }
-
-    if (!userId) {
-      const guest = await prisma.user.upsert({
-        where: { email: "guest@solo-sales.local" },
-        update: {},
-        create: {
-          id: "guest",
-          email: "guest@solo-sales.local",
-          name: "Guest",
-          emailVerified: false,
-        },
-        select: { id: true },
-      })
-      userId = guest.id
-    }
-
-    order = await prisma.order.create({
-      data: {
-        userId,
-        totalAmount: amountInDollars,
-        status: "PAID",
-        paymentMethod: "stripe",
-        items: {
-          create: {
-            productId: product.id,
-            quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : 1,
-            price: product.price,
+  try {
+    await prisma.$transaction(async (tx) => {
+      let order = await tx.order.findFirst({
+        where: {
+          payments: {
+            some: {
+              OR: [{ transactionId }, { transactionId: sessionId }],
+            },
           },
         },
-      },
+      })
+
+      if (!order) {
+        // 兼容未预创建订单的 Checkout 流程：用 metadata 里的商品信息补建订单。
+        if (!productId) {
+          throw validationError("Webhook 缺少商品信息", { sessionId })
+        }
+
+        const product = await tx.product.findUnique({
+          where: { id: productId },
+          select: { id: true, price: true },
+        })
+
+        if (!product) {
+          throw notFound("商品")
+        }
+
+        const userId = await resolveStripeCustomerUserId(tx, customerEmail)
+
+        order = await tx.order.create({
+          data: {
+            userId,
+            totalAmount: amountInDollars,
+            status: "PAID",
+            paymentMethod: "stripe",
+            items: {
+              create: {
+                productId: product.id,
+                quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : 1,
+                price: product.price,
+              },
+            },
+          },
+        })
+      } else {
+        await tx.order.update({
+          where: { id: order.id },
+          data: { status: "PAID", paymentMethod: "stripe" },
+        })
+      }
+
+      await tx.payment.create({
+        // transactionId 使用 PaymentIntent 优先，便于和 Stripe 后台流水对账。
+        data: {
+          orderId: order.id,
+          amount: amountInDollars,
+          currency,
+          status: "COMPLETED",
+          provider: "stripe",
+          transactionId,
+        },
+      })
     })
-  } else {
-    await prisma.order.update({
-      where: { id: order.id },
-      data: { status: "PAID", paymentMethod: "stripe" },
-    })
+  } catch (error) {
+    if (isUniquePaymentTransactionError(error)) {
+      const duplicatedPayment = await prisma.payment.findFirst({
+        where: { provider: "stripe", transactionId },
+        include: { order: true },
+      })
+      if (duplicatedPayment) {
+        await prisma.order.update({
+          where: { id: duplicatedPayment.orderId },
+          data: { status: "PAID", paymentMethod: "stripe" },
+        })
+        return
+      }
+    }
+
+    throw error
+  }
+}
+
+async function resolveStripeCustomerUserId(
+  tx: Prisma.TransactionClient,
+  customerEmail?: string | null
+): Promise<string> {
+  if (customerEmail) {
+    const user = await tx.user.findUnique({ where: { email: customerEmail } })
+    if (user?.id) return user.id
   }
 
-  await prisma.payment.create({
-    // transactionId 使用 PaymentIntent 优先，便于和 Stripe 后台流水对账。
-    data: {
-      orderId: order.id,
-      amount: amountInDollars,
-      currency,
-      status: "COMPLETED",
-      provider: "stripe",
-      transactionId,
+  const guest = await tx.user.upsert({
+    where: { email: "guest@solo-sales.local" },
+    update: {},
+    create: {
+      id: "guest",
+      email: "guest@solo-sales.local",
+      name: "Guest",
+      emailVerified: false,
     },
+    select: { id: true },
   })
+
+  return guest.id
+}
+
+function isUniquePaymentTransactionError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: unknown }).code === "P2002"
+  )
 }

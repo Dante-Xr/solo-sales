@@ -1,6 +1,6 @@
 /**
- * 修改时间：2026-05-02 18:37:11 +08:00
- * 修改内容：新增库存与批发导入服务，封装批发商拉取、商品映射、重复 SKU 过滤、导入日志和库存预警查询逻辑。
+ * 修改时间：2026-06-05 10:11:44 +08:00
+ * 修改内容：为批发导入增加可选异步任务入队能力，保留默认同步导入路径并支撑 Phase 5 重任务隔离。
  * 修改模型：gpt-5.5
  */
 import "server-only"
@@ -11,6 +11,7 @@ import { I1866Client } from "@/lib/wholesalers/1866/client"
 import { detectDuplicates, mapProducts } from "@/lib/wholesalers/1866/mapper"
 import type { ImportResult, MappedProduct, WholesalerClient } from "@/lib/wholesalers/types"
 import { badRequest, serviceUnavailable, validationError } from "@/server/contracts/errors"
+import { enqueueBackgroundJob } from "@/server/services/background-job-service"
 import {
   completeImportLogRecord,
   countImportLogs,
@@ -26,6 +27,7 @@ import {
 
 export const importRequestSchema = z.object({
   wholesaler: z.enum(["1866"]).default("1866"),
+  execution: z.enum(["sync", "async"]).default("sync"),
   options: z
     .object({
       pageSize: z.number().int().min(1).max(100).default(50),
@@ -85,6 +87,18 @@ export function parseStockAlertInput(input: unknown): StockAlertInput {
   const parsed = stockAlertInputSchema.safeParse(input)
   if (!parsed.success) throw validationError("库存预警参数错误", parsed.error.issues)
   return parsed.data
+}
+
+export async function enqueueWholesalerImport(input: ImportRequestInput) {
+  // 异步导入只记录必要 payload；真正的批发商连接和批量写入由后台 worker 消费，避免占用请求线程。
+  return enqueueBackgroundJob({
+    type: "WHOLESALER_IMPORT",
+    payload: {
+      wholesaler: input.wholesaler,
+      options: input.options ?? {},
+    },
+    maxAttempts: 3,
+  })
 }
 
 export async function runWholesalerImport(input: ImportRequestInput) {

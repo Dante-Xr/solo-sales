@@ -1,6 +1,6 @@
 /**
- * 修改时间：2026-05-02 18:13:41 +08:00
- * 修改内容：新增订单服务测试，验证客户端金额被剥离、订单总额按数据库价格计算和库存异常处理。
+ * 修改时间：2026-06-04 16:40:36 +08:00
+ * 修改内容：补充订单创建幂等、库存竞争和稳定订单 ID 测试，覆盖 Phase 2 交易域并发边界。
  * 修改模型：gpt-5.5
  */
 import { Prisma } from "@prisma/client"
@@ -9,18 +9,25 @@ import { createOrder, parseCreateOrderInput } from "../order-service"
 jest.mock("@/lib/prisma", () => ({
   prisma: {
     $transaction: jest.fn(),
+    order: {
+      findUnique: jest.fn(),
+    },
   },
 }))
 
 const { prisma } = jest.requireMock("@/lib/prisma") as {
   prisma: {
     $transaction: jest.Mock
+    order: {
+      findUnique: jest.Mock
+    }
   }
 }
 
 describe("order-service", () => {
   beforeEach(() => {
     jest.resetAllMocks()
+    prisma.order.findUnique.mockResolvedValue(null)
   })
 
   it("strips client supplied prices from create order input", () => {
@@ -96,6 +103,71 @@ describe("order-service", () => {
     expect(createArg.data.items.create[0].price.toString()).toBe("12.5")
   })
 
+  it("returns an existing order for repeated idempotent create requests", async () => {
+    const existingOrder = { id: "ord_existing" }
+    prisma.order.findUnique.mockResolvedValue(existingOrder)
+
+    const result = await createOrder(
+      {
+        items: [{ productId: "prod_1", quantity: 1 }],
+        shippingAddress: "123 Main St",
+        contactInfo: { email: "buyer@example.com" },
+      },
+      null,
+      { idempotencyKey: "idem_123" }
+    )
+
+    expect(result).toBe(existingOrder)
+    expect(prisma.order.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: expect.stringMatching(/^ord_[a-f0-9]{24}$/) },
+      })
+    )
+    expect(prisma.$transaction).not.toHaveBeenCalled()
+  })
+
+  it("creates idempotent orders with a stable deterministic order id", async () => {
+    const tx = {
+      product: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: "prod_1",
+            name: "Test Product",
+            price: new Prisma.Decimal(12.5),
+            stock: 10,
+          },
+        ]),
+        updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+      },
+      user: {
+        upsert: jest.fn().mockResolvedValue({ id: "user_1" }),
+      },
+      order: {
+        create: jest.fn().mockResolvedValue({ id: "order_1" }),
+      },
+    }
+
+    prisma.$transaction.mockImplementation(async (callback) => callback(tx))
+
+    await createOrder(
+      {
+        items: [{ productId: "prod_1", quantity: 1 }],
+        shippingAddress: "123 Main St",
+        contactInfo: { email: "buyer@example.com" },
+      },
+      null,
+      { idempotencyKey: "idem_123" }
+    )
+
+    expect(tx.order.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          id: expect.stringMatching(/^ord_[a-f0-9]{24}$/),
+        }),
+      })
+    )
+  })
+
   it("rejects order creation when requested quantity exceeds stock", async () => {
     const tx = {
       product: {
@@ -134,6 +206,56 @@ describe("order-service", () => {
     })
 
     expect(tx.product.updateMany).not.toHaveBeenCalled()
+    expect(tx.order.create).not.toHaveBeenCalled()
+  })
+
+  it("rejects order creation when concurrent stock decrement wins the race", async () => {
+    const tx = {
+      product: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: "prod_1",
+            name: "Race Product",
+            price: new Prisma.Decimal(12.5),
+            stock: 2,
+          },
+        ]),
+        updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+      },
+      user: {
+        upsert: jest.fn(),
+      },
+      order: {
+        create: jest.fn(),
+      },
+    }
+
+    prisma.$transaction.mockImplementation(async (callback) => callback(tx))
+
+    await expect(
+      createOrder(
+        {
+          items: [{ productId: "prod_1", quantity: 2 }],
+          shippingAddress: "123 Main St",
+          contactInfo: { email: "buyer@example.com" },
+        },
+        null
+      )
+    ).rejects.toMatchObject({
+      code: "INSUFFICIENT_STOCK",
+      statusCode: 422,
+    })
+
+    // 库存读取后仍以条件 updateMany 作为最终扣减防线，并发竞争失败时不能创建订单。
+    expect(tx.product.updateMany).toHaveBeenCalledWith({
+      where: {
+        id: "prod_1",
+        stock: { gte: 2 },
+      },
+      data: {
+        stock: { decrement: 2 },
+      },
+    })
     expect(tx.order.create).not.toHaveBeenCalled()
   })
 })
