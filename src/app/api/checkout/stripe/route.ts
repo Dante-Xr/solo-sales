@@ -5,8 +5,9 @@
  */
 import { csrfGuard } from "@/middleware/csrf-guard"
 import { paymentRateLimiter } from "@/middleware/rate-limit"
+import { getServerSessionUser } from "@/server/auth/session"
 import { handleApiError, successResponse } from "@/server/contracts/api"
-import { validationError } from "@/server/contracts/errors"
+import { unauthorized, validationError } from "@/server/contracts/errors"
 import { createStripeCheckoutSession } from "@/server/services/payment-service"
 import { isStripeTestMode } from "@/server/payments/stripe"
 
@@ -27,6 +28,11 @@ export async function POST(request: Request) {
   }
 
   try {
+    const sessionUser = await getServerSessionUser()
+    if (!sessionUser?.id) {
+      throw unauthorized("请先登录")
+    }
+
     const body = await request.json()
     // 前端传来的 productName/price 会被忽略，服务端只接受定位商品和数量所需字段。
     const productId = typeof body?.productId === "string" ? body.productId : ""
@@ -40,6 +46,8 @@ export async function POST(request: Request) {
       productId,
       quantity,
       origin: getOrigin(request),
+      userId: sessionUser.id,
+      userEmail: sessionUser.email,
     })
 
     return successResponse(session)

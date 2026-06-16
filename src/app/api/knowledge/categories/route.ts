@@ -18,6 +18,7 @@ import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { createdResponse, handleApiError, successResponse } from "@/server/contracts/api"
 import { badRequest, notFound, validationError } from "@/server/contracts/errors"
+import { requireAdminPermission } from "@/server/services/admin-service"
 
 /** 创建分类的请求体验证 Schema */
 const CreateCategorySchema = z.object({
@@ -29,8 +30,9 @@ const CreateCategorySchema = z.object({
 /**
  * GET handler - 获取分类列表
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "knowledge.view")
     const categories = await prisma.knowledgeCategory.findMany({
       orderBy: [{ order: "asc" }, { name: "asc" }],
       include: {
@@ -51,6 +53,7 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "knowledge.categories.create")
     const body = await request.json()
     const validatedData = CreateCategorySchema.parse(body)
 
@@ -77,6 +80,7 @@ export async function POST(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "knowledge.categories.delete")
     const { searchParams } = new URL(request.url)
     const id = searchParams.get("id")
 

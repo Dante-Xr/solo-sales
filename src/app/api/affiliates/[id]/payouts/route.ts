@@ -9,6 +9,7 @@ import AffiliateService from "@/lib/affiliate/AffiliateService"
 import { safeErrorLog } from "@/lib/safeLog"
 import { createdResponse, handleApiError, successResponse } from "@/server/contracts/api"
 import { badRequest } from "@/server/contracts/errors"
+import { requireAdminPermission } from "@/server/services/admin-service"
 
 const affiliateService = new AffiliateService(prisma)
 
@@ -17,6 +18,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await requireAdminPermission(request, "affiliates.view")
+
     const { id } = await params
     const payouts = await affiliateService.getPayouts(id)
 
@@ -32,6 +35,8 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await requireAdminPermission(request, "affiliates.update")
+
     const { id } = await params
     const body = await request.json()
     const { amount, method, payoutInfo } = body

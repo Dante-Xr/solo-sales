@@ -87,6 +87,8 @@ describe("payment-service", () => {
       productId: "prod_1",
       quantity: 2,
       origin: "https://example.com",
+      userId: "user_1",
+      userEmail: "buyer@example.com",
     })
 
     expect(mockSessionsCreate).toHaveBeenCalledWith(
@@ -103,7 +105,9 @@ describe("payment-service", () => {
         metadata: {
           productId: "prod_1",
           quantity: "2",
+          userId: "user_1",
         },
+        customer_email: "buyer@example.com",
       })
     )
     expect(result).toEqual({
@@ -126,6 +130,7 @@ describe("payment-service", () => {
         productId: "prod_1",
         quantity: 2,
         origin: "https://example.com",
+        userId: "user_1",
       })
     ).rejects.toMatchObject({
       code: "INSUFFICIENT_STOCK",
@@ -215,6 +220,70 @@ describe("payment-service", () => {
       },
     })
     expect(prisma.$transaction).toHaveBeenCalledTimes(1)
+  })
+
+  it("binds completed checkout sessions to the metadata user id when Stripe omits customer email", async () => {
+    prisma.payment.findFirst.mockResolvedValue(null)
+    prisma.order.findFirst.mockResolvedValue(null)
+    prisma.product.findUnique.mockResolvedValue({
+      id: "prod_1",
+      price: new Prisma.Decimal(19.99),
+    })
+    prisma.order.create.mockResolvedValue({ id: "order_1" })
+
+    await handleStripeWebhookEvent({
+      type: "checkout.session.completed",
+      data: {
+        object: {
+          id: "cs_test_123",
+          amount_total: 1999,
+          currency: "usd",
+          payment_intent: "pi_test_123",
+          metadata: { productId: "prod_1", quantity: "2", userId: "user_1" },
+          customer_details: null,
+        },
+      },
+    } as never)
+
+    expect(prisma.order.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          userId: "user_1",
+        }),
+      })
+    )
+    expect(prisma.user.upsert).not.toHaveBeenCalled()
+  })
+
+  it("rejects completed checkout sessions that cannot be bound to a user", async () => {
+    prisma.payment.findFirst.mockResolvedValue(null)
+    prisma.order.findFirst.mockResolvedValue(null)
+    prisma.product.findUnique.mockResolvedValue({
+      id: "prod_1",
+      price: new Prisma.Decimal(19.99),
+    })
+
+    await expect(
+      handleStripeWebhookEvent({
+        type: "checkout.session.completed",
+        data: {
+          object: {
+            id: "cs_test_123",
+            amount_total: 1999,
+            currency: "usd",
+            payment_intent: "pi_test_123",
+            metadata: { productId: "prod_1", quantity: "2" },
+            customer_details: null,
+          },
+        },
+      } as never)
+    ).rejects.toMatchObject({
+      code: "BAD_REQUEST_VALIDATION",
+      statusCode: 400,
+    })
+
+    expect(prisma.user.upsert).not.toHaveBeenCalled()
+    expect(prisma.order.create).not.toHaveBeenCalled()
   })
 
   it("replays duplicate webhook delivery when payment unique constraint already exists", async () => {

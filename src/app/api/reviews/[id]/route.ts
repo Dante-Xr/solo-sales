@@ -16,7 +16,8 @@
 import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { handleApiError, successResponse } from "@/server/contracts/api"
-import { badRequest, notFound } from "@/server/contracts/errors"
+import { badRequest, forbidden, notFound, unauthorized } from "@/server/contracts/errors"
+import { getServerSessionUser } from "@/server/auth/session"
 
 /**
  * 获取评论详情
@@ -71,9 +72,12 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const sessionUser = await getServerSessionUser()
+    if (!sessionUser?.id) {
+      throw unauthorized("请先登录")
+    }
+
     const { id } = await params
-    const body = await request.json()
-    const { rating, title, content, images } = body
 
     const existingReview = await prisma.review.findUnique({
       where: { id },
@@ -82,6 +86,13 @@ export async function PUT(
     if (!existingReview) {
       throw notFound("评论")
     }
+
+    if (existingReview.userId !== sessionUser.id) {
+      throw forbidden("只能修改自己的评论")
+    }
+
+    const body = await request.json()
+    const { rating, title, content, images } = body
 
     const updateData: Record<string, unknown> = {}
     if (rating !== undefined) {
@@ -140,6 +151,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const sessionUser = await getServerSessionUser()
+    if (!sessionUser?.id) {
+      throw unauthorized("请先登录")
+    }
+
     const { id } = await params
 
     const existingReview = await prisma.review.findUnique({
@@ -148,6 +164,10 @@ export async function DELETE(
 
     if (!existingReview) {
       throw notFound("评论")
+    }
+
+    if (existingReview.userId !== sessionUser.id) {
+      throw forbidden("只能删除自己的评论")
     }
 
     await prisma.review.delete({

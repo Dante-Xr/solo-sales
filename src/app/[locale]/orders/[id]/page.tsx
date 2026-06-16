@@ -63,10 +63,18 @@ export default function OrderDetailPage() {
   }
 
   useEffect(() => {
+    if (isPending) return
+
+    if (!_session) {
+      setLoading(false)
+      router.push("/")
+      return
+    }
+
     if (_session) {
       fetchOrder()
     }
-  }, [_session])
+  }, [_session, isPending, router])
 
   const fetchOrder = async () => {
     try {

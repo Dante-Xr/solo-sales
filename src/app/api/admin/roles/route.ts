@@ -12,8 +12,9 @@ import {
   requireAdminPermission,
 } from "@/server/services/admin-service"
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "roles.view")
     const roles = await listRoles()
     return successResponse(roles)
   } catch (error) {

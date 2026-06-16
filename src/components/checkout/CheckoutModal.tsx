@@ -1,19 +1,18 @@
 /**
  * 修改时间：2026-05-02 20:52:58 +08:00
- * 修改内容：兼容 Stripe 与 PayPal Checkout 标准响应 success/data，保留旧响应格式回退。
+ * 修改内容：移除生产不可用支付入口，仅保留 Stripe Checkout。
  * 修改模型：gpt-5.5
  *
  * 2026-03-23: 结账弹窗组件 CheckoutModal
- * 作用：作为前台商品页面的结账入口，收集买家联系信息并提供 Stripe/PayPal 两种支付选项
+ * 作用：作为前台商品页面的结账入口，收集买家联系信息并提供 Stripe 支付选项
  * 逻辑：
  *   1. 接收父组件传入的 isOpen（显示状态）、onClose（关闭回调）、product（商品信息）
  *   2. 提供 Email 和收货地址表单（示意，正式项目需接入真实验收逻辑）
  *   3. 提供 Stripe 信用卡支付按钮，点击后 POST /api/checkout/stripe 并跳转至 Stripe 结账页
- *   4. 提供 PayPal 支付按钮，点击后 POST /api/checkout/paypal，模拟拉起 PayPal 弹窗
  */
 "use client"
 
-// 2026-03-23: 引入 React useState 钩子，用于管理两个支付按钮的加载状态
+// 2026-03-23: 引入 React useState 钩子，用于管理支付按钮的加载状态
 import { useState } from "react"
 import { useCsrfToken } from "@/hooks/useCsrfToken"
 import { Button } from "@/components/ui/button"
@@ -26,7 +25,6 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { toast } from "sonner"
 
 // 2026-03-23: 定义组件 Props 接口，约束传入参数的类型
 interface CheckoutModalProps {
@@ -47,8 +45,6 @@ interface CheckoutModalProps {
  */
 export function CheckoutModal({ isOpen, onClose, product }: CheckoutModalProps) {
   const [loadingStripe, setLoadingStripe] = useState(false)
-  const [loadingPayPal, setLoadingPayPal] = useState(false)
-  const [paypalIsDemo, setPaypalIsDemo] = useState(false)
   const { csrfHeaders } = useCsrfToken()
 
   /**
@@ -84,41 +80,6 @@ export function CheckoutModal({ isOpen, onClose, product }: CheckoutModalProps) 
     }
   }
 
-  /**
-   * 2026-03-23: PayPal 支付处理函数
-   * 逻辑：
-   *   1. 设置加载状态
-   *   2. 发送 POST 请求至 /api/checkout/paypal，获取 PayPal Order ID
-   *   3. 目前为 Mock 模式，仅弹出提示；正式项目需接入 @paypal/checkout-server-sdk 拉起真实弹窗
-   */
-  const handlePayPalCheckout = async () => {
-    setLoadingPayPal(true)
-    try {
-      const res = await fetch("/api/checkout/paypal", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", ...csrfHeaders },
-        body: JSON.stringify({
-          price: product.price,
-          quantity: 1,
-        }),
-      })
-      const data = await res.json()
-      // PayPal route 已切到标准响应；保留旧格式回退，避免演示环境旧缓存或代理响应导致按钮失效。
-      const checkout = data?.success ? data.data : data
-      if (checkout?.orderId) {
-        if (checkout.isDemo) {
-          setPaypalIsDemo(true)
-        }
-        toast.success(`PayPal 订单已生成: ${checkout.orderId}`)
-        onClose()
-      }
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setLoadingPayPal(false)
-    }
-  }
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
@@ -140,22 +101,14 @@ export function CheckoutModal({ isOpen, onClose, product }: CheckoutModalProps) 
             <Input id="address" placeholder="您的详细地址" />
           </div>
 
-          {/* 2026-03-23: 支付方式选择区：Stripe（信用卡）+ PayPal */}
+          {/* 2026-03-23: 支付方式选择区：Stripe（信用卡） */}
           <div className="mt-4 flex flex-col gap-3">
             <Button
               className="w-full bg-brand hover:bg-brand/90 text-brand-foreground"
               onClick={handleStripeCheckout}
-              disabled={loadingStripe || loadingPayPal}
+              disabled={loadingStripe}
             >
               {loadingStripe ? "处理中..." : "使用 Stripe 信用卡支付"}
-            </Button>
-
-            <Button
-              className="w-full bg-[#FFC439] hover:bg-[#eebb33] text-black"
-              onClick={handlePayPalCheckout}
-              disabled={loadingStripe || loadingPayPal}
-            >
-              {loadingPayPal ? "处理中..." : `使用 PayPal 支付${paypalIsDemo ? " (Demo)" : ""}`}
             </Button>
           </div>
         </div>

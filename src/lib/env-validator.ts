@@ -4,7 +4,6 @@
  * 使用场景：
  *   - Redis 配置验证
  *   - Stripe 配置验证
- *   - PayPal 配置验证
  *   - 其他第三方服务配置验证
  */
 
@@ -68,33 +67,9 @@ export function validateStripeConfig() {
 }
 
 /**
- * 2026-03-24: 验证 PayPal 配置
- * 检查 PAYPAL_CLIENT_ID 和 PAYPAL_CLIENT_SECRET 是否存在
- * @returns 经验证的 PayPal 配置对象
- * @throws 如果环境变量缺失，抛出明确错误
- */
-export function validatePayPalConfig() {
-  const clientId = process.env.PAYPAL_CLIENT_ID
-  const clientSecret = process.env.PAYPAL_CLIENT_SECRET
-
-  if (!clientId) {
-    throw new Error("缺少必需的环境变量 PAYPAL_CLIENT_ID，请从 PayPal 开发者控制台获取")
-  }
-
-  if (!clientSecret) {
-    throw new Error("缺少必需的环境变量 PAYPAL_CLIENT_SECRET，请从 PayPal 开发者控制台获取")
-  }
-
-  return {
-    clientId,
-    clientSecret,
-  }
-}
-
-/**
- * 2026-03-24: 验证 NextAuth 配置
- * 检查 NEXTAUTH_SECRET 和 NEXTAUTH_URL 是否存在
- * @returns 经验证的 NextAuth 配置对象
+ * 2026-03-24: 验证 Better Auth 配置
+ * 检查 BETTER_AUTH_SECRET 和 BETTER_AUTH_URL 是否存在
+ * @returns 经验证的 Better Auth 配置对象
  * @throws 如果环境变量缺失，抛出明确错误
  */
 export function validateBetterAuthConfig() {
@@ -103,6 +78,14 @@ export function validateBetterAuthConfig() {
 
   if (!secret) {
     throw new Error("缺少必需的环境变量 BETTER_AUTH_SECRET，请生成一个随机字符串")
+  }
+
+  if (
+    secret.length < 32 ||
+    ["your-secret-key", "change-me", "changeme", "secret"].includes(secret.toLowerCase()) ||
+    /mock|placeholder|example/.test(secret.toLowerCase())
+  ) {
+    throw new Error("BETTER_AUTH_SECRET 不能使用占位或弱密钥，请生成至少 32 位随机字符串")
   }
 
   if (!url) {

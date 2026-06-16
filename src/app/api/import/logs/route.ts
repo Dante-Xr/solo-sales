@@ -5,10 +5,12 @@
  */
 import { NextRequest } from "next/server"
 import { handleApiError, successResponse } from "@/server/contracts/api"
+import { requireAdminPermission } from "@/server/services/admin-service"
 import { listImportLogs, parseImportLogsQuery } from "@/server/services/inventory-service"
 
 export async function GET(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "products.import")
     // 分页参数统一交给 service schema 校验，避免 route 内散落 parseInt 默认值。
     const query = parseImportLogsQuery(request.nextUrl.searchParams)
     const result = await listImportLogs(query)

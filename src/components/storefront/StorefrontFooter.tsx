@@ -35,7 +35,7 @@ const TikTokLogo = ({ className }: { className?: string }) => (
 )
 
 /** 支付方式标签列表 */
-const paymentMethods = ["Visa", "Mastercard", "PayPal"]
+const paymentMethods = ["Visa", "Mastercard", "Stripe"]
 
 export function StorefrontFooter() {
   const t = useTranslations('footer')

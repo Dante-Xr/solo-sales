@@ -8,6 +8,7 @@ import {
   createAdminUserFromInput,
   deleteRoleById,
   listPermissions,
+  requireAdminPermission,
   updateAdminProfile,
 } from "../admin-service"
 
@@ -76,6 +77,11 @@ const { prisma } = jest.requireMock("@/lib/prisma") as {
 
 const { auth } = jest.requireMock("@/lib/auth") as {
   auth: { api: { getSession: jest.Mock } }
+}
+
+const { hasPermission, verifyAdminToken } = jest.requireMock("@/lib/adminAuth") as {
+  hasPermission: jest.Mock
+  verifyAdminToken: jest.Mock
 }
 
 const bcrypt = jest.requireMock("bcryptjs") as {
@@ -185,6 +191,30 @@ describe("admin-service", () => {
       })
     )
     expect(result.pagination.totalPages).toBe(2)
+  })
+
+  it("records a denial audit log when an admin lacks a required permission", async () => {
+    verifyAdminToken.mockResolvedValue({ id: "admin_1", email: "admin@example.com" })
+    hasPermission.mockResolvedValue(false)
+    prisma.permissionLog.create.mockResolvedValue({})
+
+    await expect(requireAdminPermission(mockRequest, "orders.update")).rejects.toMatchObject({
+      message: "没有访问权限",
+      statusCode: 403,
+    })
+
+    expect(prisma.permissionLog.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        operatorId: "admin_1",
+        targetType: "PERMISSION",
+        targetId: "orders.update",
+        afterData: expect.objectContaining({
+          event: "ADMIN_PERMISSION_DENIED",
+          permission: "orders.update",
+          reason: "MISSING_PERMISSION",
+        }),
+      }),
+    })
   })
 
   it("rejects profile password update when old password is wrong", async () => {

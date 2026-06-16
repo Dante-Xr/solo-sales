@@ -13,6 +13,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getAnalyticsService } from "@/lib/analytics/AnalyticsService"
 import { handleApiError, successResponse } from "@/server/contracts/api"
+import { requireAdminPermission } from "@/server/services/admin-service"
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -33,8 +34,9 @@ function withCors<T extends NextResponse>(response: T): T {
 /**
  * GET /api/analytics/inventory - 获取库存报表
  */
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "analytics.view")
     const analytics = getAnalyticsService()
     const inventoryReport = await analytics.getInventoryReport()
 

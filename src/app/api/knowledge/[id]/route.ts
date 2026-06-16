@@ -18,6 +18,7 @@ import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { handleApiError, successResponse } from "@/server/contracts/api"
 import { notFound, validationError } from "@/server/contracts/errors"
+import { requireAdminPermission } from "@/server/services/admin-service"
 
 /**
  * 更新知识条目的请求体验证 Schema
@@ -42,10 +43,11 @@ const ParamsSchema = z.object({
  * GET handler - 获取单条知识详情
  */
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await requireAdminPermission(request, "knowledge.view")
     // 解析路由参数
     const { id } = ParamsSchema.parse(await params)
 
@@ -94,6 +96,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const admin = await requireAdminPermission(request, "knowledge.update")
     // 解析路由参数
     const { id } = ParamsSchema.parse(await params)
 
@@ -136,7 +139,7 @@ export async function PATCH(
           version: newVersion,
           title: validatedData.title ?? currentKnowledge.title,
           content: validatedData.content ?? currentKnowledge.content,
-          changedBy: validatedData.changedBy,
+          changedBy: admin.id,
         },
       })
 
@@ -160,10 +163,11 @@ export async function PATCH(
  * 同时删除关联的历史版本记录
  */
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await requireAdminPermission(request, "knowledge.delete")
     // 解析路由参数
     const { id } = ParamsSchema.parse(await params)
 

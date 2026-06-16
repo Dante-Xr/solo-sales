@@ -27,7 +27,7 @@ SoloSales 是一个基于 Next.js 16 App Router 的全栈独立站电商项目�
 | 后端 | Next.js Route Handlers + `src/server` services/repositories/contracts |
 | 数据库 | PostgreSQL / Neon + Prisma |
 | 缓存 | Upstash Redis |
-| 支付 | Stripe + PayPal |
+| 支付 | Stripe |
 | 后台 | Refine + Tremor + RBAC |
 | 国际化 | `next-intl`，中英文路由 |
 | 验证 | Jest、TypeScript、ESLint、Next build、smoke/synthetic、perf baseline |
@@ -50,7 +50,7 @@ SoloSales 是一个基于 Next.js 16 App Router 的全栈独立站电商项目�
 - Stripe Checkout 使用数据库商品价格创建支付会话。
 - Stripe Webhook 支持签名校验、订单/支付事务写入、重复投递幂等处理。
 - `Payment(provider, transactionId)` 唯一约束用于支付流水去重。
-- PayPal checkout 保留演示/校验路径并统一标准响应。
+- PayPal is disabled for production；保留的 `/api/checkout/paypal` 仅作为禁用兼容端点，生产环境返回 501。
 
 ### 商品、促销与库存
 
@@ -103,7 +103,7 @@ v1.5 不承诺 10 万 QPS 生产容量。该版本的目标是建立高并发前
 | Auth | Better Auth |
 | Database | PostgreSQL / Neon, Prisma 5 |
 | Cache | Upstash Redis |
-| Payments | Stripe, PayPal |
+| Payments | Stripe |
 | Validation | Zod |
 | Monitoring | Sentry |
 | Tests | Jest, Testing Library, Playwright dependency installed |
@@ -192,7 +192,7 @@ solo_sales/
 | 商品 | `/api/products`, `/api/products/[id]`, `/api/products/featured`, `/api/products/batch` |
 | 分类 | `/api/categories` |
 | 订单 | `/api/orders`, `/api/orders/[id]` |
-| 支付 | `/api/checkout/stripe`, `/api/checkout/stripe/webhook`, `/api/checkout/paypal` |
+| 支付 | `/api/checkout/stripe`, `/api/checkout/stripe/webhook` |
 | 优惠券 | `/api/coupons`, `/api/coupons/[id]`, `/api/coupons/validate` |
 | 积分 | `/api/points`, `/api/points/earn`, `/api/points/redeem`, `/api/points/transactions` |
 | 后台 | `/api/admin/*` |
@@ -249,8 +249,6 @@ npm install
 | `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST Token |
 | `STRIPE_SECRET_KEY` | Stripe Secret Key |
 | `STRIPE_WEBHOOK_SECRET` | Stripe Webhook Secret |
-| `PAYPAL_CLIENT_ID` | PayPal Client ID |
-| `PAYPAL_CLIENT_SECRET` | PayPal Client Secret |
 | `WHOLESALER_1866_API_KEY` | 1866 批发商 API Key |
 | `SENTRY_DSN` | Sentry DSN |
 
@@ -279,13 +277,7 @@ npm run dev
 - 前台中文站点：`http://localhost:3000/zh`
 - 后台登录：`http://localhost:3000/zh/admin/login`
 
-默认管理员：
-
-| 邮箱 | 密码 |
-|------|------|
-| `admin@solosales.com` | `Admin@123456` |
-
-生产环境必须修改默认管理员密码。
+初始管理员不再内置默认账号。执行权限种子时通过 `SEED_ADMIN_EMAIL`、`SEED_ADMIN_PASSWORD` 和可选 `SEED_ADMIN_USERNAME` 显式创建，生产环境必须使用独立强密码并在上线前轮换。
 
 ## 脚本命令
 
@@ -346,7 +338,7 @@ $env:BASELINE_BASE_URL="http://127.0.0.1:3000"; npm run perf:baseline
 - Redis 配置可用。
 - Better Auth URL/Secret 与生产域名匹配。
 - Stripe webhook endpoint 与 `STRIPE_WEBHOOK_SECRET` 匹配。
-- 默认管理员密码已修改。
+- 初始管理员凭据已轮换，且未提交到代码仓库。
 
 ## 安全与稳定性
 

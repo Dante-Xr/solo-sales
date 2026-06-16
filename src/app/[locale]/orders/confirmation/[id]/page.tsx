@@ -1,10 +1,12 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { prisma } from "@/lib/prisma"
 import { Button } from "@/components/ui/button"
 import { Link } from "@/i18n/navigation"
 import { CheckCircle, Package, Truck, Calendar } from "lucide-react"
 import { getTranslations } from "next-intl/server"
+import { getServerSessionUser } from "@/server/auth/session"
+import { AppError } from "@/server/contracts/errors"
+import { getOrderByIdForViewer } from "@/server/services/order-service"
 
 interface ConfirmationPageProps {
   params: Promise<{ id: string; locale: string }>
@@ -22,19 +24,16 @@ export default async function OrderConfirmationPage({ params }: ConfirmationPage
   const { id } = await params
   const t = await getTranslations("checkout")
 
-  const order = await prisma.order.findUnique({
-    where: { id },
-    include: {
-      items: {
-        include: {
-          product: true,
-        },
-      },
-    },
-  })
+  let order
+  try {
+    const sessionUser = await getServerSessionUser()
+    order = await getOrderByIdForViewer(id, sessionUser)
+  } catch (error) {
+    if (error instanceof AppError && [401, 403, 404].includes(error.statusCode)) {
+      notFound()
+    }
 
-  if (!order) {
-    notFound()
+    throw error
   }
 
   const estimatedDelivery = new Date(order.createdAt)

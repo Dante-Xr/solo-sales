@@ -88,9 +88,9 @@ describe("load-baseline script", () => {
       }
 
       if (url === "/api/checkout/paypal") {
-        json(response, 400, {
+        json(response, 501, {
           success: false,
-          error: { code: "BAD_REQUEST_VALIDATION", message: "invalid" },
+          error: { code: "PAYPAL_DISABLED", message: "PayPal disabled" },
         })
         return
       }
@@ -124,7 +124,7 @@ describe("load-baseline script", () => {
       }
 
       if (url === "/api/checkout/paypal") {
-        json(response, 400, { success: false })
+        json(response, 501, { success: false, error: { code: "PAYPAL_DISABLED" } })
         return
       }
 

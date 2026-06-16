@@ -9,11 +9,14 @@ import AffiliateService from "@/lib/affiliate/AffiliateService"
 import { safeErrorLog } from "@/lib/safeLog"
 import { handleApiError, successResponse } from "@/server/contracts/api"
 import { badRequest } from "@/server/contracts/errors"
+import { requireAdminPermission } from "@/server/services/admin-service"
 
 const affiliateService = new AffiliateService(prisma)
 
 export async function POST(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "affiliates.update")
+
     const body = await request.json()
     const { code, orderId, userId, orderAmount } = body
 

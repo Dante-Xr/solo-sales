@@ -8,14 +8,16 @@ import { prisma } from "@/lib/prisma"
 import CurrencyService from "@/lib/currency/CurrencyService"
 import { safeErrorLog } from "@/lib/safeLog"
 import { handleApiError, successResponse } from "@/server/contracts/api"
-import { serviceUnavailable, unauthorized } from "@/server/contracts/errors"
+import { serviceUnavailable } from "@/server/contracts/errors"
+import { requireAdminPermission } from "@/server/services/admin-service"
 
 export async function POST(request: NextRequest) {
   try {
-    const apiKey = request.headers.get('x-exchange-api-key')
+    await requireAdminPermission(request, "currency.update")
 
+    const apiKey = process.env.EXCHANGE_RATE_API_KEY
     if (!apiKey) {
-      throw unauthorized("API key required")
+      throw serviceUnavailable("Exchange rate API key is not configured")
     }
 
     const currencyService = new CurrencyService(prisma)

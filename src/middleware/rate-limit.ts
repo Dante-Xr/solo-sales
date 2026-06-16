@@ -34,6 +34,10 @@ export const RATE_LIMIT_CONFIGS = {
     windowMs: 5 * 60 * 1000,
     maxRequests: 3,
   },
+  adminLogin: {
+    windowMs: 5 * 60 * 1000,
+    maxRequests: 5,
+  },
   payment: {
     windowMs: 5 * 60 * 1000,
     maxRequests: 10,
@@ -261,6 +265,11 @@ export function createRateLimiterAsync(apiType: keyof typeof RATE_LIMIT_CONFIGS)
  * 注册 API 限流器
  */
 export const registerRateLimiter = createRateLimiter("register")
+
+/**
+ * 管理员登录限流器
+ */
+export const adminLoginRateLimiter = createRateLimiter("adminLogin")
 
 /**
  * 2026-03-24: 支付 API 限流器

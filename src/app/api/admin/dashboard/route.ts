@@ -8,9 +8,11 @@
  * 服务端并行查询，减少网络请求次数
  */
 
+import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { cacheGet, cacheSet, CACHE_KEYS, CACHE_TTL } from "@/lib/cache"
 import { handleApiError, successResponse } from "@/server/contracts/api"
+import { requireAdminPermission } from "@/server/services/admin-service"
 import { withDependencyGuard } from "@/server/services/dependency-guard"
 
 // 图表数据点类型
@@ -83,8 +85,10 @@ function generateChartData(orders: { createdAt: Date; totalAmount: number }[]): 
   return chartData
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "dashboard.view")
+
     // 尝试从缓存获取
     const cached = await cacheGet<DashboardData>(CACHE_KEYS.ADMIN_DASHBOARD())
     if (cached) {

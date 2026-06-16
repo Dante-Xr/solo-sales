@@ -64,7 +64,6 @@ if (process.env.NODE_ENV !== "production") {
  * - connection_limit=1: Serverless 函数使用单一连接
  * - pool_timeout=10: 连接超时 10 秒
  *
- * 示例：
- * DATABASE_URL="postgresql://user:pass@host/db?pgbouncer=true&connection_limit=1&pool_timeout=10"
+ * 示例：在部署平台 Secret Manager 中设置 DATABASE_URL，并附加 pgbouncer 参数。
  * ============================================
  */

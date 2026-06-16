@@ -5,6 +5,7 @@
  */
 import { NextRequest } from "next/server"
 import { handleApiError, successResponse } from "@/server/contracts/api"
+import { requireAdminPermission } from "@/server/services/admin-service"
 import {
   earnPoints,
   parseEarnPointsInput,
@@ -12,6 +13,8 @@ import {
 
 export async function POST(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "points.update")
+
     const input = parseEarnPointsInput(await request.json())
     const result = await earnPoints(input)
 

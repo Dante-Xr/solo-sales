@@ -15,16 +15,22 @@
 import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { createdResponse, handleApiError, successResponse } from "@/server/contracts/api"
-import { badRequest, notFound } from "@/server/contracts/errors"
+import { badRequest, forbidden, notFound, unauthorized } from "@/server/contracts/errors"
+import { getServerSessionUser } from "@/server/auth/session"
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const sessionUser = await getServerSessionUser()
+    if (!sessionUser?.id) {
+      throw unauthorized("请先登录")
+    }
+
     const { id: reviewId } = await params
     const body = await request.json()
-    const { content, userId, adminId } = body
+    const { content } = body
 
     if (!content) {
       throw badRequest("回复内容不能为空")
@@ -42,9 +48,8 @@ export async function POST(
       data: {
         reviewId,
         content,
-        // 用户回复和管理员回复共用一张表，通过 userId/adminId 区分来源。
-        userId: userId || null,
-        adminId: adminId || null,
+        userId: sessionUser.id,
+        adminId: null,
       },
     })
 
@@ -59,12 +64,29 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const sessionUser = await getServerSessionUser()
+    if (!sessionUser?.id) {
+      throw unauthorized("请先登录")
+    }
+
     const { id: _reviewId } = await params
     const { searchParams } = new URL(request.url)
     const replyId = searchParams.get("replyId")
 
     if (!replyId) {
       throw badRequest("缺少 replyId")
+    }
+
+    const reply = await prisma.reviewReply.findUnique({
+      where: { id: replyId },
+    })
+
+    if (!reply || reply.reviewId !== _reviewId) {
+      throw notFound("回复")
+    }
+
+    if (reply.userId !== sessionUser.id) {
+      throw forbidden("只能删除自己的回复")
     }
 
     await prisma.reviewReply.delete({

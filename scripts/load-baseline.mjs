@@ -28,12 +28,12 @@ const scenarios = [
     path: "/api/products?page=1&pageSize=3",
   },
   {
-    name: "payment-validation-write",
+    name: "paypal-disabled-write",
     kind: "write",
     method: "POST",
     path: "/api/checkout/paypal",
     body: { price: -1, quantity: 0 },
-    expectedStatuses: [400, 429],
+    expectedStatuses: [501, 429],
   },
 ]
 

@@ -5,7 +5,7 @@
  */
 import "server-only"
 
-import { PermissionType, TargetType } from "@prisma/client"
+import { LogAction, PermissionType, TargetType } from "@prisma/client"
 import bcrypt from "bcryptjs"
 import { NextRequest } from "next/server"
 import { z } from "zod"
@@ -126,7 +126,28 @@ export async function requireAdminPermission(
   if (!admin) throw unauthorized("未登录")
 
   const allowed = await hasPermission(admin.id, permission)
-  if (!allowed) throw forbidden("没有访问权限")
+  if (!allowed) {
+    try {
+      await prisma.permissionLog.create({
+        data: {
+          action: LogAction.UPDATE,
+          targetType: TargetType.PERMISSION,
+          targetId: permission,
+          operatorId: admin.id,
+          afterData: {
+            event: "ADMIN_PERMISSION_DENIED",
+            permission,
+            reason: "MISSING_PERMISSION",
+          },
+          ipAddress: request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || null,
+          userAgent: request.headers.get("user-agent") || null,
+        },
+      })
+    } catch (error) {
+      console.error("Failed to log permission denial:", error)
+    }
+    throw forbidden("没有访问权限")
+  }
 
   return admin
 }

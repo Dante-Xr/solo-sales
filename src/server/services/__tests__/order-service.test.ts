@@ -4,7 +4,7 @@
  * 修改模型：gpt-5.5
  */
 import { Prisma } from "@prisma/client"
-import { createOrder, parseCreateOrderInput } from "../order-service"
+import { createOrder, getOrderByIdForViewer, parseCreateOrderInput } from "../order-service"
 
 jest.mock("@/lib/prisma", () => ({
   prisma: {
@@ -45,6 +45,24 @@ describe("order-service", () => {
     })
   })
 
+  it("rejects anonymous order creation before opening a transaction", async () => {
+    await expect(
+      createOrder(
+        {
+          items: [{ productId: "prod_1", quantity: 1 }],
+          shippingAddress: "123 Main St",
+          contactInfo: { email: "buyer@example.com" },
+        },
+        null
+      )
+    ).rejects.toMatchObject({
+      code: "UNAUTHORIZED",
+      statusCode: 401,
+    })
+
+    expect(prisma.$transaction).not.toHaveBeenCalled()
+  })
+
   it("calculates order totals from product prices inside the transaction", async () => {
     const tx = {
       product: {
@@ -74,7 +92,7 @@ describe("order-service", () => {
         shippingAddress: "123 Main St",
         contactInfo: { email: "buyer@example.com" },
       },
-      null
+      { id: "user_1", email: "buyer@example.com" }
     )
 
     expect(tx.order.create).toHaveBeenCalledWith(
@@ -113,7 +131,7 @@ describe("order-service", () => {
         shippingAddress: "123 Main St",
         contactInfo: { email: "buyer@example.com" },
       },
-      null,
+      { id: "user_1", email: "buyer@example.com" },
       { idempotencyKey: "idem_123" }
     )
 
@@ -155,7 +173,7 @@ describe("order-service", () => {
         shippingAddress: "123 Main St",
         contactInfo: { email: "buyer@example.com" },
       },
-      null,
+      { id: "user_1", email: "buyer@example.com" },
       { idempotencyKey: "idem_123" }
     )
 
@@ -166,6 +184,19 @@ describe("order-service", () => {
         }),
       })
     )
+  })
+
+  it("rejects anonymous reads for legacy guest orders", async () => {
+    prisma.order.findUnique.mockResolvedValue({
+      id: "ord_guest",
+      userId: "guest",
+      items: [],
+    })
+
+    await expect(getOrderByIdForViewer("ord_guest", null)).rejects.toMatchObject({
+      code: "UNAUTHORIZED",
+      statusCode: 401,
+    })
   })
 
   it("rejects order creation when requested quantity exceeds stock", async () => {
@@ -198,7 +229,7 @@ describe("order-service", () => {
           shippingAddress: "123 Main St",
           contactInfo: { email: "buyer@example.com" },
         },
-        null
+        { id: "user_1", email: "buyer@example.com" }
       )
     ).rejects.toMatchObject({
       code: "INSUFFICIENT_STOCK",
@@ -239,7 +270,7 @@ describe("order-service", () => {
           shippingAddress: "123 Main St",
           contactInfo: { email: "buyer@example.com" },
         },
-        null
+        { id: "user_1", email: "buyer@example.com" }
       )
     ).rejects.toMatchObject({
       code: "INSUFFICIENT_STOCK",

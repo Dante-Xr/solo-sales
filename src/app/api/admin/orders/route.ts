@@ -3,12 +3,16 @@
  * 修改内容：统一后台订单路由响应与错误处理，清理手写 NextResponse.json 模板。
  * 修改模型：gpt-5.5
  */
+import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { handleApiError, successResponse } from "@/server/contracts/api"
 import { badRequest } from "@/server/contracts/errors"
+import { requireAdminPermission } from "@/server/services/admin-service"
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "orders.view")
+
     const orders = await prisma.order.findMany({
       include: {
         items: {
@@ -32,8 +36,10 @@ export async function GET() {
   }
 }
 
-export async function PATCH(request: Request) {
+export async function PATCH(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "orders.update")
+
     const body = await request.json()
     const { orderId, trackingNumber, status } = body
 

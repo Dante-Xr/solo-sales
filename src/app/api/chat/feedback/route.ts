@@ -12,10 +12,12 @@
  */
 
 import { NextRequest, NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma"
 import { getConversationManager } from "@/lib/rag/ConversationManager"
 import { SatisfactionRating } from "@/lib/rag/types"
 import { handleApiError, successResponse } from "@/server/contracts/api"
-import { badRequest } from "@/server/contracts/errors"
+import { badRequest, forbidden, notFound, unauthorized } from "@/server/contracts/errors"
+import { getServerSessionUser } from "@/server/auth/session"
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -41,6 +43,11 @@ export async function OPTIONS() {
  */
 export async function POST(request: NextRequest) {
   try {
+    const sessionUser = await getServerSessionUser()
+    if (!sessionUser?.id) {
+      throw unauthorized("请先登录")
+    }
+
     const body = await request.json()
     const { sessionId, rating, comment } = body
 
@@ -53,6 +60,8 @@ export async function POST(request: NextRequest) {
     if (!normalizedRating) {
       throw badRequest("无效的评分值")
     }
+
+    await requireOwnedConversation(sessionId, sessionUser.id)
 
     const conversationManager = getConversationManager()
     await conversationManager.submitFeedback(sessionId, normalizedRating, comment)
@@ -71,12 +80,19 @@ export async function POST(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
+    const sessionUser = await getServerSessionUser()
+    if (!sessionUser?.id) {
+      throw unauthorized("请先登录")
+    }
+
     const searchParams = request.nextUrl.searchParams
     const sessionId = searchParams.get("sessionId")
 
     if (!sessionId) {
       throw badRequest("缺少 sessionId 参数")
     }
+
+    await requireOwnedConversation(sessionId, sessionUser.id)
 
     const conversationManager = getConversationManager()
     await conversationManager.clearHistory(sessionId)
@@ -87,5 +103,20 @@ export async function DELETE(request: NextRequest) {
 
   } catch (error) {
     return handleApiError(error, { headers: corsHeaders })
+  }
+}
+
+async function requireOwnedConversation(sessionId: string, userId: string) {
+  const conversation = await prisma.conversation.findUnique({
+    where: { id: sessionId },
+    select: { id: true, userId: true },
+  })
+
+  if (!conversation) {
+    throw notFound("对话")
+  }
+
+  if (conversation.userId !== userId) {
+    throw forbidden("只能操作自己的对话")
   }
 }

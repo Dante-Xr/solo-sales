@@ -15,6 +15,10 @@ jest.mock("next/server", () => ({
 import { Prisma } from "@prisma/client"
 import { GET } from "../route"
 
+jest.mock("@/server/services/admin-service", () => ({
+  requireAdminPermission: jest.fn(),
+}))
+
 jest.mock("@/lib/cache", () => ({
   CACHE_KEYS: {
     ADMIN_DASHBOARD: () => "solo:admin:dashboard",
@@ -45,6 +49,10 @@ const { cacheGet, cacheSet } = jest.requireMock("@/lib/cache") as {
   cacheSet: jest.Mock
 }
 
+const { requireAdminPermission } = jest.requireMock("@/server/services/admin-service") as {
+  requireAdminPermission: jest.Mock
+}
+
 const { prisma } = jest.requireMock("@/lib/prisma") as {
   prisma: {
     order: {
@@ -59,9 +67,16 @@ const { prisma } = jest.requireMock("@/lib/prisma") as {
   }
 }
 
+const { unauthorized } = jest.requireActual("@/server/contracts/errors") as typeof import("@/server/contracts/errors")
+
 describe("/api/admin/dashboard", () => {
+  function request() {
+    return { headers: new Headers() } as never
+  }
+
   beforeEach(() => {
     jest.clearAllMocks()
+    requireAdminPermission.mockResolvedValue({ id: "admin_1" })
     cacheGet.mockResolvedValue(null)
     cacheSet.mockResolvedValue(true)
     prisma.order.findMany
@@ -85,6 +100,18 @@ describe("/api/admin/dashboard", () => {
     prisma.user.count.mockResolvedValue(2)
   })
 
+  it("rejects unauthenticated dashboard access before reading cache or database", async () => {
+    requireAdminPermission.mockRejectedValue(unauthorized("未登录"))
+
+    const response = await GET(request())
+    const body = await response.json()
+
+    expect(response.status).toBe(401)
+    expect(body.success).toBe(false)
+    expect(cacheGet).not.toHaveBeenCalled()
+    expect(prisma.order.findMany).not.toHaveBeenCalled()
+  })
+
   it("returns cached dashboard data without hitting Prisma", async () => {
     cacheGet.mockResolvedValueOnce({
       stats: {
@@ -101,7 +128,7 @@ describe("/api/admin/dashboard", () => {
       chartData: [],
     })
 
-    const response = await GET()
+    const response = await GET(request())
     const body = await response.json()
 
     expect(response.status).toBe(200)
@@ -112,7 +139,7 @@ describe("/api/admin/dashboard", () => {
   })
 
   it("writes dashboard data to cache after database aggregation", async () => {
-    const response = await GET()
+    const response = await GET(request())
     const body = await response.json()
 
     expect(response.status).toBe(200)

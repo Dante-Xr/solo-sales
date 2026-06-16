@@ -4,9 +4,8 @@
  * 修改模型：gpt-5.5
  */
 import { NextRequest } from "next/server"
-import { verifyAdminToken } from "@/lib/adminAuth"
 import { handleApiError, successResponse } from "@/server/contracts/api"
-import { unauthorized } from "@/server/contracts/errors"
+import { requireAdminPermission } from "@/server/services/admin-service"
 import {
   deleteCouponById,
   getCouponDetail,
@@ -19,6 +18,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await requireAdminPermission(_request, "coupons.view")
+
     const { id } = await params
     const coupon = await getCouponDetail(id)
 
@@ -33,8 +34,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const admin = await verifyAdminToken(request)
-    if (!admin) throw unauthorized("请先登录")
+    await requireAdminPermission(request, "coupons.update")
 
     const { id } = await params
     const input = parseUpdateCouponInput(await request.json())
@@ -51,8 +51,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const admin = await verifyAdminToken(request)
-    if (!admin) throw unauthorized("请先登录")
+    await requireAdminPermission(request, "coupons.update")
 
     const { id } = await params
     const result = await deleteCouponById(id)

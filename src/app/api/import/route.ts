@@ -5,6 +5,7 @@
  */
 import { NextRequest } from "next/server"
 import { handleApiError, successResponse } from "@/server/contracts/api"
+import { requireAdminPermission } from "@/server/services/admin-service"
 import {
   enqueueWholesalerImport,
   parseImportRequest,
@@ -13,6 +14,7 @@ import {
 
 export async function POST(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "products.import")
     // route 只解析请求体，批发商连接、商品映射、去重和入库统一由 service 控制。
     const input = parseImportRequest(await request.json())
     if (input.execution === "async") {

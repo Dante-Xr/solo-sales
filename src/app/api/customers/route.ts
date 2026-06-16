@@ -12,12 +12,14 @@ import { NextRequest } from "next/server"
 import { Prisma } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { handleApiError, successResponse } from "@/server/contracts/api"
+import { requireAdminPermission } from "@/server/services/admin-service"
 
 /**
  * GET handler - 获取客户列表
  */
 export async function GET(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "customers.view")
     const { searchParams } = new URL(request.url)
     const keyword = searchParams.get("keyword")
     const page = parseInt(searchParams.get("page") || "1")

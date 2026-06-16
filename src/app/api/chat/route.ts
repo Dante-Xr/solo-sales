@@ -8,12 +8,14 @@
  * 3. Python ???????? fallback??? { success, data } ?????
  */
 import { NextRequest, NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma"
 import { getAiCustomerConfig } from "@/server/config/ai-customer"
+import { getConversationManager } from "@/lib/rag/ConversationManager"
 import { getServerSessionUser } from "@/server/auth/session"
 import { callAiCustomerService } from "@/server/services/ai-customer-client"
 import { buildSafeChatContext } from "@/server/services/chat-context-service"
 import { handleApiError, successResponse } from "@/server/contracts/api"
-import { badRequest } from "@/server/contracts/errors"
+import { badRequest, forbidden } from "@/server/contracts/errors"
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -35,6 +37,13 @@ export async function POST(request: NextRequest) {
     }
 
     const sessionUser = await getServerSessionUser()
+    if (sessionUser?.id) {
+      await ensureChatSessionOwner(sessionId, sessionUser.id)
+
+      const conversationManager = getConversationManager()
+      await conversationManager.getOrCreateContext(sessionId, sessionUser.id)
+    }
+
     const config = getAiCustomerConfig()
     const context = await buildSafeChatContext({ sessionUser, clientBody: body })
     const result = await callAiCustomerService({
@@ -73,6 +82,26 @@ export async function POST(request: NextRequest) {
     )
   } catch (error) {
     return handleApiError(error, { headers: corsHeaders })
+  }
+}
+
+async function ensureChatSessionOwner(sessionId: string, userId: string) {
+  const conversation = await prisma.conversation.findUnique({
+    where: { id: sessionId },
+    select: { id: true, userId: true },
+  })
+
+  if (!conversation) return
+
+  if (conversation.userId && conversation.userId !== userId) {
+    throw forbidden("只能使用自己的客服会话")
+  }
+
+  if (!conversation.userId) {
+    await prisma.conversation.update({
+      where: { id: sessionId },
+      data: { userId },
+    })
   }
 }
 

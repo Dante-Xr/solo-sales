@@ -109,12 +109,13 @@ export function ReviewManagement({ isZh = false }: ReviewManagementProps) {
     if (!replyContent.trim()) return
     setActionLoading(true)
     try {
-      const response = await fetch(`/api/reviews/${reviewId}/replies`, {
+      const response = await fetch("/api/admin/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          action: "reply",
+          reviewId,
           content: replyContent,
-          adminId: "admin",
         }),
       })
       const result = await response.json()

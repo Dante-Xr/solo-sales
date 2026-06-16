@@ -19,6 +19,7 @@
  */
 
 import { NextRequest } from "next/server"
+import { LogAction, TargetType } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { auth } from "@/lib/auth"
@@ -26,11 +27,50 @@ import { headers } from "next/headers"
 import { randomUUID } from "crypto"
 import { handleApiError, successResponse } from "@/server/contracts/api"
 import { badRequest, internalError, unauthorized } from "@/server/contracts/errors"
+import { adminLoginRateLimiter } from "@/middleware/rate-limit"
 
 /** Better Auth Session Cookie 名称 */
 const SESSION_COOKIE_NAME = "better-auth.session_token"
 /** Session 有效期：7 天 */
 const SESSION_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000
+
+function isProductionRuntime() {
+  return process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production" || process.env.NETLIFY === "true"
+}
+
+function requestAuditMeta(request: NextRequest) {
+  return {
+    ipAddress: request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? request.headers.get("x-real-ip") ?? null,
+    userAgent: request.headers.get("user-agent"),
+  }
+}
+
+async function auditAdminLogin(
+  request: NextRequest,
+  adminId: string,
+  event: "ADMIN_LOGIN_SUCCESS" | "ADMIN_LOGIN_FAILED",
+  reason?: string
+) {
+  try {
+    const { ipAddress, userAgent } = requestAuditMeta(request)
+    await prisma.permissionLog.create({
+      data: {
+        action: LogAction.UPDATE,
+        targetType: TargetType.ADMIN_USER,
+        targetId: adminId,
+        operatorId: adminId,
+        afterData: {
+          event,
+          reason,
+        },
+        ipAddress,
+        userAgent,
+      },
+    })
+  } catch {
+    // 登录审计失败不能改变认证响应，但生产告警应通过日志采集发现。
+  }
+}
 
 function adminSessionPayload(admin: {
   id: string
@@ -62,6 +102,11 @@ function adminSessionPayload(admin: {
  */
 export async function POST(request: NextRequest) {
   try {
+    const rateLimitResult = adminLoginRateLimiter(request)
+    if (!rateLimitResult.allowed && rateLimitResult.errorResponse) {
+      return rateLimitResult.errorResponse
+    }
+
     const body = await request.json()
     const { email, password } = body
 
@@ -95,6 +140,7 @@ export async function POST(request: NextRequest) {
     // 使用 bcrypt 验证密码
     const isPasswordValid = await bcrypt.compare(password, admin.password)
     if (!isPasswordValid) {
+      await auditAdminLogin(request, admin.id, "ADMIN_LOGIN_FAILED", "INVALID_PASSWORD")
       throw unauthorized("邮箱或密码错误")
     }
 
@@ -146,6 +192,10 @@ export async function POST(request: NextRequest) {
           headers: request.headers,
         })
       } catch {
+        if (isProductionRuntime()) {
+          throw internalError("登录失败，请稍后重试", "Better Auth sign-up failed")
+        }
+
         // Better Auth 注册失败，手动创建 Session
         const token = randomUUID()
         const expiresAt = new Date(Date.now() + SESSION_EXPIRY_MS)
@@ -163,12 +213,13 @@ export async function POST(request: NextRequest) {
         // 设置 HTTP-Only Cookie（防 XSS）
         response.cookies.set(SESSION_COOKIE_NAME, token, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
+          secure: isProductionRuntime(),
           sameSite: "lax",
           path: "/",
           maxAge: 7 * 24 * 60 * 60,
         })
 
+        await auditAdminLogin(request, admin.id, "ADMIN_LOGIN_SUCCESS")
         return response
       }
     }
@@ -183,6 +234,10 @@ export async function POST(request: NextRequest) {
         headers: request.headers,
       })
     } catch {
+      if (isProductionRuntime()) {
+        throw internalError("登录失败，请稍后重试", "Better Auth sign-in failed")
+      }
+
       // Better Auth 登录失败，手动创建 Session
       const token = randomUUID()
       const expiresAt = new Date(Date.now() + SESSION_EXPIRY_MS)
@@ -206,16 +261,18 @@ export async function POST(request: NextRequest) {
 
       response.cookies.set(SESSION_COOKIE_NAME, token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: isProductionRuntime(),
         sameSite: "lax",
         path: "/",
         maxAge: 7 * 24 * 60 * 60,
       })
 
+      await auditAdminLogin(request, admin.id, "ADMIN_LOGIN_SUCCESS")
       return response
     }
 
     // Better Auth 登录成功
+    await auditAdminLogin(request, admin.id, "ADMIN_LOGIN_SUCCESS")
     return successResponse(adminSessionPayload(admin))
   } catch (error) {
     return handleApiError(
@@ -244,7 +301,7 @@ export async function PUT(_request: NextRequest) {
   const response = successResponse({ loggedOut: true }, { meta: { message: "登出成功" } })
   response.cookies.set(SESSION_COOKIE_NAME, "", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: isProductionRuntime(),
     sameSite: "lax",
     path: "/",
     maxAge: 0,

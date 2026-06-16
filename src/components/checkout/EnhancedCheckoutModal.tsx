@@ -30,7 +30,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2 } from "lucide-react"
 import { AuthModal } from "@/components/auth/AuthModal"
-import { GuestCheckoutData } from "@/components/auth/GuestCheckoutForm"
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 import { useRouter } from "@/i18n/navigation"
@@ -64,7 +63,7 @@ interface ShippingInfo {
 }
 
 // 增强版结账弹窗组件
-// 功能：双重结账路径（登录用户/访客）、收货信息填写、订单创建
+// 功能：登录用户结账、收货信息填写、订单创建
 // 移动端使用 Sheet（底部弹出），PC 端使用 Dialog（居中弹窗）
 export function EnhancedCheckoutModal({
   isOpen,
@@ -81,7 +80,7 @@ export function EnhancedCheckoutModal({
   const isMobile = useIsMobile()  // 检测是否为移动端
 
   const [showAuthModal, setShowAuthModal] = useState(false)  // 是否显示认证弹窗
-  const [authMode, setAuthMode] = useState<"login" | "register" | "guest">('login')  // 认证弹窗模式
+  const [authMode, setAuthMode] = useState<"login" | "register">('login')  // 认证弹窗模式
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({  // 收货信息
     name: "",
     phone: "",
@@ -100,49 +99,6 @@ export function EnhancedCheckoutModal({
     if (!session) {
       setShowAuthModal(true)
       return
-    }
-  }
-
-  // 访客结账提交
-  const handleGuestCheckout = async (data: GuestCheckoutData) => {
-    setLoading(true)
-    setError("")
-    try {
-      // 调用订单 API 创建订单
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", ...csrfHeaders },
-        body: JSON.stringify({
-          // 根据是购物车还是单品决定商品项
-          items: isCart
-            ? cartItems.map((item) => ({
-                productId: item.id,
-                quantity: item.quantity,
-              }))
-            : [{ productId: product.id, quantity: 1 }],
-          shippingAddress: data.address,
-          contactInfo: {
-            name: data.name,
-            phone: data.phone,
-            email: data.email,
-          },
-          isGuest: true,  // 标记为访客订单
-        }),
-      })
-
-      if (!res.ok) {
-        throw new Error(t('checkout.createOrderFailed'))
-      }
-
-      const responseData = await res.json()
-      const order = responseData?.success ? responseData.data : responseData
-      toast.success(t('checkout.orderCreated', { id: order.id }))
-      onClose()
-      router.push(`/orders/confirmation/${order.id}`)
-    } catch {
-      setError(t('checkout.orderCreationFailed'))
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -312,28 +268,6 @@ export function EnhancedCheckoutModal({
         {t('auth.login')}
       </Button>
 
-      {/* 分隔线 */}
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">{t('common.or')}</span>
-        </div>
-      </div>
-
-      {/* 访客结账按钮 */}
-      <Button
-        variant="outline"
-        className="w-full"
-        onClick={() => {
-          setAuthMode('guest')
-          setShowAuthModal(true)
-        }}
-      >
-        {t('checkout.guestCheckout')}
-      </Button>
-
       {/* 注册链接 */}
       <Button
         variant="ghost"
@@ -355,7 +289,7 @@ export function EnhancedCheckoutModal({
   const modalTitle = t('checkout.confirmOrder')
   const modalDescription = session
     ? t('checkout.fillShippingInfo')
-    : t('checkout.loginOrGuest')
+    : t('checkout.loginRegister')
 
   return (
     <>
@@ -390,7 +324,6 @@ export function EnhancedCheckoutModal({
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
         mode={authMode}
-        onGuestCheckout={handleGuestCheckout}
       />
     </>
   )

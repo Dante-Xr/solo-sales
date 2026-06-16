@@ -9,6 +9,7 @@ import BundleService from "@/lib/bundle/BundleService"
 import { safeErrorLog } from "@/lib/safeLog"
 import { handleApiError, successResponse } from "@/server/contracts/api"
 import { notFound } from "@/server/contracts/errors"
+import { requireAdminPermission } from "@/server/services/admin-service"
 
 const bundleService = new BundleService(prisma)
 
@@ -36,6 +37,8 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await requireAdminPermission(request, "bundles.update")
+
     const { id } = await params
     const body = await request.json()
 
@@ -53,6 +56,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await requireAdminPermission(request, "bundles.update")
+
     const { id } = await params
     await bundleService.deleteBundle(id)
 

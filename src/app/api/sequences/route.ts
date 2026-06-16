@@ -10,11 +10,14 @@ import { safeErrorLog } from "@/lib/safeLog"
 import { TriggerType, SequenceStatus } from "@prisma/client"
 import { createdResponse, handleApiError, successResponse } from "@/server/contracts/api"
 import { badRequest } from "@/server/contracts/errors"
+import { requireAdminPermission } from "@/server/services/admin-service"
 
 const engine = new EmailSequenceEngine(prisma)
 
 export async function GET(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "sequences.view")
+
     const searchParams = request.nextUrl.searchParams
     const trigger = searchParams.get('trigger') as TriggerType | null
     const status = searchParams.get('status') as SequenceStatus | null
@@ -33,6 +36,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "sequences.update")
+
     const body = await request.json()
 
     const { name, description, trigger, steps } = body

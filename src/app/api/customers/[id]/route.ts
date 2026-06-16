@@ -7,12 +7,14 @@ import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { handleApiError, successResponse } from "@/server/contracts/api"
 import { notFound } from "@/server/contracts/errors"
+import { requireAdminPermission } from "@/server/services/admin-service"
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await requireAdminPermission(request, "customers.view")
     const { id } = await params
 
     const customer = await prisma.user.findUnique({

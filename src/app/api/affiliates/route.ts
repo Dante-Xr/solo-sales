@@ -10,11 +10,14 @@ import { AffiliateStatus } from "@prisma/client"
 import { safeErrorLog } from "@/lib/safeLog"
 import { createdResponse, handleApiError, successResponse } from "@/server/contracts/api"
 import { badRequest, notFound } from "@/server/contracts/errors"
+import { requireAdminPermission } from "@/server/services/admin-service"
 
 const affiliateService = new AffiliateService(prisma)
 
 export async function GET(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "affiliates.view")
+
     const searchParams = request.nextUrl.searchParams
     const status = searchParams.get('status') as AffiliateStatus | null
     const userId = searchParams.get('userId')
@@ -40,6 +43,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "affiliates.update")
+
     const body = await request.json()
     const { userId, commissionRate, payoutMethod, payoutInfo } = body
 

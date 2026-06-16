@@ -19,7 +19,7 @@ This document describes how to deploy SoloSales independent website to the inter
 1. 登录 Neon，创建新项目 / Log in to Neon, create a new project
 2. 等待数据库创建完成（约2分钟）/ Wait for database creation (~2 minutes)
 3. 在 Dashboard > Connection Details 中获取 `DATABASE_URL`
-4. 格式 / Format: `postgresql://user:password@host/db?sslmode=require`
+4. 格式 / Format: use the connection string copied from Neon; do not commit the value.
 
 #### 3. 配置环境变量 / Configure Environment Variables
 
@@ -29,12 +29,12 @@ Add the following environment variables in Netlify project settings:
 | 变量名 / Variable | 说明 / Description | 示例值 / Example |
 |-------------------|---------------------|------------------|
 | `DATABASE_URL` | Neon PostgreSQL 连接字符串 / Neon PostgreSQL connection string | `postgresql://...` |
-| `NEXTAUTH_URL` | 生产环境 URL / Production environment URL | `https://your-site.netlify.app` |
-| `NEXTAUTH_SECRET` | JWT 加密密钥 / JWT encryption key | `openssl rand -base64 32` |
-| `STRIPE_PUBLIC_KEY` | Stripe 公钥（可选）/ Stripe public key (optional) | `pk_test_xxx` |
-| `STRIPE_SECRET_KEY` | Stripe 私钥（可选）/ Stripe secret key (optional) | `sk_test_xxx` |
-| `PAYPAL_CLIENT_ID` | PayPal 客户端 ID（可选）/ PayPal client ID (optional) | `xxx` |
-| `PAYPAL_CLIENT_SECRET` | PayPal 客户端密钥（可选）/ PayPal client secret (optional) | `xxx` |
+| `BETTER_AUTH_URL` | 生产环境 URL / Production environment URL | `https://your-site.netlify.app` |
+| `BETTER_AUTH_SECRET` | Better Auth 加密密钥 / Better Auth encryption secret | `openssl rand -base64 32` |
+| `UPSTASH_REDIS_REST_URL` | Upstash Redis REST URL / Upstash Redis REST URL | `https://...upstash.io` |
+| `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST Token / Upstash Redis REST Token | `<set-in-deployment-secret-manager>` |
+| `STRIPE_SECRET_KEY` | Stripe 私钥 / Stripe secret key | `sk_live_...` |
+| `STRIPE_WEBHOOK_SECRET` | Stripe Webhook 签名密钥 / Stripe webhook signing secret | `whsec_...` |
 
 #### 4. 部署到 Netlify / Deploy to Netlify
 
@@ -76,28 +76,28 @@ Or manually execute migration SQL in Neon SQL Editor.
 
 ```env
 # 数据库连接 / Database connection
-DATABASE_URL="postgresql://user:password@host:5432/db?sslmode=require"
+DATABASE_URL="<set-in-deployment-secret-manager>"
 
-# NextAuth 配置 / NextAuth Configuration
-NEXTAUTH_URL="https://your-domain.netlify.app"
-NEXTAUTH_SECRET="your-secret-key"
+# Better Auth 配置 / Better Auth configuration
+BETTER_AUTH_URL="https://your-domain.netlify.app"
+BETTER_AUTH_SECRET="<generated-random-secret>"
+
+# Redis 限速和后台能力 / Redis for rate limiting and background capabilities
+UPSTASH_REDIS_REST_URL="<set-in-deployment-secret-manager>"
+UPSTASH_REDIS_REST_TOKEN="<set-in-deployment-secret-manager>"
 ```
 
-### 可选配置（支付功能）/ Optional Configuration (Payment Features)
+### 支付配置 / Payment Configuration
 
 ```env
 # Stripe
-STRIPE_PUBLIC_KEY="pk_test_xxx"
-STRIPE_SECRET_KEY="sk_test_xxx"
-
-# PayPal
-PAYPAL_CLIENT_ID="xxx"
-PAYPAL_CLIENT_SECRET="xxx"
+STRIPE_SECRET_KEY="sk_live_..."
+STRIPE_WEBHOOK_SECRET="whsec_..."
 ```
 
 ---
 
-## 生成 NEXTAUTH_SECRET / Generate NEXTAUTH_SECRET
+## 生成 BETTER_AUTH_SECRET / Generate BETTER_AUTH_SECRET
 
 在终端中运行 / Run in terminal:
 
@@ -138,7 +138,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 A: 检查 `DATABASE_URL` 是否正确，确保包含 `?sslmode=require` / Check if `DATABASE_URL` is correct and includes `?sslmode=require`
 
-### Q: NEXTAUTH_URL 应该填什么？/ What should I fill in for NEXTAUTH_URL?
+### Q: BETTER_AUTH_URL 应该填什么？/ What should I fill in for BETTER_AUTH_URL?
 
 A: 填入 Netlify 分配给你的域名，例如 / Fill in the domain assigned by Netlify, e.g., `https://solo-sales-xxx.netlify.app`
 
@@ -156,12 +156,12 @@ A: 在 Netlify Domain Settings 中添加自定义域名，并配置 DNS 记录 /
 
 - **框架 / Framework**: Next.js 16 with Turbopack
 - **数据库 / Database**: PostgreSQL + Prisma 5
-- **认证 / Authentication**: NextAuth.js v4
+- **认证 / Authentication**: Better Auth
 - **管理后台 / Admin Panel**: Refine Framework
 - **数据可视化 / Data Visualization**: Tremor Charts
 - **国际化 / Internationalization**: next-intl
 - **状态管理 / State Management**: Zustand
 - **数据获取 / Data Fetching**: TanStack Query
 - **样式 / Styling**: Tailwind CSS + shadcn/ui
-- **支付 / Payments**: Stripe + PayPal
+- **支付 / Payments**: Stripe
 - **主题 / Theme**: next-themes (深色/浅色模式 / Dark/Light mode)

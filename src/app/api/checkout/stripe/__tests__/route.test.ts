@@ -1,34 +1,68 @@
-/**
- * Stripe 支付路由 - 单元测试
- * 测试 isStripeTestMode 函数的环境变量判断逻辑
- */
+import { POST } from "../route"
 
-describe("Stripe 支付路由 - isStripeTestMode", () => {
-  const originalEnv = process.env
+jest.mock("next/server", () => ({
+  NextResponse: {
+    json: (body: unknown, init?: ResponseInit) => ({
+      status: init?.status ?? 200,
+      headers: { set: jest.fn() },
+      json: async () => body,
+    }),
+  },
+}))
 
+jest.mock("@/middleware/csrf-guard", () => ({
+  csrfGuard: jest.fn(),
+}))
+
+jest.mock("@/middleware/rate-limit", () => ({
+  paymentRateLimiter: jest.fn(),
+}))
+
+jest.mock("@/server/auth/session", () => ({
+  getServerSessionUser: jest.fn(),
+}))
+
+jest.mock("@/server/services/payment-service", () => ({
+  createStripeCheckoutSession: jest.fn(),
+}))
+
+jest.mock("@/server/payments/stripe", () => ({
+  isStripeTestMode: jest.fn(() => true),
+}))
+
+const { csrfGuard } = jest.requireMock("@/middleware/csrf-guard") as {
+  csrfGuard: jest.Mock
+}
+const { paymentRateLimiter } = jest.requireMock("@/middleware/rate-limit") as {
+  paymentRateLimiter: jest.Mock
+}
+const { getServerSessionUser } = jest.requireMock("@/server/auth/session") as {
+  getServerSessionUser: jest.Mock
+}
+const { createStripeCheckoutSession } = jest.requireMock("@/server/services/payment-service") as {
+  createStripeCheckoutSession: jest.Mock
+}
+
+describe("/api/checkout/stripe route", () => {
   beforeEach(() => {
-    process.env = { ...originalEnv }
+    jest.resetAllMocks()
+    csrfGuard.mockResolvedValue(null)
+    paymentRateLimiter.mockReturnValue({ allowed: true })
   })
 
-  afterEach(() => {
-    process.env = originalEnv
-  })
+  it("rejects anonymous checkout before parsing the body or creating a Stripe session", async () => {
+    getServerSessionUser.mockResolvedValue(null)
+    const request = {
+      headers: new Headers(),
+      json: jest.fn(async () => ({ productId: "prod_1", quantity: 1 })),
+    }
 
-  it("sk_test_ 前缀应该返回 true", () => {
-    process.env.STRIPE_SECRET_KEY = "sk_test_1234567890"
-    const key = process.env.STRIPE_SECRET_KEY || ""
-    expect(key.startsWith("sk_test_")).toBe(true)
-  })
+    const response = await POST(request as never)
+    const body = await response.json()
 
-  it("sk_live_ 前缀应该返回 false", () => {
-    process.env.STRIPE_SECRET_KEY = "sk_live_1234567890"
-    const key = process.env.STRIPE_SECRET_KEY || ""
-    expect(key.startsWith("sk_test_")).toBe(false)
-  })
-
-  it("空 key 应该返回 false", () => {
-    delete process.env.STRIPE_SECRET_KEY
-    const key = process.env.STRIPE_SECRET_KEY || ""
-    expect(key.startsWith("sk_test_")).toBe(false)
+    expect(response.status).toBe(401)
+    expect(body.success).toBe(false)
+    expect(request.json).not.toHaveBeenCalled()
+    expect(createStripeCheckoutSession).not.toHaveBeenCalled()
   })
 })

@@ -9,6 +9,7 @@ import EmailSequenceEngine from "@/lib/marketing/EmailSequenceEngine"
 import { safeErrorLog } from "@/lib/safeLog"
 import { createdResponse, handleApiError, successResponse } from "@/server/contracts/api"
 import { badRequest } from "@/server/contracts/errors"
+import { requireAdminPermission } from "@/server/services/admin-service"
 
 const engine = new EmailSequenceEngine(prisma)
 
@@ -17,6 +18,8 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await requireAdminPermission(request, "sequences.update")
+
     const { id } = await params
     const body = await request.json()
     const { userId, triggerData } = body
@@ -43,6 +46,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await requireAdminPermission(request, "sequences.update")
+
     const { id } = await params
     const searchParams = request.nextUrl.searchParams
     const userId = searchParams.get('userId')
@@ -65,6 +70,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await requireAdminPermission(request, "sequences.update")
+
     const { id } = await params
     const body = await request.json()
     const { userId, action } = body

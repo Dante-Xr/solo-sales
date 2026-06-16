@@ -141,10 +141,10 @@ function stripeNegativeCheck() {
 
 function paypalNegativeCheck() {
   return {
-    name: "PayPal 支付负向校验",
+    name: "PayPal 支付禁用校验",
     method: "POST",
     path: "/api/checkout/paypal",
-    expected: "HTTP 400 标准校验错误",
+    expected: "HTTP 501 PAYPAL_DISABLED",
     classification: "negative-validation",
     validate: async () => {
       const response = await requestJson("/api/checkout/paypal", {
@@ -153,11 +153,11 @@ function paypalNegativeCheck() {
         body: JSON.stringify({ price: -1, quantity: 0 }),
       })
 
-      if (response.status === 400 && isErrorEnvelope(response.body)) {
-        return pass(response, "非法 PayPal 参数返回标准错误响应", "negative-validation")
+      if (response.status === 501 && isErrorEnvelope(response.body) && response.body?.error?.code === "PAYPAL_DISABLED") {
+        return pass(response, "PayPal 支付入口返回禁用响应", "negative-validation")
       }
 
-      return fail(response, `PayPal 负向校验期望 400 标准错误，实际 ${response.status}`)
+      return fail(response, `PayPal 禁用校验期望 501 PAYPAL_DISABLED，实际 ${response.status}`)
     },
   }
 }

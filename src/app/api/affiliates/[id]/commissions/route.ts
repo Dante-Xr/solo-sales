@@ -9,6 +9,7 @@ import AffiliateService from "@/lib/affiliate/AffiliateService"
 import { CommissionStatus } from "@prisma/client"
 import { safeErrorLog } from "@/lib/safeLog"
 import { handleApiError, successResponse } from "@/server/contracts/api"
+import { requireAdminPermission } from "@/server/services/admin-service"
 
 const affiliateService = new AffiliateService(prisma)
 
@@ -17,6 +18,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await requireAdminPermission(request, "affiliates.view")
+
     const { id } = await params
     const searchParams = request.nextUrl.searchParams
     const status = searchParams.get('status') as CommissionStatus | null

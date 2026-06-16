@@ -5,6 +5,8 @@
  */
 import { NextRequest } from "next/server"
 import { handleApiError, successResponse } from "@/server/contracts/api"
+import { getServerSessionUser } from "@/server/auth/session"
+import { forbidden, unauthorized } from "@/server/contracts/errors"
 import {
   listPointTransactions,
   parsePointTransactionsQuery,
@@ -12,7 +14,12 @@ import {
 
 export async function GET(request: NextRequest) {
   try {
+    const sessionUser = await getServerSessionUser()
+    if (!sessionUser?.id) throw unauthorized("未登录")
+
     const query = parsePointTransactionsQuery(request.nextUrl.searchParams)
+    if (query.userId !== sessionUser.id) throw forbidden("不能访问其他用户的积分流水")
+
     const result = await listPointTransactions(query)
 
     return successResponse(result)

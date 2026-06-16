@@ -114,7 +114,7 @@ export default function AdminLoginPage() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="admin@solosales.com"
+                    placeholder="admin@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10"
@@ -168,10 +168,6 @@ export default function AdminLoginPage() {
             </form>
           </CardContent>
         </Card>
-
-        <p className="text-center text-sm text-muted-foreground mt-6">
-          {t('defaultAccount')}
-        </p>
       </div>
     </div>
   )

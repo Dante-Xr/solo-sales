@@ -33,6 +33,14 @@ jest.mock("next-intl/server", () => ({
   ),
 }))
 
+jest.mock("@/server/auth/session", () => ({
+  getServerSessionUser: jest.fn(),
+}))
+
+jest.mock("@/server/services/order-service", () => ({
+  getOrderByIdForViewer: jest.fn(),
+}))
+
 jest.mock("next/navigation", () => ({
   notFound: jest.fn(() => {
     throw new Error("NOT_FOUND")
@@ -47,6 +55,9 @@ jest.mock("@/i18n/navigation", () => ({
 
 import { prisma } from "@/lib/prisma"
 import { notFound } from "next/navigation"
+import { getServerSessionUser } from "@/server/auth/session"
+import { getOrderByIdForViewer } from "@/server/services/order-service"
+import { notFound as orderNotFound } from "@/server/contracts/errors"
 
 describe("OrderConfirmationPage", () => {
   const mockOrder = {
@@ -67,6 +78,19 @@ describe("OrderConfirmationPage", () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    ;(getServerSessionUser as jest.Mock).mockResolvedValue({ id: "user-1", role: "user" })
+    ;(getOrderByIdForViewer as jest.Mock).mockResolvedValue(mockOrder)
+  })
+
+  it("应该通过带 viewer 权限校验的订单服务读取订单", async () => {
+    ;(prisma.order.findUnique as jest.Mock).mockResolvedValue(mockOrder)
+
+    const params = Promise.resolve({ id: "order-123", locale: "zh" })
+    const Page = await OrderConfirmationPage({ params })
+    render(Page)
+
+    expect(getServerSessionUser).toHaveBeenCalled()
+    expect(getOrderByIdForViewer).toHaveBeenCalledWith("order-123", { id: "user-1", role: "user" })
   })
 
   it("应该渲染订单确认信息", async () => {
@@ -112,7 +136,7 @@ describe("OrderConfirmationPage", () => {
   })
 
   it("订单不存在时应该调用 notFound", async () => {
-    ;(prisma.order.findUnique as jest.Mock).mockResolvedValue(null)
+    ;(getOrderByIdForViewer as jest.Mock).mockRejectedValue(orderNotFound("订单"))
 
     const params = Promise.resolve({ id: "invalid-id", locale: "zh" })
     await expect(OrderConfirmationPage({ params })).rejects.toThrow("NOT_FOUND")

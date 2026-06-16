@@ -65,7 +65,7 @@ export async function getOrderByIdForViewer(
   }
 
   const isAdmin = sessionUser?.role === "admin"
-  if (order.userId !== "guest" && order.userId !== sessionUser?.id && !isAdmin) {
+  if (order.userId !== sessionUser?.id && !isAdmin) {
     throw sessionUser ? forbidden("无权查看此订单") : unauthorized("请先登录")
   }
 
@@ -74,44 +74,14 @@ export async function getOrderByIdForViewer(
 
 async function resolveOrderUserId(
   tx: Prisma.TransactionClient,
-  sessionUser: ServerSessionUser | null,
-  contactInfo: CreateOrderInput["contactInfo"]
+  sessionUser: ServerSessionUser
 ) {
-  // 登录用户直接绑定会话；访客用邮箱落库，避免 Order.user 外键指向不存在的 "guest"。
+  // v1.6 起下单必须登录，订单用户身份只来自服务端会话。
   if (sessionUser?.id) {
     return sessionUser.id
   }
 
-  if (contactInfo?.email) {
-    const user = await tx.user.upsert({
-      where: { email: contactInfo.email },
-      update: {
-        name: contactInfo.name,
-      },
-      create: {
-        email: contactInfo.email,
-        name: contactInfo.name,
-        emailVerified: false,
-      },
-      select: { id: true },
-    })
-
-    return user.id
-  }
-
-  const guest = await tx.user.upsert({
-    where: { email: "guest@solo-sales.local" },
-    update: {},
-    create: {
-      id: "guest",
-      email: "guest@solo-sales.local",
-      name: "Guest",
-      emailVerified: false,
-    },
-    select: { id: true },
-  })
-
-  return guest.id
+  throw unauthorized("请先登录")
 }
 
 export async function createOrder(
@@ -119,6 +89,10 @@ export async function createOrder(
   sessionUser: ServerSessionUser | null,
   options: CreateOrderOptions = {}
 ) {
+  if (!sessionUser?.id) {
+    throw unauthorized("请先登录")
+  }
+
   const idempotentOrderId = buildIdempotentOrderId(input, sessionUser, options.idempotencyKey)
   if (idempotentOrderId) {
     const existingOrder = await findOrderById(prisma, idempotentOrderId)
@@ -179,7 +153,7 @@ export async function createOrder(
         (sum, item) => sum.add(item.lineTotal),
         new Prisma.Decimal(0)
       )
-      const userId = await resolveOrderUserId(tx, sessionUser, input.contactInfo)
+      const userId = await resolveOrderUserId(tx, sessionUser)
 
       return tx.order.create({
         data: {
@@ -223,8 +197,7 @@ function buildIdempotentOrderId(
   const identity =
     sessionUser?.id ||
     sessionUser?.email ||
-    input.contactInfo?.email ||
-    "guest@solo-sales.local"
+    input.contactInfo?.email
   const payload = {
     identity,
     key,

@@ -5,6 +5,7 @@
  */
 import { NextRequest } from "next/server"
 import { handleApiError, successResponse } from "@/server/contracts/api"
+import { requireAdminPermission } from "@/server/services/admin-service"
 import {
   deleteProductById,
   getProductDetail,
@@ -31,6 +32,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await requireAdminPermission(request, "products.update")
     const { id } = await params
     const input = parseUpdateProductInput(await request.json())
     const product = await updateProductFromInput(id, input)
@@ -42,10 +44,11 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await requireAdminPermission(request, "products.delete")
     const { id } = await params
     const result = await deleteProductById(id)
 

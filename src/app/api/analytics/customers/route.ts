@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getAnalyticsService } from "@/lib/analytics/AnalyticsService"
 import { TimeRange } from "@/lib/analytics/types"
 import { handleApiError, successResponse } from "@/server/contracts/api"
+import { requireAdminPermission } from "@/server/services/admin-service"
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -36,6 +37,7 @@ function withCors<T extends NextResponse>(response: T): T {
  */
 export async function GET(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "analytics.view")
     const searchParams = request.nextUrl.searchParams
     const timeRange = (searchParams.get("timeRange") || "30d") as TimeRange
 

@@ -15,6 +15,8 @@ interface CreateStripeCheckoutInput {
   productId: string
   quantity: number
   origin: string
+  userId?: string
+  userEmail?: string | null
 }
 
 export async function createStripeCheckoutSession(input: CreateStripeCheckoutInput) {
@@ -74,7 +76,9 @@ export async function createStripeCheckoutSession(input: CreateStripeCheckoutInp
       metadata: {
         productId: product.id,
         quantity: String(input.quantity),
+        ...(input.userId ? { userId: input.userId } : {}),
       },
+      ...(input.userEmail ? { customer_email: input.userEmail } : {}),
     })
 
     return {
@@ -144,6 +148,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
     typeof session.payment_intent === "string" ? session.payment_intent : null
   const productId = session.metadata?.productId
   const quantity = Number(session.metadata?.quantity ?? 1)
+  const userId = session.metadata?.userId
   const customerEmail = session.customer_details?.email
 
   if (!amountTotal || amountTotal <= 0) {
@@ -196,11 +201,11 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
           throw notFound("商品")
         }
 
-        const userId = await resolveStripeCustomerUserId(tx, customerEmail)
+        const orderUserId = await resolveStripeCustomerUserId(tx, userId, customerEmail)
 
         order = await tx.order.create({
           data: {
-            userId,
+            userId: orderUserId,
             totalAmount: amountInDollars,
             status: "PAID",
             paymentMethod: "stripe",
@@ -253,26 +258,19 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
 
 async function resolveStripeCustomerUserId(
   tx: Prisma.TransactionClient,
+  metadataUserId?: string | null,
   customerEmail?: string | null
 ): Promise<string> {
+  if (metadataUserId) {
+    return metadataUserId
+  }
+
   if (customerEmail) {
     const user = await tx.user.findUnique({ where: { email: customerEmail } })
     if (user?.id) return user.id
   }
 
-  const guest = await tx.user.upsert({
-    where: { email: "guest@solo-sales.local" },
-    update: {},
-    create: {
-      id: "guest",
-      email: "guest@solo-sales.local",
-      name: "Guest",
-      emailVerified: false,
-    },
-    select: { id: true },
-  })
-
-  return guest.id
+  throw validationError("Webhook 缺少用户绑定信息", { customerEmail })
 }
 
 function isUniquePaymentTransactionError(error: unknown): boolean {

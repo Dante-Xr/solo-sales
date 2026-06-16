@@ -6,6 +6,7 @@
 import { csrfGuard } from "@/middleware/csrf-guard"
 import { getServerSessionUser } from "@/server/auth/session"
 import { createdResponse, handleApiError, successResponse } from "@/server/contracts/api"
+import { unauthorized } from "@/server/contracts/errors"
 import {
   createOrder,
   getOrderByIdForViewer,
@@ -37,9 +38,11 @@ export async function POST(request: Request) {
 
   try {
     // route 只做 HTTP 层工作：CSRF、解析请求体、调用 service、包装响应。
+    const sessionUser = await getServerSessionUser()
+    if (!sessionUser?.id) throw unauthorized("请先登录")
+
     const body = await request.json()
     const input = parseCreateOrderInput(body)
-    const sessionUser = await getServerSessionUser()
     const order = await createOrder(input, sessionUser, {
       idempotencyKey: request.headers.get("Idempotency-Key"),
     })

@@ -35,7 +35,7 @@ async function withServer(
   }
 
   try {
-    callback(`http://127.0.0.1:${address.port}`)
+    await callback(`http://127.0.0.1:${address.port}`)
   } finally {
     await new Promise<void>((resolve) => server.close(() => resolve()))
   }
@@ -108,8 +108,8 @@ describe("smoke-synthetic script", () => {
 
       if (url === "/api/checkout/paypal") {
         json(response, {
-          status: 400,
-          body: { success: false, error: { code: "BAD_REQUEST_VALIDATION" } },
+          status: 501,
+          body: { success: false, error: { code: "PAYPAL_DISABLED" } },
         })
         return
       }
@@ -162,8 +162,8 @@ describe("smoke-synthetic script", () => {
 
       if (url === "/api/checkout/paypal") {
         json(response, {
-          status: 400,
-          body: { success: false, error: { code: "BAD_REQUEST_VALIDATION" } },
+          status: 501,
+          body: { success: false, error: { code: "PAYPAL_DISABLED" } },
         })
         return
       }

@@ -21,6 +21,10 @@ jest.mock("@/server/services/inventory-service", () => ({
   runWholesalerImport: jest.fn(),
 }))
 
+jest.mock("@/server/services/admin-service", () => ({
+  requireAdminPermission: jest.fn(),
+}))
+
 const {
   enqueueWholesalerImport,
   parseImportRequest,
@@ -30,10 +34,14 @@ const {
   parseImportRequest: jest.Mock
   runWholesalerImport: jest.Mock
 }
+const { requireAdminPermission } = jest.requireMock("@/server/services/admin-service") as {
+  requireAdminPermission: jest.Mock
+}
 
 describe("/api/import", () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    requireAdminPermission.mockResolvedValue({ id: "admin_1" })
   })
 
   function requestJson(body: unknown) {

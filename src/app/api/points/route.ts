@@ -5,7 +5,9 @@
  */
 import { NextRequest } from "next/server"
 import { handleApiError, successResponse } from "@/server/contracts/api"
-import { badRequest } from "@/server/contracts/errors"
+import { getServerSessionUser } from "@/server/auth/session"
+import { badRequest, forbidden, unauthorized } from "@/server/contracts/errors"
+import { requireAdminPermission } from "@/server/services/admin-service"
 import {
   createPointsAccount,
   getPointsInfo,
@@ -14,7 +16,12 @@ import {
 
 export async function GET(request: NextRequest) {
   try {
+    const sessionUser = await getServerSessionUser()
+    if (!sessionUser?.id) throw unauthorized("未登录")
+
     const { userId } = parsePointsQuery(request.nextUrl.searchParams)
+    if (userId !== sessionUser.id) throw forbidden("不能访问其他用户的积分账户")
+
     const result = await getPointsInfo(userId)
 
     return successResponse(result)
@@ -25,6 +32,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "points.update")
+
     const body = await request.json()
     const userId = typeof body?.userId === "string" ? body.userId : ""
     const action = body?.action

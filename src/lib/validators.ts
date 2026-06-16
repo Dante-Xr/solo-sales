@@ -5,7 +5,6 @@
  * 使用场景：
  *   - /api/auth/register 请求体验证
  *   - /api/checkout/stripe 请求体验证
- *   - /api/checkout/paypal 请求体验证
  */
 import { z } from "zod"
 
@@ -49,25 +48,6 @@ export const stripeCheckoutSchema = z.object({
     .string()
     .min(1, "商品名称不能为空")
     .max(200, "商品名称过长"),
-  price: z
-    .number()
-    .positive("价格必须大于0")
-    .max(999999, "价格超出允许范围"),
-  quantity: z
-    .number()
-    .int("数量必须是整数")
-    .positive("数量必须大于0")
-    .max(99, "数量超出允许范围")
-    .default(1),
-})
-
-/**
- * 2026-03-24: PayPal 支付请求验证 Schema
- * 规则：
- *   - price: 正数
- *   - quantity: 正整数，默认1
- */
-export const paypalCheckoutSchema = z.object({
   price: z
     .number()
     .positive("价格必须大于0")

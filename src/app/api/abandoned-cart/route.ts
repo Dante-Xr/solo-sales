@@ -16,8 +16,10 @@
 import { NextRequest } from "next/server"
 import { z } from "zod"
 import { checkAbandonedCarts, recordAbandonedCart } from "@/lib/services/AbandonedCartService"
+import { getServerSessionUser } from "@/server/auth/session"
 import { handleApiError, successResponse } from "@/server/contracts/api"
-import { validationError } from "@/server/contracts/errors"
+import { unauthorized, validationError } from "@/server/contracts/errors"
+import { requireAdminPermission } from "@/server/services/admin-service"
 
 const cartItemSchema = z.object({
   productId: z.string(),
@@ -28,9 +30,6 @@ const cartItemSchema = z.object({
 })
 
 const recordCartSchema = z.object({
-  userId: z.string(),
-  userEmail: z.string().email(),
-  userName: z.string().optional(),
   cartData: z.array(cartItemSchema),
   totalAmount: z.number().positive(),
   locale: z.string().optional(),
@@ -42,6 +41,8 @@ export async function GET(request: NextRequest) {
     const action = searchParams.get("action")
 
     if (action === "check") {
+      await requireAdminPermission(request, "abandonedCarts.update")
+
       const result = await checkAbandonedCarts()
       return successResponse({
         processed: result.processed,
@@ -58,6 +59,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const sessionUser = await getServerSessionUser()
+    if (!sessionUser?.id || !sessionUser.email) {
+      throw unauthorized("请先登录")
+    }
+
     const body = await request.json()
     const parsed = recordCartSchema.safeParse(body)
 
@@ -65,13 +71,13 @@ export async function POST(request: NextRequest) {
       throw validationError("Invalid parameters", parsed.error.issues)
     }
 
-    const { userId, userEmail, userName, cartData, totalAmount, locale } = parsed.data
+    const { cartData, totalAmount, locale } = parsed.data
 
-    // 只把通过 schema 校验的购物车快照交给服务层，避免保存结构不完整的恢复数据。
+    // 用户身份只来自服务端会话，避免调用方伪造废弃购物车归属。
     const cartId = await recordAbandonedCart({
-      userId,
-      userEmail,
-      userName,
+      userId: sessionUser.id,
+      userEmail: sessionUser.email,
+      userName: sessionUser.name ?? undefined,
       cartData,
       totalAmount,
       locale,

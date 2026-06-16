@@ -5,6 +5,7 @@
  */
 import { NextRequest } from "next/server"
 import { createdResponse, handleApiError, successResponse } from "@/server/contracts/api"
+import { requireAdminPermission } from "@/server/services/admin-service"
 import {
   createProductFromInput,
   listProducts,
@@ -29,6 +30,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "products.create")
     const input = parseCreateProductInput(await request.json())
     const product = await createProductFromInput(input)
 

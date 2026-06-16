@@ -15,16 +15,13 @@
 
 import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { verifyAdminToken } from "@/lib/adminAuth"
 import { handleApiError, successResponse } from "@/server/contracts/api"
-import { badRequest, notFound, unauthorized } from "@/server/contracts/errors"
+import { badRequest, notFound } from "@/server/contracts/errors"
+import { requireAdminPermission } from "@/server/services/admin-service"
 
 export async function GET(request: NextRequest) {
   try {
-    const admin = await verifyAdminToken(request)
-    if (!admin) {
-      throw unauthorized("请先登录")
-    }
+    await requireAdminPermission(request, "reviews.view")
 
     const { searchParams } = new URL(request.url)
     const status = searchParams.get("status")
@@ -87,13 +84,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const admin = await verifyAdminToken(request)
-    if (!admin) {
-      throw unauthorized("请先登录")
-    }
+    const admin = await requireAdminPermission(request, "reviews.update")
 
     const body = await request.json()
-    const { action, reviewIds, reviewId } = body
+    const { action, reviewIds, reviewId, content } = body
 
     if (reviewId) {
       if (action === "approve") {
@@ -118,6 +112,27 @@ export async function POST(request: NextRequest) {
       } else if (action === "delete") {
         await prisma.review.delete({
           where: { id: reviewId },
+        })
+      } else if (action === "reply") {
+        if (!content || typeof content !== "string" || !content.trim()) {
+          throw badRequest("回复内容不能为空")
+        }
+
+        const existingReview = await prisma.review.findUnique({
+          where: { id: reviewId },
+        })
+
+        if (!existingReview) {
+          throw notFound("评论")
+        }
+
+        await prisma.reviewReply.create({
+          data: {
+            reviewId,
+            content: content.trim(),
+            userId: null,
+            adminId: admin.id,
+          },
         })
       } else {
         throw badRequest("无效的操作")
@@ -174,10 +189,7 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const admin = await verifyAdminToken(request)
-    if (!admin) {
-      throw unauthorized("请先登录")
-    }
+    await requireAdminPermission(request, "reviews.update")
 
     const body = await request.json()
     const { reviewId, action } = body

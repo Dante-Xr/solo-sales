@@ -8,6 +8,7 @@
     "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint",
+    "audit:secrets": "node scripts/secret-audit.mjs",
     "perf:baseline": "node scripts/load-baseline.mjs",
     "smoke:synthetic": "node scripts/smoke-synthetic.mjs",
     "test": "jest",

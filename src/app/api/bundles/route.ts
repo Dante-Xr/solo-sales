@@ -10,6 +10,7 @@ import { BundleStatus } from "@prisma/client"
 import { safeErrorLog } from "@/lib/safeLog"
 import { createdResponse, handleApiError, successResponse } from "@/server/contracts/api"
 import { badRequest, notFound } from "@/server/contracts/errors"
+import { requireAdminPermission } from "@/server/services/admin-service"
 
 const bundleService = new BundleService(prisma)
 
@@ -42,6 +43,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "bundles.update")
+
     const body = await request.json()
 
     const {

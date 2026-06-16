@@ -6,6 +6,7 @@
 import { NextRequest } from "next/server"
 import { createdResponse, handleApiError, successResponse } from "@/server/contracts/api"
 import { badRequest } from "@/server/contracts/errors"
+import { requireAdminPermission } from "@/server/services/admin-service"
 import {
   createCategoryFromInput,
   deleteCategoryById,
@@ -26,6 +27,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "categories.create")
     const input = parseCreateCategoryInput(await request.json())
     const category = await createCategoryFromInput(input)
 
@@ -37,6 +39,7 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "categories.update")
     const body = await request.json()
     const { id, ...updateData } = body
 
@@ -56,6 +59,7 @@ export async function PATCH(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "categories.delete")
     const id = request.nextUrl.searchParams.get("id")
 
     if (!id) {

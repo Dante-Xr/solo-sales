@@ -10,11 +10,14 @@ import { TriggerType } from "@prisma/client"
 import { safeErrorLog } from "@/lib/safeLog"
 import { handleApiError, successResponse } from "@/server/contracts/api"
 import { badRequest, notFound } from "@/server/contracts/errors"
+import { requireAdminPermission } from "@/server/services/admin-service"
 
 const engine = new EmailSequenceEngine(prisma)
 
 export async function POST(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "sequences.update")
+
     const body = await request.json()
     const { trigger, userId, data } = body
 

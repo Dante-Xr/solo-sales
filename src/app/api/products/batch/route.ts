@@ -5,6 +5,7 @@
  */
 import { NextRequest } from "next/server"
 import { handleApiError, successResponse } from "@/server/contracts/api"
+import { requireAdminPermission } from "@/server/services/admin-service"
 import {
   batchDeleteProducts,
   batchUpdateProducts,
@@ -13,6 +14,7 @@ import {
 
 export async function PATCH(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "products.update")
     const input = parseBatchUpdateProductsInput(await request.json())
     const result = await batchUpdateProducts(input)
 
@@ -24,6 +26,7 @@ export async function PATCH(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "products.delete")
     // 批量删除沿用原有 query string 协议，service 负责校验空数组和订单关联。
     const idsParam = request.nextUrl.searchParams.get("ids")
     const ids = idsParam?.split(",").filter(Boolean) ?? []

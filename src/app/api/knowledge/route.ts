@@ -19,6 +19,7 @@ import { prisma } from "@/lib/prisma"
 import { cacheGet, cacheSet, cacheDelPattern, CACHE_TTL } from "@/lib/cache"
 import { createdResponse, handleApiError, successResponse } from "@/server/contracts/api"
 import { validationError } from "@/server/contracts/errors"
+import { requireAdminPermission } from "@/server/services/admin-service"
 
 /**
  * 创建知识条目的请求体验证 Schema
@@ -61,6 +62,7 @@ type LegacyKnowledgeListCache = {
  */
 export async function GET(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "knowledge.view")
     // 解析查询参数
     const searchParams = Object.fromEntries(request.nextUrl.searchParams)
     const queryParams = GetKnowledgeSchema.parse(searchParams)
@@ -149,6 +151,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const admin = await requireAdminPermission(request, "knowledge.create")
     // 解析并验证请求体
     const body = await request.json()
     const validatedData = CreateKnowledgeSchema.parse(body)
@@ -163,7 +166,7 @@ export async function POST(request: NextRequest) {
           category: validatedData.category,
           tags: validatedData.tags,
           status: validatedData.status as "DRAFT" | "PUBLISHED" | "ARCHIVED",
-          createdBy: validatedData.createdBy,
+          createdBy: admin.id,
           version: 1,
         },
       })
@@ -175,7 +178,7 @@ export async function POST(request: NextRequest) {
           version: 1,
           title: knowledge.title,
           content: knowledge.content,
-          changedBy: validatedData.createdBy,
+          changedBy: admin.id,
         },
       })
 

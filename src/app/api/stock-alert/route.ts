@@ -5,6 +5,7 @@
  */
 import { NextRequest } from "next/server"
 import { handleApiError, successResponse } from "@/server/contracts/api"
+import { requireAdminPermission } from "@/server/services/admin-service"
 import {
   configureStockAlert,
   getStockAlertData,
@@ -15,6 +16,7 @@ import {
 
 export async function GET(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "inventory.view")
     // service 保持旧接口语义：productId 返回默认配置，logs=true 返回预警日志数组。
     const query = parseStockAlertQuery(request.nextUrl.searchParams)
     const data = await getStockAlertData(query)
@@ -27,6 +29,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "inventory.update")
     const input = parseStockAlertInput(await request.json())
     const result = await configureStockAlert(input)
 
@@ -42,6 +45,7 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "inventory.update")
     const productId = request.nextUrl.searchParams.get("productId")
     const result = await removeStockAlert(productId ?? "")
 
