@@ -45,4 +45,25 @@ describe("OrderDetailPage", () => {
     })
     expect(global.fetch).not.toHaveBeenCalled()
   })
+
+  it("shows order not found when authenticated user accesses another user order (IDOR)", async () => {
+    const mockFetch = jest.fn().mockResolvedValue({
+      ok: false,
+      status: 403,
+      json: async () => ({ error: "FORBIDDEN" }),
+    })
+    global.fetch = mockFetch
+
+    ;(useSession as jest.Mock).mockReturnValue({
+      data: { user: { id: "user-B" } },
+      isPending: false,
+    })
+
+    const { findByText } = render(<OrderDetailPage />)
+
+    // The page does NOT redirect on 403 — it shows "order not found" UI
+    // and does NOT leak order data
+    await findByText("orders.orderNotFound")
+    expect(mockFetch).toHaveBeenCalled()
+  })
 })

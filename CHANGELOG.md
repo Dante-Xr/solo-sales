@@ -381,7 +381,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 #### 预置数据
 - 30+ 权限项 (dashboard, products, orders, customers, knowledge, users, roles, permissions, settings, import, chat)
 - 3 个默认角色 (super_admin, operator, support)
-- 1 个默认管理员: admin@solosales.com / Admin@123456
+- 1 个默认管理员: [redacted-default-admin-credentials]
 
 ### 基础设施
 - **Neon 数据库集成**: Serverless PostgreSQL，支持 Netlify 原生部署

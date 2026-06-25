@@ -52,18 +52,19 @@ if (process.env.NODE_ENV !== "production") {
 
 /**
  * ============================================
- * Neon/Serverless 连接池优化说明 (v0.4.3)
+ * PostgreSQL/Serverless 连接说明 (v0.4.3)
  * ============================================
- * Neon PostgreSQL 使用 pgbouncer 连接池，连接配置建议：
+ * 使用 Netlify Database 或 Supabase 时，只需标准的 postgresql:// 连接字符串：
  *
- * 在 DATABASE_URL 中添加以下参数：
- * ?pgbouncer=true&connection_limit=1&pool_timeout=10
+ * DATABASE_URL = "postgresql://user:password@host:port/database"
+ *
+ * Serverless 环境下建议在连接字符串中附加以下参数以优化连接：
+ * ?connection_limit=1&pool_timeout=10
  *
  * 参数说明：
- * - pgbouncer=true: 启用 pgbouncer 模式
  * - connection_limit=1: Serverless 函数使用单一连接
  * - pool_timeout=10: 连接超时 10 秒
  *
- * 示例：在部署平台 Secret Manager 中设置 DATABASE_URL，并附加 pgbouncer 参数。
+ * 示例：在部署平台 Secret Manager 中设置 DATABASE_URL，并附加上述参数。
  * ============================================
  */

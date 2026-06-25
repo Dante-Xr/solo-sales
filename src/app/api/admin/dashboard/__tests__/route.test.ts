@@ -67,7 +67,7 @@ const { prisma } = jest.requireMock("@/lib/prisma") as {
   }
 }
 
-const { unauthorized } = jest.requireActual("@/server/contracts/errors") as typeof import("@/server/contracts/errors")
+const { unauthorized, forbidden } = jest.requireActual("@/server/contracts/errors") as typeof import("@/server/contracts/errors")
 
 describe("/api/admin/dashboard", () => {
   function request() {
@@ -110,6 +110,21 @@ describe("/api/admin/dashboard", () => {
     expect(body.success).toBe(false)
     expect(cacheGet).not.toHaveBeenCalled()
     expect(prisma.order.findMany).not.toHaveBeenCalled()
+  })
+
+  it("rejects dashboard view when admin lacks dashboard.view permission", async () => {
+    requireAdminPermission.mockRejectedValue(forbidden("无 dashboard.view 权限"))
+
+    const response = await GET(request())
+    const body = await response.json()
+
+    expect(response.status).toBe(403)
+    expect(body.success).toBe(false)
+    expect(cacheGet).not.toHaveBeenCalled()
+    expect(prisma.order.findMany).not.toHaveBeenCalled()
+    expect(prisma.product.count).not.toHaveBeenCalled()
+    expect(prisma.user.count).not.toHaveBeenCalled()
+    expect(cacheSet).not.toHaveBeenCalled()
   })
 
   it("returns cached dashboard data without hitting Prisma", async () => {

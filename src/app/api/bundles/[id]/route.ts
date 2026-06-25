@@ -18,6 +18,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await requireAdminPermission(request, "bundles.view")
+
     const { id } = await params
     const bundle = await bundleService.getBundleById(id)
 

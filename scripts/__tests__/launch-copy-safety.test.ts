@@ -1,8 +1,9 @@
 import { readFileSync } from "node:fs"
+import path from "node:path"
 import { join } from "node:path"
 
 describe("v1.6 launch copy safety", () => {
-  const root = process.cwd()
+  const root = path.resolve(__dirname, "../..")
 
   function read(path: string) {
     return readFileSync(join(root, path), "utf8")
@@ -21,13 +22,17 @@ describe("v1.6 launch copy safety", () => {
     }
   })
 
+  it("CHANGELOG.md does not contain default credentials", () => {
+    const changelog = read("CHANGELOG.md")
+    expect(changelog).not.toMatch(/admin@solosales\.com|Admin@123456/)
+  })
+
   it("does not expose PayPal as a production payment method in customer-facing UI", () => {
     const files = [
       "src/components/checkout/CheckoutModal.tsx",
       "src/components/storefront/StorefrontFooter.tsx",
       "src/components/product/TrustBadges.tsx",
       "src/app/[locale]/faq/page.tsx",
-      "src/app/[locale]/faq/__tests__/page.test.tsx",
       "src/i18n/messages/zh.json",
       "src/i18n/messages/en.json",
     ]

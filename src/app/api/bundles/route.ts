@@ -16,6 +16,8 @@ const bundleService = new BundleService(prisma)
 
 export async function GET(request: NextRequest) {
   try {
+    await requireAdminPermission(request, "bundles.view")
+
     const searchParams = request.nextUrl.searchParams
     const status = searchParams.get('status') as BundleStatus | null
     const slug = searchParams.get('slug')

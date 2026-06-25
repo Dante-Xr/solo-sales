@@ -43,6 +43,7 @@ jest.mock("bcryptjs", () => ({
 }))
 
 import { POST } from "../route"
+import { GET } from "../me/route"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { adminLoginRateLimiter } from "@/middleware/rate-limit"
@@ -58,6 +59,7 @@ const mockedPrisma = prisma as unknown as {
 
 const mockedAuth = auth as unknown as {
   api: {
+    getSession: jest.Mock
     signInEmail: jest.Mock
     signUpEmail: jest.Mock
   }
@@ -145,5 +147,48 @@ describe("/api/admin/auth", () => {
         }),
       })
     )
+  })
+
+  it("rejects login with incorrect password", async () => {
+    ;(bcrypt.compare as jest.Mock).mockResolvedValue(false)
+
+    const response = await POST(loginRequest({ email: "admin@example.com", password: "wrongpass" }))
+    const body = await response.json()
+
+    expect(response.status).toBe(401)
+    expect(body.success).toBe(false)
+    expect(mockedAuth.api.signInEmail).not.toHaveBeenCalled()
+  })
+
+  it("rejects inactive admin user", async () => {
+    mockedPrisma.adminUser.findUnique.mockResolvedValue({
+      id: "admin_2",
+      username: "Inactive",
+      email: "inactive@example.com",
+      password: "hash",
+      isActive: false,
+      role: { id: "role_1", name: "admin", label: "Admin", permissions: [] },
+    })
+
+    const response = await POST(loginRequest({ email: "inactive@example.com", password: "password123" }))
+    const body = await response.json()
+
+    expect(response.status).toBe(401)
+    expect(body.success).toBe(false)
+    expect(mockedAuth.api.signInEmail).not.toHaveBeenCalled()
+  })
+
+  it("rejects unauthenticated /api/admin/auth/me GET request with 401", async () => {
+    mockedAuth.api.getSession.mockResolvedValue(null)
+
+    const request = {
+      headers: new Headers(),
+    } as never
+
+    const response = await GET(request)
+    const body = await response.json()
+
+    expect(response.status).toBe(401)
+    expect(body.success).toBe(false)
   })
 })

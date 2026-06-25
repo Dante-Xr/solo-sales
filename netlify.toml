@@ -1,10 +1,10 @@
 [build]
-  command = "npm run build"
+  command = "npx prisma migrate deploy && npx prisma generate && next build"
   publish = ".next"
 
 [build.environment]
   NODE_VERSION = "20"
-  DATABASE_URL = "${NETLIFY_DATABASE_URL}"
+  DATABASE_URL = "${DATABASE_URL}"
   # Stripe（支付）- 在 Netlify 控制台配置实际值
   # STRIPE_PUBLIC_KEY = ""
   # STRIPE_SECRET_KEY = ""

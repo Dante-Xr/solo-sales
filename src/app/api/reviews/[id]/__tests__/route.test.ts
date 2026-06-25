@@ -27,7 +27,7 @@ jest.mock("@/lib/prisma", () => ({
   },
 }))
 
-import { DELETE, PUT } from "../route"
+import { DELETE, GET, PUT } from "../route"
 
 const { getServerSessionUser } = jest.requireMock("@/server/auth/session") as {
   getServerSessionUser: jest.Mock
@@ -52,6 +52,28 @@ describe("/api/reviews/[id] route", () => {
 
   beforeEach(() => {
     jest.resetAllMocks()
+  })
+
+  it("does not return email in anonymous review detail GET", async () => {
+    prisma.review.findUnique.mockResolvedValue({
+      id: "review_1",
+      rating: 5,
+      content: "Great product",
+      user: {
+        id: "user_1",
+        name: "Test User",
+      },
+      product: { id: "prod_1", name: "Test Product" },
+      images: [],
+      replies: [],
+    })
+
+    const response = await GET({} as never, params)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.success).toBe(true)
+    expect(body.data.user).not.toHaveProperty("email")
   })
 
   it("rejects anonymous review updates before parsing the body", async () => {

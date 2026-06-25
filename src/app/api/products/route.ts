@@ -13,6 +13,7 @@ import {
   parseListProductsQuery,
 } from "@/server/services/product-service"
 
+// 公开前台接口 — 供商品列表、搜索和分类浏览使用，无需管理员权限
 export async function GET(request: NextRequest) {
   try {
     // 产品列表保留原查询参数协议，解析和缓存策略统一放在 service 层。

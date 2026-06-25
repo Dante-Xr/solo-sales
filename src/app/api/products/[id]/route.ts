@@ -13,6 +13,7 @@ import {
   updateProductFromInput,
 } from "@/server/services/product-service"
 
+// 公开前台接口 — 供商品详情页使用，无需管理员权限
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

@@ -25,5 +25,7 @@ describe("operational and financial API auth boundaries", () => {
 
     expect(source).toContain('from "@/server/services/admin-service"')
     expect(source).toContain(`requireAdminPermission(request, "${permission}")`)
+    expect(source).not.toContain('from "@/lib/adminAuth"')
+    expect(source).not.toContain("verifyAdminToken(request)")
   })
 })

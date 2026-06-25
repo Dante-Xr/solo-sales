@@ -11,10 +11,17 @@ describe("v1.6 secret audit gate", () => {
   })
 
   it("passes when no tracked env files or hard-coded production secrets are found", () => {
-    const output = execFileSync(process.execPath, [scriptPath], {
-      cwd: root,
-      encoding: "utf8",
-    })
+    let output: string
+
+    try {
+      output = execFileSync(process.execPath, [scriptPath], {
+        cwd: root,
+        encoding: "utf8",
+      })
+    } catch (error) {
+      const stderr = (error as { stderr?: string }).stderr ?? String(error)
+      throw new Error(`secret-audit.mjs execution failed: ${stderr}`)
+    }
 
     expect(output).toContain("Secret audit passed")
     expect(output).toContain("trackedEnvFiles=0")
