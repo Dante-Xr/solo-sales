@@ -31,6 +31,13 @@ test.describe('Homepage', () => {
   test('should navigate to product list', async ({ page }) => {
     await page.goto('/');
 
+    // Close welcome modal if present
+    const closeModalBtn = page.locator('button:has-text("关闭"), button:has-text("Close"), button[aria-label*="close"]');
+    if (await closeModalBtn.isVisible()) {
+      await closeModalBtn.click();
+      await page.waitForTimeout(500);
+    }
+
     // Click on navigation link to products
     const productsLink = page.locator('a[href*="products"]').first();
     await productsLink.click();

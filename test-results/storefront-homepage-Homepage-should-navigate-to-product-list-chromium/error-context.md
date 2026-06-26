@@ -1,0 +1,782 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: storefront\homepage.spec.ts >> Homepage >> should navigate to product list
+- Location: tests\e2e\storefront\homepage.spec.ts:31:7
+
+# Error details
+
+```
+Test timeout of 30000ms exceeded.
+```
+
+```
+Error: locator.click: Test timeout of 30000ms exceeded.
+Call log:
+  - waiting for locator('a[href*="products"]').first()
+    - locator resolved to <a href="#products" class="inline-flex items-center justify-center rounded-xl bg-white/15 backdrop-blur-md border border-white/25 text-white px-6 py-3 text-sm font-semibold transition-all hover:bg-white/25 hover:border-white/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50">Shop Now</a>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div class="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4">…</div> from <div id="welcome-modal-container">…</div> subtree intercepts pointer events
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div class="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4">…</div> from <div id="welcome-modal-container">…</div> subtree intercepts pointer events
+    - retrying click action
+      - waiting 100ms
+    44 × waiting for element to be visible, enabled and stable
+       - element is visible, enabled and stable
+       - scrolling into view if needed
+       - done scrolling
+       - <div class="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4">…</div> from <div id="welcome-modal-container">…</div> subtree intercepts pointer events
+     - retrying click action
+       - waiting 500ms
+
+```
+
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - generic [ref=e7]:
+            - link "S Solo Sales" [ref=e8] [cursor=pointer]:
+              - /url: /en
+              - generic [ref=e10]: S
+              - generic [ref=e11]: Solo Sales
+            - navigation [ref=e12]:
+              - link "Home" [ref=e13] [cursor=pointer]:
+                - /url: /en
+              - link "Shop" [ref=e14] [cursor=pointer]:
+                - /url: /en/search
+              - link "About" [ref=e15] [cursor=pointer]:
+                - /url: /en/about
+              - link "Contact" [ref=e16] [cursor=pointer]:
+                - /url: /en/contact
+          - generic [ref=e17]:
+            - button "Switch to Mobile" [ref=e18]:
+              - img
+            - button [ref=e19]:
+              - img
+            - button "切换到中文" [ref=e21]:
+              - img
+            - button [ref=e22]:
+              - img
+            - button [ref=e24]:
+              - img
+              - img
+        - generic [ref=e25]:
+          - generic [ref=e27]:
+            - img [ref=e28]
+            - textbox "Search products..." [ref=e31]
+          - navigation [ref=e32]:
+            - button "📱 Electronics" [ref=e33]:
+              - generic [ref=e34]: 📱
+              - generic [ref=e35]: Electronics
+            - button "🏠 Home & Living" [ref=e36]:
+              - generic [ref=e37]: 🏠
+              - generic [ref=e38]: Home & Living
+            - button "💄 Beauty & Care" [ref=e39]:
+              - generic [ref=e40]: 💄
+              - generic [ref=e41]: Beauty & Care
+            - button "👗 Fashion" [ref=e42]:
+              - generic [ref=e43]: 👗
+              - generic [ref=e44]: Fashion
+            - button "⚽ Sports & Outdoors" [ref=e45]:
+              - generic [ref=e46]: ⚽
+              - generic [ref=e47]: Sports & Outdoors
+            - button "📚 Books & Stationery" [ref=e48]:
+              - generic [ref=e49]: 📚
+              - generic [ref=e50]: Books & Stationery
+    - main [ref=e51]:
+      - region "Hero Banner" [ref=e52]:
+        - generic [ref=e63]:
+          - generic [ref=e64]:
+            - heading "Discover Premium Products" [level=1] [ref=e65]
+            - paragraph [ref=e66]: Curated selection of high-quality items at unbeatable prices. Shop now and elevate your everyday experience.
+            - generic [ref=e67]:
+              - link "Shop Now" [ref=e68] [cursor=pointer]:
+                - /url: "#products"
+              - link "Learn More" [ref=e69] [cursor=pointer]:
+                - /url: "#features"
+          - generic [ref=e71]:
+            - generic [ref=e72]:
+              - generic [ref=e73]:
+                - generic [ref=e74]:
+                  - img [ref=e75]
+                  - img [ref=e77]
+                  - img [ref=e79]
+                  - img [ref=e81]
+                  - img [ref=e83]
+                - generic [ref=e85]: "4.9"
+              - paragraph [ref=e86]: 10k+ Reviews
+            - generic [ref=e88]:
+              - img [ref=e89]
+              - generic [ref=e93]:
+                - paragraph [ref=e94]: 50k+ Sold
+                - paragraph [ref=e95]: Worldwide
+            - generic [ref=e96]:
+              - img [ref=e98]
+              - generic [ref=e105]:
+                - generic [ref=e106]: $29.99
+                - generic [ref=e107]: $59.99
+            - generic [ref=e109]:
+              - img [ref=e110]
+              - generic [ref=e112]:
+                - paragraph [ref=e113]: Secure Payment
+                - paragraph [ref=e114]: 256-bit SSL
+            - generic [ref=e116]:
+              - img [ref=e117]
+              - generic [ref=e122]:
+                - paragraph [ref=e123]: Free Shipping
+                - paragraph [ref=e124]: Orders $50+
+      - generic [ref=e128]:
+        - heading "Featured Products" [level=2] [ref=e129]
+        - generic [ref=e130]:
+          - generic [ref=e132]:
+            - generic [ref=e136] [cursor=pointer]:
+              - img "Sunset Lamp Projector" [ref=e137]
+              - generic [ref=e138]: 🔥 Limited Offer
+              - generic [ref=e139]:
+                - heading "Sunset Lamp Projector" [level=3] [ref=e140]
+                - generic [ref=e141]:
+                  - generic [ref=e142]: $21.99
+                  - generic [ref=e143]: $30.79
+            - generic [ref=e147] [cursor=pointer]:
+              - img "Leather Journal Notebook" [ref=e148]
+              - generic [ref=e149]: 🔥 Limited Offer
+              - generic [ref=e150]:
+                - heading "Leather Journal Notebook" [level=3] [ref=e151]
+                - generic [ref=e152]:
+                  - generic [ref=e153]: $15.99
+                  - generic [ref=e154]: $22.39
+            - generic [ref=e158] [cursor=pointer]:
+              - img "Aromatherapy Diffuser" [ref=e159]
+              - generic [ref=e160]: 🔥 Limited Offer
+              - generic [ref=e161]:
+                - heading "Aromatherapy Diffuser" [level=3] [ref=e162]
+                - generic [ref=e163]:
+                  - generic [ref=e164]: $24.99
+                  - generic [ref=e165]: $34.99
+            - generic [ref=e169] [cursor=pointer]:
+              - img "Minimalist Plant Pot Set" [ref=e170]
+              - generic [ref=e171]: 🔥 Limited Offer
+              - generic [ref=e172]:
+                - heading "Minimalist Plant Pot Set" [level=3] [ref=e173]
+                - generic [ref=e174]:
+                  - generic [ref=e175]: $18.99
+                  - generic [ref=e176]: $26.59
+            - generic [ref=e180] [cursor=pointer]:
+              - img "Pour-Over Coffee Maker Set" [ref=e181]
+              - generic [ref=e182]: 🔥 Limited Offer
+              - generic [ref=e183]:
+                - heading "Pour-Over Coffee Maker Set" [level=3] [ref=e184]
+                - generic [ref=e185]:
+                  - generic [ref=e186]: $26.99
+                  - generic [ref=e187]: $37.79
+            - generic [ref=e191] [cursor=pointer]:
+              - img "Desk Lamp with Wireless Charger" [ref=e192]
+              - generic [ref=e193]: 🔥 Limited Offer
+              - generic [ref=e194]:
+                - heading "Desk Lamp with Wireless Charger" [level=3] [ref=e195]
+                - generic [ref=e196]:
+                  - generic [ref=e197]: $34.99
+                  - generic [ref=e198]: $48.99
+            - generic [ref=e202] [cursor=pointer]:
+              - img "Foam Roller Set"
+              - generic [ref=e203]: 🔥 Limited Offer
+              - generic [ref=e204]:
+                - heading "Foam Roller Set" [level=3] [ref=e205]
+                - generic [ref=e206]:
+                  - generic [ref=e207]: $19.99
+                  - generic [ref=e208]: $27.99
+            - generic [ref=e212] [cursor=pointer]:
+              - img "Jump Rope with Counter"
+              - generic [ref=e213]: 🔥 Limited Offer
+              - generic [ref=e214]:
+                - heading "Jump Rope with Counter" [level=3] [ref=e215]
+                - generic [ref=e216]:
+                  - generic [ref=e217]: $12.99
+                  - generic [ref=e218]: $18.19
+            - generic [ref=e222] [cursor=pointer]:
+              - img "Fitness Tracker Watch"
+              - generic [ref=e223]: 🔥 Limited Offer
+              - generic [ref=e224]:
+                - heading "Fitness Tracker Watch" [level=3] [ref=e225]
+                - generic [ref=e226]:
+                  - generic [ref=e227]: $49.99
+                  - generic [ref=e228]: $69.99
+            - generic [ref=e232] [cursor=pointer]:
+              - img "Adjustable Dumbbells"
+              - generic [ref=e233]: 🔥 Limited Offer
+              - generic [ref=e234]:
+                - heading "Adjustable Dumbbells" [level=3] [ref=e235]
+                - generic [ref=e236]:
+                  - generic [ref=e237]: $89.99
+                  - generic [ref=e238]: $125.99
+            - generic [ref=e242] [cursor=pointer]:
+              - img "Resistance Bands Set"
+              - generic [ref=e243]: 🔥 Limited Offer
+              - generic [ref=e244]:
+                - heading "Resistance Bands Set" [level=3] [ref=e245]
+                - generic [ref=e246]:
+                  - generic [ref=e247]: $14.99
+                  - generic [ref=e248]: $20.99
+            - generic [ref=e252] [cursor=pointer]:
+              - img "Premium Yoga Mat"
+              - generic [ref=e253]: 🔥 Limited Offer
+              - generic [ref=e254]:
+                - heading "Premium Yoga Mat" [level=3] [ref=e255]
+                - generic [ref=e256]:
+                  - generic [ref=e257]: $29.99
+                  - generic [ref=e258]: $41.99
+            - generic [ref=e262] [cursor=pointer]:
+              - img "Phone Stand with Wireless Charging"
+              - generic [ref=e263]: 🔥 Limited Offer
+              - generic [ref=e264]:
+                - heading "Phone Stand with Wireless Charging" [level=3] [ref=e265]
+                - generic [ref=e266]:
+                  - generic [ref=e267]: $22.99
+                  - generic [ref=e268]: $32.19
+            - generic [ref=e272] [cursor=pointer]:
+              - img "Portable Power Bank 20000mAh"
+              - generic [ref=e273]: 🔥 Limited Offer
+              - generic [ref=e274]:
+                - heading "Portable Power Bank 20000mAh" [level=3] [ref=e275]
+                - generic [ref=e276]:
+                  - generic [ref=e277]: $27.99
+                  - generic [ref=e278]: $39.19
+            - generic [ref=e282] [cursor=pointer]:
+              - img "USB-C Hub Adapter"
+              - generic [ref=e283]: 🔥 Limited Offer
+              - generic [ref=e284]:
+                - heading "USB-C Hub Adapter" [level=3] [ref=e285]
+                - generic [ref=e286]:
+                  - generic [ref=e287]: $32.99
+                  - generic [ref=e288]: $46.19
+            - generic [ref=e292] [cursor=pointer]:
+              - img "Fast Wireless Charger"
+              - generic [ref=e293]: 🔥 Limited Offer
+              - generic [ref=e294]:
+                - heading "Fast Wireless Charger" [level=3] [ref=e295]
+                - generic [ref=e296]:
+                  - generic [ref=e297]: $24.99
+                  - generic [ref=e298]: $34.99
+            - generic [ref=e302] [cursor=pointer]:
+              - img "Magnetic Phone Case"
+              - generic [ref=e303]: 🔥 Limited Offer
+              - generic [ref=e304]:
+                - heading "Magnetic Phone Case" [level=3] [ref=e305]
+                - generic [ref=e306]:
+                  - generic [ref=e307]: $19.99
+                  - generic [ref=e308]: $27.99
+            - generic [ref=e312] [cursor=pointer]:
+              - img "Wireless Earbuds Pro"
+              - generic [ref=e313]: 🔥 Limited Offer
+              - generic [ref=e314]:
+                - heading "Wireless Earbuds Pro" [level=3] [ref=e315]
+                - generic [ref=e316]:
+                  - generic [ref=e317]: $29.99
+                  - generic [ref=e318]: $41.99
+            - generic [ref=e322] [cursor=pointer]:
+              - img "Smart Speaker Hub"
+              - generic [ref=e323]: 🔥 Limited Offer
+              - generic [ref=e324]:
+                - heading "Smart Speaker Hub" [level=3] [ref=e325]
+                - generic [ref=e326]:
+                  - generic [ref=e327]: $39.99
+                  - generic [ref=e328]: $55.99
+            - generic [ref=e332] [cursor=pointer]:
+              - img "Wireless Security Camera"
+              - generic [ref=e333]: 🔥 Limited Offer
+              - generic [ref=e334]:
+                - heading "Wireless Security Camera" [level=3] [ref=e335]
+                - generic [ref=e336]:
+                  - generic [ref=e337]: $49.99
+                  - generic [ref=e338]: $69.99
+            - generic [ref=e342] [cursor=pointer]:
+              - img "Smart Humidifier with RGB Light"
+              - generic [ref=e343]: 🔥 Limited Offer
+              - generic [ref=e344]:
+                - heading "Smart Humidifier with RGB Light" [level=3] [ref=e345]
+                - generic [ref=e346]:
+                  - generic [ref=e347]: $34.99
+                  - generic [ref=e348]: $48.99
+            - generic [ref=e352] [cursor=pointer]:
+              - img "Smart Plug Mini"
+              - generic [ref=e353]: 🔥 Limited Offer
+              - generic [ref=e354]:
+                - heading "Smart Plug Mini" [level=3] [ref=e355]
+                - generic [ref=e356]:
+                  - generic [ref=e357]: $16.99
+                  - generic [ref=e358]: $23.79
+            - generic [ref=e362] [cursor=pointer]:
+              - img "Robot Vacuum Cleaner Pro"
+              - generic [ref=e363]: 🔥 Limited Offer
+              - generic [ref=e364]:
+                - heading "Robot Vacuum Cleaner Pro" [level=3] [ref=e365]
+                - generic [ref=e366]:
+                  - generic [ref=e367]: $189.99
+                  - generic [ref=e368]: $265.99
+            - generic [ref=e372] [cursor=pointer]:
+              - img "Smart LED Bulb Kit"
+              - generic [ref=e373]: 🔥 Limited Offer
+              - generic [ref=e374]:
+                - heading "Smart LED Bulb Kit" [level=3] [ref=e375]
+                - generic [ref=e376]:
+                  - generic [ref=e377]: $24.99
+                  - generic [ref=e378]: $34.99
+          - button "Previous" [ref=e379]:
+            - img [ref=e380]
+          - button "Next" [ref=e382]:
+            - img [ref=e383]
+      - generic [ref=e411]:
+        - heading "Featured Products" [level=2] [ref=e412]
+        - generic [ref=e413]:
+          - button "Sunset Lamp Projector -29% Sunset Lamp Projector $21.99 $30.79" [ref=e414] [cursor=pointer]:
+            - generic [ref=e415]:
+              - img "Sunset Lamp Projector" [ref=e416]
+              - generic [ref=e417]:
+                - img [ref=e418]
+                - text: "-29%"
+            - generic [ref=e420]:
+              - heading "Sunset Lamp Projector" [level=3] [ref=e421]
+              - generic [ref=e422]:
+                - generic [ref=e423]: $21.99
+                - generic [ref=e424]: $30.79
+          - button "Leather Journal Notebook -29% Leather Journal Notebook $15.99 $22.39" [ref=e425] [cursor=pointer]:
+            - generic [ref=e426]:
+              - img "Leather Journal Notebook" [ref=e427]
+              - generic [ref=e428]:
+                - img [ref=e429]
+                - text: "-29%"
+            - generic [ref=e431]:
+              - heading "Leather Journal Notebook" [level=3] [ref=e432]
+              - generic [ref=e433]:
+                - generic [ref=e434]: $15.99
+                - generic [ref=e435]: $22.39
+          - button "Aromatherapy Diffuser -29% Aromatherapy Diffuser $24.99 $34.99" [ref=e436] [cursor=pointer]:
+            - generic [ref=e437]:
+              - img "Aromatherapy Diffuser" [ref=e438]
+              - generic [ref=e439]:
+                - img [ref=e440]
+                - text: "-29%"
+            - generic [ref=e442]:
+              - heading "Aromatherapy Diffuser" [level=3] [ref=e443]
+              - generic [ref=e444]:
+                - generic [ref=e445]: $24.99
+                - generic [ref=e446]: $34.99
+          - button "Minimalist Plant Pot Set -29% Minimalist Plant Pot Set $18.99 $26.59" [ref=e447] [cursor=pointer]:
+            - generic [ref=e448]:
+              - img "Minimalist Plant Pot Set" [ref=e449]
+              - generic [ref=e450]:
+                - img [ref=e451]
+                - text: "-29%"
+            - generic [ref=e453]:
+              - heading "Minimalist Plant Pot Set" [level=3] [ref=e454]
+              - generic [ref=e455]:
+                - generic [ref=e456]: $18.99
+                - generic [ref=e457]: $26.59
+          - button "Pour-Over Coffee Maker Set -29% Pour-Over Coffee Maker Set $26.99 $37.79" [ref=e458] [cursor=pointer]:
+            - generic [ref=e459]:
+              - img "Pour-Over Coffee Maker Set" [ref=e460]
+              - generic [ref=e461]:
+                - img [ref=e462]
+                - text: "-29%"
+            - generic [ref=e464]:
+              - heading "Pour-Over Coffee Maker Set" [level=3] [ref=e465]
+              - generic [ref=e466]:
+                - generic [ref=e467]: $26.99
+                - generic [ref=e468]: $37.79
+          - button "Desk Lamp with Wireless Charger -29% Desk Lamp with Wireless Charger $34.99 $48.99" [ref=e469] [cursor=pointer]:
+            - generic [ref=e470]:
+              - img "Desk Lamp with Wireless Charger" [ref=e471]
+              - generic [ref=e472]:
+                - img [ref=e473]
+                - text: "-29%"
+            - generic [ref=e475]:
+              - heading "Desk Lamp with Wireless Charger" [level=3] [ref=e476]
+              - generic [ref=e477]:
+                - generic [ref=e478]: $34.99
+                - generic [ref=e479]: $48.99
+          - button "Foam Roller Set -29% Foam Roller Set $19.99 $27.99" [ref=e480] [cursor=pointer]:
+            - generic [ref=e481]:
+              - img "Foam Roller Set" [ref=e482]
+              - generic [ref=e483]:
+                - img [ref=e484]
+                - text: "-29%"
+            - generic [ref=e486]:
+              - heading "Foam Roller Set" [level=3] [ref=e487]
+              - generic [ref=e488]:
+                - generic [ref=e489]: $19.99
+                - generic [ref=e490]: $27.99
+          - button "Jump Rope with Counter -29% Jump Rope with Counter $12.99 $18.19" [ref=e491] [cursor=pointer]:
+            - generic [ref=e492]:
+              - img "Jump Rope with Counter" [ref=e493]
+              - generic [ref=e494]:
+                - img [ref=e495]
+                - text: "-29%"
+            - generic [ref=e497]:
+              - heading "Jump Rope with Counter" [level=3] [ref=e498]
+              - generic [ref=e499]:
+                - generic [ref=e500]: $12.99
+                - generic [ref=e501]: $18.19
+          - button "Fitness Tracker Watch -29% Fitness Tracker Watch $49.99 $69.99" [ref=e502] [cursor=pointer]:
+            - generic [ref=e503]:
+              - img "Fitness Tracker Watch" [ref=e504]
+              - generic [ref=e505]:
+                - img [ref=e506]
+                - text: "-29%"
+            - generic [ref=e508]:
+              - heading "Fitness Tracker Watch" [level=3] [ref=e509]
+              - generic [ref=e510]:
+                - generic [ref=e511]: $49.99
+                - generic [ref=e512]: $69.99
+          - button "Adjustable Dumbbells -29% Adjustable Dumbbells $89.99 $125.99 Low Stock" [ref=e513] [cursor=pointer]:
+            - generic [ref=e514]:
+              - img "Adjustable Dumbbells" [ref=e515]
+              - generic [ref=e516]:
+                - img [ref=e517]
+                - text: "-29%"
+            - generic [ref=e519]:
+              - heading "Adjustable Dumbbells" [level=3] [ref=e520]
+              - generic [ref=e521]:
+                - generic [ref=e522]: $89.99
+                - generic [ref=e523]: $125.99
+                - generic [ref=e524]: Low Stock
+          - button "Resistance Bands Set -29% Resistance Bands Set $14.99 $20.99" [ref=e525] [cursor=pointer]:
+            - generic [ref=e526]:
+              - img "Resistance Bands Set" [ref=e527]
+              - generic [ref=e528]:
+                - img [ref=e529]
+                - text: "-29%"
+            - generic [ref=e531]:
+              - heading "Resistance Bands Set" [level=3] [ref=e532]
+              - generic [ref=e533]:
+                - generic [ref=e534]: $14.99
+                - generic [ref=e535]: $20.99
+          - button "Premium Yoga Mat -29% Premium Yoga Mat $29.99 $41.99" [ref=e536] [cursor=pointer]:
+            - generic [ref=e537]:
+              - img "Premium Yoga Mat" [ref=e538]
+              - generic [ref=e539]:
+                - img [ref=e540]
+                - text: "-29%"
+            - generic [ref=e542]:
+              - heading "Premium Yoga Mat" [level=3] [ref=e543]
+              - generic [ref=e544]:
+                - generic [ref=e545]: $29.99
+                - generic [ref=e546]: $41.99
+          - button "Phone Stand with Wireless Charging -29% Phone Stand with Wireless Charging $22.99 $32.19" [ref=e547] [cursor=pointer]:
+            - generic [ref=e548]:
+              - img "Phone Stand with Wireless Charging" [ref=e549]
+              - generic [ref=e550]:
+                - img [ref=e551]
+                - text: "-29%"
+            - generic [ref=e553]:
+              - heading "Phone Stand with Wireless Charging" [level=3] [ref=e554]
+              - generic [ref=e555]:
+                - generic [ref=e556]: $22.99
+                - generic [ref=e557]: $32.19
+          - button "Portable Power Bank 20000mAh -29% Portable Power Bank 20000mAh $27.99 $39.19" [ref=e558] [cursor=pointer]:
+            - generic [ref=e559]:
+              - img "Portable Power Bank 20000mAh" [ref=e560]
+              - generic [ref=e561]:
+                - img [ref=e562]
+                - text: "-29%"
+            - generic [ref=e564]:
+              - heading "Portable Power Bank 20000mAh" [level=3] [ref=e565]
+              - generic [ref=e566]:
+                - generic [ref=e567]: $27.99
+                - generic [ref=e568]: $39.19
+          - button "USB-C Hub Adapter -29% USB-C Hub Adapter $32.99 $46.19" [ref=e569] [cursor=pointer]:
+            - generic [ref=e570]:
+              - img "USB-C Hub Adapter" [ref=e571]
+              - generic [ref=e572]:
+                - img [ref=e573]
+                - text: "-29%"
+            - generic [ref=e575]:
+              - heading "USB-C Hub Adapter" [level=3] [ref=e576]
+              - generic [ref=e577]:
+                - generic [ref=e578]: $32.99
+                - generic [ref=e579]: $46.19
+          - button "Fast Wireless Charger -29% Fast Wireless Charger $24.99 $34.99" [ref=e580] [cursor=pointer]:
+            - generic [ref=e581]:
+              - img "Fast Wireless Charger" [ref=e582]
+              - generic [ref=e583]:
+                - img [ref=e584]
+                - text: "-29%"
+            - generic [ref=e586]:
+              - heading "Fast Wireless Charger" [level=3] [ref=e587]
+              - generic [ref=e588]:
+                - generic [ref=e589]: $24.99
+                - generic [ref=e590]: $34.99
+          - button "Magnetic Phone Case -29% Magnetic Phone Case $19.99 $27.99" [ref=e591] [cursor=pointer]:
+            - generic [ref=e592]:
+              - img "Magnetic Phone Case" [ref=e593]
+              - generic [ref=e594]:
+                - img [ref=e595]
+                - text: "-29%"
+            - generic [ref=e597]:
+              - heading "Magnetic Phone Case" [level=3] [ref=e598]
+              - generic [ref=e599]:
+                - generic [ref=e600]: $19.99
+                - generic [ref=e601]: $27.99
+          - button "Wireless Earbuds Pro -29% Wireless Earbuds Pro $29.99 $41.99" [ref=e602] [cursor=pointer]:
+            - generic [ref=e603]:
+              - img "Wireless Earbuds Pro" [ref=e604]
+              - generic [ref=e605]:
+                - img [ref=e606]
+                - text: "-29%"
+            - generic [ref=e608]:
+              - heading "Wireless Earbuds Pro" [level=3] [ref=e609]
+              - generic [ref=e610]:
+                - generic [ref=e611]: $29.99
+                - generic [ref=e612]: $41.99
+          - button "Smart Speaker Hub -29% Smart Speaker Hub $39.99 $55.99" [ref=e613] [cursor=pointer]:
+            - generic [ref=e614]:
+              - img "Smart Speaker Hub" [ref=e615]
+              - generic [ref=e616]:
+                - img [ref=e617]
+                - text: "-29%"
+            - generic [ref=e619]:
+              - heading "Smart Speaker Hub" [level=3] [ref=e620]
+              - generic [ref=e621]:
+                - generic [ref=e622]: $39.99
+                - generic [ref=e623]: $55.99
+          - button "Wireless Security Camera -29% Wireless Security Camera $49.99 $69.99" [ref=e624] [cursor=pointer]:
+            - generic [ref=e625]:
+              - img "Wireless Security Camera" [ref=e626]
+              - generic [ref=e627]:
+                - img [ref=e628]
+                - text: "-29%"
+            - generic [ref=e630]:
+              - heading "Wireless Security Camera" [level=3] [ref=e631]
+              - generic [ref=e632]:
+                - generic [ref=e633]: $49.99
+                - generic [ref=e634]: $69.99
+          - button "Smart Humidifier with RGB Light -29% Smart Humidifier with RGB Light $34.99 $48.99" [ref=e635] [cursor=pointer]:
+            - generic [ref=e636]:
+              - img "Smart Humidifier with RGB Light" [ref=e637]
+              - generic [ref=e638]:
+                - img [ref=e639]
+                - text: "-29%"
+            - generic [ref=e641]:
+              - heading "Smart Humidifier with RGB Light" [level=3] [ref=e642]
+              - generic [ref=e643]:
+                - generic [ref=e644]: $34.99
+                - generic [ref=e645]: $48.99
+          - button "Smart Plug Mini -29% Smart Plug Mini $16.99 $23.79" [ref=e646] [cursor=pointer]:
+            - generic [ref=e647]:
+              - img "Smart Plug Mini" [ref=e648]
+              - generic [ref=e649]:
+                - img [ref=e650]
+                - text: "-29%"
+            - generic [ref=e652]:
+              - heading "Smart Plug Mini" [level=3] [ref=e653]
+              - generic [ref=e654]:
+                - generic [ref=e655]: $16.99
+                - generic [ref=e656]: $23.79
+          - button "Robot Vacuum Cleaner Pro -29% Robot Vacuum Cleaner Pro $189.99 $265.99 Low Stock" [ref=e657] [cursor=pointer]:
+            - generic [ref=e658]:
+              - img "Robot Vacuum Cleaner Pro" [ref=e659]
+              - generic [ref=e660]:
+                - img [ref=e661]
+                - text: "-29%"
+            - generic [ref=e663]:
+              - heading "Robot Vacuum Cleaner Pro" [level=3] [ref=e664]
+              - generic [ref=e665]:
+                - generic [ref=e666]: $189.99
+                - generic [ref=e667]: $265.99
+                - generic [ref=e668]: Low Stock
+          - button "Smart LED Bulb Kit -29% Smart LED Bulb Kit $24.99 $34.99" [ref=e669] [cursor=pointer]:
+            - generic [ref=e670]:
+              - img "Smart LED Bulb Kit" [ref=e671]
+              - generic [ref=e672]:
+                - img [ref=e673]
+                - text: "-29%"
+            - generic [ref=e675]:
+              - heading "Smart LED Bulb Kit" [level=3] [ref=e676]
+              - generic [ref=e677]:
+                - generic [ref=e678]: $24.99
+                - generic [ref=e679]: $34.99
+      - generic [ref=e683]:
+        - generic [ref=e684]:
+          - img [ref=e686]
+          - heading "Fast Response" [level=3] [ref=e691]
+          - paragraph [ref=e692]: Lightning delivery, fast shipping
+        - generic [ref=e693]:
+          - img [ref=e695]
+          - heading "Secure Payment" [level=3] [ref=e697]
+          - paragraph [ref=e698]: Multi-layer encryption ensures transaction security
+        - generic [ref=e699]:
+          - img [ref=e701]
+          - heading "Free Returns" [level=3] [ref=e705]
+          - paragraph [ref=e706]: 7-day hassle-free returns with shipping insurance
+        - generic [ref=e707]:
+          - img [ref=e709]
+          - heading "24/7 Support" [level=3] [ref=e711]
+          - paragraph [ref=e712]: Round-the-clock support, always here for you
+      - generic [ref=e715]:
+        - generic [ref=e716]:
+          - generic [ref=e717]:
+            - generic [ref=e718]:
+              - generic [ref=e720]: S
+              - generic [ref=e721]: SoloSales
+            - paragraph [ref=e722]: High-quality independent store for TikTok trending products
+          - generic [ref=e724]:
+            - generic [ref=e725]:
+              - heading "Shop" [level=3] [ref=e726]
+              - list [ref=e727]:
+                - listitem [ref=e728]:
+                  - link "New Arrivals" [ref=e729] [cursor=pointer]:
+                    - /url: /en/products?filter=new
+                - listitem [ref=e730]:
+                  - link "Best Sellers" [ref=e731] [cursor=pointer]:
+                    - /url: /en/products?filter=best
+                - listitem [ref=e732]:
+                  - link "Sales" [ref=e733] [cursor=pointer]:
+                    - /url: /en/products?filter=sale
+                - listitem [ref=e734]:
+                  - link "All Products" [ref=e735] [cursor=pointer]:
+                    - /url: /en/products
+            - generic [ref=e736]:
+              - heading "Company" [level=3] [ref=e737]
+              - list [ref=e738]:
+                - listitem [ref=e739]:
+                  - link "About Us" [ref=e740] [cursor=pointer]:
+                    - /url: /en/about
+                - listitem [ref=e741]:
+                  - link "Contact Us" [ref=e742] [cursor=pointer]:
+                    - /url: /en/contact
+                - listitem [ref=e743]:
+                  - link "FAQ" [ref=e744] [cursor=pointer]:
+                    - /url: /en/faq
+                - listitem [ref=e745]:
+                  - link "Privacy Policy" [ref=e746] [cursor=pointer]:
+                    - /url: /en/privacy
+          - generic [ref=e747]:
+            - heading "Newsletter" [level=3] [ref=e748]
+            - paragraph [ref=e749]: Subscribe for the latest deals and product updates
+            - generic [ref=e750]:
+              - generic [ref=e751]:
+                - img [ref=e752]
+                - textbox "Enter your email" [ref=e755]
+              - button [ref=e756]:
+                - img
+            - generic [ref=e757]:
+              - link "Facebook" [ref=e758] [cursor=pointer]:
+                - /url: https://facebook.com
+                - img [ref=e759]
+              - link "Instagram" [ref=e761] [cursor=pointer]:
+                - /url: https://instagram.com
+                - img [ref=e762]
+              - link "X" [ref=e765] [cursor=pointer]:
+                - /url: https://x.com
+                - img [ref=e766]
+              - link "TikTok" [ref=e768] [cursor=pointer]:
+                - /url: https://tiktok.com
+                - img [ref=e769]
+        - generic [ref=e771]:
+          - generic [ref=e772]:
+            - generic [ref=e774]: Visa
+            - generic [ref=e775]:
+              - generic [ref=e776]: "|"
+              - generic [ref=e777]: Mastercard
+            - generic [ref=e778]:
+              - generic [ref=e779]: "|"
+              - generic [ref=e780]: Stripe
+          - paragraph [ref=e781]: © 2026 SoloSales Shop. All rights reserved.
+    - generic [ref=e783]:
+      - button [ref=e784]:
+        - img [ref=e785]
+      - generic [ref=e788]:
+        - generic [ref=e789]: 🎁
+        - heading "Welcome Gift" [level=2] [ref=e790]
+      - generic [ref=e791]:
+        - generic [ref=e792]: $5 OFF
+        - paragraph [ref=e793]: $5 off your first order, valid on all products
+        - generic [ref=e794]:
+          - generic [ref=e795]: Coupon Code
+          - generic [ref=e796]: NEWUSER5
+        - button "Claim Now" [ref=e797]
+        - paragraph [ref=e798]: "* Valid for 30 days, cannot be combined with other offers"
+  - region "Notifications alt+T"
+  - generic [ref=e801]:
+    - img [ref=e803]
+    - button "Open Tanstack query devtools":
+      - img
+  - generic [ref=e904]:
+    - button "Open Next.js Dev Tools" [ref=e905]:
+      - img [ref=e906]
+    - generic [ref=e909]:
+      - button "Open issues overlay" [ref=e910]:
+        - generic [ref=e911]:
+          - generic [ref=e912]: "0"
+          - generic [ref=e913]: "1"
+        - generic [ref=e914]: Issue
+      - button "Collapse issues badge" [ref=e915]:
+        - img [ref=e916]
+  - alert [ref=e918]
+```
+
+# Test source
+
+```ts
+  1  | import { test, expect } from '@playwright/test';
+  2  | 
+  3  | test.describe('Homepage', () => {
+  4  |   test('should load successfully', async ({ page }) => {
+  5  |     await page.goto('/');
+  6  | 
+  7  |     // Wait for page to load
+  8  |     await page.waitForLoadState('networkidle');
+  9  | 
+  10 |     // Check if title is visible
+  11 |     await expect(page.locator('h1')).toBeVisible();
+  12 | 
+  13 |     // Take screenshot for visual review
+  14 |     await page.screenshot({ path: 'tests/screenshots/homepage.png', fullPage: true });
+  15 |   });
+  16 | 
+  17 |   test('should display Klein Blue theme colors', async ({ page }) => {
+  18 |     await page.goto('/');
+  19 | 
+  20 |     // Check if brand colors are applied (Klein Blue)
+  21 |     const brandButton = page.locator('button[class*="bg-brand"]').first();
+  22 |     if (await brandButton.isVisible()) {
+  23 |       const bgColor = await brandButton.evaluate((el) =>
+  24 |         window.getComputedStyle(el).backgroundColor
+  25 |       );
+  26 |       // Klein Blue should have blue tone
+  27 |       expect(bgColor).toBeTruthy();
+  28 |     }
+  29 |   });
+  30 | 
+  31 |   test('should navigate to product list', async ({ page }) => {
+  32 |     await page.goto('/');
+  33 | 
+  34 |     // Click on navigation link to products
+  35 |     const productsLink = page.locator('a[href*="products"]').first();
+> 36 |     await productsLink.click();
+     |                        ^ Error: locator.click: Test timeout of 30000ms exceeded.
+  37 | 
+  38 |     // Verify navigation
+  39 |     await expect(page).toHaveURL(/products/);
+  40 |   });
+  41 | });
+  42 | 
+```
