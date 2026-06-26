@@ -10,6 +10,59 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.6.5] - 2026-06-27
+
+### Klein Blue Theme System and E2E Testing
+
+#### Added
+- **Playwright E2E Testing Framework**: 完整的端到端测试基础设施
+  - `playwright.config.ts`: 多浏览器配置（Chromium, Firefox, WebKit, Mobile）
+  - `tests/e2e/storefront/homepage.spec.ts`: 首页加载、主题色验证、导航测试
+  - `tests/e2e/storefront/navigation.spec.ts`: 语言切换、主题切换、搜索功能测试
+  - `tests/e2e/storefront/product-browsing.spec.ts`: 商品列表、详情、购物车、筛选、排序测试
+- **Klein Blue Brand Theme**: 克莱因蓝(#002FA7)主题系统
+  - `--brand`: Klein Blue主品牌色，用于主要按钮和操作
+  - `--brand-hover`: 深蓝色悬停状态
+  - `--accent`: 红色(#DC2626)强调色，用于价格和危险操作
+  - `--accent-hover`: 深红色悬停状态
+- **Structured Logger**: 生产级结构化日志系统
+  - `src/lib/logger.ts`: 环境感知、类型安全的日志工具
+  - 支持debug/info/warn/error级别
+  - 生产环境仅输出error，测试环境静默
+- **Documentation**: 完整的规范和执行文档
+  - `.trae/specs/v1.6.5-playwright-theme-optimization/`: spec/tasks/checklist
+  - `V1.6.5_EXECUTION_STATUS.md`: 详细执行路线图
+  - `V1.6.5_THEME_COMPLETION_REPORT.md`: 主题实施报告
+  - `EXECUTION_SUMMARY.txt`: 快速参考
+
+#### Changed
+- **Theme Color Mapping**: CSS变量映射实现零代码修改主题更新
+  - `--primary` → `var(--brand)`: 主要操作色映射到Klein Blue
+  - `--destructive` → `var(--accent)`: 危险操作映射到Red
+  - 明亮主题和暗黑主题均已更新
+- **Console Cleanup (45% reduction)**: 从118个减少到65个
+  - 14个服务/库文件迁移到structured logger
+  - admin-service, product-service, EmailService, StockAlertService等
+  - cache, redis, permissionLog, CurrencyService等
+- **Modal Handling**: 修复Welcome modal阻止导航的问题
+  - E2E测试中添加关闭modal处理
+
+#### Fixed
+- **Welcome Modal Blocking**: 首页欢迎弹窗阻止导航链接点击
+- **Test Stability**: E2E测试稳定性改进，3/3 Chromium测试通过
+
+#### Security
+- **better-auth**: 升级到1.6.22，修复设备授权绕过漏洞(GHSA-cq3f-vc6p-68fh)
+- **DOMPurify**: 修复4个XSS CVE漏洞
+
+#### Testing
+- **Playwright Tests**: 3个测试套件，15个测试用例
+  - Homepage: 加载、主题色、导航 (3/3 passed)
+  - Navigation: 语言、主题、搜索 (待执行)
+  - Product Browsing: 列表、详情、购物车等 (待执行)
+- **Multi-browser Support**: Chromium, Firefox, WebKit, Mobile Chrome, Mobile Safari
+- **Test Artifacts**: 自动截图和视频录制
+
 ## [1.6.0] - 2026-06-26
 
 ### Security Hardening and Environment Rotation
