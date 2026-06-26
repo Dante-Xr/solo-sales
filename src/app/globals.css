@@ -65,8 +65,12 @@
   /* 品牌与语义色彩注册 */
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
+  --color-brand-hover: var(--brand-hover);
   --color-brand-gradient-from: var(--brand-gradient-from);
   --color-brand-gradient-to: var(--brand-gradient-to);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-hover: var(--accent-hover);
   --color-price: var(--price);
   --color-price-foreground: var(--price-foreground);
   --color-success: var(--success);
@@ -110,12 +114,16 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-  /* 品牌与语义色彩 */
-  --brand: oklch(0.55 0.24 25);
+  /* 品牌与语义色彩 - Klein Blue + Red Theme */
+  --brand: oklch(0.35 0.15 264);  /* Klein Blue #002FA7 */
   --brand-foreground: oklch(0.98 0 0);
-  --brand-gradient-from: oklch(0.6 0.25 20);
-  --brand-gradient-to: oklch(0.55 0.22 350);
-  --price: oklch(0.55 0.24 25);
+  --brand-hover: oklch(0.25 0.15 264);  /* Darker Klein Blue #001E75 */
+  --brand-gradient-from: oklch(0.4 0.15 264);
+  --brand-gradient-to: oklch(0.3 0.12 280);
+  --accent: oklch(0.55 0.22 29);  /* Red #DC2626 */
+  --accent-foreground: oklch(0.98 0 0);
+  --accent-hover: oklch(0.45 0.22 29);  /* Darker Red #B91C1C */
+  --price: oklch(0.55 0.22 29);  /* Red for prices */
   --price-foreground: inherit;
   --success: oklch(0.52 0.17 145);
   --warning: oklch(0.6 0.16 75);
@@ -154,12 +162,16 @@
   --sidebar-accent-foreground: oklch(0.98 0 0);
   --sidebar-border: oklch(0.28 0.015 285);
   --sidebar-ring: oklch(0.5 0 0);
-  /* 品牌与语义色彩（暗色模式） */
-  --brand: oklch(0.7 0.24 20);
+  /* 品牌与语义色彩（暗色模式）- Klein Blue + Red Theme */
+  --brand: oklch(0.55 0.15 264);  /* Lighter Klein Blue for dark mode */
   --brand-foreground: oklch(0.12 0 0);
-  --brand-gradient-from: oklch(0.65 0.24 15);
-  --brand-gradient-to: oklch(0.7 0.22 345);
-  --price: oklch(0.75 0.24 20);
+  --brand-hover: oklch(0.65 0.15 264);  /* Even lighter on hover */
+  --brand-gradient-from: oklch(0.6 0.15 264);
+  --brand-gradient-to: oklch(0.55 0.12 280);
+  --accent: oklch(0.65 0.22 29);  /* Lighter Red for dark mode */
+  --accent-foreground: oklch(0.12 0 0);
+  --accent-hover: oklch(0.75 0.22 29);  /* Even lighter on hover */
+  --price: oklch(0.7 0.22 29);  /* Lighter Red for prices */
   --price-foreground: inherit;
   --success: oklch(0.65 0.17 145);
   --warning: oklch(0.7 0.16 75);
