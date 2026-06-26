@@ -1,12 +1,12 @@
 <!--
-修改时间：2026-06-05 11:39:06 +08:00
-修改内容：同步 README 中项目版本说明，明确 README、发布文档与 package 版本标识统一为 1.5.0。
-修改模型：gpt-5.5
+修改时间：2026-06-26 14:30:00 +08:00
+修改内容：同步 README 中项目版本说明，统一版本标识为 1.6.0，反映安全加固和认证保护更新。
+修改模型：AI assistant-model-4-6
 -->
 
 # SoloSales
 
-[![Version](https://img.shields.io/badge/version-1.5.0-blue.svg)](https://github.com/Dante-Xr/solo-sales)
+[![Version](https://img.shields.io/badge/version-1.6.0-blue.svg)](https://github.com/Dante-Xr/solo-sales)
 [![Next.js](https://img.shields.io/badge/Next.js-16.2.4-black.svg)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.2.4-61DAFB.svg)](https://react.dev/)
 [![Prisma](https://img.shields.io/badge/Prisma-5.22.0-2A52BE.svg)](https://www.prisma.io/)
@@ -14,9 +14,9 @@
 
 SoloSales 是一个基于 Next.js 16 App Router 的全栈独立站电商项目。它采用模块化单体架构，前台商城、后台管理、支付、订单、商品、营销、积分、联盟分销、数据分析、RAG 智能客服和运维验证脚本都在同一个代码库内交付。
 
-当前 README 反映 v1.5 状态：项目已完成 `src/server` 服务端分层、统一 API 响应契约、交易幂等、依赖故障快速失败、高频读缓存、后台任务队列准备、smoke/synthetic 验证和最小压测基线。
+当前 README 反映 v1.6 状态：项目已完成安全加固和环境变量轮换，移除游客结账功能，新增全面的 API 认证保护测试覆盖，新增秘钥审计脚本，增强启动安全验证。在 v1.5 基础上进一步强化生产部署安全性。
 
-说明：README badge、`CHANGELOG.md`、`RELEASES.md`、`package.json` 与 `package-lock.json` 的项目版本标识已统一为 `1.5.0`。
+说明：README badge、`CHANGELOG.md`、`RELEASES.md`、`package.json` 与 `package-lock.json` 的项目版本标识已统一为 `1.6.0`。
 
 ## 当前状态
 

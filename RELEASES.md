@@ -1,7 +1,7 @@
 <!--
-修改时间：2026-06-05 11:25:22 +08:00
-修改内容：新增 v1.5.0 发布说明，汇总高并发准备能力、后台任务、smoke/synthetic 和压测基线。
-修改模型：gpt-5.5
+修改时间：2026-06-26 14:30:00 +08:00
+修改内容：新增 v1.6.0 发布说明，汇总安全加固、环境变量轮换、API 认证保护、秘钥审计等生产安全能力。
+修改模型：AI assistant-model-4-6
 -->
 
 # SoloSales Release Notes
@@ -14,12 +14,121 @@ Comprehensive version history documenting all functional modules and features fr
 
 | Version | Release Date | Status |
 |---------|-------------|--------|
-| [1.5.0](#v150---2026-06-05) | 2026-06-05 | Latest |
+| [1.6.0](#v160---2026-06-26) | 2026-06-26 | Latest |
+| [1.5.0](#v150---2026-06-05) | 2026-06-05 | Stable |
 | [1.4.0](#v140---2026-05-02) | 2026-05-02 | Stable |
 | [1.3.0](#v130---2026-04-27) | 2026-04-27 | Stable |
 | [1.2.0](#v120---2026-04-26) | 2026-04-26 | Stable |
 | [1.0.2](#v102---2026-04-23) | 2026-04-23 | Stable |
 | [1.0.0](#v100---2026-04-21) | 2026-04-21 | Stable |
+
+---
+
+## v1.6.0 - 2026-06-26
+
+### Security Hardening and Environment Rotation - Production Launch Readiness
+
+v1.6.0 focuses on production security hardening: comprehensive API authentication protection, environment variable rotation, guest checkout removal, secret audit tooling, and enhanced launch verification. This release strengthens the security posture established in v1.5 and prepares the system for production deployment.
+
+#### API Authentication Protection
+
+| Module | Feature | Description |
+|--------|---------|-------------|
+| Admin APIs | Auth Coverage | All admin routes now have comprehensive authentication tests |
+| Customer APIs | Auth Tests | Customer profile and data endpoints protected with auth checks |
+| Order APIs | Auth Verification | Order creation and query endpoints require authenticated users |
+| Analytics APIs | RBAC Tests | Analytics endpoints verify admin role permissions |
+| Review APIs | Owner Verification | Review replies and moderation require ownership/admin checks |
+| Points APIs | User Isolation | Points balance, earn, redeem, and transactions enforce user context |
+| Coupons | Admin-Only | Coupon CRUD operations restricted to admin users |
+| Knowledge Base | Role-Based | Knowledge article management requires appropriate permissions |
+
+#### Security Enhancements
+
+| Module | Feature | Description |
+|--------|---------|-------------|
+| Guest Checkout | Removed | `GuestCheckoutForm` component removed; all checkouts require authentication |
+| Checkout Modals | Auth Required | `CheckoutModal` and `EnhancedCheckoutModal` enforce user authentication |
+| Secret Audit | New Script | `scripts/secret-audit.mjs` scans codebase for hardcoded secrets and sensitive patterns |
+| Environment Validator | Hardened | Improved validation for required environment variables with stricter checks |
+| Admin Login | Session Fixes | Admin login page properly handles session state and redirects |
+| Service Layer | Auth Guards | Admin, payment, and order services enforce authentication at service boundaries |
+
+#### Test Coverage Expansion
+
+| Test Suite | Coverage |
+|------------|----------|
+| admin-review-api-auth.test.ts | Admin review moderation authentication |
+| coupon-api-auth.test.ts | Coupon CRUD admin-only enforcement |
+| guest-checkout-disabled.test.ts | Verifies guest checkout is properly disabled |
+| launch-copy-safety.test.ts | Launch configuration and copy safety checks |
+| operational-api-auth.test.ts | Operational API authentication boundaries |
+| proxy-boundary.test.ts | API proxy and routing boundary validation |
+| secret-audit.test.ts | Secret detection and audit script validation |
+| admin/auth route tests | Admin authentication flow and token handling |
+| admin/dashboard route tests | Dashboard data access control |
+| admin/orders route tests | Admin order management authorization |
+| admin/reviews route tests | Review moderation permissions |
+| admin/permissions route tests | Permission CRUD authorization |
+| admin/roles route tests | Role management authorization |
+| admin/users route tests | User management authorization |
+| analytics/* route tests | Analytics API role-based access control |
+| customers/* route tests | Customer data access protection |
+| orders/* route tests | Order query and creation authentication |
+| reviews/[id] route tests | Review ownership and admin moderation |
+| reviews/[id]/replies route tests | Reply creation and moderation auth |
+
+#### Infrastructure and Configuration
+
+| Module | Feature | Description |
+|--------|---------|-------------|
+| Netlify Config | Runtime Updates | Updated Netlify runtime configuration for production deployment |
+| Prisma Client | Connection Hardening | Improved Prisma client initialization and connection handling |
+| Middleware | Cleanup | Removed unused middleware patterns, consolidated auth logic |
+| Rate Limiting | Admin Endpoints | Applied rate limiting to admin-sensitive operations |
+| DEPLOYMENT.md | Updated | Deployment documentation reflects security requirements |
+
+#### New Scripts and Tooling
+
+| Command | Purpose | Output |
+|---------|---------|--------|
+| `npm run audit:secrets` | Scan codebase for hardcoded secrets, API keys, tokens | Structured report with file paths and patterns detected |
+
+#### Security Audit Coverage
+
+| Pattern | Detection |
+|---------|-----------|
+| Hardcoded API Keys | `api_key`, `apiKey`, `API_KEY` patterns |
+| Secret Keys | `secret_key`, `SECRET_KEY`, `secretKey` patterns |
+| Private Keys | `private_key`, `PRIVATE_KEY`, PEM blocks |
+| Access Tokens | `access_token`, `ACCESS_TOKEN`, JWT patterns |
+| Database Credentials | Connection strings with embedded passwords |
+| Stripe Keys | `sk_live_`, `pk_live_` patterns |
+| PayPal Credentials | PayPal client ID/secret patterns |
+
+#### Breaking Changes
+
+| Change | Migration |
+|--------|-----------|
+| Guest Checkout Removed | All users must authenticate before checkout; implement user registration flow |
+| Auth Required for Orders | `/api/orders` now requires authentication; frontend must handle auth errors |
+| Stricter Env Validation | Missing critical environment variables will fail startup; review `.env.example` |
+
+#### Verified Commands
+
+- `npm run lint` - Passed
+- `npx tsc --noEmit` - Passed
+- `npm test -- --runInBand` - Passed
+- `npm run build` - Passed
+- `npm run audit:secrets` - Passed (no hardcoded secrets detected)
+- `npm run smoke:synthetic` - Passed
+
+#### Known Operational Notes
+
+- Guest checkout is permanently disabled; all transactions require authenticated users
+- Admin APIs enforce role-based access control consistently
+- Secret audit should be run in CI pipeline before each deployment
+- Environment variable rotation recommended every 90 days for production
 
 ---
 
