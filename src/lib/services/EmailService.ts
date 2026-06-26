@@ -9,6 +9,8 @@
  * ============================================
  */
 
+import { logger } from "@/lib/logger"
+
 interface EmailOptions {
   to: string
   subject: string
@@ -28,9 +30,8 @@ export async function sendEmail(options: EmailOptions): Promise<SendEmailResult>
     const resendApiKey = process.env.RESEND_API_KEY
 
     if (!resendApiKey) {
-      console.warn("RESEND_API_KEY not configured, logging email instead")
-      console.log("📧 Email would be sent to:", to)
-      console.log("📧 Subject:", subject)
+      logger.warn("RESEND_API_KEY not configured, logging email instead")
+      logger.debug("📧 Email would be sent to", { to, subject })
       return { success: true, messageId: "demo-mode" }
     }
 
@@ -50,14 +51,14 @@ export async function sendEmail(options: EmailOptions): Promise<SendEmailResult>
 
     if (!response.ok) {
       const error = await response.text()
-      console.error("Failed to send email:", error)
+      logger.error("Failed to send email", new Error(error))
       return { success: false, error }
     }
 
     const data = await response.json()
     return { success: true, messageId: data.id }
   } catch (error) {
-    console.error("Email send error:", error)
+    logger.error("Email send error", error)
     return { success: false, error: String(error) }
   }
 }

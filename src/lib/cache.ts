@@ -5,6 +5,7 @@
  */
 
 import redis from "@/lib/redis"
+import { logger } from "@/lib/logger"
 
 const DEFAULT_TTL = 300
 
@@ -55,7 +56,7 @@ export async function cacheGet<T>(key: string): Promise<T | null> {
     const data = await redis.get<T>(key)
     return data
   } catch (error) {
-    console.error(`Cache get error for key ${key}:`, error)
+    logger.error(`Cache get error for key ${key}`, error)
     return null
   }
 }
@@ -68,7 +69,7 @@ export async function cacheSet<T>(key: string, value: T, ttl: number = DEFAULT_T
     await redis.set(key, value, { ex: ttl })
     return true
   } catch (error) {
-    console.error(`Cache set error for key ${key}:`, error)
+    logger.error(`Cache set error for key ${key}`, error)
     return false
   }
 }
@@ -81,7 +82,7 @@ export async function cacheDel(key: string): Promise<boolean> {
     await redis.del(key)
     return true
   } catch (error) {
-    console.error(`Cache del error for key ${key}:`, error)
+    logger.error(`Cache del error for key ${key}`, error)
     return false
   }
 }
@@ -97,7 +98,7 @@ export async function cacheDelPattern(pattern: string): Promise<number> {
     }
     return keys.length
   } catch (error) {
-    console.error(`Cache del pattern error for ${pattern}:`, error)
+    logger.error(`Cache del pattern error for ${pattern}`, error)
     return 0
   }
 }

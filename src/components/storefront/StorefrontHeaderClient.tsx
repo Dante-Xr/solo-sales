@@ -132,7 +132,7 @@ export function StorefrontHeaderClient() {
 
         {/* PC端搜索框 + 分类导航（仅 lg 显示） */}
         <div className="hidden lg:block pb-2 md:pb-3">
-          <SearchBoxClient onSearch={(query) => console.log("Search:", query)} />
+          <SearchBoxClient onSearch={() => {}} />
           <CategoryNav />
         </div>
       </div>

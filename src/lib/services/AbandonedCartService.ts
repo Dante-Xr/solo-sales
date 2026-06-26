@@ -9,6 +9,7 @@
  * ============================================
  */
 
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { sendEmail, generateAbandonedCartEmail } from "./EmailService"
 
@@ -85,7 +86,7 @@ export async function checkAbandonedCarts(): Promise<{
 
     return { processed, emailsSent, recovered }
   } catch (error) {
-    console.error("Error checking abandoned carts:", error)
+    logger.error("Error checking abandoned carts", error)
     return { processed, emailsSent, recovered }
   }
 }
@@ -123,7 +124,7 @@ async function sendAbandonedCartEmail(
 
     return { sent: result.success, error: result.error }
   } catch (error) {
-    console.error("Error sending abandoned cart email:", error)
+    logger.error("Error sending abandoned cart email", error)
     return { sent: false, error: String(error) }
   }
 }
@@ -203,7 +204,7 @@ async function sendSecondEmail(
 
     return { sent: result.success, error: result.error }
   } catch (error) {
-    console.error("Error sending second abandoned cart email:", error)
+    logger.error("Error sending second abandoned cart email", error)
     return { sent: false, error: String(error) }
   }
 }

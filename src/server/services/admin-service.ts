@@ -18,6 +18,7 @@ import {
   type AdminInfo,
 } from "@/lib/adminAuth"
 import { auth } from "@/lib/auth"
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { logCreate, logDelete, logUpdate } from "@/lib/permissionLog"
 import { badRequest, conflict, forbidden, notFound, unauthorized, validationError } from "@/server/contracts/errors"
@@ -144,7 +145,7 @@ export async function requireAdminPermission(
         },
       })
     } catch (error) {
-      console.error("Failed to log permission denial:", error)
+      logger.error("Failed to log permission denial", error)
     }
     throw forbidden("没有访问权限")
   }

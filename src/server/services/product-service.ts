@@ -8,6 +8,7 @@ import "server-only"
 import { Prisma } from "@prisma/client"
 import { z } from "zod"
 import { cacheDelPattern, cacheGet, cacheSet, CACHE_KEYS, CACHE_TTL } from "@/lib/cache"
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import {
   badRequest,
@@ -134,9 +135,9 @@ async function withTransientPrismaRetry<T>(
     async onRetry(_error, attempt) {
       // 只读查询允许轻量重试；重试前断开旧连接，下一轮强制走新连接池，降低 P1017 抖动造成的 500。
       await prisma.$disconnect().catch((disconnectError) => {
-        console.warn("[product-service] failed to disconnect stale Prisma client", disconnectError)
+        logger.warn("[product-service] failed to disconnect stale Prisma client", disconnectError)
       })
-      console.warn(`[product-service] disconnected stale Prisma client before retry ${attempt}`)
+      logger.warn(`[product-service] disconnected stale Prisma client before retry ${attempt}`)
     },
   })
 }

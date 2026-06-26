@@ -9,6 +9,7 @@
  * ============================================
  */
 import { Redis } from "@upstash/redis"
+import { logger } from "./logger"
 import { validateRedisConfig } from "./env-validator"
 
 /**
@@ -26,7 +27,7 @@ const isBuildTime = process.env.NEXT_RUNTIME === undefined
 function initRedis(): Redis {
   try {
     const config = validateRedisConfig()
-    console.log("✅ Redis 配置验证通过")
+    logger.info("✅ Redis 配置验证通过")
     return new Redis({
       url: config.url,
       token: config.token,
@@ -34,7 +35,7 @@ function initRedis(): Redis {
   } catch (error) {
     // 构建阶段或环境变量缺失：使用 Mock
     if (isBuildTime || process.env.NODE_ENV !== "production") {
-      console.warn("⚠️  Redis 配置验证失败，使用 Mock 模式:", error)
+      logger.warn("⚠️  Redis 配置验证失败，使用 Mock 模式", { error })
       return new Redis({
         url: "https://mock.upstash.io",
         token: "mock-token",
@@ -43,8 +44,8 @@ function initRedis(): Redis {
 
     // 生产环境运行时有配置缺失：使用 Mock 但警告
     // 注意：这允许构建通过，但运行时功能可能降级
-    console.error("⚠️  生产环境 Redis 配置缺失，缓存功能将降级:", error)
-    console.error("💡 请在 Netlify 环境变量中配置 UPSTASH_REDIS_REST_URL 和 UPSTASH_REDIS_REST_TOKEN")
+    logger.error("⚠️  生产环境 Redis 配置缺失，缓存功能将降级", error instanceof Error ? error : new Error(String(error)))
+    logger.error("💡 请在 Netlify 环境变量中配置 UPSTASH_REDIS_REST_URL 和 UPSTASH_REDIS_REST_TOKEN")
 
     return new Redis({
       url: "https://mock.upstash.io",

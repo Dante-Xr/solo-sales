@@ -8,6 +8,7 @@
  * ============================================
  */
 
+import { logger } from "@/lib/logger"
 import { BaseWholesalerClient, WholesalerApiError } from "../client"
 import type { WholesalerConfig, WholesalerProduct, GetProductsParams } from "../types"
 import type {
@@ -48,7 +49,7 @@ export class I1866Client extends BaseWholesalerClient {
       await this.get<{ status: string }>("/health")
       return true
     } catch (error) {
-      console.error("1866 API 连接测试失败:", error)
+      logger.error("1866 API 连接测试失败", error)
       return false
     }
   }
@@ -109,7 +110,7 @@ export class I1866Client extends BaseWholesalerClient {
       if (error instanceof WholesalerApiError) {
         throw error
       }
-      console.error("获取 1866 商品列表失败:", error)
+      logger.error("获取 1866 商品列表失败", error)
       throw new WholesalerApiError("获取商品列表失败", 500, "FETCH_ERROR")
     }
   }
@@ -159,7 +160,7 @@ export class I1866Client extends BaseWholesalerClient {
         }
         throw error
       }
-      console.error("获取 1866 商品详情失败:", error)
+      logger.error("获取 1866 商品详情失败", error)
       throw new WholesalerApiError("获取商品详情失败", 500, "FETCH_ERROR")
     }
   }
@@ -175,7 +176,7 @@ export class I1866Client extends BaseWholesalerClient {
       if (error instanceof WholesalerApiError && error.statusCode === 404) {
         return null
       }
-      console.error("获取 1866 库存失败:", error)
+      logger.error("获取 1866 库存失败", error)
       throw new WholesalerApiError("获取库存失败", 500, "FETCH_ERROR")
     }
   }
@@ -191,7 +192,7 @@ export class I1866Client extends BaseWholesalerClient {
       )
       return response.stock_list
     } catch (error) {
-      console.error("批量获取 1866 库存失败:", error)
+      logger.error("批量获取 1866 库存失败", error)
       throw new WholesalerApiError("批量获取库存失败", 500, "FETCH_ERROR")
     }
   }

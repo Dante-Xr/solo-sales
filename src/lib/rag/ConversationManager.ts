@@ -10,6 +10,7 @@
  */
 
 import { prisma } from "@/lib/prisma"
+import { logger } from "@/lib/logger"
 import { cacheGet, cacheSet, cacheDel, CACHE_KEYS } from "@/lib/cache"
 import {
   ConversationContext,
@@ -128,7 +129,7 @@ export class ConversationManager {
         currentIntent: updates.currentIntent,
         status: this.stateToStatus(updates.currentState)
       }
-    }).catch(console.error)
+    }).catch((error) => logger.error("Failed to update conversation", error))
   }
 
   /**
@@ -169,7 +170,7 @@ export class ConversationManager {
         intent: message.intent,
         confidence: message.confidence
       }
-    }).catch(console.error)
+    }).catch((error) => logger.error("Failed to save chat message", error))
 
     return newMessage
   }

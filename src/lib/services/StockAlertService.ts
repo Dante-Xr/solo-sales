@@ -9,6 +9,7 @@
  * ============================================
  */
 
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { sendEmail, generateLowStockAlertEmail } from "./EmailService"
 
@@ -68,7 +69,7 @@ export async function checkLowStockProducts(): Promise<{
 
     return { checked, alertsSent }
   } catch (error) {
-    console.error("Error checking low stock products:", error)
+    logger.error("Error checking low stock products", error)
     return { checked, alertsSent }
   }
 }
@@ -96,7 +97,7 @@ async function sendStockAlert(
 
     return { sent: true }
   } catch (error) {
-    console.error("Error sending stock alert:", error)
+    logger.error("Error sending stock alert", error)
     return { sent: false, error: String(error) }
   }
 }
@@ -129,11 +130,11 @@ export async function createOrUpdateStockAlert(params: {
   isEnabled: boolean
   notifyEmails: string[]
 }): Promise<void> {
-  console.log("StockAlert model not available, createOrUpdateStockAlert called with:", params)
+  logger.debug("StockAlert model not available, createOrUpdateStockAlert called", params)
 }
 
 export async function deleteStockAlert(productId: string): Promise<void> {
-  console.log("StockAlert model not available, deleteStockAlert called for:", productId)
+  logger.debug("StockAlert model not available, deleteStockAlert called", { productId })
 }
 
 export async function getStockAlertConfig(_productId: string): Promise<{

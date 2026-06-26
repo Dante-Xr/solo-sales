@@ -35,8 +35,8 @@ export function SearchBox({ onSearch }: SearchBoxProps) {
       if (saved) {
         setHistory(JSON.parse(saved))
       }
-    } catch (e) {
-      console.error(t('searchPlaceholder'), e)
+    } catch {
+      // Ignore localStorage errors
     }
   }, [t])
 
@@ -61,8 +61,8 @@ export function SearchBox({ onSearch }: SearchBoxProps) {
     try {
       localStorage.setItem("solo_search_history_v2", JSON.stringify(newHistory))
       setHistory(newHistory)
-    } catch (e) {
-      console.error(t('searchPlaceholder'), e)
+    } catch {
+      // Ignore localStorage errors
     }
   }
 

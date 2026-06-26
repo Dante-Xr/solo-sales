@@ -9,6 +9,7 @@
  */
 
 import { PrismaClient } from "@prisma/client"
+import { logger } from "@/lib/logger"
 import type { ImportResult } from "./types"
 
 // 导入全局 Prisma 单例
@@ -197,18 +198,15 @@ export async function getImportLogById(logId: string): Promise<ImportLogEntry | 
  * 记录操作日志到控制台（开发环境）
  */
 export function logToConsole(level: "info" | "warn" | "error", message: string, data?: unknown): void {
-  const timestamp = new Date().toISOString()
-  const prefix = `[${timestamp}] [${level.toUpperCase()}]`
-
   switch (level) {
     case "info":
-      console.log(prefix, message, data ?? "")
+      logger.info(message, data ? { data } : undefined)
       break
     case "warn":
-      console.warn(prefix, message, data ?? "")
+      logger.warn(message, data ? { data } : undefined)
       break
     case "error":
-      console.error(prefix, message, data ?? "")
+      logger.error(message, data instanceof Error ? data : undefined, data && !(data instanceof Error) ? { data } : undefined)
       break
   }
 }

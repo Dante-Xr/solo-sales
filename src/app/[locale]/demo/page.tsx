@@ -69,8 +69,8 @@ export default function DemoPage() {
     return () => clearInterval(viewerInterval)
   }, [getRandomSold, getRandomViewers])
 
-  const handleClaimCoupon = (code: string) => {
-    console.log("Demo coupon claimed:", code)
+  const handleClaimCoupon = (_code: string) => {
+    // Demo coupon claimed
   }
 
   const handleCheckout = () => {
@@ -118,7 +118,7 @@ export default function DemoPage() {
           <HomeCarousel products={products} />
 
           <div className="px-4 pb-2">
-            <SearchBox onSearch={(query) => console.log("Demo Search:", query)} />
+            <SearchBox onSearch={() => {}} />
           </div>
 
           <div className="p-4">

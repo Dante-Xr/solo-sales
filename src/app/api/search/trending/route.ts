@@ -4,6 +4,7 @@
  * 修改模型：gpt-5.5
  */
 import { cacheGet, cacheSet, CACHE_KEYS, CACHE_TTL } from "@/lib/cache"
+import { logger } from "@/lib/logger"
 import { successResponse } from "@/server/contracts/api"
 
 const DEFAULT_TRENDING = {
@@ -32,7 +33,7 @@ export async function GET() {
       en: DEFAULT_TRENDING.en,
     })
   } catch (error) {
-    console.error("Error fetching trending searches:", error)
+    logger.error("Error fetching trending searches", error)
     return successResponse({
       zh: DEFAULT_TRENDING.zh,
       en: DEFAULT_TRENDING.en,

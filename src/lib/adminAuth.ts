@@ -19,9 +19,10 @@
  */
 
 import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "./prisma"
-import { cacheGet, cacheSet, cacheDel, cacheDelPattern, CACHE_KEYS } from "./cache"
 import { auth } from "./auth"
+import { cacheGet, cacheSet, cacheDel, cacheDelPattern, CACHE_KEYS } from "./cache"
+import { logger } from "./logger"
+import { prisma } from "./prisma"
 
 /** 权限缓存 TTL（秒） */
 const CACHE_TTL = {
@@ -102,7 +103,7 @@ export async function verifyAdminToken(request: NextRequest): Promise<AdminInfo 
       permissions: admin.role.permissions.map((p) => p.name),
     }
   } catch (error) {
-    console.error("verifyAdminToken error:", error)
+    logger.error("verifyAdminToken error", error)
     return null
   }
 }

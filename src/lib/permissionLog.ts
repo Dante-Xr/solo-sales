@@ -12,6 +12,7 @@
 
 import { LogAction, TargetType } from "@prisma/client"
 import { NextRequest } from "next/server"
+import { logger } from "./logger"
 import { prisma } from "./prisma"
 
 export interface LogEntry {
@@ -45,7 +46,7 @@ export async function logCreate(
       },
     })
   } catch (error) {
-    console.error("Failed to log create:", error)
+    logger.error("Failed to log create", error)
   }
 }
 
@@ -71,7 +72,7 @@ export async function logUpdate(
       },
     })
   } catch (error) {
-    console.error("Failed to log update:", error)
+    logger.error("Failed to log update", error)
   }
 }
 
@@ -95,7 +96,7 @@ export async function logDelete(
       },
     })
   } catch (error) {
-    console.error("Failed to log delete:", error)
+    logger.error("Failed to log delete", error)
   }
 }
 

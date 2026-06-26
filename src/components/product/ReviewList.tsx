@@ -116,14 +116,14 @@ export function ReviewList({
   const handleHelpful = async (reviewId: string) => {
     // TODO(v1.8): 实现点赞 API 调用
     // 需要新增 POST /api/reviews/[id]/helpful 端点
-    console.log("点赞:", reviewId)
+    void reviewId
   }
 
   // 处理回复
   const handleReply = async (reviewId: string) => {
     // TODO(v1.8): 实现回复表单弹窗
     // 需要新增 ReplyModal 组件和 POST /api/reviews/[id]/replies 调用
-    console.log("回复:", reviewId)
+    void reviewId
   }
 
   return (

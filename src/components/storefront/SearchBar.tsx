@@ -33,8 +33,8 @@ export function SearchBar({ onSearch }: SearchBarProps) {
         if (saved) {
           return JSON.parse(saved) as string[]
         }
-      } catch (e) {
-        console.error("Failed to load search history", e)
+      } catch {
+        // Ignore localStorage errors
       }
     }
     return [] as string[]
@@ -45,8 +45,8 @@ export function SearchBar({ onSearch }: SearchBarProps) {
     try {
       localStorage.setItem("solo_search_history", JSON.stringify(newHistory))
       setHistory(newHistory)
-    } catch (e) {
-      console.error("Failed to save search history", e)
+    } catch {
+      // Ignore localStorage errors
     }
   }
 

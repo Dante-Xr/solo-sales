@@ -97,7 +97,7 @@ export function ShareMenu({ title, text, url }: ShareMenuProps) {
         setIsOpen(false)
       }, 1500)
     } catch {
-      console.error("Failed to copy link")
+      // Failed to copy, ignore silently
     }
   }
 

@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { logger } from '@/lib/logger'
 import { cacheGet, cacheSet, cacheDel } from '../cache'
 import {
   CurrencyInfo,
@@ -180,14 +181,14 @@ class CurrencyService {
       )
 
       if (!response.ok) {
-        console.error('Failed to fetch exchange rates')
+        logger.error('Failed to fetch exchange rates')
         return false
       }
 
       const data = await response.json()
 
       if (data.result !== 'success') {
-        console.error('Exchange rate API error:', data.error)
+        logger.error('Exchange rate API error', new Error(data.error))
         return false
       }
 
@@ -224,7 +225,7 @@ class CurrencyService {
 
       return true
     } catch (error) {
-      console.error('Failed to update exchange rates:', error)
+      logger.error('Failed to update exchange rates', error)
       return false
     }
   }
