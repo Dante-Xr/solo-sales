@@ -114,13 +114,15 @@ export function ReviewList({
 
   // 处理点赞
   const handleHelpful = async (reviewId: string) => {
-    // TODO: 调用点赞 API
+    // TODO(v1.8): 实现点赞 API 调用
+    // 需要新增 POST /api/reviews/[id]/helpful 端点
     console.log("点赞:", reviewId)
   }
 
   // 处理回复
   const handleReply = async (reviewId: string) => {
-    // TODO: 打开回复表单
+    // TODO(v1.8): 实现回复表单弹窗
+    // 需要新增 ReplyModal 组件和 POST /api/reviews/[id]/replies 调用
     console.log("回复:", reviewId)
   }
 

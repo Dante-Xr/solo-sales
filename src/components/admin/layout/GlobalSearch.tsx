@@ -98,8 +98,12 @@ export function GlobalSearch() {
       )
       results.push(...matchedPages)
 
-      // TODO: 后续接入 API 搜索商品/订单/客户
-      // 当前版本先返回静态页面结果
+      // TODO(v1.8): 接入 API 搜索商品/订单/客户
+      // 需要新增以下端点：
+      // - GET /api/admin/search/products?q={query}
+      // - GET /api/admin/search/orders?q={query}
+      // - GET /api/admin/search/customers?q={query}
+      // 当前版本返回静态页面结果
 
       setSearchResults(results)
     },
