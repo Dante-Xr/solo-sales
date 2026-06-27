@@ -1,7 +1,10 @@
 /**
  * ============================================
- * 评论管理组件 (v0.5.0)
+ * 评论管理组件 (v0.5.1)
  * ============================================
+ * 修改时间：2026-06-27 05:40:00 +08:00
+ * 修改内容：将硬编码颜色映射到主题变量
+ * 修改依据：UI设计师专家建议 - P0优先级
  * 功能说明：
  *   - 后台评论审核管理
  *   - 支持评论审核、精选、删除操作
@@ -224,7 +227,7 @@ export function ReviewManagement({ isZh = false }: ReviewManagementProps) {
                             onClick={() => handleAction("approve", [review.id])}
                             disabled={actionLoading}
                           >
-                            <Check size={16} className="text-green-500" />
+                            <Check size={16} className="text-success" />
                           </Button>
                         )}
                         {review.isApproved && !review.isFeatured && (
@@ -234,7 +237,7 @@ export function ReviewManagement({ isZh = false }: ReviewManagementProps) {
                             onClick={() => handleAction("feature", [review.id])}
                             disabled={actionLoading}
                           >
-                            <Star size={16} className="text-yellow-500" />
+                            <Star size={16} className="text-warning" />
                           </Button>
                         )}
                         {review.isFeatured && (
@@ -244,7 +247,7 @@ export function ReviewManagement({ isZh = false }: ReviewManagementProps) {
                             onClick={() => handleAction("unfeature", [review.id])}
                             disabled={actionLoading}
                           >
-                            <X size={16} className="text-yellow-500" />
+                            <X size={16} className="text-warning" />
                           </Button>
                         )}
                         <Button
