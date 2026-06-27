@@ -2,6 +2,9 @@
  * ============================================
  * 产品表格行组件 (v0.4.1)
  * ============================================
+ * 修改时间：2026-06-27 04:40:00 +08:00
+ * 修改内容：将硬编码颜色映射到主题变量
+ * 修改依据：UI设计师专家建议 - P0优先级
  * 功能说明：
  *   - PC 端产品列表表格行组件
  *   - 使用 React.memo 优化渲染性能
@@ -113,7 +116,7 @@ const ProductRowComponent = ({
 
       {/* 库存 */}
       <td className="px-4 py-3">
-        <span className={product.stock <= 10 ? "text-orange-500 font-medium" : ""}>
+        <span className={product.stock <= 10 ? "text-warning font-medium" : ""}>
           {product.stock}
           {product.stock <= 10 && (
             <span className="text-xs ml-1">({isZh ? "低库存" : "Low"})</span>
@@ -129,8 +132,8 @@ const ProductRowComponent = ({
         >
           {product.isPublished ? (
             <>
-              <ToggleRight className="w-4 h-4 text-green-500" />
-              <span className="text-sm text-green-600">{isZh ? "上架" : "Active"}</span>
+              <ToggleRight className="w-4 h-4 text-success" />
+              <span className="text-sm text-success">{isZh ? "上架" : "Active"}</span>
             </>
           ) : (
             <>

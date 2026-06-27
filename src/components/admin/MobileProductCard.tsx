@@ -2,11 +2,15 @@
  * ============================================
  * 移动端产品卡片组件 (v0.4.1)
  * ============================================
+ * 修改时间：2026-06-27 04:35:00 +08:00
+ * 修改内容：将硬编码颜色映射到主题变量
+ * 修改依据：UI设计师专家建议 - P0优先级
  * 功能说明：
  *   - 移动端 (< 768px) 产品列表项卡片视图
  *   - 支持底部 Sheet 弹出操作菜单
  *   - 响应式信息展示
- *   - 触控区域优化 (44x44px 最 * ============================================
+ *   - 触控区域优化 (44x44px 最小)
+ * ============================================
  */
 
 "use client"
@@ -98,7 +102,7 @@ export function MobileProductCard({
         </div>
         <div>
           <p className="text-muted-foreground text-xs">{isZh ? "库存" : "Stock"}</p>
-          <p className={product.stock <= 10 ? "text-orange-500 font-medium" : ""}>
+          <p className={product.stock <= 10 ? "text-warning font-medium" : ""}>
             {product.stock}
           </p>
         </div>
@@ -112,8 +116,8 @@ export function MobileProductCard({
         >
           {product.isPublished ? (
             <>
-              <ToggleRight className="w-5 h-5 text-green-500" />
-              <span className="text-green-600">{isZh ? "上架中" : "Active"}</span>
+              <ToggleRight className="w-5 h-5 text-success" />
+              <span className="text-success">{isZh ? "上架中" : "Active"}</span>
             </>
           ) : (
             <>
