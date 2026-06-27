@@ -88,10 +88,10 @@ export function CouponInput({ onApply, onRemove, isZh = false }: CouponInputProp
         <CardContent className="p-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <CheckCircle size={18} className="text-green-600" />
+              <CheckCircle size={18} className="text-success" />
               <div>
                 <p className="font-medium text-green-700">{appliedCoupon.name}</p>
-                <p className="text-sm text-green-600">
+                <p className="text-sm text-success">
                   -{appliedCoupon.discount.toFixed(2)}
                 </p>
               </div>

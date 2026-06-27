@@ -97,11 +97,11 @@ export function UrgencyWidget({
           <div className="flex items-center gap-2">
             <AlertTriangle
               size={18}
-              className={isCritical ? "text-destructive" : "text-orange-500"}
+              className={isCritical ? "text-destructive" : "text-warning"}
             />
             <span
               className={`font-semibold text-sm ${
-                isCritical ? "text-destructive" : "text-orange-600"
+                isCritical ? "text-destructive" : "text-warning"
               }`}
             >
               {isCritical
@@ -145,7 +145,7 @@ export function UrgencyWidget({
 
           {/* 高销量提示 */}
           {salesCount && salesCount > 10 && (
-            <p className="text-xs text-orange-600 mt-1">
+            <p className="text-xs text-warning mt-1">
               🔥 近 ${salesCount} 人正在浏览此商品
             </p>
           )}
@@ -178,7 +178,7 @@ export function UrgencyBadge({
         ${
           isCritical
             ? "bg-destructive text-destructive-foreground"
-            : "bg-orange-100 text-orange-700"
+            : "bg-warning/10 text-warning"
         }
       `}
     >

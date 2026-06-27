@@ -146,7 +146,7 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
                   <p className="text-sm text-destructive">{error}</p>
                 )}
                 {success && (
-                  <p className="text-sm text-green-600">{t("submitSuccess")}</p>
+                  <p className="text-sm text-success">{t("submitSuccess")}</p>
                 )}
 
                 <div className="space-y-2">
