@@ -11,7 +11,6 @@
  * ============================================
  */
 
-import * as AlipaySdk from 'alipay-sdk'
 import {
   PaymentProvider,
   PaymentAction,
@@ -20,11 +19,14 @@ import {
   PaymentResult
 } from '../provider'
 
+// Use require for CommonJS module
+const AlipaySdk = require('alipay-sdk').default
+
 export class AlipayProvider implements PaymentProvider {
   readonly name = 'alipay' as const
-  private sdk: AlipaySdk | null = null
+  private sdk: any | null = null
 
-  private getSdk(): AlipaySdk {
+  private getSdk(): any {
     if (!this.sdk) {
       if (!process.env.ALIPAY_APP_ID) {
         throw new Error('ALIPAY_APP_ID is not configured')
