@@ -71,10 +71,20 @@ export class AlipayProvider implements PaymentProvider {
   }
 
   async verifyWebhook(
-    params: any,
+    rawBody: string | Buffer | any,
     signature: string
   ): Promise<WebhookEvent> {
     const sdk = this.getSdk()
+
+    // Handle different input types
+    let params: any
+    if (typeof rawBody === 'string') {
+      params = JSON.parse(rawBody)
+    } else if (Buffer.isBuffer(rawBody)) {
+      params = JSON.parse(rawBody.toString())
+    } else {
+      params = rawBody // Already an object
+    }
 
     // 使用SDK验证签名
     const isValid = sdk.checkNotifySign(params)
