@@ -1,7 +1,7 @@
 /**
- * 修改时间：2026-05-02 18:13:41 +08:00
- * 修改内容：为 Jest 增加 server-only 模块映射，支持服务端边界代码在测试环境运行。
- * 修改模型：gpt-5.5
+ * 修改时间：2026-06-27 17:10:00 +08:00
+ * 修改内容：排除Playwright E2E测试文件，只运行Jest单元测试
+ * 修改依据：E2E测试使用Playwright，不应由Jest运行
  */
 import type { Config } from "jest"
 import nextJest from "next/jest.js"
@@ -17,7 +17,11 @@ const config: Config = {
     "^@/(.*)$": "<rootDir>/src/$1",
     "^server-only$": "<rootDir>/src/server/__mocks__/server-only.ts",
   },
-  testPathIgnorePatterns: ["<rootDir>/node_modules/", "<rootDir>/.next/"],
+  testPathIgnorePatterns: [
+    "<rootDir>/node_modules/",
+    "<rootDir>/.next/",
+    "<rootDir>/tests/e2e/"  // 排除E2E测试（使用Playwright）
+  ],
 }
 
 export default createJestConfig(config)
