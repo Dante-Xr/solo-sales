@@ -135,7 +135,7 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
         <button
           type="button"
           onClick={onSwitchToRegister}
-          className="text-blue-600 hover:underline"
+          className="text-brand hover:underline"
         >
           {t('auth.register')}
         </button>

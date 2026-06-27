@@ -55,10 +55,10 @@ export function TrackingTimeline({ currentStatus }: TrackingTimelineProps) {
 
   if (currentStatus === "PENDING") {
     return (
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
-        <Package className="w-8 h-8 mx-auto mb-2 text-yellow-500" />
-        <p className="text-yellow-600 font-medium">{t('waitingPayment')}</p>
-        <p className="text-sm text-yellow-500 mt-1">{t('pleasePay')}</p>
+      <div className="bg-warning/10 border border-warning/20 rounded-lg p-4 text-center">
+        <Package className="w-8 h-8 mx-auto mb-2 text-warning" />
+        <p className="text-warning font-medium">{t('waitingPayment')}</p>
+        <p className="text-sm text-warning mt-1">{t('pleasePay')}</p>
       </div>
     )
   }
@@ -80,7 +80,7 @@ export function TrackingTimeline({ currentStatus }: TrackingTimelineProps) {
             </div>
             <p
               className={`text-xs mt-2 text-center ${
-                step.completed ? "text-green-600" : "text-gray-400"
+                step.completed ? "text-success" : "text-muted-foreground"
               }`}
             >
               {step.label}
