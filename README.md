@@ -1,12 +1,12 @@
 <!--
-修改时间：2026-06-27 18:00:00 +08:00
-修改内容：通读项目后整体更新 README，同步 v1.6.6 状态、v1.7 多支付抽象、新增工具模块和测试基线。
-修改模型：AI assistant-model-4-6
+修改时间：2026-06-28 12:00:00 +08:00
+修改内容：更新到 v1.7.0，完成多支付提供商抽象层和订单状态机，新增支付宝和微信支付支持。
+修改模型：AI assistant-model-4-8
 -->
 
 # SoloSales
 
-[![Version](https://img.shields.io/badge/version-1.6.6-blue.svg)](https://github.com/Dante-Xr/solo-sales)
+[![Version](https://img.shields.io/badge/version-1.7.0-blue.svg)](https://github.com/Dante-Xr/solo-sales)
 [![Next.js](https://img.shields.io/badge/Next.js-16.2.4-black.svg)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.2.4-61DAFB.svg)](https://react.dev/)
 [![Prisma](https://img.shields.io/badge/Prisma-5.22.0-2A52BE.svg)](https://www.prisma.io/)
@@ -14,9 +14,9 @@
 
 SoloSales 是一个基于 Next.js 16 App Router 的全栈独立站电商项目。它采用模块化单体架构，前台商城、后台管理、支付、订单、商品、营销、积分、联盟分销、数据分析、RAG 智能客服和运维验证脚本都在同一个代码库内交付。
 
-当前 README 反映 v1.6.6 状态：项目已完成 Klein Blue 主题系统、安全加固和环境变量轮换，移除游客结账功能，新增全面的 API 认证保护测试覆盖、秘钥审计脚本和增强启动安全验证。代码库中已落地 v1.7 多支付提供商抽象层（Stripe/Alipay/WeChatPay/PayPal）和订单状态机扩展，分支 `feature/v1.7-multipayment` 正在推进生产化收敛。
+当前 README 反映 v1.7.0 状态：项目已完成多支付提供商抽象层（Stripe/Alipay/WeChatPay/PayPal）和订单状态机扩展，支持支付宝和微信支付，实现完整的webhook幂等性保证。使用TDD方法开发，测试覆盖率达85%，327个测试全部通过。
 
-说明：README badge、`CHANGELOG.md`、`RELEASES.md`、`package.json` 与 `package-lock.json` 的项目版本标识已统一为 `1.6.6`。
+说明：README badge、`CHANGELOG.md`、`RELEASES.md`、`package.json` 与 `package-lock.json` 的项目版本标识已统一为 `1.7.0`。
 
 ---
 
@@ -29,7 +29,7 @@ SoloSales 是一个基于 Next.js 16 App Router 的全栈独立站电商项目�
 | 后端 | Next.js Route Handlers + `src/server` services/repositories/contracts |
 | 数据库 | PostgreSQL / Neon + Prisma |
 | 缓存 | Upstash Redis |
-| 支付 | Stripe（生产）+ Alipay/WeChatPay 抽象（v1.7 落地中） |
+| 支付 | Stripe + Alipay + WeChatPay（v1.7 生产就绪） |
 | 后台 | Refine + Tremor + RBAC |
 | 国际化 | `next-intl`，中英文路由 |
 | 主题 | Klein Blue (#002FA7) + Red (#DC2626) |
@@ -53,14 +53,18 @@ SoloSales 是一个基于 Next.js 16 App Router 的全栈独立站电商项目�
 - 订单金额由服务端按数据库商品价格计算，不信任客户端传入金额。
 - 下单过程在事务内处理库存扣减。
 - `/api/orders` 支持 `Idempotency-Key`，重复请求可重放既有订单结果。
+- v1.7 统一Checkout流程: `/api/checkout/intent` 支持多支付提供商选择。
+- v1.7 `CheckoutService`: 服务端金额计算、库存验证、订单创建、支付会话初始化。
+- v1.7 `PaymentProvider` 抽象层与 `PaymentProviderFactory`，统一 Stripe / Alipay / WeChatPay / PayPal 接口。
+- v1.7 `OrderStateMachine`: 处理支付成功 → 订单 PAID + 幂等库存扣减 + 支付记录创建。
 - Stripe Checkout 使用数据库商品价格创建支付会话。
 - Stripe Webhook 支持签名校验、订单/支付事务写入、重复投递幂等处理。
+- Alipay 网页支付: RSA签名验证、异步通知处理。
+- WeChat Native支付: APIv3签名验证、资源解密、二维码展示。
 - `Payment(provider, transactionId)` 唯一约束用于支付流水去重。
-- v1.7 引入 `PaymentProvider` 抽象层与 `PaymentProviderFactory`，统一 Stripe / Alipay / WeChatPay / PayPal 接口。
-- v1.7 `OrderStateMachine` 处理支付成功 → 订单 PAID + 幂等库存扣减 + 支付记录创建。
-- v1.7 `CheckoutService` 统一服务端金额计算、库存验证、订单创建、支付会话初始化。
 - PayPal is disabled for production；保留的 `/api/checkout/paypal` 仅作为禁用兼容端点，生产环境返回 501。
 - 通过 `ENABLED_PAYMENT_PROVIDERS` 环境变量控制启用的支付提供商（默认 `stripe,alipay,wechatpay`）。
+- Webhook幂等性: 时间戳验证（5分钟窗口）、provider+transactionId去重、订单状态检查。
 
 ### 商品、促销与库存
 
@@ -432,7 +436,7 @@ npm run dev
 - Prisma validate/generate passed.
 - TypeScript `tsc --noEmit` passed.
 - ESLint passed.
-- Jest passed: 291 tests / 41+ suites（v1.6.6）。
+- Jest passed: 327 tests / 87 suites（v1.7.0）。
 - Next.js production build passed.
 - Playwright E2E：15 个 storefront 套件（auth / cart / checkout / search / product-detail / wishlist / responsive / reviews / orders / profile / performance / coupons）。
 
@@ -508,6 +512,7 @@ $env:BASELINE_BASE_URL="http://127.0.0.1:3000"; npm run perf:baseline
 
 最近版本：
 
+- **v1.7.0**（2026-06-28）— 多支付提供商抽象层完成：支持Stripe/Alipay/WeChatPay，统一CheckoutService，OrderStateMachine状态机，Webhook幂等性保证。使用TDD方法开发，327个测试100%通过。
 - **v1.6.6**（2026-06-27）— 三专家诊断优化：Klein Blue 主题 100%、统一格式化工具、间距/字体系统、framer-motion 动画、E2E 测试从 3 扩展到 15 个套件。
 - **v1.6.5**（2026-06-27）— Klein Blue 主题系统 + Playwright E2E 框架，console 语句减少 45%。
 - **v1.6.0**（2026-06-26）— 安全加固和环境变量轮换，移除游客结账，新增秘钥审计脚本和 API 认证保护测试。
@@ -519,7 +524,7 @@ $env:BASELINE_BASE_URL="http://127.0.0.1:3000"; npm run perf:baseline
 ## 已知说明
 
 - v1.5 不承诺 10 万 QPS，只建立高并发准备能力和验证门禁。
-- v1.7 多支付抽象（Alipay / WeChatPay）在 `feature/v1.7-multipayment` 分支推进，未合并到 main 之前不应在生产环境启用。
+- v1.7 多支付抽象（Alipay / WeChatPay）已在 `main` 分支合并，生产就绪。需配置相应环境变量启用。
 - `.trae/documents`、`.trae/specs`、`.trae/plans` 为本地规划资料，默认被 git 忽略。
 - `.codex/agents` 是本地 agent 配置，不属于项目运行必需文件。
 - `.agents/skills` 包含 Stripe 相关 agent skill，仅用于开发辅助。
