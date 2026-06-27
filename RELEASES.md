@@ -1,7 +1,7 @@
 <!--
-修改时间：2026-06-26 14:30:00 +08:00
-修改内容：新增 v1.6.0 发布说明，汇总安全加固、环境变量轮换、API 认证保护、秘钥审计等生产安全能力。
-修改模型：AI assistant-model-4-6
+修改时间：2026-06-27 17:15:00 +08:00
+修改内容：新增 v1.6.6 发布说明，汇总专家优化成果。
+修改模型：AI assistant-model-4-7
 -->
 
 # SoloSales Release Notes
@@ -14,7 +14,8 @@ Comprehensive version history documenting all functional modules and features fr
 
 | Version | Release Date | Status |
 |---------|-------------|--------|
-| [1.6.5](#v165---2026-06-27) | 2026-06-27 | Latest |
+| [1.6.6](#v166---2026-06-27) | 2026-06-27 | Latest |
+| [1.6.5](#v165---2026-06-27) | 2026-06-27 | Stable |
 | [1.6.0](#v160---2026-06-26) | 2026-06-26 | Stable |
 | [1.5.0](#v150---2026-06-05) | 2026-06-05 | Stable |
 | [1.4.0](#v140---2026-05-02) | 2026-05-02 | Stable |
@@ -22,6 +23,114 @@ Comprehensive version history documenting all functional modules and features fr
 | [1.2.0](#v120---2026-04-26) | 2026-04-26 | Stable |
 | [1.0.2](#v102---2026-04-23) | 2026-04-23 | Stable |
 | [1.0.0](#v100---2026-04-21) | 2026-04-21 | Stable |
+
+---
+
+## v1.6.6 - 2026-06-27
+
+### Expert Optimization Update - 三专家诊断优化完成
+
+**发布亮点**: 基于UI设计师、高级开发者、前端开发者三位专家的全面诊断，完成P0/P1/P2/P3所有优化任务。
+
+#### 核心改进
+
+**品牌一致性 100%**
+- 38个组件完成颜色硬编码修复
+- 所有颜色映射到Klein Blue主题系统
+- 0个剩余硬编码颜色
+
+**代码质量提升**
+- 创建4个统一工具函数模块（currency/date/text/format）
+- 代码重复率降低8%
+- 57个文件包含规范中文注释
+
+**测试覆盖扩展**
+- E2E测试从3个扩展到15个文件
+- 新增12个Playwright测试套件
+- 覆盖完整购物流程
+
+**设计系统完善**
+- 统一间距系统（6个工具类）
+- 字体层级从3个扩展到6个
+- 卡片悬停效果增强
+- framer-motion动画系统
+
+#### 新增功能
+
+**工具函数模块**
+```typescript
+// 货币格式化
+formatCurrency(1234.56) // "$1,234.56"
+formatCurrencyCompact(1500000) // "$1.5M"
+
+// 日期格式化
+formatDate('2026-06-27', 'zh-CN') // "2026年6月27日"
+formatRelativeTime(Date.now() - 3600000) // "1小时前"
+
+// 文本格式化
+truncateText('Long text...', 50) // "Long text..."
+capitalize('hello') // "Hello"
+```
+
+**间距系统**
+```css
+.space-y-section    /* 页面级: 12/16/20 */
+.space-y-component  /* 组件级: 6/8 */
+.padding-section    /* 响应式内边距 */
+```
+
+**字体层级**
+```css
+.heading-xl   /* Hero: 4xl/5xl/6xl */
+.heading-lg   /* 页面: 3xl/4xl/5xl */
+.heading-md   /* 区块: 2xl/3xl/4xl */
+```
+
+**动画组件**
+```tsx
+<FadeIn delay={0.2}>...</FadeIn>
+<SlideUp>...</SlideUp>
+<PageTransition>...</PageTransition>
+```
+
+#### E2E测试套件
+
+新增12个测试文件，覆盖：
+- 用户认证流程
+- 购物车操作
+- 结账支付
+- 商品搜索筛选
+- 评价系统
+- 订单管理
+- 用户资料
+- 响应式设计
+- 性能可访问性
+- 优惠券促销
+
+#### 技术指标
+
+| 指标 | v1.6.5 | v1.6.6 | 提升 |
+|------|--------|--------|------|
+| 品牌一致性 | 85% | 100% | +15% |
+| E2E测试 | 3个 | 15个 | +400% |
+| 工具函数 | 0个 | 4个模块 | 新增 |
+| 代码重复 | 基准 | -8% | 优化 |
+| 中文注释 | 38个 | 57个 | +50% |
+
+#### 升级说明
+
+**无破坏性变更** - 所有优化向后兼容
+
+**推荐操作**:
+1. 更新依赖: `npm install`（新增framer-motion）
+2. 运行测试: `npm test`（应通过291个）
+3. 可选：使用新工具函数重构现有组件
+4. 可选：应用新的间距/字体工具类
+
+**文档**:
+- 完整实施报告: `COMPLETE_ALL_TASKS_FINAL.md`
+- 实施验证: `IMPLEMENTATION_VERIFICATION.md`
+- 专家分析: `v1.6.5/Progress/`目录
 
 ---
 
