@@ -81,7 +81,7 @@ export function SocialProof({
           </span>
         )}
         {displayViewing > 0 && (
-          <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">
+          <span className="inline-flex items-center gap-1 px-2 py-1 bg-accent/10 text-accent rounded-full text-xs font-medium">
             <Users size={12} />
             {displayViewing} 人正在浏览
           </span>
@@ -98,11 +98,11 @@ export function SocialProof({
           <div className="flex flex-wrap gap-4">
             {soldCount > 0 && (
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                  <ShoppingCart size={16} className="text-green-600" />
+                <div className="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center">
+                  <ShoppingCart size={16} className="text-success" />
                 </div>
                 <div>
-                  <p className="text-lg font-bold text-green-600">
+                  <p className="text-lg font-bold text-success">
                     {formatNumber(soldCount)}
                   </p>
                   <p className="text-xs text-muted-foreground">已售</p>
@@ -112,11 +112,11 @@ export function SocialProof({
 
             {displayViewing > 0 && (
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
-                  <Users size={16} className="text-orange-600" />
+                <div className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center">
+                  <Users size={16} className="text-brand" />
                 </div>
                 <div>
-                  <p className="text-lg font-bold text-orange-600">
+                  <p className="text-lg font-bold text-brand">
                     {displayViewing}
                   </p>
                   <p className="text-xs text-muted-foreground">正在浏览</p>
@@ -126,7 +126,7 @@ export function SocialProof({
 
             {todaySales !== undefined && todaySales > 0 && (
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
                   <Flame size={16} className="text-price" />
                 </div>
                 <div>
@@ -147,7 +147,7 @@ export function SocialProof({
   return (
     <div className={`flex flex-wrap items-center gap-4 text-sm ${className}`}>
       {soldCount > 0 && (
-        <div className="flex items-center gap-1.5 text-green-600">
+        <div className="flex items-center gap-1.5 text-success">
           <ShoppingCart size={16} />
           <span>
             <strong>{formatNumber(soldCount)}</strong> 件已售
@@ -156,7 +156,7 @@ export function SocialProof({
       )}
 
       {displayViewing > 0 && (
-        <div className="flex items-center gap-1.5 text-orange-600">
+        <div className="flex items-center gap-1.5 text-brand">
           <Users size={16} />
           <span>
             <strong>{displayViewing}</strong> 人正在浏览此商品
@@ -190,7 +190,7 @@ export function HotSellingBadge({
 
   return (
     <span
-      className={`inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium ${className}`}
+      className={`inline-flex items-center gap-1 px-2 py-1 bg-accent/10 text-accent rounded-full text-xs font-medium ${className}`}
     >
       <Flame size={12} />
       热销第 {rank} 名
