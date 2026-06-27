@@ -2,6 +2,9 @@
  * ============================================
  * 销售趋势图表组件 (Phase 5 管理后台重构)
  * ============================================
+ * 修改时间：2026-06-27 05:45:00 +08:00
+ * 修改内容：将硬编码颜色映射到主题变量
+ * 修改依据：UI设计师专家建议 - P0优先级
  * 功能说明：
  *   - 展示 7天/30天 销售趋势面积图
  *   - 使用 Tremor AreaChart 替代 Recharts
@@ -154,7 +157,7 @@ export function SalesChart({ data: propData, loading: propLoading }: SalesChartP
               </div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-success">
                 {formatCurrency(data.reduce((sum, d) => sum + d.revenue, 0))}
               </div>
               <div className="text-sm text-muted-foreground">
