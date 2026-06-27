@@ -92,7 +92,7 @@ export function LogisticsCard({ logistics }: LogisticsCardProps) {
       )}
 
       {/* 配送说明 */}
-      <div className="flex items-center gap-2 text-sm text-blue-600">
+      <div className="flex items-center gap-2 text-sm text-brand">
         <Package className="w-4 h-4" />
         <span>由 {logistics.carrier || "快递公司"} 配送</span>
       </div>
