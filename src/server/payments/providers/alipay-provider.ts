@@ -20,7 +20,7 @@ import {
 } from '../provider'
 
 // Use require for CommonJS module
-const AlipaySdk = require('alipay-sdk').default
+const AlipaySdk = require('alipay-sdk')
 
 export class AlipayProvider implements PaymentProvider {
   readonly name = 'alipay' as const
