@@ -22,20 +22,24 @@ import {
 
 export class StripeProvider implements PaymentProvider {
   readonly name = 'stripe' as const
-  private stripe: Stripe
+  private stripe: Stripe | null = null
 
-  constructor() {
-    if (!process.env.STRIPE_SECRET_KEY) {
-      throw new Error('STRIPE_SECRET_KEY is not configured')
+  private getStripe(): Stripe {
+    if (!this.stripe) {
+      if (!process.env.STRIPE_SECRET_KEY) {
+        throw new Error('STRIPE_SECRET_KEY is not configured')
+      }
+
+      this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+        apiVersion: '2026-02-25.clover'
+      })
     }
-
-    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2026-02-25.clover'
-    })
+    return this.stripe
   }
 
   async createPaymentSession(params: PaymentSessionParams): Promise<PaymentAction> {
-    const session = await this.stripe.checkout.sessions.create({
+    const stripe = this.getStripe()
+    const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       payment_method_types: ['card'],
       line_items: [
@@ -76,7 +80,8 @@ export class StripeProvider implements PaymentProvider {
       throw new Error('STRIPE_WEBHOOK_SECRET is not configured')
     }
 
-    const event = this.stripe.webhooks.constructEvent(
+    const stripe = this.getStripe()
+    const event = stripe.webhooks.constructEvent(
       rawBody,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET
