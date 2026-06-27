@@ -1,10 +1,10 @@
 /**
  * ============================================
- * 产品表格行组件 (v0.4.1)
+ * 产品表格行组件 (v0.4.2)
  * ============================================
- * 修改时间：2026-06-27 04:40:00 +08:00
- * 修改内容：将硬编码颜色映射到主题变量
- * 修改依据：UI设计师专家建议 - P0优先级
+ * 修改时间：2026-06-27 05:25:00 +08:00
+ * 修改内容：使用统一格式化工具函数替换本地重复代码
+ * 修改依据：前端开发者专家建议 - P2优先级
  * 功能说明：
  *   - PC 端产品列表表格行组件
  *   - 使用 React.memo 优化渲染性能
@@ -16,6 +16,7 @@ import { memo } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Edit, Trash2, ToggleLeft, ToggleRight, ImageIcon } from "lucide-react"
+import { formatCurrency, formatDate } from "@/lib/format"
 
 /**
  * 产品数据类型（与 products/page.tsx 保持一致）
@@ -41,27 +42,6 @@ interface ProductRowProps {
   onDelete: (product: Product) => void
   onToggleStatus: (product: Product) => void
   isZh: boolean
-}
-
-/**
- * 格式化金额
- */
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(value)
-}
-
-/**
- * 格式化日期
- */
-function formatDate(date: string, isZh: boolean): string {
-  return new Date(date).toLocaleDateString(isZh ? "zh-CN" : "en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  })
 }
 
 /**
@@ -146,7 +126,7 @@ const ProductRowComponent = ({
 
       {/* 创建日期 */}
       <td className="px-4 py-3 text-sm text-muted-foreground">
-        {formatDate(product.createdAt, isZh)}
+        {formatDate(product.createdAt, isZh ? "zh-CN" : "en-US")}
       </td>
 
       {/* 操作按钮 */}
