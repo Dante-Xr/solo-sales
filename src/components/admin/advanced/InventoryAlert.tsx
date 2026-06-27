@@ -150,7 +150,7 @@ const LEVEL_CONFIG: Record<AlertLevel, { label: string; color: string; bg: strin
   },
   safe: {
     label: "alertSafe",
-    color: "text-green-600 dark:text-green-400",
+    color: "text-success dark:text-success",
     bg: "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900",
     icon: AlertTriangle,
   },

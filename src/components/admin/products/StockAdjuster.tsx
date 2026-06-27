@@ -199,7 +199,7 @@ export function StockAdjuster({
           disabled={isSaving}
         />
         {stock <= 10 && (
-          <span className="text-sm text-orange-500">
+          <span className="text-sm text-warning">
             {t("stockInsufficient")}
           </span>
         )}

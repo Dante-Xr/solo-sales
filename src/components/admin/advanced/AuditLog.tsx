@@ -55,7 +55,7 @@ const ACTION_CONFIG: Record<AuditAction, { label: string; color: string }> = {
   DELETE: { label: "actionDelete", color: "text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-950/20" },
   LOGIN: { label: "actionLogin", color: "text-purple-600 bg-purple-50 dark:text-purple-400 dark:bg-purple-950/20" },
   LOGOUT: { label: "actionLogout", color: "text-gray-600 bg-gray-50 dark:text-gray-400 dark:bg-gray-950/20" },
-  EXPORT: { label: "actionExport", color: "text-orange-600 bg-orange-50 dark:text-orange-400 dark:bg-orange-950/20" },
+  EXPORT: { label: "actionExport", color: "text-accent bg-accent/10 dark:text-accent dark:bg-accent/20" },
 }
 
 // ==================== 模拟数据 ====================

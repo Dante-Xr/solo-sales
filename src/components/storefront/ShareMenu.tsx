@@ -156,7 +156,7 @@ export function ShareMenu({ title, text, url }: ShareMenuProps) {
               className="w-full px-3 py-2 flex items-center gap-3 hover:bg-accent transition-colors"
             >
               {copied ? (
-                <Check className="w-4 h-4 text-green-500" />
+                <Check className="w-4 h-4 text-success" />
               ) : (
                 <Link2 className="w-4 h-4 text-muted-foreground" />
               )}
