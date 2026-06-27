@@ -138,13 +138,13 @@ const LEVEL_CONFIG: Record<AlertLevel, { label: string; color: string; bg: strin
   },
   warning: {
     label: "alertWarning",
-    color: "text-orange-600 dark:text-orange-400",
+    color: "text-accent dark:text-accent",
     bg: "bg-orange-50 dark:bg-orange-950/20 border-orange-200 dark:border-orange-900",
     icon: AlertCircle,
   },
   notice: {
     label: "alertNotice",
-    color: "text-yellow-600 dark:text-yellow-400",
+    color: "text-warning dark:text-warning",
     bg: "bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-900",
     icon: Bell,
   },

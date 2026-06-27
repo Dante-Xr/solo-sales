@@ -46,7 +46,7 @@ export function FavoritesList() {
                 "hover:bg-muted hover:text-foreground transition-colors truncate"
               )}
             >
-              <Star className="h-3 w-3 text-yellow-500 fill-current shrink-0" />
+              <Star className="h-3 w-3 text-warning fill-current shrink-0" />
               <span className="truncate">{t(fav.label)}</span>
             </Link>
             {/* 移除收藏按钮（悬浮显示） */}

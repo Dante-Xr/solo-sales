@@ -50,8 +50,8 @@ export interface AuditLogEntry {
 // ==================== 操作类型配置 ====================
 
 const ACTION_CONFIG: Record<AuditAction, { label: string; color: string }> = {
-  CREATE: { label: "actionCreate", color: "text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-950/20" },
-  UPDATE: { label: "actionUpdate", color: "text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-950/20" },
+  CREATE: { label: "actionCreate", color: "text-success bg-success/10 dark:text-success dark:bg-success/20" },
+  UPDATE: { label: "actionUpdate", color: "text-brand bg-brand/10 dark:text-brand dark:bg-brand/20" },
   DELETE: { label: "actionDelete", color: "text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-950/20" },
   LOGIN: { label: "actionLogin", color: "text-purple-600 bg-purple-50 dark:text-purple-400 dark:bg-purple-950/20" },
   LOGOUT: { label: "actionLogout", color: "text-gray-600 bg-gray-50 dark:text-gray-400 dark:bg-gray-950/20" },

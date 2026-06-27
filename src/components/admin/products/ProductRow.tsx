@@ -135,7 +135,7 @@ const ProductRowComponent = ({
             checked={product.isPublished}
             onCheckedChange={() => onToggleStatus(product)}
           />
-          <span className={`text-sm ${product.isPublished ? "text-green-600" : "text-muted-foreground"}`}>
+          <span className={`text-sm ${product.isPublished ? "text-success" : "text-muted-foreground"}`}>
             {product.isPublished ? tStatus("stockInsufficient").split(" ")[0] === "Low" ? "Active" : "上架" : product.isPublished ? "Active" : "Inactive"}
           </span>
         </div>

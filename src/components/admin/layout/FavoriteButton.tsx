@@ -31,7 +31,7 @@ export function FavoriteButton({ tab }: FavoriteButtonProps) {
       className={cn(
         "p-1.5 rounded-md transition-all duration-200",
         favorited
-          ? "text-yellow-500 hover:text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-950/30"
+          ? "text-warning hover:text-warning hover:bg-warning/10 dark:hover:bg-warning/30"
           : "text-muted-foreground hover:text-foreground hover:bg-muted"
       )}
       title={favorited ? t("favorites.remove") : t("favorites.add")}

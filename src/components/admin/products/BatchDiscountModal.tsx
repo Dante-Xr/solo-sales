@@ -278,7 +278,7 @@ export function BatchDiscountModal({
                       <span className="text-muted-foreground line-through">
                         ${item.originalPrice.toFixed(2)}
                       </span>
-                      <Badge variant="secondary" className="text-green-600">
+                      <Badge variant="secondary" className="text-success">
                         ${item.discountedPrice.toFixed(2)}
                       </Badge>
                     </div>

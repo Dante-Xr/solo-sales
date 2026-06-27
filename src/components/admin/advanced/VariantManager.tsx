@@ -529,7 +529,7 @@ export function VariantManager({
                     <td className="px-3 py-2">
                       <div className="flex items-center justify-end gap-1">
                         {variant.stock <= 5 && variant.enabled && (
-                          <AlertTriangle className="h-3.5 w-3.5 text-orange-500 shrink-0" />
+                          <AlertTriangle className="h-3.5 w-3.5 text-warning shrink-0" />
                         )}
                         <input
                           type="number"

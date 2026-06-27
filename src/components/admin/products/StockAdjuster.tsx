@@ -125,7 +125,7 @@ export function StockAdjuster({
 
   // 库存预警样式
   const stockClassName =
-    stock <= 10 ? "text-orange-500 font-medium" : ""
+    stock <= 10 ? "text-warning font-medium" : ""
 
   if (compact) {
     return (
@@ -159,7 +159,7 @@ export function StockAdjuster({
           <Plus className="h-3 w-3" />
         </Button>
         {stock <= 10 && (
-          <span className="text-xs text-orange-500 ml-1">
+          <span className="text-xs text-warning ml-1">
             {t("low")}
           </span>
         )}
