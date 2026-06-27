@@ -24,6 +24,7 @@ import { AreaChart as TremorAreaChart, BarChart as TremorBarChart } from "@tremo
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useTranslations, useLocale } from "next-intl"
+import { formatCurrency } from "@/lib/format"
 import { ChartConfigPanel } from "./ChartConfigPanel"
 import { loadSavedMetrics } from "./MetricSelector"
 import type { ChartConfig, MetricKey } from "./chart-types"
@@ -165,7 +166,8 @@ export function SalesChart({ data: propData, compareData: propCompareData, loadi
     return labels[key]
   }, [t, tAdmin])
 
-  const formatCurrency = (value: number) => `$${value.toLocaleString()}`
+  // 使用统一的格式化工具函数
+  // 删除本地formatCurrency定义，使用@/lib/format中的统一函数
 
   const mergedData = useMemo(() => {
     if (config.compareMode === "none" || compareData.length === 0) {
