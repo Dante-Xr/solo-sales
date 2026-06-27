@@ -1,7 +1,8 @@
 /*
- * 修改时间：2026-05-02 19:10:31 +08:00
- * 修改内容：新增离线可用的系统字体变量，替代 next/font/google 生成的 Geist 变量以保障 build 不依赖网络。
- * 修改模型：gpt-5.5
+ * 修改时间：2026-06-27 16:20:00 +08:00
+ * 修改内容：添加统一间距系统和扩展字体层级（6个层级）
+ * 修改依据：UI设计师专家建议 - P2优先级
+ * 修改模型：AI assistant
  */
 
 @import "tailwindcss";
@@ -438,4 +439,110 @@
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-8px); }
+}
+
+/**
+ * ============================================
+ * 统一间距系统工具类
+ * ============================================
+ * 创建时间：2026-06-27 16:20:00 +08:00
+ * 创建依据：UI设计师专家建议 - P2优先级
+ * 功能说明：
+ *   - 基于8px网格的间距系统
+ *   - 响应式间距工具类
+ *   - 组件级和页面级间距
+ * ============================================
+ */
+@layer utilities {
+  /* 页面级间距 (section) */
+  .space-y-section {
+    @apply space-y-12 md:space-y-16 lg:space-y-20;
+  }
+  
+  /* 组件级间距 (component) */
+  .space-y-component {
+    @apply space-y-6 md:space-y-8;
+  }
+  
+  /* 元素级间距 (element) */
+  .space-y-element {
+    @apply space-y-3 md:space-y-4;
+  }
+  
+  /* 紧密间距 (tight) */
+  .space-y-tight {
+    @apply space-y-2;
+  }
+  
+  /* 页面内边距 */
+  .padding-section {
+    @apply px-4 py-12 md:px-6 md:py-16 lg:px-8 lg:py-20;
+  }
+  
+  .padding-component {
+    @apply p-6 md:p-8;
+  }
+}
+
+/**
+ * ============================================
+ * 扩展字体层级系统（6个层级）
+ * ============================================
+ * 创建时间：2026-06-27 16:20:00 +08:00
+ * 创建依据：UI设计师专家建议 - P2优先级
+ * 功能说明：
+ *   - 从3个层级扩展到6个层级
+ *   - 响应式字体大小
+ *   - 清晰的视觉层次
+ * ============================================
+ */
+@layer utilities {
+  /* Heading XL - 主标题/Hero */
+  .heading-xl {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight;
+  }
+  
+  /* Heading LG - 页面标题 */
+  .heading-lg {
+    @apply text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight;
+  }
+  
+  /* Heading MD - 区块标题 */
+  .heading-md {
+    @apply text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight;
+  }
+  
+  /* Heading SM - 组件标题 */
+  .heading-sm {
+    @apply text-xl md:text-2xl lg:text-3xl font-semibold;
+  }
+  
+  /* Heading XS - 子标题 */
+  .heading-xs {
+    @apply text-lg md:text-xl lg:text-2xl font-semibold;
+  }
+  
+  /* Heading 2XS - 小标题 */
+  .heading-2xs {
+    @apply text-base md:text-lg font-semibold;
+  }
+}
+
+/**
+ * ============================================
+ * 卡片悬停效果增强
+ * ============================================
+ * 创建时间：2026-06-27 16:20:00 +08:00
+ * 创建依据：UI设计师专家建议 - P1优先级
+ * 功能说明：微妙的悬停上浮效果
+ * ============================================
+ */
+@layer utilities {
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+  }
+  
+  .card-hover-subtle {
+    @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5;
+  }
 }
