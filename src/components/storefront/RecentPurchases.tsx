@@ -110,8 +110,8 @@ export function RecentPurchases() {
         }`}
       >
         <CardContent className="p-3 flex items-start gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0">
-            <ShoppingCart className="w-4 h-4 text-green-600 dark:text-green-400" />
+          <div className="w-8 h-8 rounded-full bg-success/10 dark:bg-success/30 flex items-center justify-center shrink-0">
+            <ShoppingCart className="w-4 h-4 text-success dark:text-success" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs leading-snug text-foreground">{message}</p>

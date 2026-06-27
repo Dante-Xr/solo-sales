@@ -302,7 +302,7 @@ interface StatCardProps {
 }
 
 function StatCard({ title, value, trend, icon }: StatCardProps) {
-  const trendColor = trend > 0 ? "text-green-600" : trend < 0 ? "text-red-600" : "text-gray-400"
+  const trendColor = trend > 0 ? "text-success" : trend < 0 ? "text-destructive" : "text-muted-foreground"
   const trendIcon = trend > 0 ? "↑" : trend < 0 ? "↓" : ""
 
   return (

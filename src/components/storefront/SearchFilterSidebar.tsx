@@ -162,7 +162,7 @@ export function SearchFilterSidebar({
                   key={i}
                   className={`w-3.5 h-3.5 ${
                     i < rating
-                      ? "fill-yellow-400 text-yellow-400"
+                      ? "fill-warning text-warning"
                       : "text-muted-foreground/30"
                   }`}
                 />

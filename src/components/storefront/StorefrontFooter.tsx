@@ -196,7 +196,7 @@ export function StorefrontFooter() {
               </Button>
             </form>
             {subscribed && (
-              <p className="text-green-400 text-xs md:text-sm mt-2">
+              <p className="text-success text-xs md:text-sm mt-2">
                 {t("subscribed")}
               </p>
             )}

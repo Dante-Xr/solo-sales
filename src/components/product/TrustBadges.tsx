@@ -175,10 +175,10 @@ export function PaymentMethods({
 export function SecurityBadge({ className = "" }: { className?: string }) {
   return (
     <div className={`flex items-center gap-2 text-sm text-muted-foreground ${className}`}>
-      <ShieldCheck size={16} className="text-green-600" />
+      <ShieldCheck size={16} className="text-success" />
       <span>受 SSL 加密保护</span>
       <span>•</span>
-      <Globe size={16} className="text-blue-600" />
+      <Globe size={16} className="text-brand" />
       <span>符合 GDPR 标准</span>
     </div>
   )
