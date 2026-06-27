@@ -11,7 +11,7 @@
  * ============================================
  */
 
-import AlipaySdk from 'alipay-sdk'
+import * as AlipaySdk from 'alipay-sdk'
 import {
   PaymentProvider,
   PaymentAction,
