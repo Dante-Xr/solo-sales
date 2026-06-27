@@ -1,10 +1,10 @@
 /**
  * ============================================
- * 移动端产品卡片组件 (v0.4.1)
+ * 移动端产品卡片组件 (v0.4.2)
  * ============================================
- * 修改时间：2026-06-27 04:35:00 +08:00
- * 修改内容：将硬编码颜色映射到主题变量
- * 修改依据：UI设计师专家建议 - P0优先级
+ * 修改时间：2026-06-27 05:20:00 +08:00
+ * 修改内容：使用统一格式化工具函数替换本地重复代码
+ * 修改依据：前端开发者专家建议 - P2优先级
  * 功能说明：
  *   - 移动端 (< 768px) 产品列表项卡片视图
  *   - 支持底部 Sheet 弹出操作菜单
@@ -25,6 +25,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { Edit, MoreVertical, Trash2, ToggleLeft, ToggleRight } from "lucide-react"
+import { formatCurrency } from "@/lib/format"
 
 // 产品类型定义（与 products/page.tsx 保持一致）
 interface Product {
@@ -48,16 +49,6 @@ interface MobileProductCardProps {
   onDelete: (product: Product) => void
   onToggleStatus: (product: Product) => void
   isZh: boolean
-}
-
-/**
- * 格式化金额
- */
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(value)
 }
 
 /**
