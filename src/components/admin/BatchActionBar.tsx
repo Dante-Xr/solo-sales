@@ -1,3 +1,12 @@
+/**
+ * ============================================
+ * 批量操作栏组件
+ * ============================================
+ * 修改时间：2026-06-27 04:10:00 +08:00
+ * 修改内容：将硬编码颜色映射到主题变量
+ * 修改依据：UI设计师专家建议 - P0优先级
+ * ============================================
+ */
 "use client"
 
 import { ToggleRight, ToggleLeft, Trash2, X, Percent } from "lucide-react"
@@ -31,7 +40,7 @@ export function BatchActionBar({
       <div className="w-px h-6 bg-border" />
 
       <Button variant="outline" size="sm" onClick={onPublish} className="gap-1">
-        <ToggleRight className="w-4 h-4 text-green-500" />
+        <ToggleRight className="w-4 h-4 text-success" />
         {isZh ? "上架" : "Publish"}
       </Button>
 

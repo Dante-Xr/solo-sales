@@ -4,6 +4,9 @@
  * ============================================
  * 创建日期: 2026-04-13
  * 创建时间: 22:20
+ * 修改时间: 2026-06-27 04:05:00 +08:00
+ * 修改内容: 将硬编码颜色映射到主题变量
+ * 修改依据: UI设计师专家建议 - P0优先级
  * 功能说明：
  *   - 使用 Tremor Card + shadcn/ui 构建 KPI 指标卡片
  *   - 支持趋势显示（上升/下降）
@@ -31,10 +34,10 @@ interface KpiCardProps {
 export function KpiCard({ title, value, delta, deltaType, icon: IconComponent }: KpiCardProps) {
   const deltaColor =
     deltaType === "increase"
-      ? "text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-950"
+      ? "text-success bg-success/10 dark:text-success dark:bg-success/10"
       : deltaType === "decrease"
-        ? "text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-950"
-        : "text-gray-600 bg-gray-50 dark:text-gray-400 dark:bg-gray-950"
+        ? "text-accent bg-accent/10 dark:text-accent dark:bg-accent/10"
+        : "text-muted-foreground bg-muted dark:text-muted-foreground dark:bg-muted"
 
   return (
     <Card className="p-4 sm:p-6">
