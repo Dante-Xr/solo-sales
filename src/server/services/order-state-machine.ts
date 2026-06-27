@@ -14,7 +14,7 @@
 import "server-only"
 
 import { prisma } from "@/lib/prisma"
-import { OrderStatus } from "@prisma/client"
+import { OrderStatus, PaymentStatus } from "@prisma/client"
 import { notFound } from "@/server/contracts/errors"
 
 /**
@@ -86,7 +86,7 @@ export async function handlePaymentSuccess(params: {
       await tx.payment.update({
         where: { id: existingPayment.id },
         data: {
-          status: 'SUCCESS',
+          status: PaymentStatus.COMPLETED,
           amount: params.amount
         }
       })
@@ -97,7 +97,7 @@ export async function handlePaymentSuccess(params: {
           orderId: params.orderId,
           amount: params.amount,
           provider: params.provider,
-          status: 'SUCCESS',
+          status: PaymentStatus.COMPLETED,
           transactionId: params.transactionId
         }
       })
@@ -148,7 +148,7 @@ export async function updateOrderPaymentStatus(params: {
       await tx.payment.update({
         where: { id: existingPayment.id },
         data: {
-          status: params.status === 'PAID' ? 'SUCCESS' : 'FAILED'
+          status: params.status === 'PAID' ? PaymentStatus.COMPLETED : PaymentStatus.FAILED
         }
       })
     } else {
@@ -157,7 +157,7 @@ export async function updateOrderPaymentStatus(params: {
           orderId: params.orderId,
           amount: order.totalAmount,
           provider: params.provider,
-          status: params.status === 'PAID' ? 'SUCCESS' : 'FAILED',
+          status: params.status === 'PAID' ? PaymentStatus.COMPLETED : PaymentStatus.FAILED,
           transactionId: params.transactionId
         }
       })
