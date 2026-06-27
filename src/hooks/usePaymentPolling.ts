@@ -43,8 +43,8 @@ export function usePaymentPolling({
 }: UsePaymentPollingOptions) {
   const [attempts, setAttempts] = useState(0)
   const [isPolling, setIsPolling] = useState(false)
-  const timeoutRef = useRef<NodeJS.Timeout>()
-  const startTimeRef = useRef<number>()
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
+  const startTimeRef = useRef<number | undefined>(undefined)
 
   useEffect(() => {
     if (!enabled || !orderId) {
