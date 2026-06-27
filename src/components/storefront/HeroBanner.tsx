@@ -83,7 +83,7 @@ export function HeroBanner({
                 <div className="flex items-center gap-2">
                   <div className="flex">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                      <Star key={i} className="w-3.5 h-3.5 fill-warning text-warning" />
                     ))}
                   </div>
                   <span className="text-white text-sm font-semibold">4.9</span>

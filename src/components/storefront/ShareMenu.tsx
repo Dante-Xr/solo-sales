@@ -118,7 +118,7 @@ export function ShareMenu({ title, text, url }: ShareMenuProps) {
         onClick={handleShare}
       >
         {copied ? (
-          <Check className="w-5 h-5 text-green-500" />
+          <Check className="w-5 h-5 text-success" />
         ) : (
           <Share2 className="w-5 h-5" />
         )}

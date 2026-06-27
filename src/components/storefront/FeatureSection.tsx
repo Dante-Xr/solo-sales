@@ -39,10 +39,10 @@ const features: Feature[] = [
 ]
 
 const iconBgColors = [
-  "bg-blue-50 text-blue-600",
-  "bg-green-50 text-green-600",
-  "bg-orange-50 text-orange-600",
-  "bg-purple-50 text-purple-600",
+  "bg-brand/10 text-brand",
+  "bg-success/10 text-success",
+  "bg-accent/10 text-accent",
+  "bg-info/10 text-info",
 ]
 
 export function FeatureSection() {

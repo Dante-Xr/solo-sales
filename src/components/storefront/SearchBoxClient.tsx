@@ -150,7 +150,7 @@ export function SearchBoxClient({ onSearch }: SearchBoxClientProps) {
           {hotTerms.length > 0 && (
             <div className="border-t border-border">
               <div className="px-3 py-2 text-sm text-muted-foreground flex items-center gap-2">
-                <Flame className="w-4 h-4 text-orange-500" />
+                <Flame className="w-4 h-4 text-accent" />
                 <span>{t("hotSearch")}</span>
               </div>
               <div className="flex flex-wrap gap-2 px-3 pb-2">
