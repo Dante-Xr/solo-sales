@@ -10,24 +10,23 @@
  * ============================================
  */
 
-import { describe, it, expect, beforeEach, jest } from '@jest/globals'
+// Mock functions must be defined before jest.mock
+const mockFindMany = jest.fn()
+const mockFindUnique = jest.fn()
 
-// Mock all external dependencies before imports
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     product: {
-      findMany: jest.fn(),
-      findUnique: jest.fn()
+      get findMany() { return mockFindMany },
+      get findUnique() { return mockFindUnique }
     }
   }
 }))
 
-jest.mock('../promotion-service')
 jest.mock('../order-service')
 jest.mock('../../payments/factory')
 
 import { CheckoutService } from '../checkout-service'
-import { prisma } from '@/lib/prisma'
 
 describe('CheckoutService', () => {
   let checkoutService: CheckoutService
@@ -45,7 +44,7 @@ describe('CheckoutService', () => {
         { id: 'prod-2', name: 'Product 2', price: 25.50 }
       ]
 
-      ;(prisma.product.findMany as jest.Mock).mockResolvedValue(mockProducts)
+      mockFindMany.mockResolvedValue(mockProducts)
 
       // Act
       const result = await checkoutService.calculateOrderAmount({
@@ -65,7 +64,7 @@ describe('CheckoutService', () => {
         { id: 'prod-1', name: 'Product 1', price: 60.00 }
       ]
 
-      ;(prisma.product.findMany as jest.Mock).mockResolvedValue(mockProducts)
+      mockFindMany.mockResolvedValue(mockProducts)
 
       // Act
       const result = await checkoutService.calculateOrderAmount({
@@ -83,7 +82,7 @@ describe('CheckoutService', () => {
         { id: 'prod-1', name: 'Product 1', price: 30.00 }
       ]
 
-      ;(prisma.product.findMany as jest.Mock).mockResolvedValue(mockProducts)
+      mockFindMany.mockResolvedValue(mockProducts)
 
       // Act
       const result = await checkoutService.calculateOrderAmount({
@@ -97,7 +96,7 @@ describe('CheckoutService', () => {
 
     it('should throw error if product not found', async () => {
       // Arrange
-      ;(prisma.product.findMany as jest.Mock).mockResolvedValue([])
+      mockFindMany.mockResolvedValue([])
 
       // Act & Assert
       await expect(
@@ -112,7 +111,7 @@ describe('CheckoutService', () => {
     it('should pass when stock is sufficient', async () => {
       // Arrange
       const mockProduct = { id: 'prod-1', name: 'Product 1', stock: 10 }
-      ;(prisma.product.findUnique as jest.Mock).mockResolvedValue(mockProduct)
+      mockFindUnique.mockResolvedValue(mockProduct)
 
       // Act & Assert
       await expect(
@@ -125,7 +124,7 @@ describe('CheckoutService', () => {
     it('should throw error when stock is insufficient', async () => {
       // Arrange
       const mockProduct = { id: 'prod-1', name: 'Product 1', stock: 3 }
-      ;(prisma.product.findUnique as jest.Mock).mockResolvedValue(mockProduct)
+      mockFindUnique.mockResolvedValue(mockProduct)
 
       // Act & Assert
       await expect(
@@ -137,7 +136,7 @@ describe('CheckoutService', () => {
 
     it('should throw error when product not found', async () => {
       // Arrange
-      ;(prisma.product.findUnique as jest.Mock).mockResolvedValue(null)
+      mockFindUnique.mockResolvedValue(null)
 
       // Act & Assert
       await expect(
