@@ -31,7 +31,7 @@ interface PointsBalanceProps {
 const tierColors = {
   BRONZE: "bg-amber-100 text-amber-800 border-amber-200",
   SILVER: "bg-slate-100 text-slate-800 border-slate-200",
-  GOLD: "bg-yellow-100 text-yellow-800 border-yellow-200",
+  GOLD: "bg-warning/10 text-warning border-warning/20",
   PLATINUM: "bg-purple-100 text-purple-800 border-purple-200",
 }
 

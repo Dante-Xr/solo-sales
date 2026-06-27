@@ -28,12 +28,12 @@ interface PointsHistoryProps {
 }
 
 const typeConfig = {
-  EARN: { icon: TrendingUp, color: "text-green-600", bg: "bg-green-100" },
+  EARN: { icon: TrendingUp, color: "text-success", bg: "bg-success/10" },
   REDEEM: { icon: TrendingDown, color: "text-red-600", bg: "bg-red-100" },
   BONUS: { icon: Gift, color: "text-purple-600", bg: "bg-purple-100" },
   EXPIRE: { icon: Clock, color: "text-gray-600", bg: "bg-gray-100" },
-  ADJUST: { icon: Coins, color: "text-blue-600", bg: "bg-blue-100" },
-  REFUND: { icon: TrendingUp, color: "text-orange-600", bg: "bg-orange-100" },
+  ADJUST: { icon: Coins, color: "text-brand", bg: "bg-brand/10" },
+  REFUND: { icon: TrendingUp, color: "text-accent", bg: "bg-accent/10" },
 }
 
 export function PointsHistory({ userId, isZh = false }: PointsHistoryProps) {
@@ -120,7 +120,7 @@ export function PointsHistory({ userId, isZh = false }: PointsHistoryProps) {
                       <p className="font-medium truncate">{tx.description}</p>
                       <span
                         className={`font-semibold ${
-                          isPositive ? "text-green-600" : "text-red-600"
+                          isPositive ? "text-success" : "text-destructive"
                         }`}
                       >
                         {isPositive ? "+" : ""}
