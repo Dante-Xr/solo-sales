@@ -13,9 +13,9 @@
  */
 
 import { prisma } from '@/lib/prisma'
-import { PromotionService } from './promotion-service'
-import { OrderService } from './order-service'
 import { PaymentProviderFactory } from '../payments/factory'
+import { createOrder as createOrderFunction } from './order-service'
+import type { ServerSessionUser } from '@/server/auth/session'
 
 // 配置常量
 const FREE_SHIPPING_THRESHOLD = 50
@@ -42,6 +42,7 @@ interface CheckoutIntentParams {
   couponCode?: string
   paymentProvider: 'stripe' | 'alipay' | 'wechatpay'
   locale: string
+  sessionUser: ServerSessionUser
 }
 
 interface OrderAmount {
@@ -52,14 +53,6 @@ interface OrderAmount {
 }
 
 export class CheckoutService {
-  private promotionService: PromotionService
-  private orderService: OrderService
-
-  constructor() {
-    this.promotionService = new PromotionService()
-    this.orderService = new OrderService()
-  }
-
   /**
    * 创建checkout intent
    */
@@ -74,20 +67,21 @@ export class CheckoutService {
     })
 
     // 3. 创建PENDING订单
-    const order = await this.orderService.createOrder({
-      userId: params.userId,
-      items: params.items,
-      shippingAddress: this.formatShippingAddress(params.shippingAddress),
-      totalAmount: amount.totalAmount,
-      status: 'PENDING',
-      paymentMethod: params.paymentProvider,
-      // 存储详细金额信息（如果Order模型支持）
-      metadata: {
-        subtotal: amount.subtotal,
-        shippingFee: amount.shippingFee,
-        discount: amount.discount
-      }
-    })
+    const order = await createOrderFunction(
+      {
+        items: params.items.map(item => ({
+          productId: item.productId,
+          quantity: item.quantity
+        })),
+        shippingAddress: this.formatShippingAddress(params.shippingAddress),
+        contactInfo: {
+          name: params.shippingAddress.name,
+          phone: params.shippingAddress.phone
+        }
+      },
+      params.sessionUser,
+      {} // options
+    )
 
     // 4. 初始化支付会话
     const provider = PaymentProviderFactory.getProvider(params.paymentProvider)
@@ -149,20 +143,8 @@ export class CheckoutService {
     // 3. 运费（配置化规则）
     const shippingFee = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE
 
-    // 4. 优惠（验证后应用）
-    let discount = 0
-    if (params.couponCode) {
-      try {
-        const discountResult = await this.promotionService.validateAndCalculateDiscount(
-          params.couponCode,
-          subtotal
-        )
-        discount = discountResult.discountAmount || 0
-      } catch (error) {
-        // 优惠码无效，继续不应用折扣
-        console.warn('Invalid coupon code:', params.couponCode, error)
-      }
-    }
+    // 4. 优惠（简化处理 - v1.7暂不实现优惠码）
+    const discount = 0
 
     // 5. 总额
     const totalAmount = Math.max(0, subtotal + shippingFee - discount)
