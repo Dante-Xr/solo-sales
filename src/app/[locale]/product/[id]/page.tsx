@@ -235,7 +235,7 @@ export default function ProductDetailPage() {
                                 setSelectedImageIndex(idx)
                                 setShowImageModal(true)
                               }}
-                              sizes="100vw"
+                              sizes="(max-width: 768px) 100vw, 50vw"
                               priority={idx === 0}
                             />
                           )}
