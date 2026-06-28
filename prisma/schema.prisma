@@ -98,6 +98,7 @@ model Order {
   payments     Payment[]
   couponUsages CouponUsage[]
   currency     OrderCurrency?
+  paymentProof PaymentProof? // v1.7.2 支付凭证关系
 
   // v0.4.3 添加数据库索引 - 优化订单查询性能
   // 按用户查订单
@@ -1242,4 +1243,70 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+// ==========================================
+// v1.7.2 个人收款码支付方案（临时过渡）
+// ==========================================
+
+// ⚠️ v1.7.2 临时方案 - 个人收款码配置
+model PaymentQRCode {
+  id          String   @id @default(cuid())
+  name        String   // "支付宝商家收钱码" | "微信个人收款码"
+  type        String   // "merchant_alipay" | "personal_wechat"
+  imageUrl    String   // 收款码图片路径
+  accountName String   // 收款人姓名
+  accountInfo String?  // 账号信息
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  isTempSolution Boolean @default(true) // 标记为临时方案
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive, sortOrder])
+}
+
+// 支付凭证状态
+enum ProofStatus {
+  PENDING         // 待审核
+  OCR_PROCESSING  // OCR识别中
+  OCR_MATCHED     // OCR金额匹配，自动通过
+  OCR_MISMATCHED  // OCR金额不匹配，需人工审核
+  APPROVED        // 人工审核通过
+  REJECTED        // 人工审核拒绝
+}
+
+// ⚠️ v1.7.2 临时方案 - 支付凭证（人工审核）
+model PaymentProof {
+  id            String      @id @default(cuid())
+  orderId       String      @unique
+  order         Order       @relation(fields: [orderId], references: [id])
+  proofImageUrl String      // 用户上传的支付截图
+  amount        Decimal     @db.Decimal(10, 2)
+  paymentMethod String      // 支付方式
+  status        ProofStatus @default(PENDING)
+
+  // OCR识别结果
+  ocrAmount     Decimal?    @db.Decimal(10, 2)
+  ocrTimestamp  DateTime?
+  ocrConfidence Float?
+  ocrRawText    String?
+
+  // 重复检测
+  imageHash     String
+
+  // 审核字段
+  reviewedBy    String?
+  reviewedAt    DateTime?
+  rejectReason  String?
+
+  // 自动删除
+  imageDeletedAt DateTime?
+  autoDeleteAt   DateTime
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([status, createdAt])
+  @@index([imageHash])
 }
