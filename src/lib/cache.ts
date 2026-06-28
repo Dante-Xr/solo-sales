@@ -14,6 +14,7 @@ const DEFAULT_TTL = 300
 // 内存缓存降级机制
 const memoryCache = new Map<string, { value: any; expiry: number }>()
 let useMemoryCache = false
+let fallbackLogged = false // 防止重复日志
 
 // 缓存键常量（使用 "solo:" 前缀避免与其他系统冲突）
 export const CACHE_KEYS = {
@@ -87,6 +88,11 @@ export async function cacheSet<T>(key: string, value: T, ttl: number = DEFAULT_T
     // 检查是否是权限错误
     if (error instanceof Error && error.message.includes('NOPERM')) {
       logger.warn(`Redis permission denied, falling back to memory cache`)
+      if (!fallbackLogged) {
+        console.warn('⚠️ [CACHE FALLBACK] Redis permission denied (NOPERM), using in-memory cache')
+        console.info('💡 Check Upstash ACL permissions: https://console.upstash.com')
+        fallbackLogged = true
+      }
       useMemoryCache = true // 降级到内存缓存
       memoryCache.set(key, {
         value,
