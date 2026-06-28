@@ -94,12 +94,6 @@ export default async function Storefront() {
   return (
     <ViewportWrapper>
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-brand-gradient-from/5 to-brand-gradient-to/5 rounded-full blur-3xl" />
-        <div className="absolute top-1/3 -left-20 w-72 h-72 bg-gradient-to-br from-purple-500/5 to-blue-500/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-1/4 w-64 h-64 bg-gradient-to-br from-orange-500/5 to-yellow-500/5 rounded-full blur-3xl" />
-      </div>
-
       <div className="w-full max-w-[1440px] mx-auto relative">
         <StorefrontHeaderClient />
 
