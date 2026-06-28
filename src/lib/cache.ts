@@ -2,12 +2,18 @@
  * 修改时间：2026-06-05 00:36:49 +08:00
  * 修改内容：补充 storefront 商品读路径缓存键与 TTL，明确高频读路径缓存边界。
  * 修改模型：gpt-5.5
+ *
+ * 2026-06-28: 添加缓存降级机制，当Redis权限不足时自动降级到内存缓存
  */
 
 import redis from "@/lib/redis"
 import { logger } from "@/lib/logger"
 
 const DEFAULT_TTL = 300
+
+// 内存缓存降级机制
+const memoryCache = new Map<string, { value: any; expiry: number }>()
+let useMemoryCache = false
 
 // 缓存键常量（使用 "solo:" 前缀避免与其他系统冲突）
 export const CACHE_KEYS = {
@@ -66,9 +72,28 @@ export async function cacheGet<T>(key: string): Promise<T | null> {
  */
 export async function cacheSet<T>(key: string, value: T, ttl: number = DEFAULT_TTL): Promise<boolean> {
   try {
+    // 如果已经降级到内存缓存
+    if (useMemoryCache) {
+      memoryCache.set(key, {
+        value,
+        expiry: Date.now() + ttl * 1000
+      })
+      return true
+    }
+
     await redis.set(key, value, { ex: ttl })
     return true
   } catch (error) {
+    // 检查是否是权限错误
+    if (error instanceof Error && error.message.includes('NOPERM')) {
+      logger.warn(`Redis permission denied, falling back to memory cache`)
+      useMemoryCache = true // 降级到内存缓存
+      memoryCache.set(key, {
+        value,
+        expiry: Date.now() + ttl * 1000
+      })
+      return true
+    }
     logger.error(`Cache set error for key ${key}`, error)
     return false
   }
