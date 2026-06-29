@@ -16,7 +16,11 @@ export async function POST(req: NextRequest) {
     // Validation
     if (!orderId || !proofImage || !paymentMethod) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        {
+          error: '缺少必需参数',
+          errorCode: 'MISSING_FIELDS',
+          message: '请确保已选择支付方式并上传了图片'
+        },
         { status: 400 }
       )
     }
@@ -25,7 +29,11 @@ export async function POST(req: NextRequest) {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
     if (!allowedTypes.includes(proofImage.type)) {
       return NextResponse.json(
-        { error: 'Invalid file type. Only JPG, PNG, WEBP allowed' },
+        {
+          error: '图片格式不支持',
+          errorCode: 'INVALID_FILE_TYPE',
+          message: '仅支持 JPG、PNG、WEBP 格式的图片，请重新选择'
+        },
         { status: 400 }
       )
     }
@@ -33,7 +41,11 @@ export async function POST(req: NextRequest) {
     // Validate file size (5MB max)
     if (proofImage.size > 5 * 1024 * 1024) {
       return NextResponse.json(
-        { error: 'File too large. Max 5MB' },
+        {
+          error: '图片文件过大',
+          errorCode: 'FILE_TOO_LARGE',
+          message: `图片大小不能超过 5MB，当前文件大小：${(proofImage.size / 1024 / 1024).toFixed(2)}MB`
+        },
         { status: 413 }
       )
     }
@@ -45,7 +57,11 @@ export async function POST(req: NextRequest) {
     })
 
     if (!order) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
+      return NextResponse.json({
+        error: '订单不存在',
+        errorCode: 'ORDER_NOT_FOUND',
+        message: '找不到该订单，请确认订单号是否正确'
+      }, { status: 404 })
     }
 
     // Check if proof already exists
@@ -55,7 +71,11 @@ export async function POST(req: NextRequest) {
 
     if (existingProof) {
       return NextResponse.json(
-        { error: 'Proof already uploaded for this order' },
+        {
+          error: '凭证已上传',
+          errorCode: 'PROOF_ALREADY_EXISTS',
+          message: '该订单已上传过支付凭证，无需重复上传。如有问题请联系客服。'
+        },
         { status: 422 }
       )
     }
@@ -83,7 +103,11 @@ export async function POST(req: NextRequest) {
     if (duplicateProof) {
       await fs.unlink(filePath) // Clean up
       return NextResponse.json(
-        { error: '此凭证已使用（重复检测）' },
+        {
+          error: '图片重复使用',
+          errorCode: 'DUPLICATE_IMAGE',
+          message: '该图片已被使用过，请上传新的支付凭证。每张凭证只能使用一次。'
+        },
         { status: 409 }
       )
     }
@@ -125,9 +149,14 @@ export async function POST(req: NextRequest) {
     // If OCR matched, auto-approve
     if (status === 'OCR_MATCHED') {
       // TODO: Update order status to PAID (requires OrderStateMachine integration)
-      // For now, just send email
-      const emailService = new EmailNotificationService()
-      await emailService.sendAutoApprovedEmail(order, order.user)
+      // Send email notification (non-blocking)
+      try {
+        const emailService = new EmailNotificationService()
+        await emailService.sendAutoApprovedEmail(order, order.user)
+      } catch (emailError) {
+        // Log error but don't fail the request
+        console.error('邮件发送失败（非致命错误）:', emailError)
+      }
 
       return NextResponse.json({
         success: true,
@@ -147,7 +176,11 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Payment proof upload error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        error: '服务器错误',
+        errorCode: 'INTERNAL_ERROR',
+        message: '服务器处理出错，请稍后重试。如问题持续存在，请联系客服。'
+      },
       { status: 500 }
     )
   }
