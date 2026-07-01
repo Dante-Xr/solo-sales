@@ -97,7 +97,12 @@ export function StorefrontHeaderClient() {
             <UserMenu />
           </div>
 
-          {/* 桌面端：原有按钮 */}
+          {/* 桌面端：搜索框 + 其他按钮 */}
+          <div className={`${isMobileView ? "hidden" : "hidden lg:flex"} items-center gap-2 flex-1 max-w-2xl mx-4`}>
+            <SearchBoxClient onSearch={() => {}} compact />
+          </div>
+
+          {/* 桌面端：右侧按钮组 */}
           <div className={`${isMobileView ? "hidden" : "hidden lg:flex"} items-center gap-0.5`}>
             <ViewportModeToggle />
             <Button
@@ -130,9 +135,8 @@ export function StorefrontHeaderClient() {
           </div>
         </div>
 
-        {/* PC端搜索框 + 分类导航（仅 lg 显示） */}
+        {/* PC端分类导航（移到搜索框下方单独一行） */}
         <div className="hidden lg:block pb-2 md:pb-3">
-          <SearchBoxClient onSearch={() => {}} />
           <CategoryNav />
         </div>
       </div>

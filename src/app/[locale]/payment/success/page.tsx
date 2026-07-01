@@ -1,40 +1,96 @@
 import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
-import { CheckCircle } from 'lucide-react'
+import { CheckCircle, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+
+async function PayPalSuccessHandler({
+  token,
+  locale
+}: {
+  token: string
+  locale: string
+}) {
+  try {
+    // 调用后端捕获 PayPal 支付
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const response = await fetch(`${baseUrl}/api/checkout/paypal/capture?token=${token}`, {
+      cache: 'no-store'
+    })
+
+    const data = await response.json()
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || 'Payment capture failed')
+    }
+
+    return data.orderId
+  } catch (error) {
+    console.error('PayPal capture error:', error)
+    throw error
+  }
+}
 
 export default async function PaymentSuccessPage({
   params,
   searchParams
 }: {
-  params: { locale: string }
-  searchParams: { session_id?: string; order_id?: string }
+  params: Promise<{ locale: string }>
+  searchParams: Promise<{
+    session_id?: string
+    order_id?: string
+    token?: string // PayPal 返回参数
+    provider?: string
+  }>
 }) {
-  const orderId = searchParams.order_id || searchParams.session_id
+  const { locale } = await params
+  const search = await searchParams
+
+  let orderId = search.order_id || search.session_id
+
+  // 如果是 PayPal 支付回调
+  if (search.provider === 'paypal' && search.token) {
+    try {
+      orderId = await PayPalSuccessHandler({
+        token: search.token,
+        locale
+      })
+    } catch (error) {
+      // 如果捕获失败，重定向到失败页面
+      redirect(`/${locale}/payment/failure?error=capture_failed`)
+    }
+  }
 
   if (!orderId) {
-    redirect(`/${params.locale}`)
+    redirect(`/${locale}`)
   }
 
   return (
     <div className="container max-w-2xl py-16">
       <div className="text-center space-y-6">
         <div className="flex justify-center">
-          <div className="rounded-full bg-green-100 p-4">
-            <CheckCircle className="w-16 h-16 text-green-600" />
+          <div className="rounded-full bg-green-100 dark:bg-green-950 p-4">
+            <CheckCircle className="w-16 h-16 text-green-600 dark:text-green-400" />
           </div>
         </div>
 
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold">Payment Successful</h1>
+          <h1 className="text-3xl font-bold">支付成功 / Payment Successful</h1>
           <p className="text-muted-foreground text-lg">
-            Your order has been confirmed
+            您的订单已确认 / Your order has been confirmed
           </p>
         </div>
 
+        {search.provider === 'paypal' && (
+          <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <p className="text-sm text-blue-800 dark:text-blue-200">
+              ✅ PayPal 支付已完成
+            </p>
+          </div>
+        )}
+
         <div className="bg-muted/50 rounded-lg p-6 space-y-2">
           <div className="text-sm text-muted-foreground">
-            Order Number
+            订单号 / Order Number
           </div>
           <div className="text-2xl font-mono font-bold">
             {orderId}
@@ -42,21 +98,21 @@ export default async function PaymentSuccessPage({
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-          <a href={`/${params.locale}/account/orders`}>
+          <a href={`/${locale}/account/orders`}>
             <Button size="lg">
-              View Order
+              查看订单 / View Order
             </Button>
           </a>
 
-          <a href={`/${params.locale}`}>
+          <a href={`/${locale}`}>
             <Button variant="outline" size="lg">
-              Continue Shopping
+              继续购物 / Continue Shopping
             </Button>
           </a>
         </div>
 
         <div className="text-sm text-muted-foreground pt-4">
-          A confirmation email has been sent to your email address
+          确认邮件已发送至您的邮箱 / A confirmation email has been sent to your email address
         </div>
       </div>
     </div>

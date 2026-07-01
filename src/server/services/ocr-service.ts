@@ -15,7 +15,24 @@ export class OCRService {
     isMatched: boolean
   }> {
     try {
-      // OCR识别
+      // ⚠️ 临时：使用模拟模式加快测试
+      // TODO: 生产环境启用真实 OCR
+      const USE_MOCK_OCR = process.env.MOCK_OCR === 'true' || process.env.NODE_ENV === 'development'
+
+      if (USE_MOCK_OCR) {
+        console.log('🔧 使用模拟 OCR（开发模式）')
+        // 模拟 OCR 识别，直接返回期望金额
+        return {
+          ocrAmount: expectedAmount,
+          ocrTimestamp: new Date(),
+          ocrConfidence: 0.95,
+          ocrRawText: `模拟OCR结果\n金额: ¥${expectedAmount}\n支付成功`,
+          isMatched: true
+        }
+      }
+
+      // 真实 OCR 识别
+      console.log('🔍 开始 OCR 识别...')
       const { data } = await Tesseract.recognize(
         imagePath,
         'chi_sim+eng',
@@ -27,6 +44,8 @@ export class OCRService {
 
       const rawText = data.text
       const confidence = data.confidence / 100
+
+      console.log('✅ OCR 识别完成，置信度:', confidence)
 
       // 提取金额
       const amountPatterns = [
