@@ -29,7 +29,7 @@ SoloSales 是一个基于 Next.js 16 App Router 的全栈独立站电商项目�
 | 后端 | Next.js Route Handlers + `src/server` services/repositories/contracts |
 | 数据库 | PostgreSQL / Neon + Prisma |
 | 缓存 | Upstash Redis |
-| 支付 | Stripe + Alipay + WeChatPay（v1.7 生产就绪） |
+| 支付 | Stripe + Alipay + WeChatPay + PayPal Business（v1.7.3） |
 | 后台 | Refine + Tremor + RBAC |
 | 国际化 | `next-intl`，中英文路由 |
 | 主题 | Klein Blue (#002FA7) + Red (#DC2626) |
@@ -61,9 +61,9 @@ SoloSales 是一个基于 Next.js 16 App Router 的全栈独立站电商项目�
 - Stripe Webhook 支持签名校验、订单/支付事务写入、重复投递幂等处理。
 - Alipay 网页支付: RSA签名验证、异步通知处理。
 - WeChat Native支付: APIv3签名验证、资源解密、二维码展示。
+- **PayPal Business 集成**（v1.7.3）：支持 Sole Proprietor 账户（无需营业执照），完整的 Checkout 和 Webhook 处理。
 - `Payment(provider, transactionId)` 唯一约束用于支付流水去重。
-- PayPal is disabled for production；保留的 `/api/checkout/paypal` 仅作为禁用兼容端点，生产环境返回 501。
-- 通过 `ENABLED_PAYMENT_PROVIDERS` 环境变量控制启用的支付提供商（默认 `stripe,alipay,wechatpay`）。
+- 通过 `ENABLED_PAYMENT_PROVIDERS` 环境变量控制启用的支付提供商（默认 `stripe,alipay,wechatpay`，可添加 `paypal`）。
 - Webhook幂等性: 时间戳验证（5分钟窗口）、provider+transactionId去重、订单状态检查。
 
 ### 商品、促销与库存

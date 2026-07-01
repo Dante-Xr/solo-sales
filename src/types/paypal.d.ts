@@ -1,37 +1,36 @@
-declare module '@paypal/checkout-server-sdk' {
-  export namespace core {
-    export class PayPalHttpClient {
-      constructor(environment: SandboxEnvironment | LiveEnvironment)
-      execute(request: any): Promise<any>
+declare module "@paypal/checkout-server-sdk" {
+  export = paypal;
+
+  namespace paypal {
+    namespace core {
+      class PayPalHttpClient {
+        constructor(environment: SandboxEnvironment | LiveEnvironment);
+        execute(request: any): Promise<any>;
+      }
+
+      class SandboxEnvironment {
+        constructor(clientId: string, clientSecret: string);
+      }
+
+      class LiveEnvironment {
+        constructor(clientId: string, clientSecret: string);
+      }
     }
 
-    export class SandboxEnvironment {
-      constructor(clientId: string, clientSecret: string)
-    }
+    namespace orders {
+      class OrdersCreateRequest {
+        prefer(prefer: string): void;
+        requestBody(body: any): void;
+      }
 
-    export class LiveEnvironment {
-      constructor(clientId: string, clientSecret: string)
-    }
-  }
+      class OrdersCaptureRequest {
+        constructor(orderId: string);
+        requestBody(body: any): void;
+      }
 
-  export namespace orders {
-    export class OrdersCreateRequest {
-      prefer(prefer: string): void
-      requestBody(body: any): void
+      class OrdersGetRequest {
+        constructor(orderId: string);
+      }
     }
-
-    export class OrdersCaptureRequest {
-      constructor(orderId: string)
-      requestBody(body: any): void
-    }
-
-    export class OrdersGetRequest {
-      constructor(orderId: string)
-    }
-  }
-
-  export default {
-    core,
-    orders
   }
 }
