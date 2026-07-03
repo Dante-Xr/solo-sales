@@ -14,6 +14,9 @@ export async function GET() {
         UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN ? '✅ Configured' : '❌ Missing',
         BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET ? '✅ Configured' : '❌ Missing',
         BETTER_AUTH_URL: process.env.BETTER_AUTH_URL ? '✅ Configured' : '❌ Missing',
+        STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY ? '✅ Configured' : '❌ Missing',
+        STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY ? '✅ Configured' : '❌ Missing',
+        STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET ? '✅ Configured' : '❌ Missing',
       },
       timestamp: new Date().toISOString(),
       status: 'ok'
