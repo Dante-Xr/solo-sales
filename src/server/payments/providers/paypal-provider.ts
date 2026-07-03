@@ -108,9 +108,10 @@ export class PayPalProvider implements PaymentProvider {
         type: "redirect",
         url: approveLink.href,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("PayPal order creation error:", error);
-      throw new Error(`PayPal payment creation failed: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`PayPal payment creation failed: ${message}`);
     }
   }
 
@@ -150,7 +151,7 @@ export class PayPalProvider implements PaymentProvider {
     };
 
     try {
-      const response = await client.execute(request as any);
+      const response = await client.execute(request);
       const verificationStatus = response.result.verification_status;
 
       if (verificationStatus !== "SUCCESS") {
@@ -164,31 +165,33 @@ export class PayPalProvider implements PaymentProvider {
           : JSON.parse(rawBody.toString());
 
       return this.parseWebhookEvent(event);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("PayPal webhook verification error:", error);
-      throw new Error(`PayPal webhook verification failed: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`PayPal webhook verification failed: ${message}`);
     }
   }
 
   /**
    * 解析 PayPal Webhook 事件
    */
-  private parseWebhookEvent(event: any): WebhookEvent {
-    const eventType = event.event_type;
-    const resource = event.resource;
+  private parseWebhookEvent(event: Record<string, unknown>): WebhookEvent {
+    const eventType = event.event_type as string;
+    const resource = event.resource as Record<string, unknown>;
 
     // PAYMENT.CAPTURE.COMPLETED - 支付成功
     if (eventType === "PAYMENT.CAPTURE.COMPLETED") {
       const orderId =
-        resource.custom_id || resource.purchase_units?.[0]?.reference_id || "";
+        (resource.custom_id as string) || (resource.purchase_units as any)?.[0]?.reference_id || "";
 
+      const amount = resource.amount as { value: string; currency_code: string };
       return {
         type: "payment.success",
         orderId,
-        transactionId: resource.id,
-        amount: parseFloat(resource.amount.value),
-        currency: resource.amount.currency_code,
-        timestamp: new Date(resource.create_time),
+        transactionId: resource.id as string,
+        amount: parseFloat(amount.value),
+        currency: amount.currency_code,
+        timestamp: new Date(resource.create_time as string),
         rawData: event,
       };
     }
@@ -196,38 +199,40 @@ export class PayPalProvider implements PaymentProvider {
     // PAYMENT.CAPTURE.DENIED - 支付失败
     if (eventType === "PAYMENT.CAPTURE.DENIED") {
       const orderId =
-        resource.custom_id || resource.purchase_units?.[0]?.reference_id || "";
+        (resource.custom_id as string) || (resource.purchase_units as any)?.[0]?.reference_id || "";
 
+      const amount = resource.amount as { value: string; currency_code: string };
       return {
         type: "payment.failed",
         orderId,
-        transactionId: resource.id,
-        amount: parseFloat(resource.amount.value),
-        currency: resource.amount.currency_code,
-        timestamp: new Date(resource.create_time),
+        transactionId: resource.id as string,
+        amount: parseFloat(amount.value),
+        currency: amount.currency_code,
+        timestamp: new Date(resource.create_time as string),
         rawData: event,
       };
     }
 
     // CHECKOUT.ORDER.APPROVED - 订单已批准但未捕获
     if (eventType === "CHECKOUT.ORDER.APPROVED") {
+      const purchaseUnits = resource.purchase_units as any[];
       const orderId =
-        resource.purchase_units?.[0]?.custom_id ||
-        resource.purchase_units?.[0]?.reference_id ||
+        purchaseUnits?.[0]?.custom_id ||
+        purchaseUnits?.[0]?.reference_id ||
         "";
       const amount = parseFloat(
-        resource.purchase_units?.[0]?.amount?.value || "0",
+        purchaseUnits?.[0]?.amount?.value || "0",
       );
       const currency =
-        resource.purchase_units?.[0]?.amount?.currency_code || "USD";
+        purchaseUnits?.[0]?.amount?.currency_code || "USD";
 
       return {
         type: "payment.success",
         orderId,
-        transactionId: resource.id,
+        transactionId: resource.id as string,
         amount,
         currency,
-        timestamp: new Date(resource.create_time),
+        timestamp: new Date(resource.create_time as string),
         rawData: event,
       };
     }
@@ -259,7 +264,7 @@ export class PayPalProvider implements PaymentProvider {
   /**
    * 捕获已批准的订单（用于手动捕获场景）
    */
-  async captureOrder(orderId: string): Promise<any> {
+  async captureOrder(orderId: string): Promise<Record<string, unknown>> {
     const client = this.getClient();
     const request = new paypal.orders.OrdersCaptureRequest(orderId);
     request.requestBody({});
@@ -267,25 +272,27 @@ export class PayPalProvider implements PaymentProvider {
     try {
       const response = await client.execute(request);
       return response.result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("PayPal order capture error:", error);
-      throw new Error(`PayPal order capture failed: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`PayPal order capture failed: ${message}`);
     }
   }
 
   /**
    * 获取订单详情
    */
-  async getOrderDetails(orderId: string): Promise<any> {
+  async getOrderDetails(orderId: string): Promise<Record<string, unknown>> {
     const client = this.getClient();
     const request = new paypal.orders.OrdersGetRequest(orderId);
 
     try {
       const response = await client.execute(request);
       return response.result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("PayPal get order error:", error);
-      throw new Error(`Failed to get PayPal order: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to get PayPal order: ${message}`);
     }
   }
 }
