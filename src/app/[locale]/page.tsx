@@ -84,12 +84,21 @@ async function getFeaturedProducts(): Promise<ProductItem[]> {
   } catch (error: unknown) {
     // 首页不能因为商品库短暂不可用而白屏，服务层重试耗尽后降级到演示商品。
     console.error("Error fetching featured products:", error)
+    // Return fallback products instead of throwing
     return FALLBACK_PRODUCTS
   }
 }
 
 export default async function Storefront() {
-  const products = await getFeaturedProducts()
+  // Wrap everything in try-catch to prevent 502 errors
+  let products: ProductItem[]
+  try {
+    products = await getFeaturedProducts()
+  } catch (error) {
+    console.error("Critical error in Storefront page:", error)
+    // Use fallback products if everything fails
+    products = FALLBACK_PRODUCTS
+  }
 
   return (
     <ViewportWrapper>
