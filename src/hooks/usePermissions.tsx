@@ -55,7 +55,7 @@ export function PermissionProvider({ children }: { children: ReactNode }) {
       } else {
         setAdmin(null)
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("获取管理员信息失败:", error)
       setAdmin(null)
     } finally {
@@ -107,7 +107,7 @@ export function PermissionProvider({ children }: { children: ReactNode }) {
       await fetch("/api/admin/auth/logout", { method: "PUT" })
       setAdmin(null)
       window.location.href = "/admin/login"
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("登出失败:", error)
     }
   }, [])

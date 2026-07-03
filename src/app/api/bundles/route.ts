@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     })
 
     return successResponse({ bundles })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to get bundles', error)
     return handleApiError(error)
   }
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
     })
 
     return createdResponse({ bundle })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to create bundle', error)
     return handleApiError(error)
   }

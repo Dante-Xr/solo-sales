@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     })
 
     return successResponse(orders)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -64,7 +64,7 @@ export async function PATCH(request: NextRequest) {
     })
 
     return successResponse(order)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

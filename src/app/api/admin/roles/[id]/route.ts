@@ -24,7 +24,7 @@ export async function GET(
     const role = await getRoleDetail(id)
 
     return successResponse(role)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -41,7 +41,7 @@ export async function PATCH(
     const role = await updateRoleFromInput(request, admin.id, id, input)
 
     return successResponse(role)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -58,7 +58,7 @@ export async function DELETE(
     const result = await deleteRoleById(request, admin.id, id)
 
     return successResponse(result, { meta: { message: "删除成功" } })
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

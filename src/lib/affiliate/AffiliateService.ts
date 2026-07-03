@@ -43,7 +43,7 @@ class AffiliateService {
   async getAffiliates(filters?: {
     status?: AffiliateStatus
   }): Promise<AffiliateData[]> {
-    const where: Record<string, unknown> = {}
+    const where: Prisma.AffiliateWhereInput = {}
     if (filters?.status) {
       where.status = filters.status
     }
@@ -95,7 +95,7 @@ class AffiliateService {
   }
 
   async updateAffiliateStatus(id: string, status: AffiliateStatus): Promise<AffiliateData> {
-    const updateData: Record<string, unknown> = { status }
+    const updateData: Prisma.AffiliateUpdateInput = { status }
 
     if (status === AffiliateStatus.ACTIVE) {
       updateData.approvedAt = new Date()
@@ -218,7 +218,7 @@ class AffiliateService {
   async getCommissions(affiliateId: string, filters?: {
     status?: CommissionStatus
   }): Promise<CommissionData[]> {
-    const where: Record<string, unknown> = { affiliateId }
+    const where: Prisma.AffiliateCommissionWhereInput = { affiliateId }
     if (filters?.status) {
       where.status = filters.status
     }

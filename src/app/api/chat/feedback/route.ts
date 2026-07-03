@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
       message: "反馈已提交，感谢您的评价"
     }, { headers: corsHeaders })
 
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error, { headers: corsHeaders })
   }
 }
@@ -101,7 +101,7 @@ export async function DELETE(request: NextRequest) {
       message: "对话历史已清除"
     }, { headers: corsHeaders })
 
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error, { headers: corsHeaders })
   }
 }

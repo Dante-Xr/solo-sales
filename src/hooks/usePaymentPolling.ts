@@ -97,7 +97,7 @@ export function usePaymentPolling({
         )
 
         timeoutRef.current = setTimeout(poll, delay)
-      } catch (error) {
+      } catch (error: unknown) {
         setIsPolling(false)
         onError(error as Error)
       }

@@ -38,7 +38,7 @@ export async function POST(
     })
 
     return successResponse({ bundle })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to add bundle item', error)
     return handleApiError(error)
   }
@@ -62,7 +62,7 @@ export async function DELETE(
     const bundle = await bundleService.removeBundleItem(id, productId)
 
     return successResponse({ bundle })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to remove bundle item', error)
     return handleApiError(error)
   }

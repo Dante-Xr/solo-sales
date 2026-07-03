@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const result = await earnPoints(input)
 
     return successResponse(result)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

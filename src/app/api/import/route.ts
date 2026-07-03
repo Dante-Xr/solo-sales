@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     const result = await runWholesalerImport(input)
 
     return successResponse(result)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

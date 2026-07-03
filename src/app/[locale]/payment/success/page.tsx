@@ -24,7 +24,7 @@ async function PayPalSuccessHandler({
     }
 
     return data.orderId
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('PayPal capture error:', error)
     throw error
   }
@@ -54,7 +54,7 @@ export default async function PaymentSuccessPage({
         token: search.token,
         locale
       })
-    } catch (error) {
+    } catch (error: unknown) {
       // 如果捕获失败，重定向到失败页面
       redirect(`/${locale}/payment/failure?error=capture_failed`)
     }

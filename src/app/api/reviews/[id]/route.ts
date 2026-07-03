@@ -57,7 +57,7 @@ export async function GET(
     }
 
     return successResponse(review)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -136,7 +136,7 @@ export async function PUT(
     })
 
     return successResponse(review)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -174,7 +174,7 @@ export async function DELETE(
     })
 
     return successResponse({ deleted: true }, { meta: { message: "评论已删除" } })
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

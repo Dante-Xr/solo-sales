@@ -148,7 +148,7 @@ export abstract class BaseWholesalerClient implements WholesalerClient {
       }
 
       return data as T
-    } catch (error) {
+    } catch (error: unknown) {
       // 判断是否是可重试的错误
       const isRetryable =
         error instanceof WholesalerApiError &&

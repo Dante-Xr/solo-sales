@@ -202,7 +202,7 @@ export default function UsersPage() {
       } else {
         toast.error(result.error || (isZh ? "操作失败" : "Operation failed"))
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("保存用户失败:", error)
     } finally {
       setFormLoading(false)
@@ -222,7 +222,7 @@ export default function UsersPage() {
       if (result.success) {
         refetchUsers()
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("更新用户状态失败:", error)
     } finally {
       setSwitchLoading(null)
@@ -246,7 +246,7 @@ export default function UsersPage() {
       } else {
         toast.error(result.error || (isZh ? "删除失败" : "Delete failed"))
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("删除用户失败:", error)
     } finally {
       setFormLoading(false)

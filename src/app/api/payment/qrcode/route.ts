@@ -24,7 +24,7 @@ export async function GET() {
         isTempSolution: qr.isTempSolution
       }))
     })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error fetching QR codes:', error)
     return NextResponse.json(
       { success: false, error: 'Failed to load QR codes' },

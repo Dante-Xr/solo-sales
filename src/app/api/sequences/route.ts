@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     })
 
     return successResponse({ sequences })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to get sequences', error)
     return handleApiError(error)
   }
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     })
 
     return createdResponse({ sequence })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to create sequence', error)
     return handleApiError(error)
   }

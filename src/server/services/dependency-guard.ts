@@ -85,7 +85,7 @@ export async function withDependencyGuard<T>(
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
       return await withDependencyTimeout(options)
-    } catch (error) {
+    } catch (error: unknown) {
       lastError = error
       const canRetry = retryable(error) && attempt < maxAttempts
       logDependencyFailure(options, error, attempt, maxAttempts, canRetry)

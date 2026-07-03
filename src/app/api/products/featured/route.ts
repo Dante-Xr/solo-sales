@@ -11,7 +11,7 @@ export async function GET() {
     const result = await getFeaturedProducts()
     // featured 首页数据保留 products/fromCache 形态在 data 内，缓存标记同步到标准响应 meta。
     return successResponse(result, { fromCache: result.fromCache })
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

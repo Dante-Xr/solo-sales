@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     return successResponse(result.data, {
       fromCache: "fromCache" in result && result.fromCache === true,
     })
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     const product = await createProductFromInput(input)
 
     return createdResponse(product)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

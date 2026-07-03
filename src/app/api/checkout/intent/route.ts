@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
         paymentProvider: body.paymentProvider
       }
     })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Checkout Intent API error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },

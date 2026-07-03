@@ -102,7 +102,7 @@ export async function verifyAdminToken(request: NextRequest): Promise<AdminInfo 
       },
       permissions: admin.role.permissions.map((p) => p.name),
     }
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error("verifyAdminToken error", error)
     return null
   }

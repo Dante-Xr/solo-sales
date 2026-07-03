@@ -81,7 +81,7 @@ async function getFeaturedProducts(): Promise<ProductItem[]> {
   try {
     const result = await getFeaturedProductsFromService()
     return result.products
-  } catch (error) {
+  } catch (error: unknown) {
     // 首页不能因为商品库短暂不可用而白屏，服务层重试耗尽后降级到演示商品。
     console.error("Error fetching featured products:", error)
     return FALLBACK_PRODUCTS

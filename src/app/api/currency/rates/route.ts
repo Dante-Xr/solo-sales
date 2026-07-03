@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       message: 'Exchange rates updated successfully',
       timestamp: new Date().toISOString()
     })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Currency rates refresh error', error)
     return handleApiError(error)
   }

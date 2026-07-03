@@ -23,7 +23,7 @@ export async function GET(
     const product = await getProductDetail(id)
 
     return successResponse(product)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -39,7 +39,7 @@ export async function PATCH(
     const product = await updateProductFromInput(id, input)
 
     return successResponse(product)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -54,7 +54,7 @@ export async function DELETE(
     const result = await deleteProductById(id)
 
     return successResponse(result)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

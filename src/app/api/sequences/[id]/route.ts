@@ -30,7 +30,7 @@ export async function GET(
     const stats = await engine.getEnrollmentStats(id)
 
     return successResponse({ sequence, stats })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to get sequence', error)
     return handleApiError(error)
   }
@@ -49,7 +49,7 @@ export async function PUT(
     const sequence = await engine.updateSequence(id, body)
 
     return successResponse({ sequence })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to update sequence', error)
     return handleApiError(error)
   }
@@ -66,7 +66,7 @@ export async function DELETE(
     await engine.deleteSequence(id)
 
     return successResponse({ deleted: true })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to delete sequence', error)
     return handleApiError(error)
   }

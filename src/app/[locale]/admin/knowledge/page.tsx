@@ -220,7 +220,7 @@ export default function KnowledgePage() {
       } else {
         toast.error(result.error || t('saveFailed'))
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("保存知识失败:", error)
       toast.error(t('saveFailed'))
     } finally {
@@ -249,7 +249,7 @@ export default function KnowledgePage() {
       } else {
         toast.error(result.error || t('deleteFailed'))
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("删除知识失败:", error)
       toast.error(t('deleteFailed'))
     }
@@ -264,7 +264,7 @@ export default function KnowledgePage() {
         setSelectedHistory(result.data)
         setHistoryDialogOpen(true)
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("获取历史失败:", error)
     }
   }

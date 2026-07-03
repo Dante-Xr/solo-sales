@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     })
 
     return successResponse({ affiliates })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to get affiliates', error)
     return handleApiError(error)
   }
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     })
 
     return createdResponse({ affiliate })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to create affiliate', error)
     return handleApiError(error)
   }

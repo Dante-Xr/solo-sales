@@ -68,7 +68,7 @@ export async function checkLowStockProducts(): Promise<{
     }
 
     return { checked, alertsSent }
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error("Error checking low stock products", error)
     return { checked, alertsSent }
   }
@@ -96,7 +96,7 @@ async function sendStockAlert(
     }
 
     return { sent: true }
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error("Error sending stock alert", error)
     return { sent: false, error: String(error) }
   }

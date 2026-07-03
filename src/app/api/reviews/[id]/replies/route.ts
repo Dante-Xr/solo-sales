@@ -54,7 +54,7 @@ export async function POST(
     })
 
     return createdResponse(reply)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -94,7 +94,7 @@ export async function DELETE(
     })
 
     return successResponse({ deleted: true }, { meta: { message: "回复已删除" } })
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

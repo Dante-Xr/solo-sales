@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     const result = await listCoupons(query)
 
     return successResponse(result)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     const coupon = await createCouponFromInput(input)
 
     return createdResponse(coupon)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

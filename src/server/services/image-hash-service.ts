@@ -22,7 +22,7 @@ export class ImageHashService {
         .toBuffer()
 
       return crypto.createHash('sha256').update(buffer).digest('hex')
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('SHA-256 calculation failed:', error)
       throw error
     }

@@ -113,7 +113,7 @@ export async function POST(
         message: '已拒绝凭证，用户将收到邮件通知'
       })
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Review proof error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },

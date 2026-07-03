@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
       count: formattedProofs.length,
       notice: '⚠️ 当前为人工审核模式，建议尽快升级为自动化支付'
     })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Get pending proofs error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },

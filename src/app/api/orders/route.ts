@@ -27,7 +27,7 @@ export async function GET(request: Request) {
 
     const orders = await listOrdersForUser(sessionUser)
     return successResponse(orders)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     })
 
     return createdResponse(order)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

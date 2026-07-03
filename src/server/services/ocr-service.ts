@@ -94,7 +94,7 @@ export class OCRService {
         ocrRawText: rawText,
         isMatched
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('OCR recognition failed:', error)
       return {
         ocrAmount: null,

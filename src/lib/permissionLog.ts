@@ -45,7 +45,7 @@ export async function logCreate(
         userAgent: request.headers.get("user-agent") || null,
       },
     })
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error("Failed to log create", error)
   }
 }
@@ -71,7 +71,7 @@ export async function logUpdate(
         userAgent: request.headers.get("user-agent") || null,
       },
     })
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error("Failed to log update", error)
   }
 }
@@ -95,7 +95,7 @@ export async function logDelete(
         userAgent: request.headers.get("user-agent") || null,
       },
     })
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error("Failed to log delete", error)
   }
 }
@@ -148,7 +148,7 @@ export async function getLogs(options: GetLogsOptions = {}): Promise<PermissionL
     endDate,
   } = options
 
-  const where: Record<string, unknown> = {}
+  const where: Prisma.PermissionLogWhereInput = {}
 
   if (targetType) {
     where.targetType = targetType
@@ -165,10 +165,10 @@ export async function getLogs(options: GetLogsOptions = {}): Promise<PermissionL
   if (startDate || endDate) {
     where.createdAt = {}
     if (startDate) {
-      (where.createdAt as Record<string, Date>).gte = startDate
+      where.createdAt.gte = startDate
     }
     if (endDate) {
-      (where.createdAt as Record<string, Date>).lte = endDate
+      where.createdAt.lte = endDate
     }
   }
 

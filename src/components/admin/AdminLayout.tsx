@@ -155,7 +155,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         if (data.success) {
           setAdminUser(data.data)
         }
-      } catch (error) {
+      } catch (error: unknown) {
         console.error(t('fetchingAdminInfoFailed'), error)
       } finally {
         setLoading(false)
@@ -182,7 +182,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     try {
       await fetch("/api/admin/auth", { method: "PUT" })
       router.push("/admin/login")
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(t('logoutFailed'), error)
       router.push("/admin/login")
     }

@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
 
     // Alipay expects 'success' string response
     return new Response('success')
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Alipay webhook error:', error)
 
     if (error instanceof Error && error.message.includes('signature')) {

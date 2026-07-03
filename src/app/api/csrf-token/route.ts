@@ -33,7 +33,7 @@ export async function GET() {
     })
 
     return response
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(internalError("生成 CSRF Token 失败", error))
   }
 }

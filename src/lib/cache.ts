@@ -73,7 +73,7 @@ export async function cacheGet<T>(key: string): Promise<T | null> {
   try {
     const data = await redis.get<T>(key)
     return data
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error(`Cache get error for key ${key}`, error)
     return null
   }
@@ -95,7 +95,7 @@ export async function cacheSet<T>(key: string, value: T, ttl: number = DEFAULT_T
 
     await redis.set(key, value, { ex: ttl })
     return true
-  } catch (error) {
+  } catch (error: unknown) {
     // 检查是否是权限错误
     if (error instanceof Error && error.message.includes('NOPERM')) {
       logger.warn(`Redis permission denied, falling back to memory cache`)
@@ -123,7 +123,7 @@ export async function cacheDel(key: string): Promise<boolean> {
   try {
     await redis.del(key)
     return true
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error(`Cache del error for key ${key}`, error)
     return false
   }
@@ -139,7 +139,7 @@ export async function cacheDelPattern(pattern: string): Promise<number> {
       await redis.del(...keys)
     }
     return keys.length
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error(`Cache del pattern error for ${pattern}`, error)
     return 0
   }

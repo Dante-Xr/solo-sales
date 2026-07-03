@@ -48,7 +48,7 @@ export class I1866Client extends BaseWholesalerClient {
     try {
       await this.get<{ status: string }>("/health")
       return true
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error("1866 API 连接测试失败", error)
       return false
     }
@@ -106,7 +106,7 @@ export class I1866Client extends BaseWholesalerClient {
         wholesaler: "1866",
         updatedAt: product.last_update,
       }))
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof WholesalerApiError) {
         throw error
       }
@@ -153,7 +153,7 @@ export class I1866Client extends BaseWholesalerClient {
         wholesaler: "1866",
         updatedAt: product.last_update,
       }
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof WholesalerApiError) {
         if (error.statusCode === 404) {
           return null
@@ -172,7 +172,7 @@ export class I1866Client extends BaseWholesalerClient {
     try {
       const response = await this.get<I1866StockResponse>(`/stock/${sku}`)
       return response
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof WholesalerApiError && error.statusCode === 404) {
         return null
       }
@@ -191,7 +191,7 @@ export class I1866Client extends BaseWholesalerClient {
         { skus }
       )
       return response.stock_list
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error("批量获取 1866 库存失败", error)
       throw new WholesalerApiError("批量获取库存失败", 500, "FETCH_ERROR")
     }

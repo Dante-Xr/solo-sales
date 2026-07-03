@@ -96,7 +96,7 @@ export function mapProducts(
     try {
       const mapped = mapSingleProduct(product, mergedConfig)
       result.success.push(mapped)
-    } catch (error) {
+    } catch (error: unknown) {
       result.failed.push({
         original: product,
         error: error instanceof Error ? error.message : "映射失败",

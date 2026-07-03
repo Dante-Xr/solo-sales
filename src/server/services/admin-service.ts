@@ -144,7 +144,7 @@ export async function requireAdminPermission(
           userAgent: request.headers.get("user-agent") || null,
         },
       })
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error("Failed to log permission denial", error)
     }
     throw forbidden("没有访问权限")

@@ -19,7 +19,7 @@ export async function PATCH(request: NextRequest) {
     const result = await batchUpdateProducts(input)
 
     return successResponse(result.data, { meta: { message: result.message } })
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -33,7 +33,7 @@ export async function DELETE(request: NextRequest) {
     const result = await batchDeleteProducts(ids)
 
     return successResponse(result.data, { meta: { message: result.message } })
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

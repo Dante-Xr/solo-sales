@@ -48,7 +48,7 @@ export function PointsHistory({ userId, isZh = false }: PointsHistoryProps) {
         if (result.success) {
           setTransactions(result.data.transactions)
         }
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("获取积分记录失败:", error)
       } finally {
         setLoading(false)

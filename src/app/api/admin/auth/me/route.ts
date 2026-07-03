@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
         permissions: admin.role.permissions.map((p) => p.name),
         lastLoginAt: admin.lastLoginAt,
     })
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

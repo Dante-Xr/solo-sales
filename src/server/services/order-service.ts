@@ -179,7 +179,7 @@ export async function createOrder(
         },
       })
     })
-  } catch (error) {
+  } catch (error: unknown) {
     const duplicatedOrder = await findDuplicatedIdempotentOrder(error, idempotentOrderId)
     if (duplicatedOrder) return duplicatedOrder
     throw error

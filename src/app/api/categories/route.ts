@@ -20,7 +20,7 @@ export async function GET() {
   try {
     const categories = await listCategories()
     return successResponse(categories)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     const category = await createCategoryFromInput(input)
 
     return createdResponse(category)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -52,7 +52,7 @@ export async function PATCH(request: NextRequest) {
     const category = await updateCategoryFromInput(id, input)
 
     return successResponse(category)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -69,7 +69,7 @@ export async function DELETE(request: NextRequest) {
     const result = await deleteCategoryById(id)
 
     return successResponse(result)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

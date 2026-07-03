@@ -54,7 +54,7 @@ describe("apiFetch", () => {
     try {
       await apiFetch("/api/products/999")
       fail("Expected ApiError to be thrown")
-    } catch (error) {
+    } catch (error: unknown) {
       expect(error).toBeInstanceOf(ApiError)
       expect((error as ApiError).status).toBe(404)
       expect((error as ApiError).message).toBe("Product not found")
@@ -99,7 +99,7 @@ describe("apiFetch", () => {
     try {
       await apiFetch("/api/test")
       fail("Expected ApiError to be thrown")
-    } catch (error) {
+    } catch (error: unknown) {
       expect(error).toBeInstanceOf(ApiError)
       expect((error as ApiError).message).toBe("API Error: 500")
     }
@@ -115,7 +115,7 @@ describe("apiFetch", () => {
     try {
       await apiFetch("/api/test")
       fail("Expected ApiError to be thrown")
-    } catch (error) {
+    } catch (error: unknown) {
       expect(error).toBeInstanceOf(ApiError)
       expect((error as ApiError).message).toBe("API Error: 502")
     }

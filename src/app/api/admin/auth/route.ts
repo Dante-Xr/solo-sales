@@ -274,7 +274,7 @@ export async function POST(request: NextRequest) {
     // Better Auth 登录成功
     await auditAdminLogin(request, admin.id, "ADMIN_LOGIN_SUCCESS")
     return successResponse(adminSessionPayload(admin))
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(
       error instanceof Error && error.name !== "AppError"
         ? internalError("登录失败，请稍后重试", error.message)
@@ -345,7 +345,7 @@ export async function GET(request: NextRequest) {
       permissions: admin.role.permissions.map((p) => p.name),
       lastLoginAt: admin.lastLoginAt,
     })
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(
       error instanceof Error && error.name !== "AppError"
         ? internalError("获取信息失败", error.message)

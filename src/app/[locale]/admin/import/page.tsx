@@ -114,7 +114,7 @@ export default function ImportPage() {
       setImportResult(result)
       setResultDialogOpen(true)
       refetch()
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("导入失败:", error)
       setImportResult({
         success: false,

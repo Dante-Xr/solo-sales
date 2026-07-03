@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
         period: dateRange
       }))
 
-  } catch (error) {
+  } catch (error: unknown) {
     return withCors(handleApiError(error))
   }
 }

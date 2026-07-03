@@ -57,7 +57,7 @@ export async function sendEmail(options: EmailOptions): Promise<SendEmailResult>
 
     const data = await response.json()
     return { success: true, messageId: data.id }
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error("Email send error", error)
     return { success: false, error: String(error) }
   }

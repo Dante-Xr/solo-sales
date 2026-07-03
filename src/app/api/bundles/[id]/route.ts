@@ -28,7 +28,7 @@ export async function GET(
     }
 
     return successResponse({ bundle })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to get bundle', error)
     return handleApiError(error)
   }
@@ -47,7 +47,7 @@ export async function PUT(
     const bundle = await bundleService.updateBundle(id, body)
 
     return successResponse({ bundle })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to update bundle', error)
     return handleApiError(error)
   }
@@ -64,7 +64,7 @@ export async function DELETE(
     await bundleService.deleteBundle(id)
 
     return successResponse({ deleted: true })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to delete bundle', error)
     return handleApiError(error)
   }

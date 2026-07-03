@@ -31,7 +31,7 @@ export async function GET(
     const stats = await affiliateService.getAffiliateStats(id)
 
     return successResponse({ affiliate, stats })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to get affiliate', error)
     return handleApiError(error)
   }
@@ -63,7 +63,7 @@ export async function PUT(
     }
 
     return successResponse({ affiliate })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to update affiliate', error)
     return handleApiError(error)
   }

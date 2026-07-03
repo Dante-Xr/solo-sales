@@ -101,7 +101,7 @@ export default function CustomersPage() {
       if (result.success) {
         setSelectedCustomer(result.data)
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("获取客户详情失败:", error)
     } finally {
       setDetailLoading(false)

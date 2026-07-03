@@ -13,7 +13,9 @@
     "smoke:synthetic": "node scripts/smoke-synthetic.mjs",
     "test": "jest",
     "test:watch": "jest --watch",
-    "analyze": "ANALYZE=true npm run build"
+    "analyze": "ANALYZE=true npm run build",
+    "type-check": "node scripts/check-types.mjs",
+    "type-check:strict": "tsc --noEmit --strict"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",

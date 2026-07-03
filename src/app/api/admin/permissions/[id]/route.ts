@@ -24,7 +24,7 @@ export async function GET(
     const permission = await getPermissionDetail(id)
 
     return successResponse(permission)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -41,7 +41,7 @@ export async function PATCH(
     const permission = await updatePermissionFromInput(request, admin.id, id, input)
 
     return successResponse(permission)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -58,7 +58,7 @@ export async function DELETE(
     const result = await deletePermissionById(request, admin.id, id)
 
     return successResponse(result, { meta: { message: "删除成功" } })
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

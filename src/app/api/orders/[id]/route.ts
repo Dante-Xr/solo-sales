@@ -17,7 +17,7 @@ export async function GET(
     const order = await getOrderByIdForViewer(id, sessionUser)
 
     return successResponse(order)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

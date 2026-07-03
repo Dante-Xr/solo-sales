@@ -28,7 +28,7 @@ export default async function OrderConfirmationPage({ params }: ConfirmationPage
   try {
     const sessionUser = await getServerSessionUser()
     order = await getOrderByIdForViewer(id, sessionUser)
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof AppError && [401, 403, 404].includes(error.statusCode)) {
       notFound()
     }

@@ -89,7 +89,7 @@ const FALLBACK_PRODUCTS: ProductItem[] = [
 async function getProducts(filter?: string): Promise<ProductItem[]> {
   try {
     return await getStorefrontProducts(filter)
-  } catch (error) {
+  } catch (error: unknown) {
     // 商品页保留兜底商品，避免数据库短暂不可用时影响用户继续浏览基础页面结构。
     console.error("Error fetching products:", error)
     return FALLBACK_PRODUCTS

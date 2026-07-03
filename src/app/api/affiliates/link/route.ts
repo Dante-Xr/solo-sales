@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     }
 
     return successResponse({ link })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to get affiliate link by code', error)
     return handleApiError(error)
   }

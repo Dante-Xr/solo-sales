@@ -104,7 +104,7 @@ export default function AdminOrdersPage() {
         refetch()
         setSelectedOrder(null)
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(t("updateFailed"), error)
     } finally {
       setUpdating(false)
@@ -125,7 +125,7 @@ export default function AdminOrdersPage() {
       if (res.ok) {
         refetch()
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(t("updateStatusFailed"), error)
     }
   }

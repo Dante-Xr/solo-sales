@@ -29,7 +29,7 @@ export async function GET(
     })
 
     return successResponse({ commissions })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to get commissions', error)
     return handleApiError(error)
   }

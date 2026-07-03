@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
         totalPages: Math.ceil(total / pageSize),
       },
     })
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -182,7 +182,7 @@ export async function POST(request: NextRequest) {
     }
 
     throw badRequest("缺少 reviewId 或 reviewIds")
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -223,7 +223,7 @@ export async function PUT(request: NextRequest) {
     return successResponse({
       message: action === "approve" ? "评论已通过审核" : "评论已拒绝",
     })
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

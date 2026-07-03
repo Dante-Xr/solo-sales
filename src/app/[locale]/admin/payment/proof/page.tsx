@@ -42,7 +42,7 @@ export default function PaymentProofReviewPage() {
       if (!response.ok) throw new Error('Failed to fetch')
       const data = await response.json()
       setProofs(data.proofs)
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Failed to fetch proofs:', error)
       alert('加载失败，请刷新页面')
     } finally {

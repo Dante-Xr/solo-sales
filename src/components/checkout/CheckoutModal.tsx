@@ -73,7 +73,7 @@ export function CheckoutModal({ isOpen, onClose, product }: CheckoutModalProps) 
       if (checkout?.url) {
         window.location.href = checkout.url
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(error)
     } finally {
       setLoadingStripe(false)

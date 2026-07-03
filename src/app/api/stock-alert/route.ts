@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const data = await getStockAlertData(query)
 
     return successResponse(data)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     const result = await configureStockAlert(input)
 
     return successResponse(result, { meta: { message: "Stock alert configured successfully" } })
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -50,7 +50,7 @@ export async function DELETE(request: NextRequest) {
     const result = await removeStockAlert(productId ?? "")
 
     return successResponse(result, { meta: { message: "Stock alert deleted successfully" } })
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

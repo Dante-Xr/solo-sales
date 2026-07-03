@@ -224,7 +224,7 @@ class CurrencyService {
       await cacheDel(`${RATES_CACHE_KEY}:USD`)
 
       return true
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error('Failed to update exchange rates', error)
       return false
     }

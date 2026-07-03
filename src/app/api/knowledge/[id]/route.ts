@@ -78,7 +78,7 @@ export async function GET(
     }
 
     return successResponse(knowledge)
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return handleApiError(validationError("参数验证失败", error.issues))
     }
@@ -149,7 +149,7 @@ export async function PATCH(
     return successResponse(result, {
       meta: { message: `更新成功，当前版本：v${newVersion}` },
     })
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return handleApiError(validationError("参数验证失败", error.issues))
     }
@@ -185,7 +185,7 @@ export async function DELETE(
     })
 
     return successResponse({ deleted: true }, { meta: { message: "删除成功" } })
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return handleApiError(validationError("参数验证失败", error.issues))
     }

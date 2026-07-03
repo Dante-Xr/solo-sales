@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     })
 
     return successResponse(session)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

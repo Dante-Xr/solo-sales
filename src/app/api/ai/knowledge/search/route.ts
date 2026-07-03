@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
         source: "solosales",
       }))
     )
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return handleApiError(validationError("Invalid AI knowledge search request", error.issues))
     }

@@ -32,7 +32,7 @@ export async function GET() {
       zh: DEFAULT_TRENDING.zh,
       en: DEFAULT_TRENDING.en,
     })
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error("Error fetching trending searches", error)
     return successResponse({
       zh: DEFAULT_TRENDING.zh,

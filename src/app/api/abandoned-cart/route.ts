@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
     }
 
     return successResponse(null)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
     })
 
     return successResponse({ cartId })
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     const result = await getPointsInfo(userId)
 
     return successResponse(result)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     const account = await createPointsAccount(userId)
     return successResponse(account)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

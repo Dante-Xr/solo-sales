@@ -297,7 +297,7 @@ export default function ProductsPage() {
       } else {
         toast.error(result.error || (isZh ? "保存失败" : "Save failed"))
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("保存商品失败:", error)
       toast.error(isZh ? "保存失败" : "Save failed")
     } finally {
@@ -328,7 +328,7 @@ export default function ProductsPage() {
       } else {
         toast.error(result.error || (isZh ? "删除失败" : "Delete failed"))
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("删除商品失败:", error)
       toast.error(isZh ? "删除失败" : "Delete failed")
     }
@@ -350,7 +350,7 @@ export default function ProductsPage() {
       } else {
         toast.error(result.error || (isZh ? "操作失败" : "Operation failed"))
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("切换状态失败:", error)
       toast.error(isZh ? "操作失败" : "Operation failed")
     }
@@ -380,7 +380,7 @@ export default function ProductsPage() {
         toast.error(result.error || (isZh ? "更新失败" : "Update failed"))
         return false
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("快速保存失败:", error)
       toast.error(isZh ? "更新失败" : "Update failed")
       return false
@@ -429,7 +429,7 @@ export default function ProductsPage() {
         toast.error(result.error || (isZh ? "批量折扣失败" : "Batch discount failed"))
         return false
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("批量折扣失败:", error)
       toast.error(isZh ? "批量折扣失败" : "Batch discount failed")
       return false
@@ -505,7 +505,7 @@ export default function ProductsPage() {
       } else {
         toast.error(result.error || (isZh ? "批量操作失败" : "Batch operation failed"))
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("批量操作失败:", error)
       toast.error(isZh ? "批量操作失败" : "Batch operation failed")
     }

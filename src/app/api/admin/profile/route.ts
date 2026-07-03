@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   try {
     const profile = await getAdminProfile(request)
     return successResponse(profile)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -27,7 +27,7 @@ export async function PUT(request: NextRequest) {
     const profile = await updateAdminProfile(request, input)
 
     return successResponse(profile)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
         totalPages: Math.ceil(total / pageSize),
       },
     })
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

@@ -81,7 +81,7 @@ export function ReviewList({
         setPage((prev) => prev + 1)
         setHasMore(result.data.reviews.length >= 10)
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("加载评论失败:", error)
     } finally {
       setIsLoading(false)
@@ -105,7 +105,7 @@ export function ReviewList({
         setStats(result.data.stats)
         setHasMore(result.data.reviews.length >= 10)
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("加载评论失败:", error)
     } finally {
       setIsLoading(false)

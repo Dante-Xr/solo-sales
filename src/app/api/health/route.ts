@@ -71,7 +71,7 @@ export async function GET() {
       unavailableMessage: "数据库连接暂时不可用，请稍后重试",
     })
     response.checks.database.latency = Date.now() - dbStart
-  } catch (error) {
+  } catch (error: unknown) {
     response.checks.database.status = "error"
     response.checks.database.error =
       error instanceof Error ? error.message : "Database connection failed"
@@ -90,7 +90,7 @@ export async function GET() {
       unavailableMessage: "缓存服务暂时不可用，请稍后重试",
     })
     response.checks.redis.latency = Date.now() - redisStart
-  } catch (error) {
+  } catch (error: unknown) {
     response.checks.redis.status = "error"
     response.checks.redis.error =
       error instanceof Error ? error.message : "Redis connection failed"

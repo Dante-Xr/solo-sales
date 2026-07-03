@@ -152,7 +152,7 @@ export async function runWholesalerImport(input: ImportRequestInput) {
       mappedFailed: mappingResult.failed.length,
       message: buildImportMessage(importResult, duplicate.length),
     }
-  } catch (error) {
+  } catch (error: unknown) {
     if (logId) {
       await failImportLogRecord(
         prisma,
@@ -193,7 +193,7 @@ export async function importMappedProducts(
       )
 
       successCount += batch.length
-    } catch (error) {
+    } catch (error: unknown) {
       const batchNumber = Math.floor(index / batchSize) + 1
       const errorMessage = error instanceof Error ? error.message : "Unknown error"
       errors.push(`Batch ${batchNumber}: ${errorMessage}`)

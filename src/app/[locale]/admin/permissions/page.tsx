@@ -146,7 +146,7 @@ export default function PermissionsPage() {
       } else {
         toast.error(data.error || t('operationFailed'))
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("提交失败:", error)
     } finally {
       setSubmitting(false)
@@ -168,7 +168,7 @@ export default function PermissionsPage() {
       } else {
         toast.error(data.error || t('deleteFailed'))
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("删除失败:", error)
     } finally {
       setSubmitting(false)

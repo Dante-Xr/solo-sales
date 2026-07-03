@@ -54,7 +54,7 @@ export function PointsBalance({ userId, isZh = false }: PointsBalanceProps) {
         if (result.success) {
           setPoints(result.data)
         }
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("获取积分失败:", error)
       } finally {
         setLoading(false)

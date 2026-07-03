@@ -83,7 +83,7 @@ export default function OrderDetailPage() {
         const data = await res.json()
         setOrder(data?.success ? data.data : data)
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(t("admin.fetchingOrders"), error)
     } finally {
       setLoading(false)

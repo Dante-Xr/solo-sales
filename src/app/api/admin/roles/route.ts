@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     await requireAdminPermission(request, "roles.view")
     const roles = await listRoles()
     return successResponse(roles)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     const role = await createRoleFromInput(request, admin.id, input)
 
     return createdResponse(role)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

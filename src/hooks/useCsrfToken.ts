@@ -27,7 +27,7 @@ export function useCsrfToken() {
         const data = await res.json()
         setToken(data.token)
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("获取 CSRF Token 失败:", error)
     } finally {
       setLoading(false)

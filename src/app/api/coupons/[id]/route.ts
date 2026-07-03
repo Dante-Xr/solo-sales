@@ -24,7 +24,7 @@ export async function GET(
     const coupon = await getCouponDetail(id)
 
     return successResponse(coupon)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -41,7 +41,7 @@ export async function PUT(
     const coupon = await updateCouponFromInput(id, input)
 
     return successResponse(coupon)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -57,7 +57,7 @@ export async function DELETE(
     const result = await deleteCouponById(id)
 
     return successResponse(result)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

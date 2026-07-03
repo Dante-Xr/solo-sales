@@ -86,7 +86,7 @@ export async function createStripeCheckoutSession(input: CreateStripeCheckoutInp
       url: session.url,
       isTestMode: isStripeTestMode(),
     }
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof AppError) {
       throw error
     }
@@ -115,7 +115,7 @@ export function constructStripeWebhookEvent(body: string, signature: string) {
   try {
     // 必须使用原始 body 和 Stripe 签名密钥验证事件，不能先 JSON.parse。
     return getStripe().webhooks.constructEvent(body, signature, webhookSecret)
-  } catch (error) {
+  } catch (error: unknown) {
     throw new AppError(
       ErrorCodes.PAYMENT_WEBHOOK_SIGNATURE_ERROR,
       "签名验证失败",
@@ -237,7 +237,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
         },
       })
     })
-  } catch (error) {
+  } catch (error: unknown) {
     if (isUniquePaymentTransactionError(error)) {
       const duplicatedPayment = await prisma.payment.findFirst({
         where: { provider: "stripe", transactionId },

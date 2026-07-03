@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       },
       { headers: corsHeaders }
     )
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error, { headers: corsHeaders })
   }
 }
@@ -121,7 +121,7 @@ export async function GET(request: NextRequest) {
       },
       { headers: corsHeaders }
     )
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error, { headers: corsHeaders })
   }
 }

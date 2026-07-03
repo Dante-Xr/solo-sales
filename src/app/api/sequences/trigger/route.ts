@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     })
 
     return successResponse({ results })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to process trigger', error)
     return handleApiError(error)
   }

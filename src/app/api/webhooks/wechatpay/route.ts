@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
 
     // WeChat requires JSON response with code: SUCCESS
     return NextResponse.json({ code: 'SUCCESS' })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('WeChat webhook error:', error)
 
     if (error instanceof Error && error.message.includes('signature')) {

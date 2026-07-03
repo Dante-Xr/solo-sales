@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
 
     return withCors(successResponse(inventoryReport))
 
-  } catch (error) {
+  } catch (error: unknown) {
     return withCors(handleApiError(error))
   }
 }

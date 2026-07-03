@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
 
     // 返回分页结果
     return successResponse(result)
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return handleApiError(validationError("参数验证失败", error.issues))
     }
@@ -190,7 +190,7 @@ export async function POST(request: NextRequest) {
 
     // 返回创建结果
     return createdResponse(result)
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return handleApiError(validationError("参数验证失败", error.issues))
     }

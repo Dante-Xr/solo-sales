@@ -32,7 +32,7 @@ function initRedis(): Redis {
       url: config.url,
       token: config.token,
     })
-  } catch (error) {
+  } catch (error: unknown) {
     // 构建阶段或环境变量缺失：使用 Mock
     if (isBuildTime || process.env.NODE_ENV !== "production") {
       logger.warn("⚠️  Redis 配置验证失败，使用 Mock 模式", { error })

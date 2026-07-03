@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     })
 
     return successResponse(categories)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     })
 
     return createdResponse(category)
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return handleApiError(validationError("参数验证失败", error.issues))
     }
@@ -94,7 +94,7 @@ export async function DELETE(request: NextRequest) {
     })
 
     return successResponse({ deleted: true }, { meta: { message: "删除成功" } })
-  } catch (error) {
+  } catch (error: unknown) {
     if (typeof error === "object" && error !== null && "code" in error && error.code === "P2025") {
       return handleApiError(notFound("分类"))
     }

@@ -23,7 +23,7 @@ export async function GET(
     const links = await affiliateService.getAffiliateLinks(id)
 
     return successResponse({ links })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to get affiliate links', error)
     return handleApiError(error)
   }
@@ -48,7 +48,7 @@ export async function POST(
     })
 
     return createdResponse({ link })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to create affiliate link', error)
     return handleApiError(error)
   }

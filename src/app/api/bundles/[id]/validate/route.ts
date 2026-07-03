@@ -53,7 +53,7 @@ export async function POST(
       finalTotal,
       totalOriginal: itemsWithPrices.reduce((sum, item) => sum + item.price * item.quantity, 0)
     })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to validate bundle for order', error)
     return handleApiError(error)
   }

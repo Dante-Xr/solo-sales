@@ -78,7 +78,7 @@ export function ReviewManagement({ isZh = false }: ReviewManagementProps) {
       if (result.success) {
         setReviews(result.data.reviews)
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("获取评论失败:", error)
     } finally {
       setLoading(false)
@@ -101,7 +101,7 @@ export function ReviewManagement({ isZh = false }: ReviewManagementProps) {
       if (result.success) {
         fetchReviews()
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("操作失败:", error)
     } finally {
       setActionLoading(false)
@@ -127,7 +127,7 @@ export function ReviewManagement({ isZh = false }: ReviewManagementProps) {
         setSelectedReview(null)
         fetchReviews()
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("回复失败:", error)
     } finally {
       setActionLoading(false)

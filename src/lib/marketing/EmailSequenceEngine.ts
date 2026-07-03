@@ -269,7 +269,7 @@ class EmailSequenceEngine {
           await this.processEnrollment(sequence.id, context.userId)
           results.push({ sequenceId: sequence.id, enrolled: true })
         }
-      } catch (error) {
+      } catch (error: unknown) {
         safeErrorLog(`Trigger processing error for sequence ${sequence.id}`, error)
         results.push({
           sequenceId: sequence.id,

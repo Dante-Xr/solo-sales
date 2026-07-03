@@ -71,7 +71,7 @@ export async function POST(request: Request) {
     }
 
     return successResponse({ received: true })
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

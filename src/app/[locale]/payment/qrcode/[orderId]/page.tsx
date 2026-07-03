@@ -125,7 +125,7 @@ export default async function QRCodePaymentPage({ params }: PageProps) {
     }))
 
     return <PaymentPageLayout order={order} qrCodes={qrCodes} />
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('支付页面数据加载失败:', error)
 
     // 数据库连接失败或其他错误

@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     await affiliateService.recordConversion(code, orderId, userId, orderAmount)
 
     return successResponse({ recorded: true })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to record conversion', error)
     return handleApiError(error)
   }

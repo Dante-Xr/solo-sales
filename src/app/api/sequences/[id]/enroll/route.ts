@@ -35,7 +35,7 @@ export async function POST(
     }
 
     return createdResponse({ enrollment })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to enroll user', error)
     return handleApiError(error)
   }
@@ -59,7 +59,7 @@ export async function DELETE(
     const enrollment = await engine.unenroll(id, userId)
 
     return successResponse({ enrollment })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to unenroll user', error)
     return handleApiError(error)
   }
@@ -91,7 +91,7 @@ export async function PATCH(
     }
 
     return successResponse({ enrollment })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to update enrollment', error)
     return handleApiError(error)
   }

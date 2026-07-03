@@ -40,7 +40,7 @@ export async function GET(
     if (!customer) throw notFound("客户")
 
     return successResponse(customer)
-  } catch (error) {
+  } catch (error: unknown) {
     return handleApiError(error)
   }
 }

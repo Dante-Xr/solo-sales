@@ -26,7 +26,7 @@ export function useCurrency() {
             return { currency, rates: { USD: 1 }, isLoading: false }
           }
         }
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('Failed to load currency preference:', error)
       }
     }
@@ -41,7 +41,7 @@ export function useCurrency() {
           const data = await res.json()
           setState(prev => ({ ...prev, rates: data.rates || { USD: 1 } }))
         }
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('Failed to fetch exchange rates:', error)
       }
     }

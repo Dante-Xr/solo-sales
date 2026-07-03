@@ -173,7 +173,7 @@ export async function POST(req: NextRequest) {
       status,
       message: '⏳ 等待人工审核（预计1-2小时）'
     })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Payment proof upload error:', error)
     return NextResponse.json(
       {

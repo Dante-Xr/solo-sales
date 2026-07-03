@@ -193,7 +193,7 @@ export function withApiHandler<T = unknown>(
 
       // 执行处理器
       return await handler(request, apiContext)
-    } catch (error) {
+    } catch (error: unknown) {
       return handleError(error) as NextResponse<ApiResponse<T>>
     }
   }

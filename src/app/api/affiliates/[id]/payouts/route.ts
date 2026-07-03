@@ -24,7 +24,7 @@ export async function GET(
     const payouts = await affiliateService.getPayouts(id)
 
     return successResponse({ payouts })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to get payouts', error)
     return handleApiError(error)
   }
@@ -54,7 +54,7 @@ export async function POST(
     })
 
     return createdResponse({ payout })
-  } catch (error) {
+  } catch (error: unknown) {
     safeErrorLog('Failed to request payout', error)
     return handleApiError(error)
   }

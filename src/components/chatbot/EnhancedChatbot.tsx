@@ -180,7 +180,7 @@ export default function EnhancedChatbot({
 
       setShowSatisfaction(false)
       onSessionEnd?.(sessionId, rating)
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Failed to submit feedback:", error)
     }
   }
@@ -196,7 +196,7 @@ export default function EnhancedChatbot({
         content: t.welcome[locale],
         timestamp: new Date()
       }])
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Failed to clear history:", error)
     }
   }

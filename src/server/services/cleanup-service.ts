@@ -48,7 +48,7 @@ export class CleanupService {
 
         successCount++
         console.log(`  ✅ 已删除凭证: ${proof.id}`)
-      } catch (error) {
+      } catch (error: unknown) {
         failCount++
         console.error(`  ❌ 删除失败: ${proof.id}`, error)
       }
