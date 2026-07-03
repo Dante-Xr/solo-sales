@@ -264,7 +264,7 @@ export class PayPalProvider implements PaymentProvider {
   /**
    * 捕获已批准的订单（用于手动捕获场景）
    */
-  async captureOrder(orderId: string): Promise<Record<string, unknown>> {
+  async captureOrder(orderId: string): Promise<PayPalOrderResponse> {
     const client = this.getClient();
     const request = new paypal.orders.OrdersCaptureRequest(orderId);
     request.requestBody({});
@@ -282,7 +282,7 @@ export class PayPalProvider implements PaymentProvider {
   /**
    * 获取订单详情
    */
-  async getOrderDetails(orderId: string): Promise<Record<string, unknown>> {
+  async getOrderDetails(orderId: string): Promise<PayPalOrderResponse> {
     const client = this.getClient();
     const request = new paypal.orders.OrdersGetRequest(orderId);
 

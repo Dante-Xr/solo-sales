@@ -46,7 +46,27 @@ export interface PayPalAmount {
 }
 
 /**
- * PayPal 购买单元
+ * PayPal 捕获详情
+ */
+export interface PayPalCapture {
+  /** 捕获 ID */
+  id: string;
+  /** 捕获状态：COMPLETED, DECLINED, PARTIALLY_REFUNDED, PENDING, REFUNDED */
+  status: string;
+  /** 捕获金额 */
+  amount?: PayPalAmount;
+}
+
+/**
+ * PayPal 支付详情
+ */
+export interface PayPalPayments {
+  /** 捕获列表 */
+  captures?: PayPalCapture[];
+}
+
+/**
+ * PayPal 购买单元（用于创建订单）
  */
 export interface PayPalPurchaseUnit {
   /** 参考 ID（商户订单号） */
@@ -57,6 +77,14 @@ export interface PayPalPurchaseUnit {
   description?: string;
   /** 自定义 ID */
   custom_id?: string;
+}
+
+/**
+ * PayPal 购买单元响应（包含支付详情）
+ */
+export interface PayPalPurchaseUnitResponse extends PayPalPurchaseUnit {
+  /** 支付详情（捕获后可用） */
+  payments?: PayPalPayments;
 }
 
 /**
@@ -114,7 +142,7 @@ export interface PayPalOrderResponse {
   /** 相关链接（包含 approve 链接等） */
   links?: PayPalLink[];
   /** 购买单元 */
-  purchase_units?: PayPalPurchaseUnit[];
+  purchase_units?: PayPalPurchaseUnitResponse[];
   /** 创建时间 */
   create_time?: string;
 }
