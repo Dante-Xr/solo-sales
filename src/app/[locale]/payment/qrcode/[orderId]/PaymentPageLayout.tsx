@@ -571,15 +571,14 @@ export function PaymentPageLayout({ order, qrCodes }: Props) {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">支付凭证预览</h2>
-              <DialogClose asChild>
-                <button
-                  type="button"
-                  className="rounded-md p-2 hover:bg-accent transition-colors"
-                  aria-label="关闭"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </DialogClose>
+              <button
+                type="button"
+                onClick={() => setShowPreview(false)}
+                className="rounded-md p-2 hover:bg-accent transition-colors"
+                aria-label="关闭"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
             {uploadedImage && (
               <div className="relative w-full aspect-[3/4] max-h-[70vh] rounded-lg overflow-hidden bg-muted">
