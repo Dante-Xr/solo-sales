@@ -1,4 +1,29 @@
-import { AffiliateStatus, CommissionStatus, PayoutStatus } from '@prisma/client'
+import { AffiliateStatus, CommissionStatus, PayoutStatus, Prisma } from '@prisma/client'
+
+/**
+ * Prisma Record 类型别名
+ * 用于类型安全的数据库记录映射
+ */
+
+/**
+ * Affiliate 数据库记录类型
+ */
+export type AffiliateRecord = Prisma.AffiliateGetPayload<{}>
+
+/**
+ * AffiliateLink 数据库记录类型
+ */
+export type AffiliateLinkRecord = Prisma.AffiliateLinkGetPayload<{}>
+
+/**
+ * Commission 数据库记录类型
+ */
+export type CommissionRecord = Prisma.CommissionGetPayload<{}>
+
+/**
+ * Payout 数据库记录类型
+ */
+export type PayoutRecord = Prisma.PayoutGetPayload<{}>
 
 export interface AffiliateData {
   id: string

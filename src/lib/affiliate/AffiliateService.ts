@@ -14,7 +14,11 @@ import {
   AffiliateStats,
   CreateAffiliateInput,
   CreateAffiliateLinkInput,
-  RequestPayoutInput
+  RequestPayoutInput,
+  AffiliateRecord,
+  AffiliateLinkRecord,
+  CommissionRecord,
+  PayoutRecord
 } from './types'
 import { safeErrorLog as _safeErrorLog } from '../safeLog'
 
@@ -368,8 +372,7 @@ class AffiliateService {
     return this.mapCommissionData(commission)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private mapAffiliateData(a: any): AffiliateData {
+  private mapAffiliateData(a: AffiliateRecord): AffiliateData {
     return {
       id: a.id,
       userId: a.userId,
@@ -385,8 +388,7 @@ class AffiliateService {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private mapAffiliateLinkData(l: any): AffiliateLinkData {
+  private mapAffiliateLinkData(l: AffiliateLinkRecord): AffiliateLinkData {
     return {
       id: l.id,
       affiliateId: l.affiliateId,
@@ -400,8 +402,7 @@ class AffiliateService {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private mapCommissionData(c: any): CommissionData {
+  private mapCommissionData(c: CommissionRecord): CommissionData {
     return {
       id: c.id,
       affiliateId: c.affiliateId,
@@ -417,8 +418,7 @@ class AffiliateService {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private mapPayoutData(p: any): PayoutData {
+  private mapPayoutData(p: PayoutRecord): PayoutData {
     return {
       id: p.id,
       affiliateId: p.affiliateId,
