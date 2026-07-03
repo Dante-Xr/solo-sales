@@ -10,7 +10,7 @@
  * ============================================
  */
 
-import { LogAction, TargetType } from "@prisma/client"
+import { LogAction, TargetType, Prisma } from "@prisma/client"
 import { NextRequest } from "next/server"
 import { logger } from "./logger"
 import { prisma } from "./prisma"
