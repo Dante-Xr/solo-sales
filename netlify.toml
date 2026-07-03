@@ -78,16 +78,10 @@
   to = "/:splat"
   status = 301
 
-# 后台管理重定向
-[[redirects]]
-  from = "/admin"
-  to = "/admin/"
-  status = 308
-
-# 根路径重定向到首页或后台
+# 根路径重定向到默认语言首页
 [[redirects]]
   from = "/"
-  to = "/admin"
+  to = "/zh"
   status = 302
 
 # API 版本化预留 (未来 v2 升级使用)
