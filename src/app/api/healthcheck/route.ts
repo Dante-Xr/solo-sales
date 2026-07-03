@@ -1,5 +1,5 @@
 /**
- * Health check endpoint for debugging 502 errors
+ * Health check API endpoint for debugging 502 errors
  */
 
 import { NextResponse } from 'next/server'
