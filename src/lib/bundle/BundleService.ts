@@ -1,11 +1,13 @@
-import { PrismaClient, DiscountType, BundleStatus } from '@prisma/client'
+import { PrismaClient, DiscountType, BundleStatus, Prisma } from '@prisma/client'
 import { cacheGet, cacheSet, cacheDel } from '../cache'
 import {
   BundleData,
   BundleItemData,
   CreateBundleInput,
   UpdateBundleInput,
-  BundleValidationResult
+  BundleValidationResult,
+  BundleWithItems,
+  BundleItemWithProduct
 } from './types'
 import { safeErrorLog as _safeErrorLog } from '../safeLog'
 
@@ -29,7 +31,7 @@ class BundleService {
       return cached
     }
 
-    const where: Record<string, unknown> = {}
+    const where: Prisma.BundleWhereInput = {}
 
     if (filters?.status) {
       where.status = filters.status
@@ -155,7 +157,7 @@ class BundleService {
   }
 
   async updateBundle(id: string, data: UpdateBundleInput): Promise<BundleData> {
-    const updateData: Record<string, unknown> = { ...data }
+    const updateData: Prisma.BundleUpdateInput = { ...data }
 
     if (data.startDate) updateData.startDate = new Date(data.startDate)
     if (data.endDate) updateData.endDate = new Date(data.endDate)
@@ -339,10 +341,8 @@ class BundleService {
     await cacheDel('solo:bundles:list:*')
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private calculateBundlePricing(bundle: any): BundleData {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const items: BundleItemData[] = bundle.items.map((item: any) => ({
+  private calculateBundlePricing(bundle: BundleWithItems): BundleData {
+    const items: BundleItemData[] = bundle.items.map((item: BundleItemWithProduct) => ({
       id: item.id,
       productId: item.productId,
       productName: item.product.name,

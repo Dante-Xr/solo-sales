@@ -1,4 +1,35 @@
-import { BundleStatus, DiscountType } from '@prisma/client'
+import { BundleStatus, DiscountType, Prisma } from '@prisma/client'
+
+/**
+ * Prisma Payload 类型别名
+ * 用于类型安全的数据库查询结果
+ */
+
+/**
+ * Bundle 查询结果，包含嵌套的 items 和 product
+ */
+export type BundleWithItems = Prisma.BundleGetPayload<{
+  include: {
+    items: {
+      include: {
+        product: {
+          select: { id: true; name: true; price: true }
+        }
+      }
+    }
+  }
+}>
+
+/**
+ * BundleItem 查询结果，包含嵌套的 product
+ */
+export type BundleItemWithProduct = Prisma.BundleItemGetPayload<{
+  include: {
+    product: {
+      select: { id: true; name: true; price: true }
+    }
+  }
+}>
 
 export interface BundleProduct {
   productId: string
