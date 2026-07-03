@@ -32,11 +32,11 @@ export function proxy(request: NextRequest) {
   // 1. 先执行 next-intl 的语言检测和重定向
   const response = intlMiddleware(request)
 
-  // 2. 生成 CSP nonce 并注入响应头
-  const nonce = generateNonce()
-  const isDev = process.env.NODE_ENV === "development"
-  response.headers.set("Content-Security-Policy", getCspHeaders(nonce, isDev))
-  response.headers.set("x-nonce", nonce)
+  // 2. 生成 CSP nonce 并注入响应头（暂时注释掉以调试502问题）
+  // const nonce = generateNonce()
+  // const isDev = process.env.NODE_ENV === "development"
+  // response.headers.set("Content-Security-Policy", getCspHeaders(nonce, isDev))
+  // response.headers.set("x-nonce", nonce)
 
   // 3. 安全响应头
   response.headers.set("X-DNS-Prefetch-Control", "on")
