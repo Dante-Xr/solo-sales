@@ -11,8 +11,19 @@ import { logger } from "@/lib/logger"
 
 const DEFAULT_TTL = 300
 
+/**
+ * 缓存条目泛型接口
+ * 用于内存缓存降级机制的类型安全
+ */
+export interface CacheEntry<T> {
+  /** 缓存值 */
+  value: T
+  /** 过期时间戳（毫秒） */
+  expiry: number
+}
+
 // 内存缓存降级机制
-const memoryCache = new Map<string, { value: any; expiry: number }>()
+const memoryCache = new Map<string, CacheEntry<unknown>>()
 let useMemoryCache = false
 let fallbackLogged = false // 防止重复日志
 

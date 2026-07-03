@@ -20,6 +20,17 @@ export type PaymentAction =
   | { type: 'form'; fields: Record<string, string> }
 
 /**
+ * Webhook 原始数据
+ * 保留各支付提供商的原始响应数据，用于审计和调试
+ */
+export interface WebhookRawData {
+  /** 支付提供商标识 */
+  provider?: 'stripe' | 'alipay' | 'wechatpay' | 'paypal'
+  /** 其他动态字段（各提供商特有） */
+  [key: string]: unknown
+}
+
+/**
  * Webhook事件
  */
 export interface WebhookEvent {
@@ -29,7 +40,7 @@ export interface WebhookEvent {
   amount: number
   currency: string
   timestamp: Date
-  rawData: any
+  rawData: WebhookRawData
 }
 
 /**
