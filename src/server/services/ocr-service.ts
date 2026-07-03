@@ -33,14 +33,16 @@ export class OCRService {
 
       // 真实 OCR 识别
       console.log('🔍 开始 OCR 识别...')
-      const { data } = await Tesseract.recognize(
-        imagePath,
-        'chi_sim+eng',
-        {
-          tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK,
-          tessedit_char_whitelist: '0123456789.¥:：-年月日时分秒支付宝微信'
-        }
-      )
+      const worker = await Tesseract.createWorker('chi_sim+eng')
+
+      // 设置参数
+      await worker.setParameters({
+        tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK,
+        tessedit_char_whitelist: '0123456789.¥:：-年月日时分秒支付宝微信'
+      })
+
+      const { data } = await worker.recognize(imagePath)
+      await worker.terminate()
 
       const rawText = data.text
       const confidence = data.confidence / 100
