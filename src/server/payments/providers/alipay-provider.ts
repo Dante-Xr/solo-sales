@@ -18,15 +18,16 @@ import {
   WebhookEvent,
   PaymentResult
 } from '../provider'
+import type { AlipaySdk } from '@/types/alipay-sdk'
 
 // Use require for CommonJS module
-const AlipaySdk = require('alipay-sdk')
+const AlipaySdkConstructor = require('alipay-sdk')
 
 export class AlipayProvider implements PaymentProvider {
   readonly name = 'alipay' as const
-  private sdk: any | null = null
+  private sdk: AlipaySdk | null = null
 
-  private getSdk(): any {
+  private getSdk(): AlipaySdk {
     if (!this.sdk) {
       if (!process.env.ALIPAY_APP_ID) {
         throw new Error('ALIPAY_APP_ID is not configured')
@@ -38,7 +39,7 @@ export class AlipayProvider implements PaymentProvider {
         throw new Error('ALIPAY_PUBLIC_KEY is not configured')
       }
 
-      this.sdk = new AlipaySdk({
+      this.sdk = new AlipaySdkConstructor({
         appId: process.env.ALIPAY_APP_ID,
         privateKey: process.env.ALIPAY_PRIVATE_KEY,
         alipayPublicKey: process.env.ALIPAY_PUBLIC_KEY,
@@ -71,13 +72,13 @@ export class AlipayProvider implements PaymentProvider {
   }
 
   async verifyWebhook(
-    rawBody: string | Buffer | any,
+    rawBody: string | Buffer,
     signature: string
   ): Promise<WebhookEvent> {
     const sdk = this.getSdk()
 
     // Handle different input types
-    let params: any
+    let params: Record<string, string>
     if (typeof rawBody === 'string') {
       params = JSON.parse(rawBody)
     } else if (Buffer.isBuffer(rawBody)) {
