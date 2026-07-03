@@ -4,7 +4,7 @@ import { EmailNotificationService } from '@/server/services/email-notification-s
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // TODO: Add admin authentication check
@@ -29,7 +29,7 @@ export async function POST(
       )
     }
 
-    const proofId = params.id
+    const { id: proofId } = await params
 
     // Get proof with order and user
     const proof = await prisma.paymentProof.findUnique({
