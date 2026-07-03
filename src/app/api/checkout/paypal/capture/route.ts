@@ -69,6 +69,17 @@ export async function GET(req: NextRequest) {
         captureResult.purchase_units?.[0]?.payments?.captures?.[0]?.status;
 
       if (captureStatus === "COMPLETED") {
+        // 提取事务ID（类型安全）
+        const transactionId =
+          captureResult.purchase_units?.[0]?.payments?.captures?.[0]?.id;
+
+        if (!transactionId) {
+          return NextResponse.json(
+            { error: "无法获取支付事务ID" },
+            { status: 500 },
+          );
+        }
+
         // 更新订单状态为已支付
         await prisma.order.update({
           where: { id: orderId },
@@ -83,8 +94,7 @@ export async function GET(req: NextRequest) {
           data: {
             orderId,
             provider: "paypal",
-            transactionId:
-              captureResult.purchase_units[0].payments.captures[0].id,
+            transactionId,
             amount: order.totalAmount,
             currency: "USD",
             status: "COMPLETED",
@@ -95,8 +105,7 @@ export async function GET(req: NextRequest) {
           success: true,
           orderId,
           message: "支付成功",
-          transactionId:
-            captureResult.purchase_units[0].payments.captures[0].id,
+          transactionId,
         });
       }
     }
