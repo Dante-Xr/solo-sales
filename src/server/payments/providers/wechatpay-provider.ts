@@ -19,14 +19,15 @@ import {
   WebhookEvent,
   PaymentResult
 } from '../provider'
+import type { Wechatpay, WechatpayNotifyBody, WechatpayNotifyDecrypted, WechatpayNotifyResource } from '@/types/wechatpay'
 
-const { Wechatpay } = require('wechatpay-axios-plugin')
+const { Wechatpay: WechatpayConstructor } = require('wechatpay-axios-plugin')
 
 export class WeChatPayProvider implements PaymentProvider {
   readonly name = 'wechatpay' as const
-  private client: any | null = null
+  private client: Wechatpay | null = null
 
-  private getClient(): any {
+  private getClient(): Wechatpay {
     if (!this.client) {
       if (!process.env.WECHATPAY_MCHID) {
         throw new Error('WECHATPAY_MCHID is not configured')
@@ -41,7 +42,7 @@ export class WeChatPayProvider implements PaymentProvider {
         throw new Error('WECHATPAY_PRIVATE_KEY is not configured')
       }
 
-      this.client = new Wechatpay({
+      this.client = new WechatpayConstructor({
         mchid: process.env.WECHATPAY_MCHID,
         serial: process.env.WECHATPAY_SERIAL_NO,
         privateKey: process.env.WECHATPAY_PRIVATE_KEY,
@@ -84,7 +85,7 @@ export class WeChatPayProvider implements PaymentProvider {
     headers?: Record<string, string>
   ): Promise<WebhookEvent> {
     // Parse webhook body
-    const body = typeof rawBody === 'string' ? JSON.parse(rawBody) : JSON.parse(rawBody.toString())
+    const body: WechatpayNotifyBody = typeof rawBody === 'string' ? JSON.parse(rawBody) : JSON.parse(rawBody.toString())
 
     // Decrypt resource
     const decrypted = await this.decryptResource(body.resource)
@@ -103,7 +104,7 @@ export class WeChatPayProvider implements PaymentProvider {
     }
   }
 
-  private async decryptResource(resource: any): Promise<any> {
+  private async decryptResource(resource: WechatpayNotifyResource): Promise<WechatpayNotifyDecrypted> {
     if (!process.env.WECHATPAY_APIV3_KEY) {
       throw new Error('WECHATPAY_APIV3_KEY is not configured')
     }
