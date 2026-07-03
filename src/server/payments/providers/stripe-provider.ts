@@ -17,7 +17,8 @@ import {
   PaymentAction,
   PaymentSessionParams,
   WebhookEvent,
-  PaymentResult
+  PaymentResult,
+  WebhookRawData
 } from '../provider'
 
 export class StripeProvider implements PaymentProvider {
@@ -98,7 +99,7 @@ export class StripeProvider implements PaymentProvider {
         amount: (session.amount_total || 0) / 100,
         currency: session.currency?.toUpperCase() || 'USD',
         timestamp: new Date(event.created * 1000),
-        rawData: event
+        rawData: event as unknown as WebhookRawData
       }
     } else if (event.type === 'checkout.session.expired') {
       const session = event.data.object as Stripe.Checkout.Session
@@ -110,7 +111,7 @@ export class StripeProvider implements PaymentProvider {
         amount: (session.amount_total || 0) / 100,
         currency: session.currency?.toUpperCase() || 'USD',
         timestamp: new Date(event.created * 1000),
-        rawData: event
+        rawData: event as unknown as WebhookRawData
       }
     }
 

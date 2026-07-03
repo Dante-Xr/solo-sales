@@ -3,7 +3,7 @@
  * 验证 WebhookEvent.rawData 类型定义
  */
 
-import type { WebhookEvent, WebhookRawData } from '../provider'
+import type { WebhookEvent, WebhookRawData } from '@/server/payments/provider'
 
 describe('Payment Provider Types', () => {
   test('WebhookEvent should have typed rawData', () => {

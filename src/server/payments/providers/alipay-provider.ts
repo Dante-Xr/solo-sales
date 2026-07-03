@@ -18,7 +18,7 @@ import {
   WebhookEvent,
   PaymentResult
 } from '../provider'
-import type { AlipaySdk } from '@/types/alipay-sdk'
+import type { AlipaySdk, AlipayNotifyParams } from '@/types/alipay-sdk'
 
 // Use require for CommonJS module
 const AlipaySdkConstructor = require('alipay-sdk')
@@ -44,7 +44,7 @@ export class AlipayProvider implements PaymentProvider {
         privateKey: process.env.ALIPAY_PRIVATE_KEY,
         alipayPublicKey: process.env.ALIPAY_PUBLIC_KEY,
         gateway: process.env.ALIPAY_GATEWAY_URL || 'https://openapi.alipay.com/gateway.do'
-      })
+      }) as AlipaySdk
     }
     return this.sdk
   }
@@ -88,7 +88,7 @@ export class AlipayProvider implements PaymentProvider {
     }
 
     // 使用SDK验证签名
-    const isValid = sdk.checkNotifySign(params)
+    const isValid = sdk.checkNotifySign(params as AlipayNotifyParams)
     if (!isValid) {
       throw new Error('Alipay signature verification failed')
     }

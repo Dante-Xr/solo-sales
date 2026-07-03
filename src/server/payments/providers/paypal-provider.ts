@@ -14,6 +14,8 @@
  * ============================================
  */
 
+/// <reference types="../../../types/paypal" />
+
 import paypal from "@paypal/checkout-server-sdk";
 import type { PayPalLink, PayPalOrderResponse } from "@/types/paypal";
 import {

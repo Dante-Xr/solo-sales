@@ -15,7 +15,7 @@ describe('BundleService Types', () => {
       slug: 'test-bundle',
       status: 'ACTIVE',
       discountType: 'PERCENTAGE',
-      discountValue: 10,
+      discountValue: new Prisma.Decimal('10'),
       startDate: null,
       endDate: null,
       maxUsage: null,
@@ -33,12 +33,10 @@ describe('BundleService Types', () => {
           quantity: 1,
           isRequired: true,
           bonusQuantity: 0,
-          createdAt: new Date(),
-          updatedAt: new Date(),
           product: {
             id: 'prod_1',
             name: 'Product 1',
-            price: 99.99
+            price: new Prisma.Decimal('99.99')
           }
         }
       ]
@@ -56,18 +54,16 @@ describe('BundleService Types', () => {
       quantity: 2,
       isRequired: true,
       bonusQuantity: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
       product: {
         id: 'prod_1',
         name: 'Product 1',
-        price: 49.99
+        price: new Prisma.Decimal('49.99')
       }
     }
 
     expect(item.product.id).toBe('prod_1')
     expect(item.product.name).toBe('Product 1')
-    expect(item.product.price).toBe(49.99)
+    expect(item.product.price.toNumber()).toBe(49.99)
     expect(item.quantity).toBe(2)
   })
 

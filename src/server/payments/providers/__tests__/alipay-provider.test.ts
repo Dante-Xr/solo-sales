@@ -53,7 +53,9 @@ describe('AlipayProvider', () => {
 
       // Assert
       expect(result.type).toBe('redirect')
-      expect(result.url).toBe(mockPaymentUrl)
+      if (result.type === 'redirect') {
+        expect(result.url).toBe(mockPaymentUrl)
+      }
       expect(mockExec).toHaveBeenCalledWith(
         'alipay.trade.page.pay',
         expect.objectContaining({
@@ -101,7 +103,7 @@ describe('AlipayProvider', () => {
       mockCheckNotifySign.mockReturnValue(true)
 
       // Act
-      const result = await provider.verifyWebhook(webhookParams, 'signature')
+      const result = await provider.verifyWebhook(JSON.stringify(webhookParams), 'signature')
 
       // Assert
       expect(result.type).toBe('payment.success')
@@ -116,7 +118,7 @@ describe('AlipayProvider', () => {
 
       // Act & Assert
       await expect(
-        provider.verifyWebhook({ out_trade_no: 'order-123' }, 'bad-signature')
+        provider.verifyWebhook(JSON.stringify({ out_trade_no: 'order-123' }), 'bad-signature')
       ).rejects.toThrow('Alipay signature verification failed')
     })
 
@@ -132,7 +134,7 @@ describe('AlipayProvider', () => {
       mockCheckNotifySign.mockReturnValue(true)
 
       // Act
-      const result = await provider.verifyWebhook(webhookParams, 'signature')
+      const result = await provider.verifyWebhook(JSON.stringify(webhookParams), 'signature')
 
       // Assert
       expect(result.type).toBe('payment.failed')

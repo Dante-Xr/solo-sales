@@ -62,8 +62,10 @@ describe('WeChatPayProvider', () => {
 
       // Assert
       expect(result.type).toBe('qrcode')
-      expect(result.data).toBe('weixin://wxpay/bizpayurl?pr=test_code')
-      expect(result.expiry).toBeInstanceOf(Date)
+      if (result.type === 'qrcode') {
+        expect(result.data).toBe('weixin://wxpay/bizpayurl?pr=test_code')
+        expect(result.expiry).toBeInstanceOf(Date)
+      }
     })
 
     it('should include correct payment parameters', async () => {

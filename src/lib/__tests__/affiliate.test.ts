@@ -17,10 +17,10 @@ describe('AffiliateService Types', () => {
       id: 'aff_1',
       userId: 'user_1',
       status: 'ACTIVE',
-      commissionRate: 10.5,
-      balance: 100.0,
-      totalEarned: 500.0,
-      totalPaid: 400.0,
+      commissionRate: new Prisma.Decimal('10.5'),
+      balance: new Prisma.Decimal('100.0'),
+      totalEarned: new Prisma.Decimal('500.0'),
+      totalPaid: new Prisma.Decimal('400.0'),
       payoutMethod: 'paypal',
       payoutInfo: { email: 'test@example.com' },
       approvedAt: new Date(),
@@ -29,7 +29,7 @@ describe('AffiliateService Types', () => {
     }
 
     expect(affiliate.userId).toBe('user_1')
-    expect(affiliate.commissionRate).toBe(10.5)
+    expect(affiliate.commissionRate.toNumber()).toBe(10.5)
   })
 
   test('AffiliateLinkRecord should match Prisma AffiliateLink model', () => {
@@ -42,8 +42,7 @@ describe('AffiliateService Types', () => {
       clicks: 100,
       conversions: 10,
       expiresAt: null,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      createdAt: new Date()
     }
 
     expect(link.code).toBe('REFER123')
@@ -57,34 +56,32 @@ describe('AffiliateService Types', () => {
       linkId: 'link_1',
       orderId: 'order_1',
       userId: 'user_1',
-      amount: 99.99,
-      commission: 9.99,
-      rate: 10.0,
+      amount: new Prisma.Decimal('99.99'),
+      commission: new Prisma.Decimal('9.99'),
+      rate: new Prisma.Decimal('10.0'),
       status: 'PENDING',
       paidAt: null,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      createdAt: new Date()
     }
 
-    expect(commission.amount).toBe(99.99)
-    expect(commission.commission).toBe(9.99)
+    expect(commission.amount.toNumber()).toBe(99.99)
+    expect(commission.commission.toNumber()).toBe(9.99)
   })
 
   test('PayoutRecord should match Prisma Payout model', () => {
     const payout: PayoutRecord = {
       id: 'payout_1',
       affiliateId: 'aff_1',
-      amount: 100.0,
+      amount: new Prisma.Decimal('100.0'),
       method: 'paypal',
       status: 'COMPLETED',
       transactionId: 'txn_123',
       notes: 'Monthly payout',
       processedAt: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date()
+      createdAt: new Date()
     }
 
-    expect(payout.amount).toBe(100.0)
+    expect(payout.amount.toNumber()).toBe(100.0)
     expect(payout.method).toBe('paypal')
   })
 })

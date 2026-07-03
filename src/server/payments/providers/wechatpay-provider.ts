@@ -17,7 +17,8 @@ import {
   PaymentAction,
   PaymentSessionParams,
   WebhookEvent,
-  PaymentResult
+  PaymentResult,
+  WebhookRawData
 } from '../provider'
 import type { Wechatpay, WechatpayNotifyBody, WechatpayNotifyDecrypted, WechatpayNotifyResource } from '@/types/wechatpay'
 
@@ -47,7 +48,7 @@ export class WeChatPayProvider implements PaymentProvider {
         serial: process.env.WECHATPAY_SERIAL_NO,
         privateKey: process.env.WECHATPAY_PRIVATE_KEY,
         apiv3Key: process.env.WECHATPAY_APIV3_KEY
-      })
+      }) as Wechatpay
     }
     return this.client
   }
@@ -55,10 +56,20 @@ export class WeChatPayProvider implements PaymentProvider {
   async createPaymentSession(params: PaymentSessionParams): Promise<PaymentAction> {
     const client = this.getClient()
 
+    const appId = process.env.WECHATPAY_APP_ID || process.env.NEXT_PUBLIC_APP_ID
+    const mchId = process.env.WECHATPAY_MCHID
+
+    if (!appId) {
+      throw new Error('WECHATPAY_APP_ID or NEXT_PUBLIC_APP_ID must be configured')
+    }
+    if (!mchId) {
+      throw new Error('WECHATPAY_MCHID must be configured')
+    }
+
     // 创建Native支付订单
     const response = await client.v3.pay.transactions.native({
-      appid: process.env.WECHATPAY_APP_ID || process.env.NEXT_PUBLIC_APP_ID,
-      mchid: process.env.WECHATPAY_MCHID,
+      appid: appId,
+      mchid: mchId,
       out_trade_no: params.orderId,
       description: `Order ${params.orderId}`,
       notify_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/wechatpay`,
@@ -100,7 +111,7 @@ export class WeChatPayProvider implements PaymentProvider {
       amount: decrypted.amount.total / 100, // Convert from cents
       currency: decrypted.amount.currency,
       timestamp: new Date(decrypted.success_time),
-      rawData: body
+      rawData: body as unknown as WebhookRawData
     }
   }
 
