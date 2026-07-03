@@ -18,12 +18,12 @@ export type AffiliateLinkRecord = Prisma.AffiliateLinkGetPayload<{}>
 /**
  * Commission 数据库记录类型
  */
-export type CommissionRecord = Prisma.CommissionGetPayload<{}>
+export type CommissionRecord = Prisma.AffiliateCommissionGetPayload<{}>
 
 /**
  * Payout 数据库记录类型
  */
-export type PayoutRecord = Prisma.PayoutGetPayload<{}>
+export type PayoutRecord = Prisma.AffiliatePayoutGetPayload<{}>
 
 export interface AffiliateData {
   id: string
