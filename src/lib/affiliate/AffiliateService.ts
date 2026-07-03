@@ -382,7 +382,7 @@ class AffiliateService {
       totalEarned: Number(a.totalEarned),
       totalPaid: Number(a.totalPaid),
       payoutMethod: a.payoutMethod,
-      payoutInfo: a.payoutInfo,
+      payoutInfo: a.payoutInfo as Record<string, unknown> | null,
       approvedAt: a.approvedAt,
       createdAt: a.createdAt
     }
