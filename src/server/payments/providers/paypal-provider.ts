@@ -15,6 +15,7 @@
  */
 
 import paypal from "@paypal/checkout-server-sdk";
+import type { PayPalLink, PayPalOrderResponse } from "@/types/paypal";
 import {
   PaymentProvider,
   PaymentAction,
@@ -91,12 +92,12 @@ export class PayPalProvider implements PaymentProvider {
     });
 
     try {
-      const response = await client.execute(request);
+      const response = await client.execute<PayPalOrderResponse>(request);
       const order = response.result;
 
       // 查找 approve 链接
       const approveLink = order.links?.find(
-        (link: any) => link.rel === "approve",
+        (link: PayPalLink) => link.rel === "approve",
       );
 
       if (!approveLink?.href) {
