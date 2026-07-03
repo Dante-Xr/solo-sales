@@ -4,13 +4,12 @@
 
 [build.environment]
   NODE_VERSION = "20"
-  DATABASE_URL = "${DATABASE_URL}"
-  # Stripe（支付）- 在 Netlify 控制台配置实际值
-  # STRIPE_PUBLIC_KEY = ""
-  # STRIPE_SECRET_KEY = ""
-  # STRIPE_WEBHOOK_SECRET = ""
-  UPSTASH_REDIS_REST_URL = "${UPSTASH_REDIS_REST_URL}"
-  UPSTASH_REDIS_REST_TOKEN = "${UPSTASH_REDIS_REST_TOKEN}"
+  # 环境变量通过 Netlify UI 配置，不在此文件中暴露
+  # DATABASE_URL - 在 Netlify 环境变量中配置
+  # UPSTASH_REDIS_REST_URL - 在 Netlify 环境变量中配置
+  # UPSTASH_REDIS_REST_TOKEN - 在 Netlify 环境变量中配置
+  # STRIPE_SECRET_KEY - 在 Netlify 环境变量中配置
+  # STRIPE_WEBHOOK_SECRET - 在 Netlify 环境变量中配置
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
