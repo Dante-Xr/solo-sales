@@ -890,6 +890,7 @@
     "filterPrice": "Price Range",
     "filterPriceMin": "Min",
     "filterPriceMax": "Max",
+    "filterApply": "Apply Price",
     "filterRating": "Rating",
     "filterRatingUp": "{count}+ Stars",
     "filterInStock": "In Stock Only",

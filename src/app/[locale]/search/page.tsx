@@ -18,8 +18,8 @@
 
 "use client"
 
-import { Suspense, useState, useCallback, useEffect } from "react"
-import { useSearchParams } from "next/navigation"
+import { Suspense, useState, useEffect } from "react"
+import { usePathname, useSearchParams } from "next/navigation"
 import { useRouter, Link } from "@/i18n/navigation"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -36,9 +36,14 @@ import { useTranslations } from "next-intl"
 import { StorefrontPageLayout } from "@/components/storefront/StorefrontPageLayout"
 import {
   SearchFilterSidebar,
-  DEFAULT_FILTERS,
-  type SearchFilters,
 } from "@/components/storefront/SearchFilterSidebar"
+import {
+  buildSearchFilterHref,
+  getInitialSearchFilters,
+  getVisibleSearchProducts,
+  type SearchFilters,
+  type SearchProductSortType,
+} from "@/lib/search-products"
 import {
   Sheet,
   SheetTrigger,
@@ -61,7 +66,7 @@ interface SearchProduct {
 }
 
 /** 排序类型 */
-type SortType = "default" | "priceAsc" | "priceDesc" | "sales"
+type SortType = SearchProductSortType
 
 /** Mock 商品数据 */
 const MOCK_PRODUCTS: SearchProduct[] = [
@@ -132,46 +137,28 @@ const SORT_OPTIONS: { key: SortType; labelKey: string }[] = [
 
 function SearchPageContent() {
   const searchParams = useSearchParams()
+  const pathname = usePathname()
   const router = useRouter()
   const t = useTranslations("search")
   const { addToCart } = useCartStore()
 
   const query = searchParams.get("q") || ""
+  const searchParamString = searchParams.toString()
   const [searchInput, setSearchInput] = useState(query)
-  const [results, setResults] = useState<SearchProduct[]>([])
-  const [loading, setLoading] = useState(true)
-  const [filters, setFilters] = useState<SearchFilters>(DEFAULT_FILTERS)
+  const [filters, setFilters] = useState<SearchFilters>(() =>
+    getInitialSearchFilters(searchParams)
+  )
   const [sortType, setSortType] = useState<SortType>("default")
   /** 移动端排序下拉是否展开 */
   const [sortOpen, setSortOpen] = useState(false)
 
-  /** 执行搜索 */
-  const performSearch = useCallback((searchQuery: string) => {
-    if (!searchQuery.trim()) {
-      setResults([])
-      setLoading(false)
-      return
-    }
-    const filtered = MOCK_PRODUCTS.filter(
-      (p) =>
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        searchQuery.toLowerCase().includes("#trending") ||
-        searchQuery.toLowerCase().includes("#flashsale") ||
-        searchQuery.toLowerCase().includes("#viral") ||
-        searchQuery.toLowerCase().includes("#网红") ||
-        searchQuery.toLowerCase().includes("#限时")
-    )
-    setResults(filtered)
-    setLoading(false)
-  }, [])
+  const buildFilterHref = (nextFilters: SearchFilters) => {
+    return buildSearchFilterHref(query, nextFilters) || pathname
+  }
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(true)
-      performSearch(query)
-    }, 300)
-    return () => clearTimeout(timer)
-  }, [query, performSearch])
+    setFilters(getInitialSearchFilters(new URLSearchParams(searchParamString)))
+  }, [searchParamString])
 
   /** 搜索表单提交 */
   const handleSearch = (e: React.FormEvent) => {
@@ -190,38 +177,7 @@ function SearchPageContent() {
   }
 
   /** 筛选 + 排序后的结果 */
-  const filteredResults = results
-    .filter((p) => {
-      // 分类筛选
-      if (filters.categories.length > 0 && !filters.categories.includes(p.category)) {
-        return false
-      }
-      // 价格区间
-      if (p.price < filters.priceRange[0] || p.price > filters.priceRange[1]) {
-        return false
-      }
-      // 最低评分
-      if (filters.minRating > 0 && p.rating < filters.minRating) {
-        return false
-      }
-      // 仅显示有货
-      if (filters.inStockOnly && !p.inStock) {
-        return false
-      }
-      return true
-    })
-    .sort((a, b) => {
-      switch (sortType) {
-        case "priceAsc":
-          return a.price - b.price
-        case "priceDesc":
-          return b.price - a.price
-        case "sales":
-          return b.sales - a.sales
-        default:
-          return 0
-      }
-    })
+  const filteredResults = getVisibleSearchProducts(MOCK_PRODUCTS, query, filters, sortType)
 
   /** 排序栏组件（PC 端和移动端共用） */
   // 排序栏依赖当前 sortType 和翻译，使用 render 函数避免在渲染期声明组件。
@@ -335,11 +291,9 @@ function SearchPageContent() {
           <h1 className="text-2xl font-bold">
             {query ? `"${query}" ${t("searchResults")}` : t("allProducts")}
           </h1>
-          {!loading && (
-            <span className="text-muted-foreground">
-              {filteredResults.length} {t("productsFound")}
-            </span>
-          )}
+          <span className="text-muted-foreground">
+            {filteredResults.length} {t("productsFound")}
+          </span>
         </div>
 
         {/* 移动端：筛选 + 排序按钮行 */}
@@ -355,7 +309,12 @@ function SearchPageContent() {
                 <SheetTitle>{t("filterButton")}</SheetTitle>
               </SheetHeader>
               <div className="px-4 pb-4">
-                <SearchFilterSidebar filters={filters} onFilterChange={setFilters} />
+                <SearchFilterSidebar
+                  filters={filters}
+                  onFilterChange={setFilters}
+                  getFilterHref={buildFilterHref}
+                  searchQuery={query}
+                />
               </div>
             </SheetContent>
           </Sheet>
@@ -405,7 +364,12 @@ function SearchPageContent() {
           {/* PC 端左侧筛选栏 */}
           <aside className="hidden lg:block w-64 shrink-0">
             <div className="sticky top-20">
-              <SearchFilterSidebar filters={filters} onFilterChange={setFilters} />
+              <SearchFilterSidebar
+                filters={filters}
+                onFilterChange={setFilters}
+                getFilterHref={buildFilterHref}
+                searchQuery={query}
+              />
             </div>
           </aside>
 
@@ -416,12 +380,7 @@ function SearchPageContent() {
               {renderSortBar()}
             </div>
 
-            {/* 加载状态 */}
-            {loading ? (
-              <div className="flex items-center justify-center py-20">
-                <div className="text-muted-foreground text-lg">{t("searching")}</div>
-              </div>
-            ) : filteredResults.length === 0 ? (
+            {filteredResults.length === 0 ? (
               /* 空状态 */
               <div className="text-center py-20">
                 <Search className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />

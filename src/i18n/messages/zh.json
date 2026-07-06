@@ -890,6 +890,7 @@
     "filterPrice": "价格区间",
     "filterPriceMin": "最低价",
     "filterPriceMax": "最高价",
+    "filterApply": "应用价格",
     "filterRating": "评分",
     "filterRatingUp": "{count}星及以上",
     "filterInStock": "仅显示有货",
