@@ -1,4 +1,5 @@
 import {
+  normalizePublicBaseUrl,
   validateBetterAuthConfig,
   validateDatabaseConfig,
   validateRedisConfig,
@@ -57,5 +58,15 @@ describe("env-validator production gates", () => {
       token: process.env.UPSTASH_REDIS_REST_TOKEN,
     })
     expect(validateStripeConfig()).toEqual({ secretKey: process.env.STRIPE_SECRET_KEY })
+  })
+
+  it("normalizes bare Netlify domains to HTTPS base URLs", () => {
+    expect(normalizePublicBaseUrl("solo-shop-xxx.netlify.app")).toBe(
+      "https://solo-shop-xxx.netlify.app"
+    )
+  })
+
+  it("rejects malformed public base URLs", () => {
+    expect(() => normalizePublicBaseUrl("not a valid url")).toThrow(/有效 URL|valid URL/)
   })
 })

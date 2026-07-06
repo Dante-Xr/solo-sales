@@ -1,7 +1,7 @@
 <!--
-修改时间：2026-06-27 17:15:00 +08:00
-修改内容：新增 v1.6.6 发布说明，汇总专家优化成果。
-修改模型：AI assistant-model-4-7
+修改时间：2026-07-06 00:00:00 +08:00
+修改内容：同步 v1.7.6 类型安全修复发布说明。
+修改模型：gpt-5
 -->
 
 # SoloSales Release Notes
@@ -14,7 +14,10 @@ Comprehensive version history documenting all functional modules and features fr
 
 | Version | Release Date | Status |
 |---------|-------------|--------|
-| [1.6.6](#v166---2026-06-27) | 2026-06-27 | Latest |
+| [1.7.6](#v176---2026-07-03) | 2026-07-03 | Latest |
+| [1.7.3](#v173---2026-07-02) | 2026-07-02 | Stable |
+| [1.7.0](#v170---2026-06-28) | 2026-06-28 | Stable |
+| [1.6.6](#v166---2026-06-27) | 2026-06-27 | Stable |
 | [1.6.5](#v165---2026-06-27) | 2026-06-27 | Stable |
 | [1.6.0](#v160---2026-06-26) | 2026-06-26 | Stable |
 | [1.5.0](#v150---2026-06-05) | 2026-06-05 | Stable |
@@ -23,6 +26,95 @@ Comprehensive version history documenting all functional modules and features fr
 | [1.2.0](#v120---2026-04-26) | 2026-04-26 | Stable |
 | [1.0.2](#v102---2026-04-23) | 2026-04-23 | Stable |
 | [1.0.0](#v100---2026-04-21) | 2026-04-21 | Stable |
+
+---
+
+## v1.7.6 - 2026-07-03
+
+### Type Safety Refactor - 类型安全边界收紧
+
+**发布亮点**: 系统性收紧支付、缓存、服务层和 Prisma 查询类型，补齐第三方支付 SDK 类型声明，减少 `any` 与松散 `Record<string, unknown>`，为 v1.8 管理员 RAG 聊天和后续复杂支付能力建立类型基线。
+
+#### 核心改进
+
+**第三方支付 SDK 类型覆盖**
+- Alipay SDK 配置、执行参数、通知参数类型声明。
+- WeChat Pay Native 支付请求、通知体、资源解密相关类型声明。
+- PayPal order、capture、link、amount 响应类型增强。
+
+**服务层类型收紧**
+- BundleService 使用 Prisma Payload 类型表达 bundle + items + product 结果。
+- AffiliateService 使用明确的 Affiliate / Link / Commission / Payout 记录类型。
+- permissionLog、cache、payment provider 等模块减少 `any` 和无边界对象。
+
+**错误处理标准化**
+- catch 块显式使用 `error: unknown`。
+- 新增 `CatchError`、`isError()`、`getErrorMessage()`、`getErrorStack()`。
+- 新增错误处理最佳实践文档，约束后续代码继续保持类型安全。
+
+#### 新增文件和脚本
+
+| Module | Addition | Description |
+|--------|----------|-------------|
+| Types | `src/types/alipay-sdk.d.ts` | Alipay SDK 类型声明 |
+| Types | `src/types/wechatpay.d.ts` | WeChat Pay 类型声明 |
+| Types | `src/types/paypal.d.ts` | PayPal 类型增强 |
+| Types | `src/types/errors.ts` | 错误处理类型守卫和工具 |
+| Docs | `src/types/README.md` | 类型定义维护指南 |
+| Scripts | `scripts/check-types.mjs` | 项目类型检查脚本 |
+| Package | `npm run type-check` | 运行类型检查并输出报告 |
+| Package | `npm run type-check:strict` | 执行 `tsc --noEmit --strict` |
+
+#### 技术指标
+
+| 指标 | 修复前 | 修复后 | 改进 |
+|------|--------|--------|------|
+| 显式 `any` | 约 20 处 | 约 9 处 | -55% |
+| `eslint-disable any` | 14 处 | 8 处 | -43% |
+| catch 块类型声明 | 0% | 约 60% | +60% |
+| 第三方支付类型覆盖 | 0% | 100% | +100% |
+
+#### 验证说明
+
+- 类型安全修复已合入 `main`。
+- `package.json`、`package-lock.json`、README、CHANGELOG、RELEASES 和 `/api/health` fallback 已同步到 `1.7.6`。
+- 发布前仍建议执行完整门禁：`npm test -- --runInBand`、`npm run lint`、`npm run type-check`、`npm run audit:secrets`、`npm run build`。
+
+---
+
+## v1.7.3 - 2026-07-02
+
+### PayPal Business Integration
+
+**发布亮点**: 完成独立站 PayPal Business 支付集成，支持 Sole Proprietor 账户，覆盖 Checkout、capture、webhook 和部署环境变量检查。
+
+#### 核心改进
+
+| Module | Feature | Description |
+|--------|---------|-------------|
+| PayPal Provider | Checkout | 通过 PayPal provider 创建支付订单 |
+| PayPal Capture | Capture Route | 新增 PayPal capture route，处理支付完成回调 |
+| PayPal Webhook | Webhook Route | 新增 PayPal webhook 处理和签名相关逻辑 |
+| Types | PayPal Types | 新增 PayPal TypeScript 类型声明 |
+| Healthcheck | Env Check | 增加 Stripe / payment 环境变量检查辅助页面 |
+
+---
+
+## v1.7.0 - 2026-06-28
+
+### Multi-Payment Provider Foundation
+
+**发布亮点**: 完成统一支付提供商抽象层和订单状态机，支持 Stripe、Alipay、WeChatPay，并为 PayPal 扩展预留统一接口。
+
+#### 核心改进
+
+| Module | Feature | Description |
+|--------|---------|-------------|
+| Checkout | CheckoutService | 服务端金额计算、库存验证、订单创建、支付会话初始化 |
+| Payment | PaymentProvider | Stripe / Alipay / WeChatPay 统一 provider 接口 |
+| Payment | PaymentProviderFactory | 根据 provider 配置选择支付实现 |
+| Orders | OrderStateMachine | 支付成功后统一处理订单状态、库存扣减和支付记录 |
+| Webhook | Idempotency | provider + transactionId 去重，避免重复投递造成重复写入 |
 
 ---
 

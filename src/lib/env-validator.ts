@@ -8,6 +8,38 @@
  */
 
 /**
+ * 2026-07-06: 规范化公开站点 URL
+ * 支持 Netlify 裸域名输入，并统一返回 origin 形式。
+ */
+export function normalizePublicBaseUrl(value: string) {
+  const trimmed = value.trim()
+  const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`
+
+  try {
+    const url = new URL(withProtocol)
+
+    if (url.protocol !== "https:" && url.protocol !== "http:") {
+      throw new Error("unsupported protocol")
+    }
+
+    return url.origin
+  } catch {
+    throw new Error("请提供有效 URL，例如 https://your-site.netlify.app")
+  }
+}
+
+/**
+ * 2026-07-06: 解析公开站点 URL
+ * Netlify UI 中经常误填裸域名，这里统一补 HTTPS，避免认证库初始化失败。
+ */
+export function resolvePublicBaseUrl() {
+  const rawUrl =
+    process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+
+  return normalizePublicBaseUrl(rawUrl)
+}
+
+/**
  * 2026-03-24: 验证 Redis 配置
  * 检查 UPSTASH_REDIS_REST_URL 和 UPSTASH_REDIS_REST_TOKEN 是否存在
  * @returns 经验证的 Redis 配置对象
@@ -94,7 +126,7 @@ export function validateBetterAuthConfig() {
 
   return {
     secret,
-    url,
+    url: normalizePublicBaseUrl(url),
   }
 }
 

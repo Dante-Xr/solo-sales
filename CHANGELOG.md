@@ -1,7 +1,7 @@
 <!--
-修改时间：2026-06-27 17:15:00 +08:00
-修改内容：新增 v1.6.6 专家优化更新日志，记录颜色修复、工具函数、间距系统、字体层级、E2E测试扩展、动画系统。
-修改模型：AI assistant-model-4-7
+修改时间：2026-07-06 00:00:00 +08:00
+修改内容：同步 v1.7.6 类型安全修复版本标识和更新日志。
+修改模型：gpt-5
 -->
 
 # SoloSales Changelog
@@ -9,6 +9,39 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+## [1.7.6] - 2026-07-03
+
+### Type Safety Refactor - 类型安全边界收紧
+
+#### Added
+- **第三方支付 SDK 类型声明**:
+  - `src/types/alipay-sdk.d.ts`: Alipay SDK 配置、执行参数和通知参数类型。
+  - `src/types/wechatpay.d.ts`: WeChat Pay 配置、Native 支付请求和通知体类型。
+  - `src/types/paypal.d.ts`: PayPal order、link、amount、capture 响应类型增强。
+- **核心类型接口**:
+  - `WebhookRawData`: 替代支付 webhook 中的松散原始数据类型。
+  - `CacheEntry<T>`: 缓存值和过期时间使用泛型约束。
+  - Bundle / Affiliate Prisma 查询结果类型别名，减少服务层类型断言。
+- **错误处理工具**:
+  - `src/types/errors.ts`: `CatchError`、`isError()`、`getErrorMessage()`、`getErrorStack()`。
+  - `.trae/specs/v1.7.6-type-safety/error-handling.md`: catch 块错误处理规范。
+- **类型检查脚本**:
+  - `scripts/check-types.mjs`
+  - `npm run type-check`
+  - `npm run type-check:strict`
+
+#### Changed
+- **支付 provider 类型收紧**: Alipay、WeChat Pay、PayPal provider 改用显式 SDK / 响应类型，减少 `any`。
+- **服务层类型收紧**: BundleService、AffiliateService、permissionLog、cache 等模块改用 Prisma Payload、Record 类型别名和泛型接口。
+- **API 错误处理标准化**: 多数 `catch` 块显式使用 `error: unknown`，再通过类型守卫提取 message / stack。
+- **项目版本标识**: 根 `package.json`、`package-lock.json`、README、RELEASES、CHANGELOG 和 `/api/health` fallback 同步到 `1.7.6`。
+
+#### Fixed
+- 修复 PayPal capture route 交易 ID 可能为空的类型问题。
+- 修复 PayPal order response link 类型缺失导致的类型退化。
+- 修复 permissionLog、AffiliateService、BundleService 中 Prisma 类型不匹配问题。
+- 修复项目全量 TypeScript 类型错误，为后续 v1.8 开发建立类型基线。
 
 ## [1.6.6] - 2026-06-27
 

@@ -1,12 +1,12 @@
 <!--
-修改时间：2026-06-28 12:00:00 +08:00
-修改内容：更新到 v1.7.0，完成多支付提供商抽象层和订单状态机，新增支付宝和微信支付支持。
-修改模型：AI assistant-model-4-8
+修改时间：2026-07-06 00:00:00 +08:00
+修改内容：更新到 v1.7.6，同步类型安全修复后的项目版本标识。
+修改模型：gpt-5
 -->
 
 # SoloSales
 
-[![Version](https://img.shields.io/badge/version-1.7.0-blue.svg)](https://github.com/Dante-Xr/solo-sales)
+[![Version](https://img.shields.io/badge/version-1.7.6-blue.svg)](https://github.com/Dante-Xr/solo-sales)
 [![Next.js](https://img.shields.io/badge/Next.js-16.2.4-black.svg)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.2.4-61DAFB.svg)](https://react.dev/)
 [![Prisma](https://img.shields.io/badge/Prisma-5.22.0-2A52BE.svg)](https://www.prisma.io/)
@@ -14,9 +14,9 @@
 
 SoloSales 是一个基于 Next.js 16 App Router 的全栈独立站电商项目。它采用模块化单体架构，前台商城、后台管理、支付、订单、商品、营销、积分、联盟分销、数据分析、RAG 智能客服和运维验证脚本都在同一个代码库内交付。
 
-当前 README 反映 v1.7.0 状态：项目已完成多支付提供商抽象层（Stripe/Alipay/WeChatPay/PayPal）和订单状态机扩展，支持支付宝和微信支付，实现完整的webhook幂等性保证。使用TDD方法开发，测试覆盖率达85%，327个测试全部通过。
+当前 README 反映 v1.7.6 状态：项目已完成多支付提供商抽象层（Stripe/Alipay/WeChatPay/PayPal）、订单状态机扩展、PayPal Business 集成和类型安全修复。v1.7.6 重点消除核心 `any` 类型、补齐第三方支付 SDK 类型声明、标准化 catch 块错误类型，并新增类型检查脚本。
 
-说明：README badge、`CHANGELOG.md`、`RELEASES.md`、`package.json` 与 `package-lock.json` 的项目版本标识已统一为 `1.7.0`。
+说明：README badge、`CHANGELOG.md`、`RELEASES.md`、`package.json`、`package-lock.json` 与 `/api/health` fallback 的项目版本标识已统一为 `1.7.6`。
 
 ---
 
@@ -29,7 +29,7 @@ SoloSales 是一个基于 Next.js 16 App Router 的全栈独立站电商项目�
 | 后端 | Next.js Route Handlers + `src/server` services/repositories/contracts |
 | 数据库 | PostgreSQL / Neon + Prisma |
 | 缓存 | Upstash Redis |
-| 支付 | Stripe + Alipay + WeChatPay + PayPal Business（v1.7.3） |
+| 支付 | Stripe + Alipay + WeChatPay + PayPal Business |
 | 后台 | Refine + Tremor + RBAC |
 | 国际化 | `next-intl`，中英文路由 |
 | 主题 | Klein Blue (#002FA7) + Red (#DC2626) |
@@ -61,7 +61,7 @@ SoloSales 是一个基于 Next.js 16 App Router 的全栈独立站电商项目�
 - Stripe Webhook 支持签名校验、订单/支付事务写入、重复投递幂等处理。
 - Alipay 网页支付: RSA签名验证、异步通知处理。
 - WeChat Native支付: APIv3签名验证、资源解密、二维码展示。
-- **PayPal Business 集成**（v1.7.3）：支持 Sole Proprietor 账户（无需营业执照），完整的 Checkout 和 Webhook 处理。
+- **PayPal Business 集成**：支持 Sole Proprietor 账户（无需营业执照），完整的 Checkout 和 Webhook 处理。
 - `Payment(provider, transactionId)` 唯一约束用于支付流水去重。
 - 通过 `ENABLED_PAYMENT_PROVIDERS` 环境变量控制启用的支付提供商（默认 `stripe,alipay,wechatpay`，可添加 `paypal`）。
 - Webhook幂等性: 时间戳验证（5分钟窗口）、provider+transactionId去重、订单状态检查。
@@ -436,7 +436,7 @@ npm run dev
 - Prisma validate/generate passed.
 - TypeScript `tsc --noEmit` passed.
 - ESLint passed.
-- Jest passed: 327 tests / 87 suites（v1.7.0）。
+- Jest passed: 327 tests / 87 suites（v1.7 基线）。
 - Next.js production build passed.
 - Playwright E2E：15 个 storefront 套件（auth / cart / checkout / search / product-detail / wishlist / responsive / reviews / orders / profile / performance / coupons）。
 
@@ -512,6 +512,8 @@ $env:BASELINE_BASE_URL="http://127.0.0.1:3000"; npm run perf:baseline
 
 最近版本：
 
+- **v1.7.6**（2026-07-03）— 类型安全修复：补齐 Alipay / WeChat Pay / PayPal 类型声明，收紧支付、缓存、Bundle、Affiliate 和 Prisma 类型边界，新增 `npm run type-check`。
+- **v1.7.3**（2026-07-02）— PayPal Business 集成：支持独立站 PayPal Checkout、capture、webhook 和环境变量检查。
 - **v1.7.0**（2026-06-28）— 多支付提供商抽象层完成：支持Stripe/Alipay/WeChatPay，统一CheckoutService，OrderStateMachine状态机，Webhook幂等性保证。使用TDD方法开发，327个测试100%通过。
 - **v1.6.6**（2026-06-27）— 三专家诊断优化：Klein Blue 主题 100%、统一格式化工具、间距/字体系统、framer-motion 动画、E2E 测试从 3 扩展到 15 个套件。
 - **v1.6.5**（2026-06-27）— Klein Blue 主题系统 + Playwright E2E 框架，console 语句减少 45%。
