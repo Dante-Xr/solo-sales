@@ -61,8 +61,8 @@ describe("env-validator production gates", () => {
   })
 
   it("normalizes bare Netlify domains to HTTPS base URLs", () => {
-    expect(normalizePublicBaseUrl("solo-shop-xxx.netlify.app")).toBe(
-      "https://solo-shop-xxx.netlify.app"
+    expect(normalizePublicBaseUrl("solo-sales-xxx.netlify.app")).toBe(
+      "https://solo-sales-xxx.netlify.app"
     )
   })
 
