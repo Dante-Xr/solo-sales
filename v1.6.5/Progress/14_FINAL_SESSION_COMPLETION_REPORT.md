@@ -133,7 +133,6 @@ feat/refactor: 简短描述
 
 基于XX专家建议 - PX优先级
 
-Co-Authored-By: AI assistant <noreply@example.com>
 ```
 
 ### 验证流程 ✅
@@ -231,7 +230,6 @@ Co-Authored-By: AI assistant <noreply@example.com>
 
 **报告生成**: 2026-06-27 05:30:00  
 **会话时长**: 21小时  
-**执行者**: AI assistant  
 **状态**: ✅ 所有用户要求完成  
 **GitHub**: https://github.com/Dante-Xr/solo-sales  
 **最新提交**: 46f588c

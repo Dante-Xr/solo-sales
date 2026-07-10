@@ -252,7 +252,6 @@ feat/fix/refactor: 简短描述
 影响范围: X个文件
 预期收益: 具体收益
 
-Co-Authored-By: AI assistant <noreply@example.com>
 ```
 
 ### 3. 颜色使用规范
@@ -290,4 +289,3 @@ Co-Authored-By: AI assistant <noreply@example.com>
 **文档创建**: 2026-06-27 04:15:00  
 **下次更新**: 继续执行Phase 2  
 **负责人**: 开发团队  
-**审核人**: AI assistant

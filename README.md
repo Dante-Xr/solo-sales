@@ -275,7 +275,7 @@ solo_sales/
 ├─ CHANGELOG.md
 ├─ RELEASES.md
 ├─ DEPLOYMENT.md
-├─ AGENTS.md / AI assistant.md     agent 行为约束
+├─ AGENTS.md                 agent 行为约束
 ├─ next.config.ts
 ├─ jest.config.ts
 ├─ playwright.config.ts

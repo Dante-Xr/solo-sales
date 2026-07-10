@@ -151,7 +151,6 @@ feat: 描述
 依据: 专家建议 - P0
 验证: 构建通过
 
-Co-Authored-By: AI assistant <noreply@example.com>
 ```
 
 3. **颜色映射注释** ✅
@@ -271,6 +270,5 @@ e935dd3 - chore: release v1.6.5 Klein Blue theme
 ---
 
 **报告生成**: 2026-06-27 05:00:00  
-**执行者**: AI assistant  
 **状态**: Phase 1-2部分完成，Phase 3-6规划完成  
 **下次继续**: 完成剩余32个文件颜色修复

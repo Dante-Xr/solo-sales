@@ -194,7 +194,6 @@ feat/fix: 简短描述
 依据: 专家建议 - PX优先级
 验证: 构建通过
 
-Co-Authored-By: AI assistant <noreply@example.com>
 ```
 
 **所有14个提交都符合规范**
@@ -415,7 +414,6 @@ e935dd3 - chore: release v1.6.5 Klein Blue theme
 ---
 
 **报告生成**: 2026-06-27 05:15:00  
-**执行者**: AI assistant  
 **状态**: ✅ 所有用户要求达成  
 **Git**: 已推送到远程仓库  
 **GitHub**: https://github.com/Dante-Xr/solo-sales
