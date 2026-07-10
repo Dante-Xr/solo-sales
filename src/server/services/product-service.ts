@@ -99,6 +99,8 @@ export type StorefrontProductItem = {
   image: string
   sales: number
   stock: number
+  categoryId?: string | null
+  categoryName?: string | null
 }
 
 type ProductListResult = {
@@ -340,6 +342,7 @@ type FeaturedProductSource = {
   images: string[]
   isPublished: boolean
   _count?: { orderItems: number }
+  category?: { id: string; name: string } | null
 }
 
 export function transformFeaturedProduct(product: FeaturedProductSource): StorefrontProductItem {
@@ -354,6 +357,8 @@ export function transformFeaturedProduct(product: FeaturedProductSource): Storef
     image: product.images[0] || "",
     sales: product._count?.orderItems ?? 0,
     stock: product.stock,
+    categoryId: product.category?.id ?? null,
+    categoryName: product.category?.name ?? null,
   }
 }
 
@@ -371,6 +376,7 @@ export async function getFeaturedProducts(): Promise<{
       where: { isPublished: true },
       orderBy: { createdAt: "desc" },
       include: {
+        category: { select: { id: true, name: true } },
         _count: {
           select: { orderItems: true },
         },
@@ -405,6 +411,7 @@ export async function getStorefrontProducts(
       where,
       orderBy: filter === "best" ? { orderItems: { _count: "desc" } } : { createdAt: "desc" },
       include: {
+        category: { select: { id: true, name: true } },
         _count: { select: { orderItems: true } },
       },
     })

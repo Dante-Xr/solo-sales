@@ -1,6 +1,6 @@
 {
   "name": "solo_sales",
-  "version": "1.7.6",
+  "version": "1.7.9",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "audit:secrets": "node scripts/secret-audit.mjs",
+    "docs:check": "node scripts/docs-validate.mjs",
     "perf:baseline": "node scripts/load-baseline.mjs",
     "smoke:synthetic": "node scripts/smoke-synthetic.mjs",
     "test": "jest",

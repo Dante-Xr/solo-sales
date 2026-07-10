@@ -7,7 +7,7 @@ declare module "@paypal/checkout-server-sdk" {
   export namespace core {
     class PayPalHttpClient {
       constructor(environment: SandboxEnvironment | LiveEnvironment);
-      execute<T = any>(request: any): Promise<{ result: T }>;
+      execute<T = unknown>(request: unknown): Promise<{ result: T }>;
     }
 
     class SandboxEnvironment {
@@ -22,12 +22,12 @@ declare module "@paypal/checkout-server-sdk" {
   export namespace orders {
     class OrdersCreateRequest {
       prefer(prefer: string): void;
-      requestBody(body: any): void;
+      requestBody(body: unknown): void;
     }
 
     class OrdersCaptureRequest {
       constructor(orderId: string);
-      requestBody(body: any): void;
+      requestBody(body: unknown): void;
     }
 
     class OrdersGetRequest {

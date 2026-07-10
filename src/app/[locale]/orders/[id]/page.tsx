@@ -62,20 +62,6 @@ export default function OrderDetailPage() {
     CANCELLED: { label: t("orders.cancelled"), color: "bg-gray-500" },
   }
 
-  useEffect(() => {
-    if (isPending) return
-
-    if (!_session) {
-      setLoading(false)
-      router.push("/")
-      return
-    }
-
-    if (_session) {
-      fetchOrder()
-    }
-  }, [_session, isPending, router])
-
   const fetchOrder = async () => {
     try {
       const res = await fetch(`/api/orders?id=${params.id}`)
@@ -90,6 +76,18 @@ export default function OrderDetailPage() {
     }
   }
 
+  useEffect(() => {
+    if (isPending) return
+
+    if (!_session) {
+      setLoading(false)
+      router.push("/")
+      return
+    }
+
+    void fetchOrder()
+  }, [_session, isPending, router])
+
   const copyTrackingNumber = () => {
     if (order?.trackingNumber) {
       navigator.clipboard.writeText(order.trackingNumber)
@@ -100,7 +98,7 @@ export default function OrderDetailPage() {
 
   if (isPending || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-brand" />
       </div>
     )
@@ -108,10 +106,10 @@ export default function OrderDetailPage() {
 
   if (!order) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <Package className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-          <p className="text-gray-500">{t("orders.orderNotFound")}</p>
+          <Package className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+          <p className="text-muted-foreground">{t("orders.orderNotFound")}</p>
           <Button onClick={() => router.push("/orders")} className="mt-4">
             {t("orders.backToOrders")}
           </Button>
@@ -121,9 +119,9 @@ export default function OrderDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex justify-center">
-      <main className="w-full max-w-md bg-white min-h-screen shadow-xl flex flex-col">
-        <header className="flex items-center p-4 border-b sticky top-0 bg-white z-50">
+    <div className="min-h-screen bg-background flex justify-center">
+      <main className="w-full max-w-md bg-card min-h-screen shadow-xl flex flex-col">
+        <header className="flex items-center p-4 border-b border-border sticky top-0 bg-card z-50">
           <Button variant="ghost" size="icon" onClick={() => router.back()}>
             <ChevronLeft className="w-6 h-6" />
           </Button>
@@ -142,16 +140,16 @@ export default function OrderDetailPage() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">{t("orders.orderNumber")}</span>
+                <span className="text-muted-foreground">{t("orders.orderNumber")}</span>
                 <span className="font-mono text-sm">{order.id}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">{t("orders.createdAt")}</span>
+                <span className="text-muted-foreground">{t("orders.createdAt")}</span>
                 <span>{new Date(order.createdAt).toLocaleDateString(locale === "zh" ? "zh-CN" : "en-US")}</span>
               </div>
               {order.contactInfo && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">{t("orders.contact")}</span>
+                  <span className="text-muted-foreground">{t("orders.contact")}</span>
                   <span>{order.contactInfo.phone}</span>
                 </div>
               )}
@@ -169,7 +167,7 @@ export default function OrderDetailPage() {
                 <div className="mt-4 p-3 bg-blue-50 rounded-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-500">{t("orders.trackingNumber")}</p>
+                      <p className="text-sm text-muted-foreground">{t("orders.trackingNumber")}</p>
                       <p className="font-mono font-medium">{order.trackingNumber}</p>
                     </div>
                     <Button
@@ -195,7 +193,7 @@ export default function OrderDetailPage() {
                 <CardTitle className="text-base">{t("orders.shippingAddress")}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">{order.shippingAddress}</p>
+                <p className="text-muted-foreground">{order.shippingAddress}</p>
               </CardContent>
             </Card>
           )}
@@ -207,7 +205,7 @@ export default function OrderDetailPage() {
             <CardContent className="space-y-4">
               {order.items.map((item) => (
                 <div key={item.id} className="flex gap-4">
-                  <div className="w-20 h-20 bg-gray-100 rounded-md overflow-hidden flex-shrink-0">
+                  <div className="w-20 h-20 bg-muted rounded-md overflow-hidden flex-shrink-0">
                     {item.product.images?.[0] ? (
                       <img
                         src={item.product.images[0]}
@@ -215,14 +213,14 @@ export default function OrderDetailPage() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                         <Package className="w-8 h-8" />
                       </div>
                     )}
                   </div>
                   <div className="flex-1">
                     <p className="font-medium line-clamp-2">{item.product.name}</p>
-                    <p className="text-sm text-gray-500 mt-1">x{item.quantity}</p>
+                    <p className="text-sm text-muted-foreground mt-1">x{item.quantity}</p>
                     <p className="font-bold text-price mt-1">
                       ${item.price.toFixed(2)}
                     </p>

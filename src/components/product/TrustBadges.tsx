@@ -147,8 +147,6 @@ export function PaymentMethods({
   const payments = [
     { name: "Visa", icon: "💳" },
     { name: "Mastercard", icon: "💳" },
-    { name: "Stripe", icon: "💳" },
-    { name: "Apple Pay", icon: "🍎" },
     { name: "American Express", icon: "💳" },
   ]
 

@@ -1,6 +1,7 @@
 /**
  * 环境变量检查脚本
  */
+/* eslint-disable @typescript-eslint/no-require-imports -- This maintenance script runs directly in Node CommonJS. */
 require('dotenv').config({ path: '.env.local' })
 
 const requiredVars = [

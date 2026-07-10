@@ -24,7 +24,7 @@ import { QueryProvider } from "@/components/providers/QueryProvider";
 import { ClientLayout } from "@/components/providers/ClientLayout"
 
 export const metadata: Metadata = {
-  title: "SoloSales Shop",
+  title: "Solo Sales",
   description: "High conversion independent store for TikTok",
 };
 

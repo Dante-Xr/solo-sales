@@ -67,7 +67,7 @@ export default function CartPage() {
           onClick={() => toggleSelect(item.id)}
           className={`flex-shrink-0 w-4 h-4 rounded border flex items-center justify-center transition-all ${
             item.selected
-              ? 'bg-brand border-brand text-white'
+              ? 'bg-brand border-brand text-brand-foreground'
               : 'border-muted-foreground/30 hover:border-brand/50'
           }`}
           aria-label={item.selected ? t('cart.deselect') : t('cart.select')}
@@ -274,7 +274,7 @@ export default function CartPage() {
                   onClick={toggleSelectAll}
                   className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${
                     isAllSelected
-                      ? 'bg-brand border-brand text-white'
+                      ? 'bg-brand border-brand text-brand-foreground'
                       : 'border-muted-foreground/30 hover:border-brand/50'
                   }`}
                   aria-label={isAllSelected ? t('cart.deselectAll') : t('cart.selectAll')}

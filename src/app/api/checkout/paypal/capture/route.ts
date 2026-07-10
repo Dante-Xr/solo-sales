@@ -117,13 +117,13 @@ export async function GET(req: NextRequest) {
       message: `PayPal 订单状态：${paypalOrder.status}`,
       status: paypalOrder.status,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("PayPal capture error:", error);
 
     return NextResponse.json(
       {
         error: "支付确认失败",
-        details: error.message,
+        details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 },
     );

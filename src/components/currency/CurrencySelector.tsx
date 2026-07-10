@@ -21,7 +21,7 @@ export function CurrencySelector({ onCurrencyChange, className = '' }: CurrencyS
     <select
       value={currency}
       onChange={handleChange}
-      className={`px-3 py-1.5 border border-gray-300 rounded-md text-sm bg-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${className}`}
+      className={`px-3 py-1.5 border border-border rounded-md text-sm bg-input text-foreground hover:border-foreground/30 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${className}`}
     >
       {currencies.map((curr) => (
         <option key={curr} value={curr}>
@@ -53,7 +53,7 @@ export function PriceDisplay({
   if (showOriginal && originalPrice && originalCurrency !== currency) {
     return (
       <div className={`flex items-center gap-2 ${className}`}>
-        <span className="text-gray-500 line-through text-sm">{originalPrice}</span>
+        <span className="text-muted-foreground line-through text-sm">{originalPrice}</span>
         <span className="font-semibold text-lg">{displayPrice}</span>
       </div>
     )
@@ -73,7 +73,7 @@ interface CurrencyBadgeProps {
 
 export function CurrencyBadge({ currency, className = '' }: CurrencyBadgeProps) {
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 ${className}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-muted text-foreground ${className}`}>
       {CURRENCY_SYMBOLS[currency]} {currency}
     </span>
   )

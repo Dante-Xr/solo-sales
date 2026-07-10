@@ -50,6 +50,10 @@ interface Conversation {
   messages: ChatMessage[]
 }
 
+function createMessageId() {
+  return `msg_${crypto.randomUUID()}`
+}
+
 export default function ChatPage() {
   const t = useTranslations('admin.chat')
   const locale = useLocale()
@@ -80,7 +84,7 @@ export default function ChatPage() {
         oderName: "TikTok User 1",
         oderEmail: "user1@tiktok.com",
         lastMessage: "请问这个商品什么时候发货？",
-        lastMessageTime: new Date().toISOString(),
+        lastMessageTime: "2026-07-10T08:00:00.000Z",
         unreadCount: 2,
         messages: [
           {
@@ -88,7 +92,7 @@ export default function ChatPage() {
             content: "你好，我想问一下这个商品的物流情况",
             isFromAdmin: false,
             isRead: true,
-            createdAt: new Date(Date.now() - 3600000).toISOString(),
+            createdAt: "2026-07-10T07:00:00.000Z",
             user: { id: "user_1", name: "TikTok User 1", email: "user1@tiktok.com" },
           },
           {
@@ -96,7 +100,7 @@ export default function ChatPage() {
             content: "您好，您的订单已发货，预计3-5天到达",
             isFromAdmin: true,
             isRead: true,
-            createdAt: new Date(Date.now() - 1800000).toISOString(),
+            createdAt: "2026-07-10T07:30:00.000Z",
             user: { id: "admin", name: "Admin", email: null },
           },
           {
@@ -104,7 +108,7 @@ export default function ChatPage() {
             content: "请问这个商品什么时候发货？",
             isFromAdmin: false,
             isRead: false,
-            createdAt: new Date().toISOString(),
+            createdAt: "2026-07-10T08:00:00.000Z",
             user: { id: "user_1", name: "TikTok User 1", email: "user1@tiktok.com" },
           },
         ],
@@ -114,7 +118,7 @@ export default function ChatPage() {
         oderName: "TikTok User 2",
         oderEmail: "user2@tiktok.com",
         lastMessage: "谢谢您的帮助",
-        lastMessageTime: new Date(Date.now() - 7200000).toISOString(),
+        lastMessageTime: "2026-07-10T06:00:00.000Z",
         unreadCount: 0,
         messages: [
           {
@@ -122,7 +126,7 @@ export default function ChatPage() {
             content: "我收到了，但尺码不对",
             isFromAdmin: false,
             isRead: true,
-            createdAt: new Date(Date.now() - 86400000).toISOString(),
+            createdAt: "2026-07-09T08:00:00.000Z",
             user: { id: "user_2", name: "TikTok User 2", email: "user2@tiktok.com" },
           },
           {
@@ -130,7 +134,7 @@ export default function ChatPage() {
             content: "抱歉给您带来不便，我们可以提供换货服务",
             isFromAdmin: true,
             isRead: true,
-            createdAt: new Date(Date.now() - 82800000).toISOString(),
+            createdAt: "2026-07-09T09:00:00.000Z",
             user: { id: "admin", name: "Admin", email: null },
           },
           {
@@ -138,7 +142,7 @@ export default function ChatPage() {
             content: "谢谢您的帮助",
             isFromAdmin: false,
             isRead: true,
-            createdAt: new Date(Date.now() - 7200000).toISOString(),
+            createdAt: "2026-07-10T06:00:00.000Z",
             user: { id: "user_2", name: "TikTok User 2", email: "user2@tiktok.com" },
           },
         ],
@@ -157,7 +161,7 @@ export default function ChatPage() {
 
     try {
       const newMsg: ChatMessage = {
-        id: `msg_${Date.now()}`,
+        id: createMessageId(),
         content: newMessage,
         isFromAdmin: true,
         isRead: true,

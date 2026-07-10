@@ -28,6 +28,8 @@ import { useTheme } from "next-themes"
 import { AuthModal } from "@/components/auth/AuthModal"
 import { useViewportModeStore } from "@/stores/useViewportModeStore"
 
+const MENU_ITEM_CLASS = "w-full px-4 py-2 text-left text-sm flex items-center gap-3 text-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:bg-muted focus-visible:text-foreground focus-visible:outline-none"
+
 export function UserMenu() {
   const { data: session } = useSession()
   const router = useRouter()
@@ -122,14 +124,14 @@ export function UserMenu() {
                 <>
                   <button
                     onClick={() => handleMenuClick('profile')}
-                    className="w-full px-4 py-2 text-left text-sm hover:bg-accent flex items-center gap-3 text-foreground"
+                    className={MENU_ITEM_CLASS}
                   >
                     <UserCircle className="w-4 h-4 text-muted-foreground" />
                     {t('userMenu.profile')}
                   </button>
                   <button
                     onClick={() => handleMenuClick('orders')}
-                    className="w-full px-4 py-2 text-left text-sm hover:bg-accent flex items-center gap-3 text-foreground"
+                    className={MENU_ITEM_CLASS}
                   >
                     <Package className="w-4 h-4 text-muted-foreground" />
                     {t('userMenu.orders')}
@@ -137,7 +139,7 @@ export function UserMenu() {
                   {isAdmin && (
                     <button
                       onClick={() => handleMenuClick('admin')}
-                      className="w-full px-4 py-2 text-left text-sm hover:bg-accent flex items-center gap-3 text-foreground"
+                      className={MENU_ITEM_CLASS}
                     >
                       <Settings className="w-4 h-4 text-muted-foreground" />
                       {t('userMenu.adminPanel')}
@@ -146,7 +148,7 @@ export function UserMenu() {
                   <div className="border-t border-border my-1" />
                   <button
                     onClick={() => handleMenuClick('toggle-theme')}
-                    className="w-full px-4 py-2 text-left text-sm hover:bg-accent flex items-center gap-3 text-foreground"
+                    className={MENU_ITEM_CLASS}
                   >
                     {theme === "dark" ? (
                       <Sun className="w-4 h-4 text-muted-foreground" />
@@ -157,7 +159,7 @@ export function UserMenu() {
                   </button>
                   <button
                     onClick={() => handleMenuClick('toggle-viewport')}
-                    className="w-full px-4 py-2 text-left text-sm hover:bg-accent flex items-center gap-3 text-foreground"
+                    className={MENU_ITEM_CLASS}
                   >
                     {mode === "desktop" ? (
                       <Smartphone className="w-4 h-4 text-muted-foreground" />
@@ -169,7 +171,7 @@ export function UserMenu() {
                   <div className="border-t border-border my-1" />
                   <button
                     onClick={() => handleMenuClick('logout')}
-                    className="w-full px-4 py-2 text-left text-sm hover:bg-accent flex items-center gap-3 text-destructive"
+                    className="w-full px-4 py-2 text-left text-sm flex items-center gap-3 text-destructive transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
                   >
                     <LogOut className="w-4 h-4" />
                     {t('auth.logout')}
@@ -182,7 +184,7 @@ export function UserMenu() {
                   </div>
                   <button
                     onClick={() => handleMenuClick('toggle-theme')}
-                    className="w-full px-4 py-2 text-left text-sm hover:bg-accent flex items-center gap-3 text-foreground"
+                    className={MENU_ITEM_CLASS}
                   >
                     {theme === "dark" ? (
                       <Sun className="w-4 h-4 text-muted-foreground" />
@@ -193,7 +195,7 @@ export function UserMenu() {
                   </button>
                   <button
                     onClick={() => handleMenuClick('toggle-viewport')}
-                    className="w-full px-4 py-2 text-left text-sm hover:bg-accent flex items-center gap-3 text-foreground"
+                    className={MENU_ITEM_CLASS}
                   >
                     {mode === "desktop" ? (
                       <Smartphone className="w-4 h-4 text-muted-foreground" />
@@ -205,14 +207,14 @@ export function UserMenu() {
                   <div className="border-t border-border my-1" />
                   <button
                     onClick={() => handleMenuClick('login')}
-                    className="w-full px-4 py-2 text-left text-sm hover:bg-accent flex items-center gap-3 text-foreground"
+                    className={MENU_ITEM_CLASS}
                   >
                     <User className="w-4 h-4 text-muted-foreground" />
                     {t('auth.login')}
                   </button>
                   <button
                     onClick={() => handleMenuClick('register')}
-                    className="w-full px-4 py-2 text-left text-sm hover:bg-accent flex items-center gap-3 text-foreground"
+                    className={MENU_ITEM_CLASS}
                   >
                     <UserCircle className="w-4 h-4 text-muted-foreground" />
                     {t('auth.register')}

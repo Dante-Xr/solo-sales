@@ -4,6 +4,7 @@
  * 批量替换查询条件和更新数据的 Record<string, unknown> 为 Prisma 类型
  */
 
+/* eslint-disable @typescript-eslint/no-require-imports -- This maintenance script runs directly in Node CommonJS. */
 const fs = require('fs');
 const path = require('path');
 
@@ -50,7 +51,6 @@ function detectPrismaModel(content, lineIndex) {
 function fixFile(filePath) {
   try {
     let content = fs.readFileSync(filePath, 'utf-8');
-    const originalContent = content;
     const lines = content.split('\n');
     let modified = false;
 

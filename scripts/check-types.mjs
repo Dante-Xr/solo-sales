@@ -20,7 +20,7 @@ console.log(`${BLUE}🔍 Running TypeScript type check...${RESET}\n`);
 
 try {
   // 运行 tsc --noEmit --strict
-  const output = execSync('npx tsc --noEmit --strict', {
+  execSync('npx tsc --noEmit --strict', {
     encoding: 'utf-8',
     cwd: process.cwd(),
     stdio: 'pipe'

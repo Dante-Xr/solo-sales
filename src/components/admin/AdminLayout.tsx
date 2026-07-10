@@ -201,10 +201,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-muted/50">
+    <div className="min-h-screen bg-background">
       {/* 移动端顶部栏 */}
       {isMobile && (
-        <header className="fixed top-0 left-0 right-0 h-14 bg-background border-b z-40 flex items-center justify-between px-4">
+        <header className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center justify-between border-b border-border bg-card/95 px-4 shadow-sm backdrop-blur-md">
           <button
             onClick={() => setSidebarOpen(true)}
             className="p-2 -ml-2 rounded-md hover:bg-muted active:bg-muted/80"
@@ -246,7 +246,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             className="fixed inset-0 bg-black/50 z-40 animate-in fade-in duration-200"
             onClick={closeSidebar}
           />
-          <aside className="fixed left-0 top-0 bottom-0 w-72 bg-background z-50 transform transition-transform duration-200 ease-out animate-in slide-in-from-left duration-200">
+          <aside className="fixed bottom-0 left-0 top-0 z-50 w-72 transform border-r border-border bg-card shadow-2xl transition-transform duration-200 ease-out animate-in slide-in-from-left">
             <div className="h-14 border-b flex items-center justify-between px-4">
               <span className="font-semibold">{t('shopName')}</span>
               <button
@@ -267,7 +267,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     href={item.href}
                     onClick={closeSidebar}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 transition-colors",
+                      "flex items-center gap-3 px-3 py-2.5 rounded-xl mb-1 transition-colors",
                       isActive
                         ? "bg-primary text-primary-foreground"
                         : "hover:bg-muted active:bg-muted/80"
@@ -287,7 +287,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     href={item.href}
                     onClick={closeSidebar}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 transition-colors",
+                      "flex items-center gap-3 px-3 py-2.5 rounded-xl mb-1 transition-colors",
                       isActive
                         ? "bg-primary text-primary-foreground"
                         : "hover:bg-muted active:bg-muted/80"
@@ -309,7 +309,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* PC 端侧边栏 */}
       {!isMobile && (
-        <aside className="fixed left-0 top-0 bottom-0 w-64 bg-background border-r z-30">
+        <aside className="fixed bottom-0 left-0 top-0 z-30 w-64 border-r border-border bg-card shadow-[8px_0_28px_rgb(12_16_34/0.04)]">
           <div className="h-16 border-b flex items-center justify-between px-4">
             <span className="font-semibold text-lg">{t('shopName')}</span>
             <div className="flex items-center gap-1">
@@ -385,7 +385,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 transition-colors",
+                    "flex items-center gap-3 px-3 py-2.5 rounded-xl mb-1 transition-colors",
                     isActive
                       ? "bg-primary text-primary-foreground"
                       : "hover:bg-muted"
@@ -404,7 +404,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 transition-colors",
+                    "flex items-center gap-3 px-3 py-2.5 rounded-xl mb-1 transition-colors",
                     isActive
                       ? "bg-primary text-primary-foreground"
                       : "hover:bg-muted"
@@ -470,7 +470,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       >
         {/* 全局搜索触发按钮 (仅PC端) */}
         {!isMobile && (
-          <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-sm border-b border-border px-4 lg:px-6">
+          <div className="sticky top-0 z-30 border-b border-border bg-card/90 px-4 backdrop-blur-md lg:px-6">
             <div className="flex items-center justify-between gap-4">
               <Breadcrumb />
               <button

@@ -18,6 +18,12 @@
 
 import paypal from "@paypal/checkout-server-sdk";
 import type { PayPalLink, PayPalOrderResponse } from "@/types/paypal";
+
+type PayPalWebhookPurchaseUnit = {
+  custom_id?: string;
+  reference_id?: string;
+  amount?: { value?: string; currency_code?: string };
+};
 import {
   PaymentProvider,
   PaymentAction,
@@ -153,7 +159,7 @@ export class PayPalProvider implements PaymentProvider {
     };
 
     try {
-      const response = await client.execute(request);
+      const response = await client.execute<{ verification_status?: string }>(request);
       const verificationStatus = response.result.verification_status;
 
       if (verificationStatus !== "SUCCESS") {
@@ -184,7 +190,7 @@ export class PayPalProvider implements PaymentProvider {
     // PAYMENT.CAPTURE.COMPLETED - 支付成功
     if (eventType === "PAYMENT.CAPTURE.COMPLETED") {
       const orderId =
-        (resource.custom_id as string) || (resource.purchase_units as any)?.[0]?.reference_id || "";
+        (resource.custom_id as string) || (resource.purchase_units as PayPalWebhookPurchaseUnit[] | undefined)?.[0]?.reference_id || "";
 
       const amount = resource.amount as { value: string; currency_code: string };
       return {
@@ -201,7 +207,7 @@ export class PayPalProvider implements PaymentProvider {
     // PAYMENT.CAPTURE.DENIED - 支付失败
     if (eventType === "PAYMENT.CAPTURE.DENIED") {
       const orderId =
-        (resource.custom_id as string) || (resource.purchase_units as any)?.[0]?.reference_id || "";
+        (resource.custom_id as string) || (resource.purchase_units as PayPalWebhookPurchaseUnit[] | undefined)?.[0]?.reference_id || "";
 
       const amount = resource.amount as { value: string; currency_code: string };
       return {
@@ -217,7 +223,7 @@ export class PayPalProvider implements PaymentProvider {
 
     // CHECKOUT.ORDER.APPROVED - 订单已批准但未捕获
     if (eventType === "CHECKOUT.ORDER.APPROVED") {
-      const purchaseUnits = resource.purchase_units as any[];
+      const purchaseUnits = resource.purchase_units as PayPalWebhookPurchaseUnit[] | undefined;
       const orderId =
         purchaseUnits?.[0]?.custom_id ||
         purchaseUnits?.[0]?.reference_id ||
@@ -272,7 +278,7 @@ export class PayPalProvider implements PaymentProvider {
     request.requestBody({});
 
     try {
-      const response = await client.execute(request);
+      const response = await client.execute<PayPalOrderResponse>(request);
       return response.result;
     } catch (error: unknown) {
       console.error("PayPal order capture error:", error);
@@ -289,7 +295,7 @@ export class PayPalProvider implements PaymentProvider {
     const request = new paypal.orders.OrdersGetRequest(orderId);
 
     try {
-      const response = await client.execute(request);
+      const response = await client.execute<PayPalOrderResponse>(request);
       return response.result;
     } catch (error: unknown) {
       console.error("PayPal get order error:", error);

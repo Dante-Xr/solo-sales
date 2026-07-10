@@ -6,7 +6,7 @@
  * ============================================
  */
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { TimeRange } from "@/lib/analytics/types"
 
 interface OverviewData {
@@ -105,11 +105,7 @@ export default function AnalyticsDashboard({ locale = "zh" }: AnalyticsDashboard
   const [error, setError] = useState<string | null>(null)
   const t = LABELS[locale]
 
-  useEffect(() => {
-    fetchAnalytics()
-  }, [timeRange])
-
-  const fetchAnalytics = useCallback(async () => {
+  const fetchAnalytics = async () => {
     setLoading(true)
     setError(null)
 
@@ -127,6 +123,10 @@ export default function AnalyticsDashboard({ locale = "zh" }: AnalyticsDashboard
     } finally {
       setLoading(false)
     }
+  }
+
+  useEffect(() => {
+    void fetchAnalytics()
   }, [timeRange])
 
   const formatCurrency = (value: number) => {
@@ -174,7 +174,7 @@ export default function AnalyticsDashboard({ locale = "zh" }: AnalyticsDashboard
     <div className="space-y-6">
       {/* 标题和时间范围选择 */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">{t.title}</h1>
+        <h1 className="text-2xl font-bold text-foreground">{t.title}</h1>
 
         <div className="flex gap-2">
           {(["today", "7d", "30d", "90d"] as TimeRange[]).map((range) => (
@@ -184,7 +184,7 @@ export default function AnalyticsDashboard({ locale = "zh" }: AnalyticsDashboard
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 timeRange === range
                   ? "bg-indigo-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  : "bg-muted text-muted-foreground hover:bg-secondary hover:text-foreground"
               }`}
             >
               {range === "today" ? t.today : range === "7d" ? t.last7Days : range === "30d" ? t.last30Days : t.last90Days}
@@ -223,23 +223,23 @@ export default function AnalyticsDashboard({ locale = "zh" }: AnalyticsDashboard
 
       {/* 中间指标 */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <div className="text-sm text-gray-500 mb-1">{t.avgOrderValue}</div>
-          <div className="text-2xl font-bold text-gray-900">
+        <div className="bg-card rounded-xl shadow-sm p-6 border border-border">
+          <div className="text-sm text-muted-foreground mb-1">{t.avgOrderValue}</div>
+          <div className="text-2xl font-bold text-card-foreground">
             {formatCurrency(data.overview.avgOrderValue)}
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <div className="text-sm text-gray-500 mb-1">{t.customerLTV}</div>
-          <div className="text-2xl font-bold text-gray-900">
+        <div className="bg-card rounded-xl shadow-sm p-6 border border-border">
+          <div className="text-sm text-muted-foreground mb-1">{t.customerLTV}</div>
+          <div className="text-2xl font-bold text-card-foreground">
             {formatCurrency(data.customers.customerLTV)}
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <div className="text-sm text-gray-500 mb-1">{t.activeProducts}</div>
-          <div className="text-2xl font-bold text-gray-900">
+        <div className="bg-card rounded-xl shadow-sm p-6 border border-border">
+          <div className="text-sm text-muted-foreground mb-1">{t.activeProducts}</div>
+          <div className="text-2xl font-bold text-card-foreground">
             {formatNumber(data.products.activeProducts)}
-            <span className="text-sm font-normal text-gray-500 ml-2">
+            <span className="text-sm font-normal text-muted-foreground ml-2">
               / {formatNumber(data.products.outOfStockProducts)} {t.outOfStock}
             </span>
           </div>
@@ -247,12 +247,12 @@ export default function AnalyticsDashboard({ locale = "zh" }: AnalyticsDashboard
       </div>
 
       {/* 热销商品 */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">{t.topProducts}</h2>
+      <div className="bg-card rounded-xl shadow-sm p-6 border border-border">
+        <h2 className="text-lg font-semibold text-card-foreground mb-4">{t.topProducts}</h2>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="text-left text-sm text-gray-500 border-b">
+              <tr className="text-left text-sm text-muted-foreground border-b border-border">
                 <th className="pb-3 font-medium">#</th>
                 <th className="pb-3 font-medium">Product</th>
                 <th className="pb-3 font-medium text-right">Sales</th>
@@ -261,8 +261,8 @@ export default function AnalyticsDashboard({ locale = "zh" }: AnalyticsDashboard
             </thead>
             <tbody>
               {data.overview.topProducts.slice(0, 5).map((product, index) => (
-                <tr key={product.productId} className="border-b border-gray-50">
-                  <td className="py-3 text-gray-500">{index + 1}</td>
+                <tr key={product.productId} className="border-b border-border">
+                  <td className="py-3 text-muted-foreground">{index + 1}</td>
                   <td className="py-3">
                     <div className="flex items-center gap-3">
                       {product.image && (
@@ -272,11 +272,11 @@ export default function AnalyticsDashboard({ locale = "zh" }: AnalyticsDashboard
                           className="w-10 h-10 rounded-lg object-cover"
                         />
                       )}
-                      <span className="font-medium text-gray-900">{product.productName}</span>
+                      <span className="font-medium text-card-foreground">{product.productName}</span>
                     </div>
                   </td>
-                  <td className="py-3 text-right text-gray-700">{formatNumber(product.salesCount)}</td>
-                  <td className="py-3 text-right font-medium text-gray-900">
+                  <td className="py-3 text-right text-muted-foreground">{formatNumber(product.salesCount)}</td>
+                  <td className="py-3 text-right font-medium text-card-foreground">
                     {formatCurrency(product.salesAmount)}
                   </td>
                 </tr>
@@ -287,7 +287,7 @@ export default function AnalyticsDashboard({ locale = "zh" }: AnalyticsDashboard
       </div>
 
       {/* 时间范围标签 */}
-      <div className="text-sm text-gray-500 text-center">
+      <div className="text-sm text-muted-foreground text-center">
         {t.period}: {data.period.label}
       </div>
     </div>
@@ -306,7 +306,7 @@ function StatCard({ title, value, trend, icon }: StatCardProps) {
   const trendIcon = trend > 0 ? "↑" : trend < 0 ? "↓" : ""
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+    <div className="bg-card rounded-xl shadow-sm p-6 border border-border">
       <div className="flex items-center justify-between mb-2">
         <span className="text-2xl">{icon}</span>
         {trend !== 0 && (
@@ -315,8 +315,8 @@ function StatCard({ title, value, trend, icon }: StatCardProps) {
           </span>
         )}
       </div>
-      <div className="text-sm text-gray-500 mb-1">{title}</div>
-      <div className="text-2xl font-bold text-gray-900">{value}</div>
+      <div className="text-sm text-muted-foreground mb-1">{title}</div>
+      <div className="text-2xl font-bold text-card-foreground">{value}</div>
     </div>
   )
 }

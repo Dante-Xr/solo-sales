@@ -61,9 +61,9 @@ export function StorefrontPageLayout({
   return (
     <ViewportWrapper>
       {/* 统一 Header */}
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-md border-b">
-        <div className="px-3 md:px-4">
-          <div className="flex items-center justify-between h-12">
+      <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur-md">
+        <div className="storefront-container">
+          <div className="flex h-14 items-center justify-between">
             {/* 移动端左侧：返回按钮 + Logo/标题 */}
             <div className="flex items-center gap-1 md:hidden">
               {showBack && (
@@ -72,7 +72,7 @@ export function StorefrontPageLayout({
                 </Button>
               )}
               <Link href="/" className="flex items-center gap-1.5">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-brand-gradient-from to-brand-gradient-to flex items-center justify-center">
+                <div className="flex size-7 items-center justify-center rounded-lg bg-foreground">
                   <span className="text-brand-foreground font-bold text-[10px]">S</span>
                 </div>
                 {title && <span className="text-sm font-bold text-foreground">{title}</span>}
@@ -101,7 +101,7 @@ export function StorefrontPageLayout({
                 </Button>
               )}
               <Link href="/" className="flex items-center gap-1.5">
-                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-gradient-from to-brand-gradient-to flex items-center justify-center">
+                <div className="flex size-8 items-center justify-center rounded-lg bg-foreground">
                   <span className="text-brand-foreground font-bold text-xs">S</span>
                 </div>
                 <span className="text-sm font-bold text-foreground">Solo Sales</span>
@@ -156,7 +156,7 @@ export function StorefrontPageLayout({
       )}
 
       {/* 主内容区 */}
-      <main className="max-w-[1440px] mx-auto">
+      <main className="mx-auto w-full max-w-7xl">
         {children}
       </main>
     </ViewportWrapper>

@@ -1,6 +1,6 @@
 <!--
 修改时间：2026-07-06 00:00:00 +08:00
-修改内容：同步 v1.7.6 类型安全修复版本标识和更新日志。
+修改内容：同步 v1.7.7-v1.7.9 Figma Enhance 全站风格迁移版本标识和更新日志。
 修改模型：gpt-5
 -->
 
@@ -9,6 +9,30 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+## [1.7.9] - 2026-07-10
+
+### Figma Enhance 全站风格收口
+
+- 统一管理后台侧边栏、顶栏、表格、表单、图表和弹窗的视觉 token。
+- 完成用户端与后台的响应式、dark mode、focus、hover 和移动端安全区收口。
+- 更新 `docs/changes/v1.7.7`、`v1.7.8`、`v1.7.9` 版本文档和发布路线图。
+
+## [1.7.8] - 2026-07-10
+
+### Figma Enhance 用户端迁移
+
+- 首页新增真实分类筛选、收藏、加入购物车和无结果状态。
+- 统一 Header、Hero、商品卡、信任横幅、Footer 和移动端底部导航。
+- 商品展示契约增加可选 `categoryId` 和 `categoryName` 字段。
+
+## [1.7.7] - 2026-07-10
+
+### Figma Enhance 设计系统基础
+
+- 迁移暖灰背景、深海军蓝主色、酒红强调色、圆角、边框和阴影 token。
+- 统一 Button、Card、Input 等共享 UI 组件的默认状态。
+- 使用现有 `framer-motion` 对齐参考项目的入场和交互动效。
 
 ## [1.7.6] - 2026-07-03
 

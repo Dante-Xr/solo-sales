@@ -1,11 +1,10 @@
-import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
-import { CheckCircle, Loader2 } from 'lucide-react'
+import { CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 async function PayPalSuccessHandler({
   token,
-  locale
+  locale: _locale
 }: {
   token: string
   locale: string
@@ -54,7 +53,7 @@ export default async function PaymentSuccessPage({
         token: search.token,
         locale
       })
-    } catch (error: unknown) {
+    } catch {
       // 如果捕获失败，重定向到失败页面
       redirect(`/${locale}/payment/failure?error=capture_failed`)
     }

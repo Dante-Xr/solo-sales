@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
   try {
     // 1. 解析form数据
     const formData = await req.formData()
-    const params: Record<string, any> = {}
+    const params: Record<string, string> = {}
 
     // Convert FormData to plain object
     for (const [key, value] of formData.entries()) {

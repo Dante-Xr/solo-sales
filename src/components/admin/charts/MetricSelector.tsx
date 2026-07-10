@@ -67,7 +67,7 @@ export function MetricSelector({ value, onChange }: MetricSelectorProps) {
       rose: "bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-300 border-rose-300 dark:border-rose-700",
       cyan: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-300 border-cyan-300 dark:border-cyan-700",
     }
-    return colorMap[METRIC_COLORS[key]] || "bg-gray-100 text-gray-800 border-gray-300"
+    return colorMap[METRIC_COLORS[key]] || "bg-muted text-foreground border-border"
   }
 
   return (

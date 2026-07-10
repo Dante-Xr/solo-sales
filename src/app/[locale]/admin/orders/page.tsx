@@ -169,7 +169,7 @@ export default function AdminOrdersPage() {
                   <TableCell>
                     <div className="text-sm">
                       <p>{order.contactInfo?.name || commonT("guest")}</p>
-                      <p className="text-gray-500">{order.contactInfo?.phone || "-"}</p>
+                      <p className="text-muted-foreground">{order.contactInfo?.phone || "-"}</p>
                     </div>
                   </TableCell>
                   <TableCell className="font-bold text-red-600">
@@ -192,7 +192,7 @@ export default function AdminOrdersPage() {
                     {order.trackingNumber ? (
                       <span className="font-mono text-sm">{order.trackingNumber}</span>
                     ) : (
-                      <span className="text-gray-400 text-sm">{commonT("none")}</span>
+                      <span className="text-muted-foreground text-sm">{commonT("none")}</span>
                     )}
                   </TableCell>
                   <TableCell className="text-right">
@@ -223,8 +223,8 @@ export default function AdminOrdersPage() {
           <div className="space-y-4 py-4">
             {selectedOrder && (
               <>
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <p className="text-sm text-gray-500">{t("orderId")}</p>
+                <div className="bg-muted p-3 rounded-lg">
+                  <p className="text-sm text-muted-foreground">{t("orderId")}</p>
                   <p className="font-mono">{selectedOrder.id}</p>
                 </div>
                 <div className="space-y-2">
@@ -236,7 +236,7 @@ export default function AdminOrdersPage() {
                     onChange={(e) => setTrackingNumber(e.target.value)}
                   />
                 </div>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   {t("autoUpdateToShipped")}
                 </p>
               </>

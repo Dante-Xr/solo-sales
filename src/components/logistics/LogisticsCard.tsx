@@ -26,10 +26,10 @@ export function LogisticsCard({ logistics }: LogisticsCardProps) {
   // 无物流信息时显示空状态
   if (!logistics.trackingNumber) {
     return (
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
-        <Clock className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-        <p className="text-gray-500">暂无物流信息</p>
-        <p className="text-sm text-gray-400 mt-1">
+      <div className="bg-muted/50 border border-border rounded-lg p-4 text-center">
+        <Clock className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+        <p className="text-muted-foreground">暂无物流信息</p>
+        <p className="text-sm text-muted-foreground mt-1">
           商家发货后将显示运单号
         </p>
       </div>
@@ -38,7 +38,7 @@ export function LogisticsCard({ logistics }: LogisticsCardProps) {
 
   // 有物流信息时显示完整卡片
   return (
-    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-4">
+    <div className="bg-info/10 border border-info/20 rounded-lg p-4 space-y-4">
       {/* 快递信息头部 */}
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
@@ -48,7 +48,7 @@ export function LogisticsCard({ logistics }: LogisticsCardProps) {
           <p className="font-medium">
             {logistics.carrier || "快递运输中"}
           </p>
-          <p className="text-sm text-gray-500 font-mono">
+          <p className="text-sm text-muted-foreground font-mono">
             {logistics.trackingNumber}
           </p>
         </div>
@@ -56,8 +56,8 @@ export function LogisticsCard({ logistics }: LogisticsCardProps) {
 
       {/* 预计送达时间 */}
       {logistics.estimatedDelivery && (
-        <div className="bg-white rounded-md p-3">
-          <p className="text-sm text-gray-500">预计送达</p>
+        <div className="bg-card rounded-md p-3">
+          <p className="text-sm text-muted-foreground">预计送达</p>
           <p className="font-medium">{logistics.estimatedDelivery}</p>
         </div>
       )}
@@ -82,8 +82,8 @@ export function LogisticsCard({ logistics }: LogisticsCardProps) {
                 {/* 事件信息 */}
                 <div className="flex-1 pb-4">
                   <p className="font-medium">{event.description}</p>
-                  <p className="text-gray-500 text-xs">{event.location}</p>
-                  <p className="text-gray-400 text-xs">{event.time}</p>
+                  <p className="text-muted-foreground text-xs">{event.location}</p>
+                  <p className="text-muted-foreground text-xs">{event.time}</p>
                 </div>
               </div>
             ))}

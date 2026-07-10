@@ -65,7 +65,7 @@ export interface AlipayNotifyParams {
 /**
  * SDK 响应类型
  */
-export interface AlipayResponse<T = any> {
+export interface AlipayResponse<T = unknown> {
   code: string
   msg: string
   data?: T

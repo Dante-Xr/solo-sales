@@ -29,10 +29,10 @@ interface PointsBalanceProps {
 }
 
 const tierColors = {
-  BRONZE: "bg-amber-100 text-amber-800 border-amber-200",
-  SILVER: "bg-slate-100 text-slate-800 border-slate-200",
+  BRONZE: "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-800",
+  SILVER: "bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-700",
   GOLD: "bg-warning/10 text-warning border-warning/20",
-  PLATINUM: "bg-purple-100 text-purple-800 border-purple-200",
+  PLATINUM: "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-950/40 dark:text-purple-200 dark:border-purple-800",
 }
 
 const tierNames = {

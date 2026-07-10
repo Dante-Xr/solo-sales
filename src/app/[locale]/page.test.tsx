@@ -9,26 +9,19 @@ import Storefront from "./page"
 
 jest.mock("@/server/services/product-service", () => ({
   getFeaturedProducts: jest.fn(),
+  listCategories: jest.fn(),
 }))
 
-jest.mock("@/components/storefront/HomeCarouselClient", () => ({
-  HomeCarouselClient: ({ products }: { products: unknown[] }) => (
-    <div data-testid="carousel">Carousel with {products.length} products</div>
-  ),
-}))
-
-jest.mock("@/components/storefront/ProductGridClient", () => ({
-  ProductGridClient: ({ products }: { products: unknown[] }) => (
-    <div data-testid="product-grid">Grid with {products.length} products</div>
+jest.mock("@/components/storefront/StorefrontExperience", () => ({
+  StorefrontExperience: ({ products, categories }: { products: unknown[]; categories: unknown[] }) => (
+    <div data-testid="storefront-experience">
+      Experience with {products.length} products and {categories.length} categories
+    </div>
   ),
 }))
 
 jest.mock("@/components/storefront/StorefrontHeaderClient", () => ({
   StorefrontHeaderClient: () => <header data-testid="header">Header</header>,
-}))
-
-jest.mock("@/components/storefront/FeatureSection", () => ({
-  FeatureSection: () => <section data-testid="features">Features</section>,
 }))
 
 jest.mock("@/components/storefront/StorefrontFooter", () => ({
@@ -43,9 +36,10 @@ jest.mock("@/components/storefront/WelcomeModalWrapper", () => ({
   WelcomeModalWrapper: () => <div data-testid="welcome">Welcome</div>,
 }))
 
-import { getFeaturedProducts } from "@/server/services/product-service"
+import { getFeaturedProducts, listCategories } from "@/server/services/product-service"
 
 const getFeaturedProductsMock = getFeaturedProducts as jest.MockedFunction<typeof getFeaturedProducts>
+const listCategoriesMock = listCategories as jest.MockedFunction<typeof listCategories>
 
 describe("Storefront (HomePage)", () => {
   const mockProducts = [
@@ -73,6 +67,7 @@ describe("Storefront (HomePage)", () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    listCategoriesMock.mockResolvedValue([])
   })
 
   it("应该从商品服务获取商品并渲染", async () => {
@@ -84,8 +79,7 @@ describe("Storefront (HomePage)", () => {
     const Page = await Storefront()
     render(Page)
 
-    expect(screen.getByTestId("carousel")).toHaveTextContent("2 products")
-    expect(screen.getByTestId("product-grid")).toHaveTextContent("2 products")
+    expect(screen.getByTestId("storefront-experience")).toHaveTextContent("2 products")
   })
 
   it("应该使用商品服务返回的缓存数据", async () => {
@@ -110,7 +104,7 @@ describe("Storefront (HomePage)", () => {
     render(Page)
 
     expect(getFeaturedProductsMock).toHaveBeenCalledTimes(1)
-    expect(screen.getByTestId("carousel")).toHaveTextContent("1 products")
+    expect(screen.getByTestId("storefront-experience")).toHaveTextContent("1 products")
   })
 
   it("应该在商品服务失败时渲染兜底商品", async () => {
@@ -122,8 +116,7 @@ describe("Storefront (HomePage)", () => {
       render(Page)
 
       // 服务层重试耗尽后页面仍应展示兜底商品，避免首页白屏。
-      expect(screen.getByTestId("carousel")).toHaveTextContent("6 products")
-      expect(screen.getByTestId("product-grid")).toHaveTextContent("6 products")
+      expect(screen.getByTestId("storefront-experience")).toHaveTextContent("6 products")
     } finally {
       errorSpy.mockRestore()
     }
@@ -139,7 +132,6 @@ describe("Storefront (HomePage)", () => {
     render(Page)
 
     expect(screen.getByTestId("header")).toBeInTheDocument()
-    expect(screen.getByTestId("features")).toBeInTheDocument()
     expect(screen.getByTestId("footer")).toBeInTheDocument()
   })
 })

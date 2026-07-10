@@ -69,7 +69,7 @@ export function ProductMeta({ product, ratingStats, url }: ProductMetaProps) {
   return (
     <>
       {/* 标准 Meta */}
-      <title>{product.name} | SoloSales</title>
+      <title>{product.name} | Solo Sales</title>
       <meta name="description" content={metaDescription} />
       <link rel="canonical" href={url} />
 

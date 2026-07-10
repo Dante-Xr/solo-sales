@@ -32,10 +32,6 @@ export default function PaymentProofReviewPage() {
   const [selectedProof, setSelectedProof] = useState<PaymentProof | null>(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetchPendingProofs()
-  }, [])
-
   async function fetchPendingProofs() {
     try {
       const response = await fetch('/api/admin/payment/proof/pending')
@@ -49,6 +45,10 @@ export default function PaymentProofReviewPage() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    void fetchPendingProofs()
+  }, [])
 
   async function handleReview(proofId: string, action: 'approve' | 'reject') {
     let rejectReason: string | null = null
@@ -73,8 +73,9 @@ export default function PaymentProofReviewPage() {
       alert('审核完成')
       setSelectedProof(null)
       fetchPendingProofs() // Reload list
-    } catch (error: any) {
-      alert('审核失败：' + error.message)
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : '未知错误'
+      alert('审核失败：' + message)
     }
   }
 
@@ -90,7 +91,7 @@ export default function PaymentProofReviewPage() {
     <div className="container py-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold mb-2">支付凭证审核</h1>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           ⚠️ 当前为人工审核模式，建议尽快升级为自动化支付
         </p>
       </div>
@@ -101,7 +102,7 @@ export default function PaymentProofReviewPage() {
           <h2 className="font-semibold">待审核 ({proofs.length})</h2>
 
           {proofs.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">暂无待审核凭证</div>
+            <div className="text-center py-8 text-muted-foreground">暂无待审核凭证</div>
           ) : (
             proofs.map((proof) => (
               <div
@@ -109,7 +110,7 @@ export default function PaymentProofReviewPage() {
                 className={`border rounded-lg p-4 cursor-pointer transition ${
                   selectedProof?.id === proof.id
                     ? 'border-blue-500 bg-blue-50'
-                    : 'hover:bg-gray-50'
+                    : 'hover:bg-muted'
                 }`}
                 onClick={() => setSelectedProof(proof)}
               >
@@ -136,17 +137,17 @@ export default function PaymentProofReviewPage() {
                           {proof.isOcrMatched ? ' ✓ 匹配' : ' ⚠ 不匹配'}
                         </p>
                         {proof.ocrConfidence !== null && (
-                          <p className="text-gray-500">
+                          <p className="text-muted-foreground">
                             置信度：{(proof.ocrConfidence * 100).toFixed(0)}%
                           </p>
                         )}
                       </div>
                     )}
 
-                    <p className="text-xs text-gray-500 mt-2">
+                    <p className="text-xs text-muted-foreground mt-2">
                       用户：{proof.order.user.name || proof.order.user.email}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       {new Date(proof.createdAt).toLocaleString('zh-CN')}
                     </p>
                   </div>
@@ -162,7 +163,7 @@ export default function PaymentProofReviewPage() {
             <h2 className="font-semibold mb-4">凭证详情</h2>
 
             {/* 支付凭证图片 */}
-            <div className="relative w-full h-96 mb-4 bg-gray-100 rounded border">
+            <div className="relative w-full h-96 mb-4 bg-muted rounded border border-border">
               <Image
                 src={selectedProof.proofImageUrl}
                 alt="支付凭证"
@@ -172,7 +173,7 @@ export default function PaymentProofReviewPage() {
             </div>
 
             {/* 订单信息 */}
-            <div className="mb-4 p-3 bg-gray-50 rounded text-sm space-y-1">
+            <div className="mb-4 p-3 bg-muted rounded text-sm space-y-1">
               <p>
                 <strong>订单金额：</strong>¥{selectedProof.order.totalAmount}
               </p>
@@ -223,7 +224,7 @@ export default function PaymentProofReviewPage() {
             </div>
           </div>
         ) : (
-          <div className="border rounded-lg p-6 flex items-center justify-center text-gray-500">
+          <div className="border border-border rounded-lg p-6 flex items-center justify-center text-muted-foreground">
             请选择一个凭证查看详情
           </div>
         )}

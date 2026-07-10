@@ -25,9 +25,9 @@ interface PayPalButtonProps {
 
 export function PayPalButton({
   orderId,
-  amount,
+  amount: _amount,
   locale = "en",
-  onSuccess,
+  onSuccess: _onSuccess,
   onError,
 }: PayPalButtonProps) {
   const [loading, setLoading] = useState(false);
@@ -60,12 +60,13 @@ export function PayPalButton({
       } else {
         throw new Error("No redirect URL returned");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("PayPal checkout error:", error);
-      toast.error(error.message || "PayPal 支付创建失败");
+      const message = error instanceof Error ? error.message : "PayPal 支付创建失败";
+      toast.error(message);
 
       if (onError) {
-        onError(error.message);
+        onError(message);
       }
 
       setLoading(false);

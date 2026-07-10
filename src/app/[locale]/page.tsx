@@ -3,16 +3,13 @@
  * 修改内容：首页商品读取改为复用带 Prisma 断连重试的服务层，避免页面直接访问数据库绕过容错逻辑。
  * 修改模型：gpt-5.5
  */
-import { HomeCarouselClient } from "@/components/storefront/HomeCarouselClient"
 import type { ProductItem } from "@/components/storefront/HomeCarouselClient"
-import { ProductGridClient } from "@/components/storefront/ProductGridClient"
 import { StorefrontHeaderClient } from "@/components/storefront/StorefrontHeaderClient"
-import { HeroBanner } from "@/components/storefront/HeroBanner"
-import { FeatureSection } from "@/components/storefront/FeatureSection"
 import { StorefrontFooter } from "@/components/storefront/StorefrontFooter"
 import { ViewportWrapper } from "@/components/storefront/ViewportWrapper"
 import { WelcomeModalWrapper } from "@/components/storefront/WelcomeModalWrapper"
-import { getFeaturedProducts as getFeaturedProductsFromService } from "@/server/services/product-service"
+import { StorefrontExperience } from "@/components/storefront/StorefrontExperience"
+import { getFeaturedProducts as getFeaturedProductsFromService, listCategories } from "@/server/services/product-service"
 
 const FALLBACK_PRODUCTS: ProductItem[] = [
   {
@@ -100,37 +97,17 @@ export default async function Storefront() {
     products = FALLBACK_PRODUCTS
   }
 
+  const categories = await listCategories()
+    .then((items) => items.map((item) => ({ id: item.id, name: item.name })))
+    .catch(() => [])
+
   return (
     <ViewportWrapper>
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 relative overflow-hidden">
-      <div className="w-full max-w-[1440px] mx-auto relative">
-        <StorefrontHeaderClient />
-
-        <main className="flex flex-col pb-16">
-          {/* Hero Banner：轮播图上方 */}
-          <HeroBanner />
-
-          <section className="w-full">
-            <div className="h-full">
-              <HomeCarouselClient products={products} />
-            </div>
-          </section>
-
-          <section className="w-full">
-            <ProductGridClient products={products} isLoading={false} />
-          </section>
-
-          <section className="w-full">
-            <FeatureSection />
-          </section>
-
-          <section className="w-full">
-            <StorefrontFooter />
-          </section>
-        </main>
-
-        <WelcomeModalWrapper />
-      </div>
+    <div className="min-h-screen bg-background">
+      <StorefrontHeaderClient />
+      <StorefrontExperience products={products} categories={categories} />
+      <StorefrontFooter />
+      <WelcomeModalWrapper />
     </div>
     </ViewportWrapper>
   )

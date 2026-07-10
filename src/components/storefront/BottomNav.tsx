@@ -39,11 +39,11 @@ export function BottomNav({ items = defaultItems, visible = true }: BottomNavPro
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-background/95 backdrop-blur-md border-t"
+      className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 shadow-[0_-8px_28px_rgb(12_16_34/0.06)] backdrop-blur-md md:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       aria-label={t("nav.bottomNav")}
     >
-      <div className="flex items-center justify-around h-14">
+      <div className="flex h-16 items-center justify-around">
         {items.map((item) => {
           const isActive = pathname === item.href
           const Icon = item.icon
@@ -54,7 +54,7 @@ export function BottomNav({ items = defaultItems, visible = true }: BottomNavPro
               key={item.href}
               href={item.href}
               className={`relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full transition-colors ${
-                isActive ? "text-brand" : "text-muted-foreground"
+                isActive ? "text-foreground" : "text-muted-foreground"
               }`}
               aria-current={isActive ? "page" : undefined}
             >
@@ -67,7 +67,8 @@ export function BottomNav({ items = defaultItems, visible = true }: BottomNavPro
                   </span>
                 )}
               </span>
-              <span className="text-[10px] leading-tight">{t(item.labelKey)}</span>
+              {isActive && <span className="absolute top-0 h-0.5 w-6 rounded-full bg-foreground" />}
+              <span className="text-[10px] font-medium leading-tight">{t(item.labelKey)}</span>
             </Link>
           )
         })}

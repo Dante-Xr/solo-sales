@@ -16,6 +16,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-serif: Georgia, "Times New Roman", serif;
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -83,48 +84,48 @@
   /* 保留 Geist 变量名给 Tailwind 与既有样式使用，实际值落到系统字体栈，避免构建期联网拉取 Google Fonts。 */
   --font-geist-sans: Arial, "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
   --font-geist-mono: "Cascadia Mono", Consolas, "Courier New", monospace;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
+  --background: #f8f7f5;
+  --foreground: #0c1022;
+  --card: #ffffff;
+  --card-foreground: #0c1022;
+  --popover: #ffffff;
+  --popover-foreground: #0c1022;
   --primary: var(--brand);
   --primary-foreground: var(--brand-foreground);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --secondary: #f0eeeb;
+  --secondary-foreground: #0c1022;
+  --muted: #eeece9;
+  --muted-foreground: #6b6a72;
+  --accent: #b8132a;
+  --accent-foreground: #ffffff;
   --destructive: var(--accent);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: rgb(12 16 34 / 10%);
+  --input: #f0eeeb;
+  --ring: #b8132a;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  /* 品牌与语义色彩 - Klein Blue + Red Theme */
-  --brand: oklch(0.35 0.15 264);  /* Klein Blue #002FA7 */
-  --brand-foreground: oklch(0.98 0 0);
-  --brand-hover: oklch(0.25 0.15 264);  /* Darker Klein Blue #001E75 */
-  --brand-gradient-from: oklch(0.4 0.15 264);
-  --brand-gradient-to: oklch(0.3 0.12 280);
-  --accent: oklch(0.55 0.22 29);  /* Red #DC2626 */
-  --accent-foreground: oklch(0.98 0 0);
-  --accent-hover: oklch(0.45 0.22 29);  /* Darker Red #B91C1C */
-  --price: oklch(0.55 0.22 29);  /* Red for prices */
+  --radius: 0.75rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0c1022;
+  --sidebar-primary: #0c1022;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f0eeeb;
+  --sidebar-accent-foreground: #0c1022;
+  --sidebar-border: rgb(12 16 34 / 10%);
+  --sidebar-ring: #b8132a;
+  /* 品牌与语义色彩 - Figma Enhance 深海军蓝 + 酒红 */
+  --brand: #0c1022;
+  --brand-foreground: #ffffff;
+  --brand-hover: #202540;
+  --brand-gradient-from: #0c1022;
+  --brand-gradient-to: #b8132a;
+  --accent: #b8132a;
+  --accent-foreground: #ffffff;
+  --accent-hover: #941022;
+  --price: #b8132a;
   --price-foreground: inherit;
   --success: oklch(0.52 0.17 145);
   --warning: oklch(0.6 0.16 75);
@@ -132,47 +133,47 @@
 }
 
 .dark {
-  --background: oklch(0.15 0.015 285);
-  --foreground: oklch(0.98 0 0);
-  --card: oklch(0.18 0.015 285);
-  --card-foreground: oklch(0.98 0 0);
-  --popover: oklch(0.18 0.015 285);
-  --popover-foreground: oklch(0.98 0 0);
+  --background: #111321;
+  --foreground: #f8f7f5;
+  --card: #191b2a;
+  --card-foreground: #f8f7f5;
+  --popover: #191b2a;
+  --popover-foreground: #f8f7f5;
   --primary: var(--brand);
   --primary-foreground: var(--brand-foreground);
-  --secondary: oklch(0.25 0.015 285);
-  --secondary-foreground: oklch(0.98 0 0);
-  --muted: oklch(0.25 0.015 285);
-  --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.28 0.015 285);
-  --accent-foreground: oklch(0.98 0 0);
+  --secondary: #242638;
+  --secondary-foreground: #f8f7f5;
+  --muted: #242638;
+  --muted-foreground: #b8b9c4;
+  --accent: #3a1e2b;
+  --accent-foreground: #f8f7f5;
   --destructive: var(--accent);
-  --border: oklch(0.32 0.015 285);
-  --input: oklch(0.32 0.015 285);
-  --ring: oklch(0.5 0 0);
+  --border: rgb(248 247 245 / 12%);
+  --input: #242638;
+  --ring: #e05a6e;
   --chart-1: oklch(0.65 0.2 265);
   --chart-2: oklch(0.6 0.18 170);
   --chart-3: oklch(0.55 0.2 50);
   --chart-4: oklch(0.5 0.15 280);
   --chart-5: oklch(0.6 0.2 340);
-  --sidebar: oklch(0.12 0.015 285);
-  --sidebar-foreground: oklch(0.98 0 0);
-  --sidebar-primary: oklch(0.65 0.2 340);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.22 0.015 285);
-  --sidebar-accent-foreground: oklch(0.98 0 0);
-  --sidebar-border: oklch(0.28 0.015 285);
-  --sidebar-ring: oklch(0.5 0 0);
-  /* 品牌与语义色彩（暗色模式）- Klein Blue + Red Theme */
-  --brand: oklch(0.55 0.15 264);  /* Lighter Klein Blue for dark mode */
-  --brand-foreground: oklch(0.12 0 0);
-  --brand-hover: oklch(0.65 0.15 264);  /* Even lighter on hover */
-  --brand-gradient-from: oklch(0.6 0.15 264);
-  --brand-gradient-to: oklch(0.55 0.12 280);
-  --accent: oklch(0.65 0.22 29);  /* Lighter Red for dark mode */
-  --accent-foreground: oklch(0.12 0 0);
-  --accent-hover: oklch(0.75 0.22 29);  /* Even lighter on hover */
-  --price: oklch(0.7 0.22 29);  /* Lighter Red for prices */
+  --sidebar: #0d0f1d;
+  --sidebar-foreground: #f8f7f5;
+  --sidebar-primary: #f8f7f5;
+  --sidebar-primary-foreground: #0c1022;
+  --sidebar-accent: #242638;
+  --sidebar-accent-foreground: #f8f7f5;
+  --sidebar-border: rgb(248 247 245 / 12%);
+  --sidebar-ring: #e05a6e;
+  /* 品牌与语义色彩（暗色模式）- Figma Enhance 深色变体 */
+  --brand: #f8f7f5;
+  --brand-foreground: #0c1022;
+  --brand-hover: #ffffff;
+  --brand-gradient-from: #f8f7f5;
+  --brand-gradient-to: #e05a6e;
+  --accent: #e05a6e;
+  --accent-foreground: #1a0e13;
+  --accent-hover: #f07a8a;
+  --price: #f07a8a;
   --price-foreground: inherit;
   --success: oklch(0.65 0.17 145);
   --warning: oklch(0.7 0.16 75);
@@ -185,9 +186,28 @@
   }
   body {
     @apply bg-background text-foreground;
+    text-rendering: optimizeLegibility;
   }
   html {
     @apply font-sans;
+  }
+}
+
+@layer components {
+  .surface-panel {
+    @apply rounded-xl border border-border bg-card shadow-[0_12px_32px_rgb(12_16_34/0.06)];
+  }
+
+  .surface-panel-subtle {
+    @apply rounded-xl border border-border bg-card/80 shadow-sm;
+  }
+
+  .storefront-page {
+    @apply min-h-screen bg-background text-foreground;
+  }
+
+  .storefront-container {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6;
   }
 }
 

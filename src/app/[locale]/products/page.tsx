@@ -18,7 +18,7 @@ interface ProductsPageProps {
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "All Products - SoloSales",
+    title: "All Products - Solo Sales",
     description: "Browse all products in our store",
   }
 }

@@ -27,6 +27,7 @@ const eslintConfig = defineConfig([
     ".venv/**",
     "out/**",
     "build/**",
+    "figma frontend enhance/**",
     "next-env.d.ts",
   ]),
 ]);

@@ -5,6 +5,7 @@
  * 将 catch (error) 替换为 catch (error: unknown)
  */
 
+/* eslint-disable @typescript-eslint/no-require-imports -- This maintenance script runs directly in Node CommonJS. */
 const fs = require('fs');
 const path = require('path');
 

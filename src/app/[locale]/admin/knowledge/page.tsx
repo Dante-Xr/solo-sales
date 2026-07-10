@@ -149,12 +149,11 @@ export default function KnowledgePage() {
 
   const knowledgeList = useMemo<KnowledgeItem[]>(() => {
     const raw = knowledgeData?.data as KnowledgeListPayload | undefined
-    const list = raw?.list || []
-    if (raw?.pagination) {
-      setPagination(raw.pagination)
-    }
-    return list
+    return raw?.list || []
   }, [knowledgeData])
+
+  const resultPagination =
+    (knowledgeData?.data as KnowledgeListPayload | undefined)?.pagination ?? pagination
 
   const categories = useMemo<KnowledgeCategory[]>(() => {
     const raw = categoriesData?.data as KnowledgeCategory[] | KnowledgeCategoryPayload | undefined
@@ -359,7 +358,7 @@ export default function KnowledgePage() {
             <CardTitle>
               {t('articles')}
               <span className="text-sm font-normal text-muted-foreground ml-2">
-                ({pagination.total} {t('items')})
+                ({resultPagination.total} {t('items')})
               </span>
             </CardTitle>
           </CardHeader>
@@ -415,7 +414,7 @@ export default function KnowledgePage() {
                   </div>
                 ))}
 
-                {pagination.totalPages > 1 && (
+                {resultPagination.totalPages > 1 && (
                   <div className="flex items-center justify-center gap-2 mt-4">
                     <Button
                       variant="outline"
@@ -426,12 +425,12 @@ export default function KnowledgePage() {
                       {t('previous')}
                     </Button>
                     <span className="text-sm text-muted-foreground">
-                      {pagination.page} / {pagination.totalPages}
+                      {pagination.page} / {resultPagination.totalPages}
                     </span>
                     <Button
                       variant="outline"
                       size="sm"
-                      disabled={pagination.page >= pagination.totalPages}
+                      disabled={pagination.page >= resultPagination.totalPages}
                       onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
                     >
                       {t('next')}

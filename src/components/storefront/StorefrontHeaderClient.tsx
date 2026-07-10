@@ -10,7 +10,6 @@ import { UserMenu } from "@/components/storefront/UserMenu"
 import { LanguageSwitcher } from "@/components/storefront/LanguageSwitcher"
 import { ViewportModeToggle } from "@/components/storefront/ViewportModeToggle"
 import { MobileMenu } from "@/components/storefront/MobileMenu"
-import { CategoryNav } from "@/components/storefront/CategoryNav"
 import { useCartStore } from "@/stores/useCartStore"
 import { useViewportModeStore } from "@/stores/useViewportModeStore"
 import { useTheme } from "next-themes"
@@ -40,13 +39,13 @@ export function StorefrontHeaderClient() {
   }
 
   return (
-    <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-md border-b">
-      <div className="px-3 md:px-4">
-        <div className="flex items-center justify-between h-12">
+    <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur-md">
+      <div className="storefront-container">
+        <div className="flex h-14 items-center justify-between gap-3 sm:h-16">
           {/* Logo + PC端导航链接 */}
           <div className="flex items-center gap-1.5 md:gap-2">
             <Link href="/" className="flex items-center gap-1.5 md:gap-2">
-              <div className="w-6 h-6 md:w-7 md:h-7 rounded-full bg-gradient-to-br from-brand-gradient-from to-brand-gradient-to flex items-center justify-center">
+              <div className="flex size-8 items-center justify-center rounded-lg bg-foreground">
                 <span className="text-brand-foreground font-bold text-[10px] md:text-xs">S</span>
               </div>
               <span className={`text-sm md:text-base font-bold text-foreground ${isMobileView ? "" : "hidden sm:inline"}`}>
@@ -55,17 +54,17 @@ export function StorefrontHeaderClient() {
             </Link>
 
             {/* PC端水平导航链接（仅 lg 显示） */}
-            <nav className="hidden lg:flex items-center gap-1 ml-4">
+            <nav className="ml-4 hidden items-center gap-5 lg:flex">
               {NAV_LINKS.map((link) => {
                 const isActive = pathname === link.href
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                    className={`text-sm font-medium transition-colors ${
                       isActive
-                        ? "text-foreground font-medium bg-accent"
-                        : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                        ? "text-foreground"
+                        : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     {t(link.labelKey)}
@@ -98,7 +97,7 @@ export function StorefrontHeaderClient() {
           </div>
 
           {/* 桌面端：搜索框 + 其他按钮 */}
-          <div className={`${isMobileView ? "hidden" : "hidden lg:flex"} items-center gap-2 flex-1 max-w-2xl mx-4`}>
+          <div className={`${isMobileView ? "hidden" : "hidden lg:flex"} mx-auto flex-1 max-w-sm items-center gap-2`}>
             <SearchBoxClient onSearch={() => {}} compact />
           </div>
 
@@ -135,10 +134,6 @@ export function StorefrontHeaderClient() {
           </div>
         </div>
 
-        {/* PC端分类导航（移到搜索框下方单独一行） */}
-        <div className="hidden lg:block pb-2 md:pb-3">
-          <CategoryNav />
-        </div>
       </div>
 
       {/* 移动端全屏搜索覆盖层 */}

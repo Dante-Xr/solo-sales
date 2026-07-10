@@ -73,7 +73,7 @@ export function TrackingTimeline({ currentStatus }: TrackingTimelineProps) {
               className={`w-10 h-10 rounded-full flex items-center justify-center ${
                 step.completed
                   ? "bg-green-500 text-white"
-                  : "bg-gray-200 text-gray-400"
+                  : "bg-muted text-muted-foreground"
               }`}
             >
               {step.icon}
@@ -87,7 +87,7 @@ export function TrackingTimeline({ currentStatus }: TrackingTimelineProps) {
             </p>
             {index < steps.length - 1 && (
               <div
-                className={`absolute h-0.5 w-full bg-gray-200 ${
+                className={`absolute h-0.5 w-full bg-muted ${
                   step.completed ? "bg-green-500" : ""
                 }`}
                 style={{

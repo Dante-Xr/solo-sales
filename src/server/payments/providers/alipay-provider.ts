@@ -20,7 +20,8 @@ import {
 } from '../provider'
 import type { AlipaySdk, AlipayNotifyParams } from '@/types/alipay-sdk'
 
-// Use require for CommonJS module
+// The SDK exposes a CommonJS constructor without a compatible typed ESM export.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const AlipaySdkConstructor = require('alipay-sdk')
 
 export class AlipayProvider implements PaymentProvider {
@@ -73,7 +74,7 @@ export class AlipayProvider implements PaymentProvider {
 
   async verifyWebhook(
     rawBody: string | Buffer,
-    signature: string
+    _signature: string
   ): Promise<WebhookEvent> {
     const sdk = this.getSdk()
 

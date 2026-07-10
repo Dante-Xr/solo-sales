@@ -77,7 +77,7 @@ export function CrosssellRecommendation({
                     className={
                       wishlist.includes(product.id)
                         ? "fill-red-500 text-red-500"
-                        : "text-gray-500"
+                        : "text-[#6b6a72]"
                     }
                   />
                 </Button>

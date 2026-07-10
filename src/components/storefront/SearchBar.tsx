@@ -88,7 +88,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
     <div className="relative w-full">
       {/* 搜索框 */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           type="text"
           placeholder={t('nav.searchPlaceholder')}
@@ -113,16 +113,16 @@ export function SearchBar({ onSearch }: SearchBarProps) {
 
       {/* 搜索历史下拉框 */}
       {showHistory && history.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-md shadow-lg z-50 max-h-64 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-popover text-popover-foreground border border-border rounded-md shadow-lg z-50 max-h-64 overflow-y-auto">
           <div className="flex items-center justify-between px-3 py-2 border-b">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <History className="w-4 h-4" />
               <span>{t('nav.searchHistory')}</span>
             </div>
             <Button
               variant="ghost"
               size="sm"
-              className="text-xs text-gray-500 hover:text-gray-700"
+              className="text-xs text-muted-foreground hover:text-foreground"
               onClick={clearHistory}
             >
               {t('common.clear')}
@@ -133,11 +133,11 @@ export function SearchBar({ onSearch }: SearchBarProps) {
             {history.map((item, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between px-3 py-2 hover:bg-gray-50 cursor-pointer group"
+                className="flex items-center justify-between px-3 py-2 hover:bg-muted cursor-pointer group"
                 onClick={() => selectFromHistory(item)}
               >
                 <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <History className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                  <History className="w-3 h-3 text-muted-foreground flex-shrink-0" />
                   <span className="text-sm truncate">{item}</span>
                 </div>
                 <Button

@@ -22,6 +22,8 @@ import {
 } from '../provider'
 import type { Wechatpay, WechatpayNotifyBody, WechatpayNotifyDecrypted, WechatpayNotifyResource } from '@/types/wechatpay'
 
+// The provider package exposes this constructor through CommonJS only.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { Wechatpay: WechatpayConstructor } = require('wechatpay-axios-plugin')
 
 export class WeChatPayProvider implements PaymentProvider {
@@ -92,8 +94,8 @@ export class WeChatPayProvider implements PaymentProvider {
 
   async verifyWebhook(
     rawBody: string | Buffer,
-    signature: string,
-    headers?: Record<string, string>
+    _signature: string,
+    _headers?: Record<string, string>
   ): Promise<WebhookEvent> {
     // Parse webhook body
     const body: WechatpayNotifyBody = typeof rawBody === 'string' ? JSON.parse(rawBody) : JSON.parse(rawBody.toString())

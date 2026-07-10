@@ -1,0 +1,3056 @@
+{
+  "schema_version": 1,
+  "source_directories": [
+    ".trae/documents",
+    ".trae/plans",
+    ".trae/specs"
+  ],
+  "source_count": 180,
+  "aggregate_sha256": "676869ce7e9bfd1038432d4a53158205f7e4dc93e3c2e422cc1be630d2f7b6ba",
+  "entries": [
+    {
+      "source": ".trae/documents/2026-03-23_v0.4.0_部署计划.md",
+      "sha256": "232d0409376ea8e21f0619ccfb508b59d6a69bd3d141b1d4d3654fa4807cd245",
+      "title": "SoloSales 独立站发布计划",
+      "version": "v0.4.0",
+      "kind": "document",
+      "lines": 163,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 24
+      },
+      "disposition": "consolidated",
+      "targets": [
+        "docs/runbooks/deploy-netlify.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-23_v0.4.0_代码修改计划.md",
+      "sha256": "41ed87cb5ec0b9e8af4abd68c4787c98f59048b3238677c5474a4e6615c1d117",
+      "title": "TikTok独立站优化代码修改计划",
+      "version": "v0.4.0",
+      "kind": "document",
+      "lines": 390,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 15
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.4.0/HIST-0034-v0-4-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.4.0/HIST-0034-v0-4-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-23_v0.4.0_代码执行规格.md",
+      "sha256": "87deec9ff088d6c665e4b6e1762ce3d7a621dee7b4da6150bdf36f6d5777c189",
+      "title": "TikTok独立站优化 - 代码执行规格文档",
+      "version": "v0.4.0",
+      "kind": "document",
+      "lines": 919,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 18
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.4.0/HIST-0034-v0-4-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.4.0/HIST-0034-v0-4-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-23_v0.4.0_任务清单.md",
+      "sha256": "3077584f4d68542b05c143cee6f39b124715515c46a0c7e9ca28a0446b4d51a6",
+      "title": "TikTok独立站优化 - 任务清单",
+      "version": "v0.4.0",
+      "kind": "document",
+      "lines": 141,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 62
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.4.0/HIST-0034-v0-4-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.4.0/HIST-0034-v0-4-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-23_v0.4.0_实施检查清单.md",
+      "sha256": "e30f79ff919e9473c160488557d7cb45c5f4e352e9d9c47380cf968d2d5ca784",
+      "title": "TikTok独立站优化 - 实施检查清单",
+      "version": "v0.4.0",
+      "kind": "document",
+      "lines": 184,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 103
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.4.0/HIST-0034-v0-4-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.4.0/HIST-0034-v0-4-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-23_v0.4.0_下一步功能模块规划.md",
+      "sha256": "abb90297feb722c015defcb28a7af5b838c8f5cba604e5e9ac0c764fb8be305f",
+      "title": "电商功能增强规划",
+      "version": "v0.4.0",
+      "kind": "document",
+      "lines": 244,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.4.0/HIST-0034-v0-4-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.4.0/HIST-0034-v0-4-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-23_v0.4.0_用户菜单组件规划.md",
+      "sha256": "f666259675e50eeb06b0df5088deb2a655aca9216a32b5a635b7bf4b59b6eb5a",
+      "title": "下一步功能规划",
+      "version": "v0.4.0",
+      "kind": "document",
+      "lines": 100,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.4.0/HIST-0034-v0-4-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.4.0/HIST-0034-v0-4-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-24_v0.2.0_性能安全优化计划.md",
+      "sha256": "6adc5215f06c09ec1aeadbcce3c8d1418f3c20a7dc9ce67c509349598953992d",
+      "title": "SoloSales v0.2 性能与安全优化计划",
+      "version": "v0.2.0",
+      "kind": "document",
+      "lines": 242,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 7
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.2.0/HIST-0035-v0-2-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.2.0/HIST-0035-v0-2-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-24_v0.2.1_性能优化计划.md",
+      "sha256": "70143d50b217e79e91777ac5c7b71b93de6c126a5b1b163b7dd868bcd7d37569",
+      "title": "SoloSales v0.2.1 性能优化实施计划",
+      "version": "v0.2.1",
+      "kind": "document",
+      "lines": 275,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 6
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.2.1/HIST-0036-v0-2-1-legacy-records/spec.md",
+        "docs/changes/archive/v0.2.1/HIST-0036-v0-2-1-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-24_v0.3.0_后台管理系统完善计划.md",
+      "sha256": "a5dc337921ed4690584cf94f384ab8d2a672113736cb3f585f4940e23bf72398",
+      "title": "SoloSales 后台管理系统完善计划",
+      "version": "v0.3.0",
+      "kind": "document",
+      "lines": 139,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 6
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.3.0/HIST-0037-v0-3-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.3.0/HIST-0037-v0-3-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-24_v0.3.2_后台管理系统完善计划.md",
+      "sha256": "18dd65c897f687791a2f975c1965d40fe0da6bdbef38ed3af6cc257831ed094f",
+      "title": "SoloSales 后台管理系统完善计划",
+      "version": "v0.3.2",
+      "kind": "document",
+      "lines": 258,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 11
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.3.2/HIST-0038-v0-3-2-legacy-records/spec.md",
+        "docs/changes/archive/v0.3.2/HIST-0038-v0-3-2-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-24_v0.4.0_TikTok独立站数据库调研.md",
+      "sha256": "0a0beae30bb12c6663f0794127390b67879937ea09e84c543f2e245046ec0884",
+      "title": "TikTok 独立站数据库调研计划",
+      "version": "v0.4.0",
+      "kind": "document",
+      "lines": 84,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.4.0/HIST-0034-v0-4-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.4.0/HIST-0034-v0-4-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-24_v0.4.3_SearchBox-Enter键修复计划.md",
+      "sha256": "3ef919cbce0ed43d2b0ec742f97386fb40972f35154ac5fd47e5af368f9c1347",
+      "title": "SearchBox 搜索逻辑修复计划",
+      "version": "v0.4.3",
+      "kind": "document",
+      "lines": 52,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.4.3/HIST-0039-v0-4-3-legacy-records/spec.md",
+        "docs/changes/archive/v0.4.3/HIST-0039-v0-4-3-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-24_v0.5.0_admin-auth-rbac-plan.md",
+      "sha256": "adebb915ee8fc9245eebf3d62ef325808ead4a6322bd5141737694a507c47672",
+      "title": "后台管理系统登录与权限管理实施计划",
+      "version": "v0.5.0",
+      "kind": "plan",
+      "lines": 280,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.5.0/HIST-0040-v0-5-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.5.0/HIST-0040-v0-5-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-24_v0.5.0_neon-migration-plan.md",
+      "sha256": "89526178dc5831bf0d9d9154890dc4ba6c716e3d048fa686f8f43c1bd2207f70",
+      "title": "SoloSales 数据库迁移至 Neon 计划",
+      "version": "v0.5.0",
+      "kind": "plan",
+      "lines": 183,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.5.0/HIST-0040-v0-5-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.5.0/HIST-0040-v0-5-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-25_v0.5.0_电商专家综合诊断与战略优化报告.md",
+      "sha256": "8c3c2a461e1daf2b710c61bc6ba8b409f47e94025e009955e3f9970ad6e031f0",
+      "title": "SoloSales 电商专家综合诊断与战略优化报告",
+      "version": "v0.5.0",
+      "kind": "document",
+      "lines": 668,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 10
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.5.0/HIST-0040-v0-5-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.5.0/HIST-0040-v0-5-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-25_v0.5.0_项目架构改善分析报告.md",
+      "sha256": "c7b4ff04826096109a38c37c54d1d90ebdb34b3e9c9e4c4328c98ccec55a352c",
+      "title": "SoloSales 项目架构改善分析报告",
+      "version": "v0.5.0",
+      "kind": "document",
+      "lines": 775,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "consolidated",
+      "targets": [
+        "docs/architecture/overview.md",
+        "docs/architecture/runtime.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-25_v0.5.0_项目综合评估与优先级开发计划.md",
+      "sha256": "7efa64f9ca0976ca95bb4db62d30d34d1972a048f2c37dd43138a5df9608fd1e",
+      "title": "SoloSales 项目综合评估与优先级开发计划",
+      "version": "v0.5.0",
+      "kind": "document",
+      "lines": 289,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 9
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.5.0/HIST-0040-v0-5-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.5.0/HIST-0040-v0-5-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-25_v0.5.0_M1稳定基石-工作执行计划.md",
+      "sha256": "24ae6af1b3d1d514e4d19e8bcb075672693008d7d791244b4aac8257efa393a7",
+      "title": "M1: 稳定基石 (v0.4.3) 工作执行计划",
+      "version": "v0.5.0",
+      "kind": "document",
+      "lines": 394,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 4
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.5.0/HIST-0040-v0-5-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.5.0/HIST-0040-v0-5-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-25_v0.5.0_M2商业起航-工作执行计划.md",
+      "sha256": "f62154880f55b1e6788b5ed23fa01256ea7cc5cad5722d98f45dd34050591124",
+      "title": "M2: 商业起航 (v0.5.0) 工作执行计划",
+      "version": "v0.5.0",
+      "kind": "document",
+      "lines": 477,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 3
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.5.0/HIST-0040-v0-5-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.5.0/HIST-0040-v0-5-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-25_v0.5.0_M3增长引擎-工作执行计划.md",
+      "sha256": "7520f67f89644dde094857baa30a5575e2d54881a53b4e587bae1f3c4dc49d0c",
+      "title": "M3: 增长引擎 (v0.5.5) 工作执行计划",
+      "version": "v0.5.0",
+      "kind": "document",
+      "lines": 577,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 3
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.5.0/HIST-0040-v0-5-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.5.0/HIST-0040-v0-5-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-25_v0.5.0_RBAC权限管理模块完善计划.md",
+      "sha256": "fe9d5381e628f23e611ccfb2a287eb2c7bf3417349f37cd4597bcd68c15b9454",
+      "title": "后台管理系统 RBAC 权限管理完善计划",
+      "version": "v0.5.0",
+      "kind": "document",
+      "lines": 230,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 23
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.5.0/HIST-0040-v0-5-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.5.0/HIST-0040-v0-5-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-25_v0.5.0_v0.4.3到v0.6.0详细工作计划.md",
+      "sha256": "06b691253a3aaccc44a9f01ba482d3869bf9c0169d02f38ad663c9f46e73d3dc",
+      "title": "SoloSales v0.4.3 → v0.6.0 详细工作计划",
+      "version": "v0.5.0",
+      "kind": "document",
+      "lines": 593,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 35
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.5.0/HIST-0040-v0-5-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.5.0/HIST-0040-v0-5-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-25_v0.6.0_M4智能运营-工作执行计划.md",
+      "sha256": "ae3e248cd074cfa5a87d34e14e508ec290f0217b68fcf43f0c33caedc8f9c49c",
+      "title": "M4: 智能运营 (v0.6.0) 工作执行计划",
+      "version": "v0.6.0",
+      "kind": "document",
+      "lines": 633,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 17
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.6.0/HIST-0041-v0-6-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.6.0/HIST-0041-v0-6-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-26_v0.5.8_数据结构优化建议.md",
+      "sha256": "1aa4f312b8002982207b6ade586b60fe7e74702a77268a40104c3a4038186743",
+      "title": "v0.5.8 数据结构优化建议",
+      "version": "v0.5.8",
+      "kind": "document",
+      "lines": 263,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.5.8/HIST-0042-v0-5-8-legacy-records/spec.md",
+        "docs/changes/archive/v0.5.8/HIST-0042-v0-5-8-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-26_v0.5.9_安全问题报告.md",
+      "sha256": "e8c79c6897daf63c520dbf622176a84dace0ba7a698528ec5557ce1b94048f63",
+      "title": "v0.5.9 安全问题报告",
+      "version": "v0.5.9",
+      "kind": "document",
+      "lines": 284,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.5.9/HIST-0043-v0-5-9-legacy-records/spec.md",
+        "docs/changes/archive/v0.5.9/HIST-0043-v0-5-9-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-26_v0.5.9_测试报告.md",
+      "sha256": "11ccb17248ac933041d09ecfd21bcbd25d484c56272edd5e027e08941d2ba8ea",
+      "title": "v0.5.9 测试报告",
+      "version": "v0.5.9",
+      "kind": "document",
+      "lines": 194,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.5.9/HIST-0043-v0-5-9-legacy-records/spec.md",
+        "docs/changes/archive/v0.5.9/HIST-0043-v0-5-9-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-26_v0.5.9_项目全面测试与评估计划.md",
+      "sha256": "a5a9d205f3714a4c304bcbc461e3997b1a9cc1af86cd110ad7ada22d11650794",
+      "title": "v0.5.9 项目全面测试与评估计划",
+      "version": "v0.5.9",
+      "kind": "document",
+      "lines": 263,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 39
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.5.9/HIST-0043-v0-5-9-legacy-records/spec.md",
+        "docs/changes/archive/v0.5.9/HIST-0043-v0-5-9-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-26_v0.5.9_性能问题报告.md",
+      "sha256": "0c4087714a05e2d1c2df1738bdffe871455de3adbe60edb0d0436f8788babe9a",
+      "title": "v0.5.9 性能问题报告",
+      "version": "v0.5.9",
+      "kind": "document",
+      "lines": 312,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.5.9/HIST-0043-v0-5-9-legacy-records/spec.md",
+        "docs/changes/archive/v0.5.9/HIST-0043-v0-5-9-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-26_v0.5.9_修复清单.md",
+      "sha256": "d6779438cfe38dbe2c4a05f99c18ce99c5a2fdd7e6bcfd79e873e66cc56f9269",
+      "title": "v0.5.9 修复清单",
+      "version": "v0.5.9",
+      "kind": "document",
+      "lines": 297,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 21
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.5.9/HIST-0043-v0-5-9-legacy-records/spec.md",
+        "docs/changes/archive/v0.5.9/HIST-0043-v0-5-9-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-03-27-v0.8.0-homepage-redesign.md",
+      "sha256": "07e44e6140253225612ca563e78f6665479b49110217bfca1786d4b5da3e2e31",
+      "title": "首页重构计划 v0.8.0",
+      "version": "v0.8.0",
+      "kind": "document",
+      "lines": 70,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.8.0/HIST-0044-v0-8-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.8.0/HIST-0044-v0-8-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-04-13_v0.8.2_framework-replacement-analysis.md",
+      "sha256": "4302691fb982da850c9162011c97535ec735bb9dddaf238e8d3126138d8dbd0a",
+      "title": "SoloSales 框架/库替换方案分析",
+      "version": "v0.8.2",
+      "kind": "report",
+      "lines": 449,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "consolidated",
+      "targets": [
+        "docs/architecture/overview.md",
+        "docs/architecture/runtime.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-04-13_v0.8.2_project-architecture-analysis.md",
+      "sha256": "7a9bf2f6abe46861b0ad7eeef3c8f2c244c84a08c665ee8e6dfc011fce1ecba8",
+      "title": "SoloSales 项目架构分析与重构规划",
+      "version": "v0.8.2",
+      "kind": "report",
+      "lines": 228,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "consolidated",
+      "targets": [
+        "docs/architecture/overview.md",
+        "docs/architecture/runtime.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-04-20_v1.1_SoloSales-改善计划.md",
+      "sha256": "d0c36be7fb189d258ab20e3d63b75abb8f68a3036031df2133a14afe6b9e7c5b",
+      "title": "SoloSales 独立站改善计划",
+      "version": "v1.1",
+      "kind": "document",
+      "lines": 328,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 7
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.1.0/HIST-0045-v1-1-0-legacy-records/spec.md",
+        "docs/changes/archive/v1.1.0/HIST-0045-v1-1-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-04-26_v1.3-ui-technical-plan.md",
+      "sha256": "8d7e748ff9c8fe0b29d79720a097e78a6b8ea233d01322dcb20f65d2becaa1aa",
+      "title": "SoloSales v1.3 UI 技术实施方案",
+      "version": "v1.3",
+      "kind": "plan",
+      "lines": 592,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.3.0/HIST-0046-v1-3-0-legacy-records/spec.md",
+        "docs/changes/archive/v1.3.0/HIST-0046-v1-3-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-05-02_前后端分离建议_PLAN2.md",
+      "sha256": "c1c5a077288abffdd5d90c0001d3d0edd2f8b7a79ab3717691db32eee67c633e",
+      "title": "SoloSales 项目结构优化 Task 执行列表与成本评估",
+      "version": null,
+      "kind": "plan",
+      "lines": 69,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0047-v0-0-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0047-v0-0-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-05-02_PLAN2任务列表与完成标记.md",
+      "sha256": "88c197fe7bbc0904eba935045375a46785b7d94a22485ae1378dac7b8f46e2a3",
+      "title": "PLAN2 任务列表与当前完成标记",
+      "version": null,
+      "kind": "plan",
+      "lines": 269,
+      "checkboxes": {
+        "complete": 25,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0047-v0-0-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0047-v0-0-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-05-02_v1.4_开发记录.md",
+      "sha256": "bd6f67ba6560394ee1c11edba7e8282bed69ab988283a77c62e795e4f0856553",
+      "title": "SoloSales v1.4 开发记录",
+      "version": "v1.4",
+      "kind": "document",
+      "lines": 320,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.4.0/HIST-0048-v1-4-0-legacy-records/spec.md",
+        "docs/changes/archive/v1.4.0/HIST-0048-v1-4-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-06-02_v1.5_战略分析与任务规划.md",
+      "sha256": "44c6a8f41a785b1d6552050b420d1ad35abc12246a0cf2a1bf64ee5f13e41780",
+      "title": "SoloSales v1.5 战略分析与任务规划",
+      "version": "v1.5",
+      "kind": "document",
+      "lines": 146,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.5.0/HIST-0049-v1-5-0-legacy-records/spec.md",
+        "docs/changes/archive/v1.5.0/HIST-0049-v1-5-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-06-02_v1.5_综合战略分析与高并发评估.md",
+      "sha256": "6057cafa6db75369672a9e0cb423a04381e26165c0d348baef382466a2fb8cd7",
+      "title": "SoloSales v1.5 综合战略分析与高并发评估",
+      "version": "v1.5",
+      "kind": "document",
+      "lines": 209,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.5.0/HIST-0049-v1-5-0-legacy-records/spec.md",
+        "docs/changes/archive/v1.5.0/HIST-0049-v1-5-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-06-15_v1.6_上线安全止血与Mock禁用.md",
+      "sha256": "da5beeaf7c791943f02015d9bb1b0b62bf3af0ba49712e702071d2fb00c68589",
+      "title": "SoloSales v1.6 上线安全止血与 Mock 禁用",
+      "version": "v1.6",
+      "kind": "document",
+      "lines": 72,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.6.0/HIST-0050-v1-6-0-legacy-records/spec.md",
+        "docs/changes/archive/v1.6.0/HIST-0050-v1-6-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-06-15_v1.7_多支付交易主链路闭环.md",
+      "sha256": "40db8b182cffcbbb40dc7f05d03cefb362d7c0e38c3b222a96a3261ca9d38ff5",
+      "title": "SoloSales v1.7 多支付交易主链路闭环",
+      "version": "v1.7",
+      "kind": "document",
+      "lines": 74,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.0/HIST-0051-v1-7-0-legacy-records/spec.md",
+        "docs/changes/archive/v1.7.0/HIST-0051-v1-7-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-06-15_v1.8_后台RAG客服真实化.md",
+      "sha256": "f85a68f5e85411d21c1e4db686ad4ca5dca5ea493d162eba29317c0977dacad8",
+      "title": "SoloSales v1.8 后台、RAG、客服真实化",
+      "version": "v1.8",
+      "kind": "document",
+      "lines": 73,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "future_planning",
+      "targets": [
+        "docs/changes/v1.8.0/README.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-06-15_v1.9_生产部署与质量门禁.md",
+      "sha256": "ec0ba93bc007e57c2d4d03ded24f9c29f62341ad3a35c4f0a612293996f91bfa",
+      "title": "SoloSales v1.9 生产部署与质量门禁",
+      "version": "v1.9",
+      "kind": "document",
+      "lines": 73,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "future_planning",
+      "targets": [
+        "docs/changes/v1.9.0/README.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-06-15_v2.0_上线验收与正式发布.md",
+      "sha256": "8e4ed6dc963c53f4eb6e230416ca3cbab3d603577e5a14f892feec5c2f251044",
+      "title": "SoloSales v2.0 上线验收与正式发布",
+      "version": "v2.0",
+      "kind": "document",
+      "lines": 73,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "future_planning",
+      "targets": [
+        "docs/changes/v2.0.0/README.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-07-02_v1.7.3_PayPal Business集成.md",
+      "sha256": "7822c4329dfee60207d8468be1721808b91221781005bb31191f8c9ef63ff7e0",
+      "title": "SoloSales v1.7.3 PayPal Business 集成",
+      "version": "v1.7.3",
+      "kind": "document",
+      "lines": 229,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.3/HIST-0052-v1-7-3-legacy-records/spec.md",
+        "docs/changes/archive/v1.7.3/HIST-0052-v1-7-3-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/2026-07-03_v1.7.6_类型安全修复.md",
+      "sha256": "7c9829667d61bf32de2cfa7a31fca5c32cc0a5d4416d462bd63e7c03db4045f5",
+      "title": "SoloSales v1.7.6 类型安全修复",
+      "version": "v1.7.6",
+      "kind": "document",
+      "lines": 510,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.6/HIST-0053-v1-7-6-legacy-records/spec.md",
+        "docs/changes/archive/v1.7.6/HIST-0053-v1-7-6-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/implements/2026-06-27_v1.7_多支付交易主链路闭环_实施计划.md",
+      "sha256": "193df39fbd32e569e2d6420837e6977fef911726a7f896bea2ed08af430916f2",
+      "title": "SoloSales v1.7 多支付交易主链路闭环 实施计划",
+      "version": "v1.7",
+      "kind": "document",
+      "lines": 1085,
+      "checkboxes": {
+        "complete": 4,
+        "incomplete": 10
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.0/HIST-0051-v1-7-0-legacy-records/spec.md",
+        "docs/changes/archive/v1.7.0/HIST-0051-v1-7-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/implements/2026-06-27_v1.7_Phase1-2实施进度报告.md",
+      "sha256": "2d13e872fe88a022e1980ac0c477641ffcdea6b1a8107ee38ce84608d45f7d49",
+      "title": "v1.7 Phase 1-2 实施进度报告",
+      "version": "v1.7",
+      "kind": "document",
+      "lines": 129,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.0/HIST-0051-v1-7-0-legacy-records/spec.md",
+        "docs/changes/archive/v1.7.0/HIST-0051-v1-7-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/implements/2026-06-28_v1.7_最终交付报告.md",
+      "sha256": "034b45b2d45cfba8f1209af3fe3f8ae3d8673e9d32cbab37d386cf3ccb55da46",
+      "title": "v1.7 多支付交易主链路闭环 - 最终交付报告",
+      "version": "v1.7",
+      "kind": "document",
+      "lines": 392,
+      "checkboxes": {
+        "complete": 4,
+        "incomplete": 30
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.0/HIST-0051-v1-7-0-legacy-records/spec.md",
+        "docs/changes/archive/v1.7.0/HIST-0051-v1-7-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/implements/2026-06-28_v1.7_Phase6验收报告.md",
+      "sha256": "4a547fdb3325aff942834ebb38fbcf5f58ab23b9afed75f9c2d03f6a1d50abec",
+      "title": "v1.7 Phase 6 验收报告 - TDD验证完成",
+      "version": "v1.7",
+      "kind": "document",
+      "lines": 278,
+      "checkboxes": {
+        "complete": 43,
+        "incomplete": 8
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.0/HIST-0051-v1-7-0-legacy-records/spec.md",
+        "docs/changes/archive/v1.7.0/HIST-0051-v1-7-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/implements/2026-06-28_v1.7.0_发布完成.md",
+      "sha256": "2080877ec6937457b8f13036bd5105f75e6c42571d4b20675058211e62283a35",
+      "title": "✅ v1.7.0 发布完成",
+      "version": "v1.7.0",
+      "kind": "document",
+      "lines": 288,
+      "checkboxes": {
+        "complete": 22,
+        "incomplete": 12
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.0/HIST-0051-v1-7-0-legacy-records/spec.md",
+        "docs/changes/archive/v1.7.0/HIST-0051-v1-7-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/implements/2026-07-03_v1.7.6_进度报告.md",
+      "sha256": "fa5eddaa375c36d3cb068e87cc3d898d91ac4210404a6a177cb9c3f348f123ca",
+      "title": "SoloSales v1.7.6 类型安全修复 - 进度报告",
+      "version": "v1.7.6",
+      "kind": "document",
+      "lines": 253,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.6/HIST-0053-v1-7-6-legacy-records/spec.md",
+        "docs/changes/archive/v1.7.6/HIST-0053-v1-7-6-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/implements/2026-07-03_v1.7.6_最终总结.md",
+      "sha256": "a1e6d01f2463f9aa740d9158323248c0547cc4348d4528c8d665a065030efb0e",
+      "title": "v1.7.6 类型安全修复 - 最终总结",
+      "version": "v1.7.6",
+      "kind": "document",
+      "lines": 277,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.6/HIST-0053-v1-7-6-legacy-records/spec.md",
+        "docs/changes/archive/v1.7.6/HIST-0053-v1-7-6-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/Payment_Provider_Setup_Guide.md",
+      "sha256": "7080cde2d3886a4b742409f33d9a2bd9abae3fe755d39b6b01ffc0489b997dd8",
+      "title": "支付宝和微信支付申请配置完整指南",
+      "version": null,
+      "kind": "guide",
+      "lines": 900,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 11
+      },
+      "disposition": "consolidated",
+      "targets": [
+        "docs/how-to/configure-payment-providers.md",
+        "docs/reference/payment-configuration.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/Payment_Quick_Reference.md",
+      "sha256": "d444bdbdccad7f541d1008e49099a9ef50b1dac4f33af281823f19e39ca0bac0",
+      "title": "支付配置快速参考指南",
+      "version": null,
+      "kind": "document",
+      "lines": 295,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 12
+      },
+      "disposition": "consolidated",
+      "targets": [
+        "docs/how-to/configure-payment-providers.md",
+        "docs/reference/payment-configuration.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/v1.7.2_Personal_QRCode_Payment_Plan.md",
+      "sha256": "766c75f7b64880c2ce03937a7abf01599ab30784670609e0d0cb6daee032f555",
+      "title": "SoloSales v1.7.2 个人收款码支付方案",
+      "version": "v1.7.2",
+      "kind": "plan",
+      "lines": 753,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 16
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.2/HIST-0054-v1-7-2-legacy-records/spec.md",
+        "docs/changes/archive/v1.7.2/HIST-0054-v1-7-2-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/documents/v1.7.2_Progress.md",
+      "sha256": "60dcc8c61e7f7927b146414f37cbefb1650e55577c524872e239a7516e7812ff",
+      "title": "v1.7.2 开发进度 - TDD执行记录",
+      "version": "v1.7.2",
+      "kind": "document",
+      "lines": 97,
+      "checkboxes": {
+        "complete": 15,
+        "incomplete": 9
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.2/HIST-0054-v1-7-2-legacy-records/spec.md",
+        "docs/changes/archive/v1.7.2/HIST-0054-v1-7-2-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/plans/admin-v0.3.3-optimization-plan.md",
+      "sha256": "222b6fda38dfb2240f3bd00062095a22a9395ed9d3158d7fd9dbed4f1ad60671",
+      "title": "SoloSales 后台管理系统 v0.3.3 优化实施计划",
+      "version": "v0.3.3",
+      "kind": "plan",
+      "lines": 1144,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 6
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.3.3/HIST-0055-v0-3-3-legacy-records/spec.md",
+        "docs/changes/archive/v0.3.3/HIST-0055-v0-3-3-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/plans/type-errors-fix-plan.md",
+      "sha256": "087c1e972776e444e1a0aff78bf71082be72c8e66d5f8b070be0c8e28cad1650",
+      "title": "TypeScript Type Errors Fix Plan",
+      "version": null,
+      "kind": "plan",
+      "lines": 317,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0047-v0-0-0-legacy-records/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0047-v0-0-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/plans/v1.2-admin-optimization-phase1.md",
+      "sha256": "ab1aed6ccb0e969ceb032dd31a36b5c61933799a98afda171a1bcd0518608834",
+      "title": "SoloSales v1.2 后台管理优化计划 - Phase 1: 快速操作功能",
+      "version": "v1.2",
+      "kind": "document",
+      "lines": 206,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 36
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.2.0/HIST-0056-v1-2-0-legacy-records/spec.md",
+        "docs/changes/archive/v1.2.0/HIST-0056-v1-2-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/plans/v1.2-admin-optimization-phase2.md",
+      "sha256": "db4f03ec50473df3d25efe5074014622f42ef29efafd030e83ddbb713f8e8d31",
+      "title": "SoloSales v1.2 后台管理优化计划 - Phase 2: 图表增强",
+      "version": "v1.2",
+      "kind": "document",
+      "lines": 288,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 32
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.2.0/HIST-0056-v1-2-0-legacy-records/spec.md",
+        "docs/changes/archive/v1.2.0/HIST-0056-v1-2-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/plans/v1.2-admin-optimization-phase3.md",
+      "sha256": "b0c4579bf795fb1a0a1d885dee43aebe005f9935e1c3936df92ee285b9888268",
+      "title": "SoloSales v1.2 后台管理优化计划 - Phase 3: 界面优化",
+      "version": "v1.2",
+      "kind": "document",
+      "lines": 280,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 40
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.2.0/HIST-0056-v1-2-0-legacy-records/spec.md",
+        "docs/changes/archive/v1.2.0/HIST-0056-v1-2-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/plans/v1.2-admin-optimization-phase4.md",
+      "sha256": "55be4f5bda1d72fe5e9b0cb991b46a031ef0444f5ed412104180eff1cc035e37",
+      "title": "SoloSales v1.2 后台管理优化计划 - Phase 4: 高级功能",
+      "version": "v1.2",
+      "kind": "document",
+      "lines": 378,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 48
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.2.0/HIST-0056-v1-2-0-legacy-records/spec.md",
+        "docs/changes/archive/v1.2.0/HIST-0056-v1-2-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/plans/v1.3-mobile-optimization.md",
+      "sha256": "e4cc7bd17d2cb55f17f513d3bb0b0dc2eb42b6fff3f95b211baed62fa113e971",
+      "title": "SoloSales 移动端优化计划 - v1.3",
+      "version": "v1.3",
+      "kind": "document",
+      "lines": 274,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.3.0/HIST-0046-v1-3-0-legacy-records/spec.md",
+        "docs/changes/archive/v1.3.0/HIST-0046-v1-3-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/plans/v1.3-ui-color-optimization.md",
+      "sha256": "fd4d2ff1e355330d1b11dd834f313471ae5dede8aa24b4542d37acdc84d7f4bc",
+      "title": "UI 颜色与样式优化计划",
+      "version": "v1.3",
+      "kind": "document",
+      "lines": 139,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.3.0/HIST-0046-v1-3-0-legacy-records/spec.md",
+        "docs/changes/archive/v1.3.0/HIST-0046-v1-3-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/plans/v1.3-ui-design-evaluation.md",
+      "sha256": "b244467d3047194aac1fc2ca9e63add55fd0d1f1490560b3417f4091cb49c4bc",
+      "title": "SoloSales UI 设计全面评估报告 - v1.3",
+      "version": "v1.3",
+      "kind": "document",
+      "lines": 799,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.3.0/HIST-0046-v1-3-0-legacy-records/spec.md",
+        "docs/changes/archive/v1.3.0/HIST-0046-v1-3-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/plans/v1.3-ui-technical-plan.md",
+      "sha256": "e4b34c3654791c9982bc91e6dce98b6c2b6f660804fd9332af878330c8203035",
+      "title": "SoloSales v1.3 UI 技术实施方案",
+      "version": "v1.3",
+      "kind": "plan",
+      "lines": 2241,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.3.0/HIST-0046-v1-3-0-legacy-records/spec.md",
+        "docs/changes/archive/v1.3.0/HIST-0046-v1-3-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/plans/v1.6-launch-security-hardening-plan.md",
+      "sha256": "312e81590ae752202b6e5febcbb4fa102c5b579bf1f9d5482f71fa5223b77eab",
+      "title": "SoloSales v1.6 上线安全止血与 Mock 禁用技术实施方案",
+      "version": "v1.6",
+      "kind": "plan",
+      "lines": 106,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.6.0/HIST-0050-v1-6-0-legacy-records/spec.md",
+        "docs/changes/archive/v1.6.0/HIST-0050-v1-6-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/plans/v1.7-multipayment-checkout-plan.md",
+      "sha256": "54ba5846928b0ec192a214d9c10f08354984b6ab6a6accc4036dc78d8b82bd23",
+      "title": "SoloSales v1.7 多支付交易主链路闭环技术实施方案",
+      "version": "v1.7",
+      "kind": "plan",
+      "lines": 109,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.0/HIST-0051-v1-7-0-legacy-records/spec.md",
+        "docs/changes/archive/v1.7.0/HIST-0051-v1-7-0-legacy-records/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/plans/v1.8-admin-rag-chat-realization-plan.md",
+      "sha256": "0888405cd29633c5dd2d0fb5d5cd0b471321a8c88fe4a568bd37fa9df37d7c8d",
+      "title": "SoloSales v1.8 后台 RAG 客服真实化技术实施方案",
+      "version": "v1.8",
+      "kind": "plan",
+      "lines": 111,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "future_planning",
+      "targets": [
+        "docs/changes/v1.8.0/README.md"
+      ]
+    },
+    {
+      "source": ".trae/plans/v1.9-production-readiness-plan.md",
+      "sha256": "8b5d8ad98fb46123a87e0b88c3f0b97acfe0949db0612187d748e69920bf443b",
+      "title": "SoloSales v1.9 生产部署与质量门禁技术实施方案",
+      "version": "v1.9",
+      "kind": "plan",
+      "lines": 111,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "future_planning",
+      "targets": [
+        "docs/changes/v1.9.0/README.md"
+      ]
+    },
+    {
+      "source": ".trae/plans/v2.0-launch-acceptance-plan.md",
+      "sha256": "957070ebef5571bc2454ddbf87ac098aaab1511be32bdbbf17a78ff35879751f",
+      "title": "SoloSales v2.0 上线验收与正式发布技术实施方案",
+      "version": "v2.0",
+      "kind": "plan",
+      "lines": 113,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "future_planning",
+      "targets": [
+        "docs/changes/v2.0.0/README.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/admin-auth-rbac/checklist.md",
+      "sha256": "bca5fe14473c0094021e9495c06d4a4ac5ac71d1078c5f13d3b65149420541bd",
+      "title": "Admin Auth RBAC Checklist",
+      "version": null,
+      "kind": "checklist",
+      "lines": 136,
+      "checkboxes": {
+        "complete": 86,
+        "incomplete": 7
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.3.2/HIST-0001-admin-auth-rbac/spec.md",
+        "docs/changes/archive/v0.3.2/HIST-0001-admin-auth-rbac/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/admin-auth-rbac/spec.md",
+      "sha256": "efaa8912d09c7aa3ad143b83494712891cb86e3ff3153f1fcf3e35aece6fc76e",
+      "title": "Admin Login & RBAC Spec",
+      "version": null,
+      "kind": "spec",
+      "lines": 173,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.3.2/HIST-0001-admin-auth-rbac/spec.md",
+        "docs/changes/archive/v0.3.2/HIST-0001-admin-auth-rbac/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/admin-auth-rbac/tasks.md",
+      "sha256": "406ca58941ef8fc003aff6bc6d4772fa68a9e1df2c8e2a2a6aef9f6f561094be",
+      "title": "Admin Auth RBAC Tasks",
+      "version": null,
+      "kind": "tasks",
+      "lines": 206,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 110
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.3.2/HIST-0001-admin-auth-rbac/spec.md",
+        "docs/changes/archive/v0.3.2/HIST-0001-admin-auth-rbac/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/admin-darkmode-login-fix/checklist.md",
+      "sha256": "0750fef5c8cce3446611978a8a3568833abb135491dbd1b19b584397ea74fc4e",
+      "title": "Admin 后台问题修复验收清单",
+      "version": null,
+      "kind": "checklist",
+      "lines": 31,
+      "checkboxes": {
+        "complete": 13,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.5.6/HIST-0002-admin-darkmode-login-fix/spec.md",
+        "docs/changes/archive/v0.5.6/HIST-0002-admin-darkmode-login-fix/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/admin-darkmode-login-fix/spec.md",
+      "sha256": "c0ad61511bfe6c01537402ae0539d7530e863dc23f2a8a794f2dd7e6d08b77cf",
+      "title": "Admin 后台问题修复规格 (v0.5.6-hotfix)",
+      "version": "v0.5.6",
+      "kind": "spec",
+      "lines": 86,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.5.6/HIST-0002-admin-darkmode-login-fix/spec.md",
+        "docs/changes/archive/v0.5.6/HIST-0002-admin-darkmode-login-fix/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/admin-darkmode-login-fix/tasks.md",
+      "sha256": "dfa65ed43b3a0af97793440c32ff5ae20d49e17cea42bba03cc39be5af29bd8e",
+      "title": "Admin 后台问题修复任务清单 (v0.5.6)",
+      "version": "v0.5.6",
+      "kind": "tasks",
+      "lines": 34,
+      "checkboxes": {
+        "complete": 7,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.5.6/HIST-0002-admin-darkmode-login-fix/spec.md",
+        "docs/changes/archive/v0.5.6/HIST-0002-admin-darkmode-login-fix/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/admin-profile-menu/checklist.md",
+      "sha256": "5b6b6786092c64a50839ad2a92607bfa7692b18f6557e1d010d4f922827fd5db",
+      "title": "Checklist",
+      "version": null,
+      "kind": "checklist",
+      "lines": 11,
+      "checkboxes": {
+        "complete": 8,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0003-admin-profile-menu/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0003-admin-profile-menu/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/admin-profile-menu/spec.md",
+      "sha256": "70cad0fe585a92abb1ab7ff59db1f825d42e6f48e7bf1ac01dd51b641c8c014b",
+      "title": "管理员个人资料菜单功能规格",
+      "version": null,
+      "kind": "spec",
+      "lines": 70,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0003-admin-profile-menu/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0003-admin-profile-menu/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/admin-profile-menu/tasks.md",
+      "sha256": "a101cfc06d69d5255c8fc64ec9e73f476541fb37feacdda1ffc401ab463289d5",
+      "title": "Tasks",
+      "version": null,
+      "kind": "tasks",
+      "lines": 21,
+      "checkboxes": {
+        "complete": 13,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0003-admin-profile-menu/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0003-admin-profile-menu/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/admin-rbac-complete/checklist.md",
+      "sha256": "f16dcc24d1beb39c58186235b1719acbb9a933c7dc75ee6b63f834c4ea759893",
+      "title": "RBAC 权限管理模块实施检查清单",
+      "version": null,
+      "kind": "checklist",
+      "lines": 170,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 108
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0004-admin-rbac-complete/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0004-admin-rbac-complete/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/admin-rbac-complete/spec.md",
+      "sha256": "762a6faf458b70849fa4d360efc89d8e968edc0ad8e60c637b9d948e94be130b",
+      "title": "RBAC 权限管理模块完善规格说明书",
+      "version": null,
+      "kind": "spec",
+      "lines": 366,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0004-admin-rbac-complete/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0004-admin-rbac-complete/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/admin-rbac-complete/tasks.md",
+      "sha256": "0e88384c6308372ad33eab9d4692bf92d308e1574191bba8a6df723fe99f2014",
+      "title": "RBAC 权限管理模块任务清单",
+      "version": null,
+      "kind": "tasks",
+      "lines": 182,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 101
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0004-admin-rbac-complete/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0004-admin-rbac-complete/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/admin-v0.3.2/checklist.md",
+      "sha256": "1b5513307c098bb87e29a5b958a11ba0ed2e2c2fc84f1d2ac630aa96d0dd0468",
+      "title": "SoloSales v0.3.2 后台管理系统完善检查清单",
+      "version": "v0.3.2",
+      "kind": "checklist",
+      "lines": 145,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 93
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.3.2/HIST-0005-admin-v0-3-2/spec.md",
+        "docs/changes/archive/v0.3.2/HIST-0005-admin-v0-3-2/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/admin-v0.3.2/spec.md",
+      "sha256": "ce66486cb481a4f026bd55f90ae8b11cba27c04ae67ff238fa58ed2980263af2",
+      "title": "SoloSales v0.3.2 后台管理系统完善规格",
+      "version": "v0.3.2",
+      "kind": "spec",
+      "lines": 95,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 11
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.3.2/HIST-0005-admin-v0-3-2/spec.md",
+        "docs/changes/archive/v0.3.2/HIST-0005-admin-v0-3-2/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/admin-v0.3.2/tasks.md",
+      "sha256": "683b0094cb4c14e9bd8950ed64757a5cd364c5e7c80fdc1aede4923d0b2245f7",
+      "title": "SoloSales v0.3.2 后台管理系统完善任务清单",
+      "version": "v0.3.2",
+      "kind": "tasks",
+      "lines": 210,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 11
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.3.2/HIST-0005-admin-v0-3-2/spec.md",
+        "docs/changes/archive/v0.3.2/HIST-0005-admin-v0-3-2/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/admin-v0.3.3-optimization/checklist.md",
+      "sha256": "d5fb857ae58b7d584eabf57aceb496fd311be974712a9403d8c8f1fa4d3706c0",
+      "title": "Admin v0.3.3 优化验收清单",
+      "version": "v0.3.3",
+      "kind": "checklist",
+      "lines": 113,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 77
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.3.3/HIST-0006-admin-v0-3-3-optimization/spec.md",
+        "docs/changes/archive/v0.3.3/HIST-0006-admin-v0-3-3-optimization/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/admin-v0.3.3-optimization/spec.md",
+      "sha256": "76dc31d5dd17b6ec36ed2263d2b51c204ad46ca04898e0bfea43c2a87a1ac3dc",
+      "title": "SoloSales 后台管理系统 v0.3.3 性能优化与移动端适配规格",
+      "version": "v0.3.3",
+      "kind": "spec",
+      "lines": 162,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.3.3/HIST-0006-admin-v0-3-3-optimization/spec.md",
+        "docs/changes/archive/v0.3.3/HIST-0006-admin-v0-3-3-optimization/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/admin-v0.3.3-optimization/tasks.md",
+      "sha256": "7faea8bd123b1fc4c96f2d8f951014d537232a83945f655f45683faf1e9b9e2f",
+      "title": "Admin v0.3.3 优化任务清单",
+      "version": "v0.3.3",
+      "kind": "tasks",
+      "lines": 143,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 26
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.3.3/HIST-0006-admin-v0-3-3-optimization/spec.md",
+        "docs/changes/archive/v0.3.3/HIST-0006-admin-v0-3-3-optimization/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/admin-v0.4.1-optimization/checklist.md",
+      "sha256": "1e081543b966e99de6639a5d0e4e3effa4f87e2a27b62731cc4babda2704eeb0",
+      "title": "Admin v0.4.1 优化验收清单",
+      "version": "v0.4.1",
+      "kind": "checklist",
+      "lines": 119,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 78
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.4.1/HIST-0007-admin-v0-4-1-optimization/spec.md",
+        "docs/changes/archive/v0.4.1/HIST-0007-admin-v0-4-1-optimization/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/admin-v0.4.1-optimization/spec.md",
+      "sha256": "e454caf9988b52b935a7522e6884e8bea97a7a13fed0e64e6a71f01ff18e5d1f",
+      "title": "SoloSales 后台管理系统 v0.4.1 性能优化与移动端适配规格",
+      "version": "v0.4.1",
+      "kind": "spec",
+      "lines": 167,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.4.1/HIST-0007-admin-v0-4-1-optimization/spec.md",
+        "docs/changes/archive/v0.4.1/HIST-0007-admin-v0-4-1-optimization/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/admin-v0.4.1-optimization/tasks.md",
+      "sha256": "1d098ef70c9ad2ac88a6e9713c05e8350398af47a8b1e0de80bf6ec6bad36652",
+      "title": "Admin v0.4.1 优化任务清单",
+      "version": "v0.4.1",
+      "kind": "tasks",
+      "lines": 147,
+      "checkboxes": {
+        "complete": 6,
+        "incomplete": 21
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.4.1/HIST-0007-admin-v0-4-1-optimization/spec.md",
+        "docs/changes/archive/v0.4.1/HIST-0007-admin-v0-4-1-optimization/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/carousel-search-navigation/checklist.md",
+      "sha256": "5c7f7a5684437140c746da4abc5312b57896d7bbdd508eb903caf0b5b4364db3",
+      "title": "checklist",
+      "version": null,
+      "kind": "checklist",
+      "lines": 10,
+      "checkboxes": {
+        "complete": 9,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0008-carousel-search-navigation/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0008-carousel-search-navigation/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/carousel-search-navigation/spec.md",
+      "sha256": "dce2de152fed82d4e7b364d01470fbab72a677a04407d4bc927833c9e25ff225",
+      "title": "轮播图搜索与导航增强 Spec",
+      "version": null,
+      "kind": "spec",
+      "lines": 49,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0008-carousel-search-navigation/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0008-carousel-search-navigation/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/carousel-search-navigation/tasks.md",
+      "sha256": "a1b1bd4fa684eb0d98db4b3786fc7b546b9f779712994cfb5f04e60d4efb2095",
+      "title": "Tasks",
+      "version": null,
+      "kind": "tasks",
+      "lines": 15,
+      "checkboxes": {
+        "complete": 10,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0008-carousel-search-navigation/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0008-carousel-search-navigation/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/deploy-to-production/checklist.md",
+      "sha256": "de9220b67bec4235a71eb1d223283162c52535210c7835b809f71c424ff09c84",
+      "title": "Deployment Checklist",
+      "version": null,
+      "kind": "checklist",
+      "lines": 31,
+      "checkboxes": {
+        "complete": 14,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0009-deploy-to-production/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0009-deploy-to-production/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/deploy-to-production/spec.md",
+      "sha256": "a3945a047ebe6ea620a30a594872eb58652b2a44d57523b931f6bc3e16e57784",
+      "title": "Deploy to Production Spec",
+      "version": null,
+      "kind": "spec",
+      "lines": 73,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 5
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0009-deploy-to-production/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0009-deploy-to-production/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/deploy-to-production/tasks.md",
+      "sha256": "1ea703ad829bf819b1da6901bfe6f687bc6a8df3c389731767b17cbd06574a1d",
+      "title": "Deployment Tasks",
+      "version": null,
+      "kind": "tasks",
+      "lines": 38,
+      "checkboxes": {
+        "complete": 15,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0009-deploy-to-production/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0009-deploy-to-production/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/ecommerce-auth-checkout/checklist.md",
+      "sha256": "db219b7a256e88474d6fca4b0f40728f3451e4691673354635ae625b50fe0b25",
+      "title": "checklist",
+      "version": null,
+      "kind": "checklist",
+      "lines": 21,
+      "checkboxes": {
+        "complete": 20,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0010-ecommerce-auth-checkout/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0010-ecommerce-auth-checkout/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/ecommerce-auth-checkout/spec.md",
+      "sha256": "b9811610e8bce29d5b88ad668dd8ea7e921b2899b276d716a3ecd0bc74e49029",
+      "title": "电商功能增强 Spec",
+      "version": null,
+      "kind": "spec",
+      "lines": 68,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0010-ecommerce-auth-checkout/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0010-ecommerce-auth-checkout/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/ecommerce-auth-checkout/tasks.md",
+      "sha256": "0a666bcba48ca351f56d08d286331b209eb73470c92f3a8663287b5ea8e35ff7",
+      "title": "Tasks",
+      "version": null,
+      "kind": "tasks",
+      "lines": 36,
+      "checkboxes": {
+        "complete": 28,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0010-ecommerce-auth-checkout/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0010-ecommerce-auth-checkout/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/fix-language-switcher-dropdown/checklist.md",
+      "sha256": "7bbc739992d9554f5179f22de2f042ab391d98d5868d26f60f1b829cf1661fc6",
+      "title": "checklist",
+      "version": null,
+      "kind": "checklist",
+      "lines": 9,
+      "checkboxes": {
+        "complete": 8,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0011-fix-language-switcher-dropdown/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0011-fix-language-switcher-dropdown/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/fix-language-switcher-dropdown/spec.md",
+      "sha256": "260ebe1e7bb55ca475093537aa1b3629619535db3a4b83f9930979b023079bfb",
+      "title": "语言切换下拉菜单与购物车图标黑点修复 Spec",
+      "version": null,
+      "kind": "spec",
+      "lines": 50,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0011-fix-language-switcher-dropdown/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0011-fix-language-switcher-dropdown/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/fix-language-switcher-dropdown/tasks.md",
+      "sha256": "ff32f4a4fe8e33821e7fd4903458d0f3ddf39495782b960de5075686b3988a10",
+      "title": "Tasks",
+      "version": null,
+      "kind": "tasks",
+      "lines": 12,
+      "checkboxes": {
+        "complete": 6,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0011-fix-language-switcher-dropdown/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0011-fix-language-switcher-dropdown/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/fix-locale-switch-404/checklist.md",
+      "sha256": "ce8a0f148c29e8e613b19c0f264f786120d8017e0a3334f7a783e122c85b8393",
+      "title": "checklist",
+      "version": null,
+      "kind": "checklist",
+      "lines": 8,
+      "checkboxes": {
+        "complete": 7,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0012-fix-locale-switch-404/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0012-fix-locale-switch-404/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/fix-locale-switch-404/spec.md",
+      "sha256": "6d25ff94e7f59252bb7f458e9f7eda345f779f55987124a23ef401354a63b033",
+      "title": "修复语言切换 404 错误 Spec",
+      "version": null,
+      "kind": "spec",
+      "lines": 43,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0012-fix-locale-switch-404/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0012-fix-locale-switch-404/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/fix-locale-switch-404/tasks.md",
+      "sha256": "5a8b0dfac82501448f427d4fe4c60167ad6f9f6106fe56e503304dc292584b95",
+      "title": "Tasks",
+      "version": null,
+      "kind": "tasks",
+      "lines": 17,
+      "checkboxes": {
+        "complete": 9,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0012-fix-locale-switch-404/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0012-fix-locale-switch-404/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/fix-product-display/checklist.md",
+      "sha256": "7500b4f5db78026e3b0d6477c95a1986dbb9e8834a63f6c9d297be2fb4c1a0bd",
+      "title": "checklist",
+      "version": null,
+      "kind": "checklist",
+      "lines": 19,
+      "checkboxes": {
+        "complete": 18,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0013-fix-product-display/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0013-fix-product-display/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/fix-product-display/spec.md",
+      "sha256": "4f6835094de112459095c3810bb50a606d787441d51934d257efaa08417fda7a",
+      "title": "修复商品列表和详情不显示问题 + 移动端布局优化 Spec",
+      "version": null,
+      "kind": "spec",
+      "lines": 75,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0013-fix-product-display/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0013-fix-product-display/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/fix-product-display/tasks.md",
+      "sha256": "3575c3881f02fc993a45481edc89335d7e42e70ac6fb2c9275c4fd573ff74c91",
+      "title": "Tasks",
+      "version": null,
+      "kind": "tasks",
+      "lines": 61,
+      "checkboxes": {
+        "complete": 41,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0013-fix-product-display/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0013-fix-product-display/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/framework-migration-plan/checklist.md",
+      "sha256": "a2b30fca4ee55e070a1b0ec8bf2fdbd032026a85cc21345fa34e0169a0d914c1",
+      "title": "Checklist - 框架迁移计划",
+      "version": null,
+      "kind": "checklist",
+      "lines": 93,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 67
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.9.0/HIST-0014-framework-migration-plan/spec.md",
+        "docs/changes/archive/v0.9.0/HIST-0014-framework-migration-plan/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/framework-migration-plan/spec.md",
+      "sha256": "4f9c64f69781d585a94919901b0d0f7b8edb814dc49e79194f7ecd68fe846774",
+      "title": "SoloSales 框架迁移详细执行计划",
+      "version": null,
+      "kind": "spec",
+      "lines": 395,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.9.0/HIST-0014-framework-migration-plan/spec.md",
+        "docs/changes/archive/v0.9.0/HIST-0014-framework-migration-plan/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/framework-migration-plan/tasks.md",
+      "sha256": "ff2c3a8d1614a4009e769b3ce48727bda71f19d6c7429dea983547d9cde63532",
+      "title": "Tasks - 框架迁移计划",
+      "version": null,
+      "kind": "tasks",
+      "lines": 80,
+      "checkboxes": {
+        "complete": 53,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.9.0/HIST-0014-framework-migration-plan/spec.md",
+        "docs/changes/archive/v0.9.0/HIST-0014-framework-migration-plan/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/homepage-click-fix-v0.8.1/checklist.md",
+      "sha256": "d959539d9fce79146e770b91abbf74ca1f6c0e3ff8d785ba5d0e2302991f1607",
+      "title": "Checklist - 首页点击功能修复 v0.8.1",
+      "version": "v0.8.1",
+      "kind": "checklist",
+      "lines": 20,
+      "checkboxes": {
+        "complete": 8,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.8.1/HIST-0015-homepage-click-fix-v0-8-1/spec.md",
+        "docs/changes/archive/v0.8.1/HIST-0015-homepage-click-fix-v0-8-1/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/homepage-click-fix-v0.8.1/spec.md",
+      "sha256": "97bd0f0607a12daebfa4c014dcf901e4639b099f47e8333876ba222423621594",
+      "title": "首页点击功能修复 v0.8.1",
+      "version": "v0.8.1",
+      "kind": "spec",
+      "lines": 60,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.8.1/HIST-0015-homepage-click-fix-v0-8-1/spec.md",
+        "docs/changes/archive/v0.8.1/HIST-0015-homepage-click-fix-v0-8-1/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/homepage-click-fix-v0.8.1/tasks.md",
+      "sha256": "ac174b140ee0aa8d3d32ea62ce9cbebf8ebb462168564081fecbe7eba19c6977",
+      "title": "Tasks - 首页点击功能修复 v0.8.1",
+      "version": "v0.8.1",
+      "kind": "tasks",
+      "lines": 24,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 12
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.8.1/HIST-0015-homepage-click-fix-v0-8-1/spec.md",
+        "docs/changes/archive/v0.8.1/HIST-0015-homepage-click-fix-v0-8-1/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/homepage-pc-redesign-v0.8.0/checklist.md",
+      "sha256": "1a2ee53186d55c4823f5f5fe7b384f64f60dbb1bef2cfcb95343997e722605d4",
+      "title": "Checklist - Homepage PC Redesign v0.8.0",
+      "version": "v0.8.0",
+      "kind": "checklist",
+      "lines": 36,
+      "checkboxes": {
+        "complete": 18,
+        "incomplete": 2
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.8.0/HIST-0016-homepage-pc-redesign-v0-8-0/spec.md",
+        "docs/changes/archive/v0.8.0/HIST-0016-homepage-pc-redesign-v0-8-0/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/homepage-pc-redesign-v0.8.0/spec.md",
+      "sha256": "2d13c714989eb0a1154516f006e10d6b646ce7bc0119537d8bc36e95036bfe87",
+      "title": "首页 PC 重构 v0.8.0 Spec",
+      "version": "v0.8.0",
+      "kind": "spec",
+      "lines": 79,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.8.0/HIST-0016-homepage-pc-redesign-v0-8-0/spec.md",
+        "docs/changes/archive/v0.8.0/HIST-0016-homepage-pc-redesign-v0-8-0/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/homepage-pc-redesign-v0.8.0/tasks.md",
+      "sha256": "fa5d71079f6d80b33dc535424312e2500e60864981cba62300036e490db371f3",
+      "title": "Tasks - Homepage PC Redesign v0.8.0",
+      "version": "v0.8.0",
+      "kind": "tasks",
+      "lines": 50,
+      "checkboxes": {
+        "complete": 28,
+        "incomplete": 3
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.8.0/HIST-0016-homepage-pc-redesign-v0-8-0/spec.md",
+        "docs/changes/archive/v0.8.0/HIST-0016-homepage-pc-redesign-v0-8-0/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/integrate-payment/checklist.md",
+      "sha256": "cd2fa5e68552c708672df75c1cd35afb65c9cffe4a34c608b4930427d322e37a",
+      "title": "checklist",
+      "version": null,
+      "kind": "checklist",
+      "lines": 5,
+      "checkboxes": {
+        "complete": 4,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0017-integrate-payment/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0017-integrate-payment/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/integrate-payment/spec.md",
+      "sha256": "7ff30e4d4f6cd47298ca2c61cda6343543e02f5b5266b7d9232f2435ed0e2d11",
+      "title": "Integrate Payment Spec",
+      "version": null,
+      "kind": "spec",
+      "lines": 25,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0017-integrate-payment/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0017-integrate-payment/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/integrate-payment/tasks.md",
+      "sha256": "7c817073c6ac9dde464a5d2ecd6d6b865d178e445e18e2eb64eeb5b93ea2a2c9",
+      "title": "Tasks",
+      "version": null,
+      "kind": "tasks",
+      "lines": 15,
+      "checkboxes": {
+        "complete": 9,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0017-integrate-payment/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0017-integrate-payment/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/performance-optimization-v0.2.1/checklist.md",
+      "sha256": "5541cf34ea4564486aeb012a92b6c155054446c12372851b671868d634c796bd",
+      "title": "SoloSales v0.2.1 性能优化检查清单",
+      "version": "v0.2.1",
+      "kind": "checklist",
+      "lines": 97,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 51
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.2.1/HIST-0018-performance-optimization-v0-2-1/spec.md",
+        "docs/changes/archive/v0.2.1/HIST-0018-performance-optimization-v0-2-1/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/performance-optimization-v0.2.1/spec.md",
+      "sha256": "adfab0fcb508bc08b4cf0f0e2839d4d5209ab084a62cbe0d5794389dfe328305",
+      "title": "SoloSales v0.2.1 性能优化实施规格",
+      "version": "v0.2.1",
+      "kind": "spec",
+      "lines": 80,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 6
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.2.1/HIST-0018-performance-optimization-v0-2-1/spec.md",
+        "docs/changes/archive/v0.2.1/HIST-0018-performance-optimization-v0-2-1/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/performance-optimization-v0.2.1/tasks.md",
+      "sha256": "e147a8d58944f8719d217c42acf605bfea29c40a76b3719e328b28148007240f",
+      "title": "SoloSales v0.2.1 性能优化任务清单",
+      "version": "v0.2.1",
+      "kind": "tasks",
+      "lines": 156,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 6
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.2.1/HIST-0018-performance-optimization-v0-2-1/spec.md",
+        "docs/changes/archive/v0.2.1/HIST-0018-performance-optimization-v0-2-1/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/public-demo-page/checklist.md",
+      "sha256": "9731efcdc687faa157e734c97454fd8c55b00187365a9ac8c069bbfeb89a8b01",
+      "title": "Public Demo Page - Implementation Checklist",
+      "version": null,
+      "kind": "checklist",
+      "lines": 60,
+      "checkboxes": {
+        "complete": 31,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0019-public-demo-page/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0019-public-demo-page/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/public-demo-page/spec.md",
+      "sha256": "5595e47f2068af9a13d856f3959a79d4b83ef2ddbb166eb5d33877066be233df",
+      "title": "Public Demo Page Spec",
+      "version": null,
+      "kind": "spec",
+      "lines": 103,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0019-public-demo-page/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0019-public-demo-page/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/public-demo-page/tasks.md",
+      "sha256": "58874ff31297b989459da546e06fd743db3c5ccf6ebbc9ded4e5d4a10bfabc34",
+      "title": "Tasks",
+      "version": null,
+      "kind": "tasks",
+      "lines": 61,
+      "checkboxes": {
+        "complete": 17,
+        "incomplete": 4
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0019-public-demo-page/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0019-public-demo-page/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/redis-cache/checklist.md",
+      "sha256": "333d9b8cd5446d33dc0d617c547e8a09ea9292ebf3d01b0a08ced31c5d010a2d",
+      "title": "Redis 缓存层检查清单",
+      "version": null,
+      "kind": "checklist",
+      "lines": 46,
+      "checkboxes": {
+        "complete": 13,
+        "incomplete": 6
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0020-redis-cache/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0020-redis-cache/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/redis-cache/spec.md",
+      "sha256": "fad2085d8ce8078afe8353a6b752ec6c1844b66ac8a22d00d35a91fb947c1209",
+      "title": "Redis 缓存层实施 Spec",
+      "version": null,
+      "kind": "spec",
+      "lines": 77,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 4
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0020-redis-cache/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0020-redis-cache/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/redis-cache/tasks.md",
+      "sha256": "c4113d6d290de61bab161856aa350bb8cf75602243f13e4b2d60cc54f6aba019",
+      "title": "Redis 缓存层实施任务",
+      "version": null,
+      "kind": "tasks",
+      "lines": 47,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 17
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0020-redis-cache/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0020-redis-cache/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/storefront-comprehensive-improvement-v1.0/checklist.md",
+      "sha256": "0a3eb64b54d86f436bb9bb253236d93aea0b36d2a93f69f6e8eb7a00f3daa8eb",
+      "title": "Checklist",
+      "version": "v1.0",
+      "kind": "checklist",
+      "lines": 94,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 68
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.2.1/HIST-0021-storefront-comprehensive-improvement-v1-0/spec.md",
+        "docs/changes/archive/v0.2.1/HIST-0021-storefront-comprehensive-improvement-v1-0/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/storefront-comprehensive-improvement-v1.0/spec.md",
+      "sha256": "00513fd319b8dc9031317279ff8d108bbd02de77d0ba1d1c6c1a7fe7915038ad",
+      "title": "SoloSales 独立站全面优化 Spec",
+      "version": "v1.0",
+      "kind": "spec",
+      "lines": 227,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.2.1/HIST-0021-storefront-comprehensive-improvement-v1-0/spec.md",
+        "docs/changes/archive/v0.2.1/HIST-0021-storefront-comprehensive-improvement-v1-0/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/storefront-comprehensive-improvement-v1.0/tasks.md",
+      "sha256": "5cc44b3dbf9b6a19eb864fa52869500b609b3c9fb4a807042426f91756ab9bcf",
+      "title": "Tasks",
+      "version": "v1.0",
+      "kind": "tasks",
+      "lines": 102,
+      "checkboxes": {
+        "complete": 65,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.2.1/HIST-0021-storefront-comprehensive-improvement-v1-0/spec.md",
+        "docs/changes/archive/v0.2.1/HIST-0021-storefront-comprehensive-improvement-v1-0/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/storefront-features/checklist.md",
+      "sha256": "5a56940379fb19aab3a26828b0ee8b9d194ef7f6c6825ebba994630f0023c700",
+      "title": "checklist",
+      "version": null,
+      "kind": "checklist",
+      "lines": 7,
+      "checkboxes": {
+        "complete": 6,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0022-storefront-features/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0022-storefront-features/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/storefront-features/spec.md",
+      "sha256": "1c35a99d7fac0355204d937a8578e1f287437f4d37ce02654ed150383705e34a",
+      "title": "Storefront Features Spec",
+      "version": null,
+      "kind": "spec",
+      "lines": 40,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0022-storefront-features/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0022-storefront-features/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/storefront-features/tasks.md",
+      "sha256": "4e7664b5f0aa829808bf7ff33d8922ad41f6403e1ad4102857334b90b3e9b2c8",
+      "title": "Tasks",
+      "version": null,
+      "kind": "tasks",
+      "lines": 20,
+      "checkboxes": {
+        "complete": 13,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0022-storefront-features/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0022-storefront-features/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/user-menu-i18n/checklist.md",
+      "sha256": "52eafc24ccc4f127b749a5458bd90af091026d7af2dd9f362db4be5ed6533bd0",
+      "title": "checklist",
+      "version": null,
+      "kind": "checklist",
+      "lines": 19,
+      "checkboxes": {
+        "complete": 18,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0023-user-menu-i18n/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0023-user-menu-i18n/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/user-menu-i18n/spec.md",
+      "sha256": "da7b2efbce0fe0254823766b430d4c78b5c5cec98560283fcecaa7607c8bfb34",
+      "title": "用户菜单组件与国际化 Spec",
+      "version": null,
+      "kind": "spec",
+      "lines": 58,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0023-user-menu-i18n/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0023-user-menu-i18n/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/user-menu-i18n/tasks.md",
+      "sha256": "dcb92f8ff051afb111de7231f15e74fa9f1cdb376507ceba6159c2e4e489ddef",
+      "title": "Tasks",
+      "version": null,
+      "kind": "tasks",
+      "lines": 24,
+      "checkboxes": {
+        "complete": 17,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0023-user-menu-i18n/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0023-user-menu-i18n/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v0.2-performance-security/checklist.md",
+      "sha256": "667941011c15928c7fd92b4af7ac21432f64c29e2d063936c35ff493aa19ee07",
+      "title": "SoloSales v0.2 实施检查清单",
+      "version": "v0.2",
+      "kind": "checklist",
+      "lines": 187,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 81
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.2.0/HIST-0024-v0-2-performance-security/spec.md",
+        "docs/changes/archive/v0.2.0/HIST-0024-v0-2-performance-security/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v0.2-performance-security/spec.md",
+      "sha256": "098c73ba31eb4dc3516245578ab49e38d308e12cfd793f08c861f8284a3bc68b",
+      "title": "SoloSales v0.2 性能与安全优化 - 实施规格",
+      "version": "v0.2",
+      "kind": "spec",
+      "lines": 155,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 8
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.2.0/HIST-0024-v0-2-performance-security/spec.md",
+        "docs/changes/archive/v0.2.0/HIST-0024-v0-2-performance-security/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v0.2-performance-security/tasks.md",
+      "sha256": "07b1273f095d058b9859e090282f8b4579de5ebac94d1505e95bfcaa9aae5280",
+      "title": "SoloSales v0.2 任务清单",
+      "version": "v0.2",
+      "kind": "tasks",
+      "lines": 120,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 42
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.2.0/HIST-0024-v0-2-performance-security/spec.md",
+        "docs/changes/archive/v0.2.0/HIST-0024-v0-2-performance-security/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.3-ui-optimization/checklist.md",
+      "sha256": "107d84c4997df778873dafaf4bd777777b00d1dae3cd9886b56b514307a88b12",
+      "title": "Checklist",
+      "version": "v1.3",
+      "kind": "checklist",
+      "lines": 89,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 75
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.3.0/HIST-0025-v1-3-ui-optimization/spec.md",
+        "docs/changes/archive/v1.3.0/HIST-0025-v1-3-ui-optimization/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.3-ui-optimization/spec.md",
+      "sha256": "45af0c64519ffb63c15551c0cd7fa9b34a21e887b1113d80cd7c095205f1dfc5",
+      "title": "SoloSales v1.3 UI 全面优化 Spec",
+      "version": "v1.3",
+      "kind": "spec",
+      "lines": 271,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.3.0/HIST-0025-v1-3-ui-optimization/spec.md",
+        "docs/changes/archive/v1.3.0/HIST-0025-v1-3-ui-optimization/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.3-ui-optimization/tasks.md",
+      "sha256": "aade750844ccdcb4d635cdf59d7987ac5b185f9e7b1363792e227249091ea2b7",
+      "title": "Tasks",
+      "version": "v1.3",
+      "kind": "tasks",
+      "lines": 139,
+      "checkboxes": {
+        "complete": 89,
+        "incomplete": 5
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.3.0/HIST-0025-v1-3-ui-optimization/spec.md",
+        "docs/changes/archive/v1.3.0/HIST-0025-v1-3-ui-optimization/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.5-high-concurrency-readiness/checklist.md",
+      "sha256": "413c573bb750bf7b29d63e5b11e3b8fea3480e744cff843ff147d56be94440d1",
+      "title": "SoloSales v1.5 高并发准备能力 Checklist",
+      "version": "v1.5",
+      "kind": "checklist",
+      "lines": 107,
+      "checkboxes": {
+        "complete": 72,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.5.0/HIST-0026-v1-5-high-concurrency-readiness/spec.md",
+        "docs/changes/archive/v1.5.0/HIST-0026-v1-5-high-concurrency-readiness/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.5-high-concurrency-readiness/spec.md",
+      "sha256": "980651bd58acbd903a6fc565fdab3f6a7fa5bd29bf9e43325b6adebe36e37105",
+      "title": "SoloSales v1.5 高并发准备能力 Spec",
+      "version": "v1.5",
+      "kind": "spec",
+      "lines": 167,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.5.0/HIST-0026-v1-5-high-concurrency-readiness/spec.md",
+        "docs/changes/archive/v1.5.0/HIST-0026-v1-5-high-concurrency-readiness/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.5-high-concurrency-readiness/tasks.md",
+      "sha256": "3635d45bcf3613fca54b9655ce0021396e6009d76332b21507577bf057a14ca1",
+      "title": "SoloSales v1.5 高并发准备能力 Tasks",
+      "version": "v1.5",
+      "kind": "tasks",
+      "lines": 180,
+      "checkboxes": {
+        "complete": 100,
+        "incomplete": 7
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.5.0/HIST-0026-v1-5-high-concurrency-readiness/spec.md",
+        "docs/changes/archive/v1.5.0/HIST-0026-v1-5-high-concurrency-readiness/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.6-launch-security-hardening/checklist.md",
+      "sha256": "84b55afa28b9e8040b134a79ebdc648b084065d4b12f88605e60f5e9533e01a8",
+      "title": "SoloSales v1.6 上线安全止血与 Mock 禁用 Checklist",
+      "version": "v1.6",
+      "kind": "checklist",
+      "lines": 72,
+      "checkboxes": {
+        "complete": 37,
+        "incomplete": 4
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.6.0/HIST-0027-v1-6-launch-security-hardening/spec.md",
+        "docs/changes/archive/v1.6.0/HIST-0027-v1-6-launch-security-hardening/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.6-launch-security-hardening/spec.md",
+      "sha256": "3da38460146abbb99fecb69616d04a0ca2069ee0a03af5df10977d3fc8e0ffbc",
+      "title": "SoloSales v1.6 上线安全止血与 Mock 禁用 Spec",
+      "version": "v1.6",
+      "kind": "spec",
+      "lines": 131,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.6.0/HIST-0027-v1-6-launch-security-hardening/spec.md",
+        "docs/changes/archive/v1.6.0/HIST-0027-v1-6-launch-security-hardening/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.6-launch-security-hardening/tasks.md",
+      "sha256": "8416ffb3f272db70971eedc0b65a3dc6be4d1f12f16b9a241d6249cc78f8cb7c",
+      "title": "SoloSales v1.6 上线安全止血与 Mock 禁用 Tasks",
+      "version": "v1.6",
+      "kind": "tasks",
+      "lines": 113,
+      "checkboxes": {
+        "complete": 57,
+        "incomplete": 4
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.6.0/HIST-0027-v1-6-launch-security-hardening/spec.md",
+        "docs/changes/archive/v1.6.0/HIST-0027-v1-6-launch-security-hardening/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.6.5-playwright-theme-optimization/checklist.md",
+      "sha256": "4a5f7634a7d4702e8b2c3bf799e627c415e4820bb67f0e1114b580d944a5ab15",
+      "title": "SoloSales v1.6.5 Playwright 测试与主题色优化 Checklist",
+      "version": "v1.6.5",
+      "kind": "checklist",
+      "lines": 286,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 189
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.6.5/HIST-0028-v1-6-5-playwright-theme-optimization/spec.md",
+        "docs/changes/archive/v1.6.5/HIST-0028-v1-6-5-playwright-theme-optimization/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.6.5-playwright-theme-optimization/spec.md",
+      "sha256": "046e552afb0fb55c37dedde1f39041ebe4064fd9e38199c1cf204573b6dde48e",
+      "title": "SoloSales v1.6.5 Playwright 测试与主题色优化 Spec",
+      "version": "v1.6.5",
+      "kind": "spec",
+      "lines": 205,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.6.5/HIST-0028-v1-6-5-playwright-theme-optimization/spec.md",
+        "docs/changes/archive/v1.6.5/HIST-0028-v1-6-5-playwright-theme-optimization/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.6.5-playwright-theme-optimization/tasks.md",
+      "sha256": "b7c5dd2d35d6848466e10cf283f35be0a8baa6797e8daa589e65b69434d18b1b",
+      "title": "SoloSales v1.6.5 Playwright 测试与主题色优化 Tasks",
+      "version": "v1.6.5",
+      "kind": "tasks",
+      "lines": 245,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 149
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.6.5/HIST-0028-v1-6-5-playwright-theme-optimization/spec.md",
+        "docs/changes/archive/v1.6.5/HIST-0028-v1-6-5-playwright-theme-optimization/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.7-multipayment-checkout/checklist.md",
+      "sha256": "a85675fcc85efd3f3eca308124dbf9b2e1151d8f19da5619aa8f3b3cb9be3db1",
+      "title": "SoloSales v1.7 多支付交易主链路闭环 Checklist",
+      "version": "v1.7",
+      "kind": "checklist",
+      "lines": 87,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 54
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.0/HIST-0029-v1-7-multipayment-checkout/spec.md",
+        "docs/changes/archive/v1.7.0/HIST-0029-v1-7-multipayment-checkout/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.7-multipayment-checkout/spec.md",
+      "sha256": "f12d44672d776773c5e20e53f40a0ad15722497498ab560eec49c52ed904c8fe",
+      "title": "SoloSales v1.7 多支付交易主链路闭环 Spec",
+      "version": "v1.7",
+      "kind": "spec",
+      "lines": 139,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.0/HIST-0029-v1-7-multipayment-checkout/spec.md",
+        "docs/changes/archive/v1.7.0/HIST-0029-v1-7-multipayment-checkout/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.7-multipayment-checkout/tasks.md",
+      "sha256": "741d3a99f1fa32785da83dba7680c2567fab3e6b73c68854c7e43d18d8a9bc35",
+      "title": "SoloSales v1.7 多支付交易主链路闭环 Tasks",
+      "version": "v1.7",
+      "kind": "tasks",
+      "lines": 136,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 78
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.0/HIST-0029-v1-7-multipayment-checkout/spec.md",
+        "docs/changes/archive/v1.7.0/HIST-0029-v1-7-multipayment-checkout/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.7.2-personal-qrcode-payment/design.md",
+      "sha256": "919618392b932b4f696cb588920f22097add2d34a2d2d0e41de6a1763b38d77d",
+      "title": "SoloSales v1.7.2 个人收款码支付方案 设计文档",
+      "version": "v1.7.2",
+      "kind": "document",
+      "lines": 547,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.2/HIST-0030-v1-7-2-personal-qrcode-payment/spec.md",
+        "docs/changes/archive/v1.7.2/HIST-0030-v1-7-2-personal-qrcode-payment/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.7.3-paypal-business-integration/checklist.md",
+      "sha256": "912a6e14de6b3f8d448d880d10034008fbbfa988f299ed696eda2adbfa9afe63",
+      "title": "PayPal Business Integration Checklist",
+      "version": "v1.7.3",
+      "kind": "checklist",
+      "lines": 294,
+      "checkboxes": {
+        "complete": 209,
+        "incomplete": 7
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.3/HIST-0031-v1-7-3-paypal-business-integration/spec.md",
+        "docs/changes/archive/v1.7.3/HIST-0031-v1-7-3-paypal-business-integration/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.7.3-paypal-business-integration/spec.md",
+      "sha256": "8ac465223f015cdee130295c54150c0a0bcc4ba7f1013163fd7d9913957332a4",
+      "title": "PayPal Business Integration Spec",
+      "version": "v1.7.3",
+      "kind": "spec",
+      "lines": 458,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.3/HIST-0031-v1-7-3-paypal-business-integration/spec.md",
+        "docs/changes/archive/v1.7.3/HIST-0031-v1-7-3-paypal-business-integration/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.7.3-paypal-business-integration/tasks.md",
+      "sha256": "eb51b5354fa35b3f0fa772bd3a36511582438ee044a8a2848ffac4936bdbf8f5",
+      "title": "PayPal Business Integration Tasks",
+      "version": "v1.7.3",
+      "kind": "tasks",
+      "lines": 389,
+      "checkboxes": {
+        "complete": 228,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.3/HIST-0031-v1-7-3-paypal-business-integration/spec.md",
+        "docs/changes/archive/v1.7.3/HIST-0031-v1-7-3-paypal-business-integration/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.7.6-type-safety/checklist.md",
+      "sha256": "cfd91de25da1925775f987c9d1f833c024ecd113d7f22823833865873c7802d3",
+      "title": "SoloSales v1.7.6 类型安全修复 Checklist",
+      "version": "v1.7.6",
+      "kind": "checklist",
+      "lines": 231,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 130
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.6/HIST-0032-v1-7-6-type-safety/spec.md",
+        "docs/changes/archive/v1.7.6/HIST-0032-v1-7-6-type-safety/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.7.6-type-safety/error-handling.md",
+      "sha256": "202387b54efdb120640f69a844f41d26872c1fcaad6bef59de361838acd1be48",
+      "title": "错误处理最佳实践",
+      "version": "v1.7.6",
+      "kind": "document",
+      "lines": 346,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 7
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.6/HIST-0032-v1-7-6-type-safety/spec.md",
+        "docs/changes/archive/v1.7.6/HIST-0032-v1-7-6-type-safety/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.7.6-type-safety/spec.md",
+      "sha256": "06f3f6634495d7473193010a081ea8bb21f403fa52dda08b03f25613f6667bea",
+      "title": "SoloSales v1.7.6 类型安全修复 Spec",
+      "version": "v1.7.6",
+      "kind": "spec",
+      "lines": 212,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.6/HIST-0032-v1-7-6-type-safety/spec.md",
+        "docs/changes/archive/v1.7.6/HIST-0032-v1-7-6-type-safety/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.7.6-type-safety/tasks.md",
+      "sha256": "00345a68ebeb11b0bea982143708f922384b1b41ac44a0fcf066ccc081d5046a",
+      "title": "SoloSales v1.7.6 类型安全修复 Tasks",
+      "version": "v1.7.6",
+      "kind": "tasks",
+      "lines": 244,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 130
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v1.7.6/HIST-0032-v1-7-6-type-safety/spec.md",
+        "docs/changes/archive/v1.7.6/HIST-0032-v1-7-6-type-safety/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.8-admin-rag-chat-realization/checklist.md",
+      "sha256": "9f022c576811731014b6035b6a704fe85b02e61608a22a55f58662e4294fdafa",
+      "title": "SoloSales v1.8 后台 RAG 客服真实化 Checklist",
+      "version": "v1.8",
+      "kind": "checklist",
+      "lines": 76,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 46
+      },
+      "disposition": "future_planning",
+      "targets": [
+        "docs/changes/v1.8.0/README.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.8-admin-rag-chat-realization/spec.md",
+      "sha256": "74e88c49c8313fb48addf68773045d3306ebe5867d0f73cee59eb99d7ca9cd87",
+      "title": "SoloSales v1.8 后台 RAG 客服真实化 Spec",
+      "version": "v1.8",
+      "kind": "spec",
+      "lines": 125,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "future_planning",
+      "targets": [
+        "docs/changes/v1.8.0/README.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.8-admin-rag-chat-realization/tasks.md",
+      "sha256": "df94cc738101d24cee7acf2ead87f37f0a1ebe5680f2c66ffb53062fb3d44fa2",
+      "title": "SoloSales v1.8 后台 RAG 客服真实化 Tasks",
+      "version": "v1.8",
+      "kind": "tasks",
+      "lines": 109,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 57
+      },
+      "disposition": "future_planning",
+      "targets": [
+        "docs/changes/v1.8.0/README.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.9-production-readiness/checklist.md",
+      "sha256": "43c4a0209b4e0679e01fa74c4e7c76b4184e326412b861b0a652e6e89c65e904",
+      "title": "SoloSales v1.9 生产部署与质量门禁 Checklist",
+      "version": "v1.9",
+      "kind": "checklist",
+      "lines": 87,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 57
+      },
+      "disposition": "future_planning",
+      "targets": [
+        "docs/changes/v1.9.0/README.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.9-production-readiness/spec.md",
+      "sha256": "23a640f398114abfbf35764a07615f9fd4f7d1570346c8d89fda6724cb5addfe",
+      "title": "SoloSales v1.9 生产部署与质量门禁 Spec",
+      "version": "v1.9",
+      "kind": "spec",
+      "lines": 125,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "future_planning",
+      "targets": [
+        "docs/changes/v1.9.0/README.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v1.9-production-readiness/tasks.md",
+      "sha256": "17bd2b9de8b9abf00e54693122ec5ee7247e425dc8eb1af63b69eb626dbedc2f",
+      "title": "SoloSales v1.9 生产部署与质量门禁 Tasks",
+      "version": "v1.9",
+      "kind": "tasks",
+      "lines": 127,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 74
+      },
+      "disposition": "future_planning",
+      "targets": [
+        "docs/changes/v1.9.0/README.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v2.0-launch-acceptance/checklist.md",
+      "sha256": "e6304df4c60ba2bc5602c22bb3c23ad85f43856f90331850cfccd4056e649540",
+      "title": "SoloSales v2.0 上线验收与正式发布 Checklist",
+      "version": "v2.0",
+      "kind": "checklist",
+      "lines": 108,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 66
+      },
+      "disposition": "future_planning",
+      "targets": [
+        "docs/changes/v2.0.0/README.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v2.0-launch-acceptance/spec.md",
+      "sha256": "55e93aa88ce218f154ac04e051bd1bc7cbaf150218537eb277e46c5e718591a2",
+      "title": "SoloSales v2.0 上线验收与正式发布 Spec",
+      "version": "v2.0",
+      "kind": "spec",
+      "lines": 126,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 0
+      },
+      "disposition": "future_planning",
+      "targets": [
+        "docs/changes/v2.0.0/README.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/v2.0-launch-acceptance/tasks.md",
+      "sha256": "48f92a6be2f11700644f7ccb72f54750eb0a4dc47183acf478185c3435877495",
+      "title": "SoloSales v2.0 上线验收与正式发布 Tasks",
+      "version": "v2.0",
+      "kind": "tasks",
+      "lines": 129,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 73
+      },
+      "disposition": "future_planning",
+      "targets": [
+        "docs/changes/v2.0.0/README.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/vercel-deploy/checklist.md",
+      "sha256": "ea7f90c7326c23a0559e05aad2da3e371de30f4650087a92ccf17d65d22ce92a",
+      "title": "Vercel 部署检查清单",
+      "version": null,
+      "kind": "checklist",
+      "lines": 56,
+      "checkboxes": {
+        "complete": 3,
+        "incomplete": 10
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0033-vercel-deploy/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0033-vercel-deploy/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/vercel-deploy/spec.md",
+      "sha256": "c026dc06100ffea4809f7fc5420d21bcb75826be29dbe29ef669b4456d82eb07",
+      "title": "Vercel 快速部署 Spec",
+      "version": null,
+      "kind": "spec",
+      "lines": 42,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 6
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0033-vercel-deploy/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0033-vercel-deploy/tasks.md"
+      ]
+    },
+    {
+      "source": ".trae/specs/vercel-deploy/tasks.md",
+      "sha256": "61a67127b45a3ef0895f7bb7001e86b18bb520769af1efd3c186b0ab9d327c8d",
+      "title": "Vercel 部署任务",
+      "version": null,
+      "kind": "tasks",
+      "lines": 22,
+      "checkboxes": {
+        "complete": 0,
+        "incomplete": 8
+      },
+      "disposition": "historical_only",
+      "targets": [
+        "docs/changes/archive/v0.0.0/HIST-0033-vercel-deploy/spec.md",
+        "docs/changes/archive/v0.0.0/HIST-0033-vercel-deploy/tasks.md"
+      ]
+    }
+  ]
+}

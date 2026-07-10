@@ -87,7 +87,7 @@ export function MobileMenu() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setIsOpen(false)}
-                className="w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-accent transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2.5 text-sm transition-colors hover:bg-muted hover:text-foreground focus-visible:bg-muted focus-visible:text-foreground focus-visible:outline-none"
               >
                 <Icon className="w-4 h-4" />
                 {t(link.labelKey)}
@@ -106,7 +106,7 @@ export function MobileMenu() {
             <button
               key={lang.code}
               onClick={() => handleLanguageSelect(lang.code)}
-              className="w-full flex items-center justify-between px-3 py-2.5 text-sm hover:bg-accent transition-colors"
+              className="w-full flex items-center justify-between px-3 py-2.5 text-sm transition-colors hover:bg-muted hover:text-foreground focus-visible:bg-muted focus-visible:text-foreground focus-visible:outline-none"
             >
               <span className="flex items-center gap-2">
                 <Globe className="w-4 h-4" />
@@ -122,7 +122,7 @@ export function MobileMenu() {
           {/* Theme Toggle */}
           <button
             onClick={handleThemeToggle}
-            className="w-full flex items-center justify-between px-3 py-2.5 text-sm hover:bg-accent transition-colors"
+            className="w-full flex items-center justify-between px-3 py-2.5 text-sm transition-colors hover:bg-muted hover:text-foreground focus-visible:bg-muted focus-visible:text-foreground focus-visible:outline-none"
           >
             <span className="flex items-center gap-2">
               {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -133,7 +133,7 @@ export function MobileMenu() {
           {/* Viewport Toggle */}
           <button
             onClick={handleViewportToggle}
-            className="w-full flex items-center justify-between px-3 py-2.5 text-sm hover:bg-accent transition-colors"
+            className="w-full flex items-center justify-between px-3 py-2.5 text-sm transition-colors hover:bg-muted hover:text-foreground focus-visible:bg-muted focus-visible:text-foreground focus-visible:outline-none"
           >
             <span className="flex items-center gap-2">
               {mode === "mobile" ? <Monitor className="w-4 h-4" /> : <Smartphone className="w-4 h-4" />}

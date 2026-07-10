@@ -35,7 +35,7 @@ const TikTokLogo = ({ className }: { className?: string }) => (
 )
 
 /** 支付方式标签列表 */
-const paymentMethods = ["Visa", "Mastercard", "Stripe"]
+const paymentMethods = ["Visa", "Mastercard", "American Express"]
 
 export function StorefrontFooter() {
   const t = useTranslations('footer')
@@ -74,18 +74,18 @@ export function StorefrontFooter() {
   ]
 
   return (
-    <footer className="bg-gray-900 text-gray-100">
-      <div className="container mx-auto px-4 py-12">
+    <footer className="border-t border-border bg-card text-card-foreground">
+      <div className="storefront-container py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
           {/* 品牌信息区 */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-gradient-from to-brand-gradient-to flex items-center justify-center">
+              <div className="flex size-10 items-center justify-center rounded-xl bg-muted text-foreground">
                 <span className="text-brand-foreground font-bold text-lg">S</span>
               </div>
-              <span className="text-xl font-bold text-white">SoloSales</span>
+              <span className="text-xl font-bold text-foreground">Solo Sales</span>
             </div>
-            <p className="text-gray-400 text-sm leading-relaxed">
+            <p className="text-muted-foreground text-sm leading-relaxed">
               {t("description")}
             </p>
           </div>
@@ -93,8 +93,8 @@ export function StorefrontFooter() {
           {/* 移动端：Accordion 折叠链接区域 */}
           <div className="md:hidden">
             <Accordion className="w-full">
-              <AccordionItem value="shop" className="border-gray-700">
-                <AccordionTrigger className="text-white font-semibold text-sm hover:no-underline py-3">
+              <AccordionItem value="shop" className="border-border">
+                <AccordionTrigger className="text-foreground font-semibold text-sm hover:no-underline py-3">
                   {t("shop")}
                 </AccordionTrigger>
                 <AccordionContent className="pb-3">
@@ -103,7 +103,7 @@ export function StorefrontFooter() {
                       <li key={link.href}>
                         <Link
                           href={link.href}
-                          className="text-gray-400 hover:text-white transition-colors text-xs"
+                          className="text-muted-foreground hover:text-foreground transition-colors text-xs"
                         >
                           {link.label}
                         </Link>
@@ -112,8 +112,8 @@ export function StorefrontFooter() {
                   </ul>
                 </AccordionContent>
               </AccordionItem>
-              <AccordionItem value="company" className="border-gray-700">
-                <AccordionTrigger className="text-white font-semibold text-sm hover:no-underline py-3">
+              <AccordionItem value="company" className="border-border">
+                <AccordionTrigger className="text-foreground font-semibold text-sm hover:no-underline py-3">
                   {t("company")}
                 </AccordionTrigger>
                 <AccordionContent className="pb-3">
@@ -122,7 +122,7 @@ export function StorefrontFooter() {
                       <li key={link.href}>
                         <Link
                           href={link.href}
-                          className="text-gray-400 hover:text-white transition-colors text-xs"
+                          className="text-muted-foreground hover:text-foreground transition-colors text-xs"
                         >
                           {link.label}
                         </Link>
@@ -138,13 +138,13 @@ export function StorefrontFooter() {
           <div className="hidden md:block">
             <div className="grid grid-cols-2 gap-6 md:gap-8">
               <div>
-                <h3 className="text-white font-semibold mb-4 text-sm md:text-base">{t("shop")}</h3>
+                <h3 className="text-foreground font-semibold mb-4 text-sm md:text-base">{t("shop")}</h3>
                 <ul className="space-y-2">
                   {footerLinks.shop.map((link) => (
                     <li key={link.href}>
                       <Link
                         href={link.href}
-                        className="text-gray-400 hover:text-white transition-colors text-xs md:text-sm"
+                        className="text-muted-foreground hover:text-foreground transition-colors text-xs md:text-sm"
                       >
                         {link.label}
                       </Link>
@@ -153,13 +153,13 @@ export function StorefrontFooter() {
                 </ul>
               </div>
               <div>
-                <h3 className="text-white font-semibold mb-4 text-sm md:text-base">{t("company")}</h3>
+                <h3 className="text-foreground font-semibold mb-4 text-sm md:text-base">{t("company")}</h3>
                 <ul className="space-y-2">
                   {footerLinks.company.map((link) => (
                     <li key={link.href}>
                       <Link
                         href={link.href}
-                        className="text-gray-400 hover:text-white transition-colors text-xs md:text-sm"
+                        className="text-muted-foreground hover:text-foreground transition-colors text-xs md:text-sm"
                       >
                         {link.label}
                       </Link>
@@ -172,19 +172,19 @@ export function StorefrontFooter() {
 
           {/* 订阅 + 社交图标 */}
           <div className="md:col-span-2 lg:col-span-1">
-            <h3 className="text-white font-semibold mb-4 text-sm md:text-base">{t("newsletter")}</h3>
-            <p className="text-gray-400 text-xs md:text-sm mb-4">
+            <h3 className="text-foreground font-semibold mb-4 text-sm md:text-base">{t("newsletter")}</h3>
+            <p className="text-muted-foreground text-xs md:text-sm mb-4">
               {t("newsletterDesc")}
             </p>
             <form onSubmit={handleSubscribe} className="flex gap-2">
               <div className="relative flex-1">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   type="email"
                   placeholder={t("emailPlaceholder")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-red-500 focus:ring-red-500"
+                  className="pl-10 bg-input border-border text-foreground placeholder:text-muted-foreground focus:border-ring focus:ring-ring"
                 />
               </div>
               <Button
@@ -209,7 +209,7 @@ export function StorefrontFooter() {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-gray-800"
+                  className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-muted"
                   aria-label={social.label}
                 >
                   <social.icon className="w-6 h-6" />
@@ -220,17 +220,17 @@ export function StorefrontFooter() {
         </div>
 
         {/* 底部区域：支付方式 + 版权 */}
-        <div className="border-t border-gray-800 mt-10 pt-6">
+        <div className="mt-10 border-t border-border pt-6">
           {/* 支付方式图标行 */}
           <div className="flex items-center justify-center gap-3 mb-4">
             {paymentMethods.map((method, index) => (
-              <span key={method} className="flex items-center text-gray-400 text-xs">
-                {index > 0 && <span className="mr-3 text-gray-600">|</span>}
-                <span className="px-2 py-1 bg-gray-800 rounded text-[11px] font-medium">{method}</span>
+              <span key={method} className="flex items-center text-muted-foreground text-xs">
+                {index > 0 && <span className="mr-3 text-muted-foreground">|</span>}
+                <span className="px-2 py-1 bg-muted text-foreground rounded text-[11px] font-medium">{method}</span>
               </span>
             ))}
           </div>
-          <p className="text-center text-gray-500 text-xs md:text-sm">
+          <p className="text-center text-muted-foreground text-xs md:text-sm">
             {t("copyright")}
           </p>
         </div>

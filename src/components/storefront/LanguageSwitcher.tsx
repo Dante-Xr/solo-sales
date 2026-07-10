@@ -67,7 +67,7 @@ export function LanguageSwitcher() {
             <button
               key={lang.code}
               onClick={() => handleSelect(lang.code)}
-              className="w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-accent transition-colors text-foreground"
+              className="w-full flex items-center justify-between px-3 py-2 text-sm text-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:bg-muted focus-visible:text-foreground focus-visible:outline-none"
             >
               <span>{lang.label}</span>
               {locale === lang.code && (

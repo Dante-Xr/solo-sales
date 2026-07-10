@@ -2,7 +2,7 @@ declare module "@paypal/checkout-server-sdk" {
   namespace core {
     class PayPalHttpClient {
       constructor(environment: SandboxEnvironment | LiveEnvironment);
-      execute<T = any>(request: any): Promise<{ result: T }>;
+      execute<T = unknown>(request: unknown): Promise<{ result: T }>;
     }
 
     class SandboxEnvironment {
@@ -17,12 +17,12 @@ declare module "@paypal/checkout-server-sdk" {
   namespace orders {
     class OrdersCreateRequest {
       prefer(prefer: string): void;
-      requestBody(body: any): void;
+      requestBody(body: unknown): void;
     }
 
     class OrdersCaptureRequest {
       constructor(orderId: string);
-      requestBody(body: any): void;
+      requestBody(body: unknown): void;
     }
 
     class OrdersGetRequest {
@@ -150,7 +150,7 @@ export interface PayPalOrderResponse {
  */
 export interface PayPalCaptureRequest {
   /** 可选的捕获参数 */
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**

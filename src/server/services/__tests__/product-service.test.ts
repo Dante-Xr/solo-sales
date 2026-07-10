@@ -218,6 +218,7 @@ describe("product-service", () => {
       images: ["https://example.com/image.jpg"],
       isPublished: true,
       _count: { orderItems: 7 },
+      category: { id: "cat_1", name: "电子产品" },
     })
 
     expect(transformed).toEqual({
@@ -229,6 +230,8 @@ describe("product-service", () => {
       image: "https://example.com/image.jpg",
       sales: 7,
       stock: 3,
+      categoryId: "cat_1",
+      categoryName: "电子产品",
     })
   })
 
@@ -243,6 +246,7 @@ describe("product-service", () => {
         images: ["/best.jpg"],
         isPublished: true,
         _count: { orderItems: 12 },
+        category: { id: "cat_1", name: "电子产品" },
       },
     ])
 
@@ -253,6 +257,7 @@ describe("product-service", () => {
       where: { isPublished: true },
       orderBy: { orderItems: { _count: "desc" } },
       include: {
+        category: { select: { id: true, name: true } },
         _count: { select: { orderItems: true } },
       },
     })
@@ -266,6 +271,8 @@ describe("product-service", () => {
         image: "/best.jpg",
         sales: 12,
         stock: 8,
+        categoryId: "cat_1",
+        categoryName: "电子产品",
       },
     ])
     expect(cacheSet).toHaveBeenCalledWith(
@@ -318,6 +325,7 @@ describe("product-service", () => {
         images: [],
         isPublished: true,
         _count: { orderItems: 0 },
+        category: null,
       },
     ])
 
@@ -334,6 +342,8 @@ describe("product-service", () => {
         image: "",
         sales: 0,
         stock: 5,
+        categoryId: null,
+        categoryName: null,
       },
     ])
   })

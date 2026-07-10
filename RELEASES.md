@@ -1,6 +1,6 @@
 <!--
 修改时间：2026-07-06 00:00:00 +08:00
-修改内容：同步 v1.7.6 类型安全修复发布说明。
+修改内容：同步 v1.7.7-v1.7.9 Figma Enhance 全站风格迁移发布说明。
 修改模型：gpt-5
 -->
 
@@ -14,6 +14,9 @@ Comprehensive version history documenting all functional modules and features fr
 
 | Version | Release Date | Status |
 |---------|-------------|--------|
+| [1.7.9](#v179---2026-07-10) | 2026-07-10 | Current |
+| [1.7.8](#v178---2026-07-10) | 2026-07-10 | Included |
+| [1.7.7](#v177---2026-07-10) | 2026-07-10 | Included |
 | [1.7.6](#v176---2026-07-03) | 2026-07-03 | Latest |
 | [1.7.3](#v173---2026-07-02) | 2026-07-02 | Stable |
 | [1.7.0](#v170---2026-06-28) | 2026-06-28 | Stable |
@@ -28,6 +31,28 @@ Comprehensive version history documenting all functional modules and features fr
 | [1.0.0](#v100---2026-04-21) | 2026-04-21 | Stable |
 
 ---
+
+## v1.7.9 - 2026-07-10
+
+### Figma Enhance 全站风格收口
+
+- 管理后台与共享页面容器统一 Figma Enhance 设计 token。
+- 完成 dark mode、移动端安全区、focus/hover 和响应式验收范围。
+- 变更文档：[docs/changes/v1.7.9/README.md](docs/changes/v1.7.9/README.md)。
+
+## v1.7.8 - 2026-07-10
+
+### Figma Enhance 用户端迁移
+
+- 首页完成 Hero、分类筛选、商品卡、收藏、加购、Footer 和底部导航迁移。
+- 变更文档：[docs/changes/v1.7.8/README.md](docs/changes/v1.7.8/README.md)。
+
+## v1.7.7 - 2026-07-10
+
+### Figma Enhance 设计系统基础
+
+- 全局 token 与共享 UI 组件迁移至暖灰、深海军蓝和酒红视觉系统。
+- 变更文档：[docs/changes/v1.7.7/README.md](docs/changes/v1.7.7/README.md)。
 
 ## v1.7.6 - 2026-07-03
 

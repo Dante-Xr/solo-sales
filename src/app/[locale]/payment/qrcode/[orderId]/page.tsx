@@ -36,8 +36,38 @@ interface PageProps {
   params: Promise<{ orderId: string; locale: string }>
 }
 
+interface PaymentPageData {
+  order: Order
+  qrCodes: QRCode[]
+}
+
+interface PaymentPageError {
+  title: string
+  message: string
+  details?: string
+  tone: "error" | "warning"
+}
+
+function PaymentPageStatus({ title, message, details, tone }: PaymentPageError) {
+  const styles = tone === "warning"
+    ? "bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200"
+    : "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200"
+
+  return (
+    <div className="container max-w-4xl py-8 px-4">
+      <div className={`border rounded-lg p-6 ${styles}`}>
+        <h2 className="font-semibold text-lg mb-2">{title}</h2>
+        <p className="text-sm">{message}</p>
+        {details && <p className="text-xs mt-4 font-mono">{details}</p>}
+      </div>
+    </div>
+  )
+}
+
 export default async function QRCodePaymentPage({ params }: PageProps) {
   const { orderId } = await params
+  let paymentPage: PaymentPageData | null = null
+  let pageError: PaymentPageError | null = null
 
   try {
     // ✅ 服务端直接查询数据库（安全）
@@ -79,22 +109,14 @@ export default async function QRCodePaymentPage({ params }: PageProps) {
 
     // 收款码未配置
     if (qrCodesData.length === 0) {
-      return (
-        <div className="container max-w-4xl py-8 px-4">
-          <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
-            <h2 className="text-yellow-800 dark:text-yellow-200 font-semibold text-lg mb-2">
-              收款码未配置
-            </h2>
-            <p className="text-sm text-yellow-600 dark:text-yellow-400">
-              系统尚未配置收款码，请联系管理员。
-            </p>
-          </div>
-        </div>
-      )
-    }
-
-    // 转换为客户端组件需要的格式
-    const order: Order = {
+      pageError = {
+        title: "收款码未配置",
+        message: "系统尚未配置收款码，请联系管理员。",
+        tone: "warning",
+      }
+    } else {
+      // 转换为客户端组件需要的格式
+      const order: Order = {
       id: orderData.id,
       totalAmount: Number(orderData.totalAmount),
       status: orderData.status,
@@ -113,36 +135,30 @@ export default async function QRCodePaymentPage({ params }: PageProps) {
           price: Number(item.product.price)
         }
       }))
-    }
+      }
 
-    const qrCodes: QRCode[] = qrCodesData.map(qr => ({
+      const qrCodes: QRCode[] = qrCodesData.map(qr => ({
       id: qr.id,
       type: qr.type,
       name: qr.name,
       imageUrl: qr.imageUrl,
       accountName: qr.accountName || '',
       isTempSolution: qr.isTempSolution
-    }))
-
-    return <PaymentPageLayout order={order} qrCodes={qrCodes} />
+      }))
+      paymentPage = { order, qrCodes }
+    }
   } catch (error: unknown) {
     console.error('支付页面数据加载失败:', error)
-
-    // 数据库连接失败或其他错误
-    return (
-      <div className="container max-w-4xl py-8 px-4">
-        <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
-          <h2 className="text-red-800 dark:text-red-200 font-semibold text-lg mb-2">
-            加载失败
-          </h2>
-          <p className="text-sm text-red-600 dark:text-red-400 mb-4">
-            无法加载订单信息，请稍后重试。如果问题持续存在，请联系客服。
-          </p>
-          <p className="text-xs text-red-500 dark:text-red-500 font-mono">
-            {error instanceof Error ? error.message : '未知错误'}
-          </p>
-        </div>
-      </div>
-    )
+    pageError = {
+      title: "加载失败",
+      message: "无法加载订单信息，请稍后重试。如果问题持续存在，请联系客服。",
+      details: error instanceof Error ? error.message : "未知错误",
+      tone: "error",
+    }
   }
+
+  if (pageError) return <PaymentPageStatus {...pageError} />
+  if (!paymentPage) notFound()
+
+  return <PaymentPageLayout order={paymentPage.order} qrCodes={paymentPage.qrCodes} />
 }

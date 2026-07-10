@@ -103,7 +103,7 @@ export default function EnhancedChatbot({
     if (!content.trim() || isLoading) return
 
     const userMessage: ChatMessage = {
-      id: `user-${Date.now()}`,
+      id: createMessageId("user"),
       role: "user",
       content: content.trim(),
       timestamp: new Date()
@@ -131,7 +131,7 @@ export default function EnhancedChatbot({
         const { response: ragResponse } = data.data
 
         const assistantMessage: ChatMessage = {
-          id: `assistant-${Date.now()}`,
+          id: createMessageId("assistant"),
           role: "assistant",
           content: ragResponse.answer,
           intent: ragResponse.intent,
@@ -155,7 +155,7 @@ export default function EnhancedChatbot({
       }
     } catch {
       const errorMessage: ChatMessage = {
-        id: `error-${Date.now()}`,
+        id: createMessageId("error"),
         role: "assistant",
         content: t.error[locale],
         timestamp: new Date()
@@ -289,7 +289,7 @@ export default function EnhancedChatbot({
           </div>
 
           {/* 消息列表 */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/50">
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -299,14 +299,14 @@ export default function EnhancedChatbot({
                   className={`max-w-[80%] rounded-2xl px-4 py-2 ${
                     message.role === "user"
                       ? "text-white rounded-br-sm"
-                      : "bg-white text-gray-800 rounded-bl-sm shadow-sm"
+                      : "bg-card text-card-foreground rounded-bl-sm shadow-sm"
                   }`}
                   style={message.role === "user" ? { backgroundColor: primaryColor } : {}}
                 >
                   <div className="text-sm whitespace-pre-wrap">{message.content}</div>
                   <div
                     className={`text-xs mt-1 ${
-                      message.role === "user" ? "text-white/60" : "text-gray-400"
+                      message.role === "user" ? "text-white/70" : "text-muted-foreground"
                     }`}
                   >
                     {formatTime(message.timestamp)}
@@ -317,11 +317,11 @@ export default function EnhancedChatbot({
 
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-white rounded-2xl rounded-bl-sm shadow-sm px-4 py-3">
+                <div className="bg-card rounded-2xl rounded-bl-sm shadow-sm px-4 py-3">
                   <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                   </div>
                 </div>
               </div>
@@ -329,8 +329,8 @@ export default function EnhancedChatbot({
 
             {showSatisfaction && (
               <div className="flex justify-start">
-                <div className="bg-white rounded-2xl rounded-bl-sm shadow-sm px-4 py-3">
-                  <div className="text-sm text-gray-600 mb-2">{t.satisfaction[locale]}</div>
+                <div className="bg-card rounded-2xl rounded-bl-sm shadow-sm px-4 py-3">
+                  <div className="text-sm text-card-foreground mb-2">{t.satisfaction[locale]}</div>
                   <div className="flex gap-2">
                     {(["satisfied", "neutral", "dissatisfied"] as const).map((rating) => (
                       <button
@@ -355,13 +355,13 @@ export default function EnhancedChatbot({
 
           {/* 快捷回复 */}
           {messages.length > 1 && !isLoading && (
-            <div className="px-4 py-2 border-t bg-white">
+            <div className="px-4 py-2 border-t border-border bg-card">
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {getSuggestedResponses().map((suggestion, index) => (
                   <button
                     key={index}
                     onClick={() => sendMessage(suggestion)}
-                    className="px-3 py-1 text-xs rounded-full border border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-colors whitespace-nowrap"
+                    className="px-3 py-1 text-xs rounded-full border border-border text-foreground hover:border-foreground/30 hover:bg-muted transition-colors whitespace-nowrap"
                   >
                     {suggestion}
                   </button>
@@ -371,7 +371,7 @@ export default function EnhancedChatbot({
           )}
 
           {/* 输入框 */}
-          <div className="p-4 border-t bg-white">
+          <div className="p-4 border-t border-border bg-card">
             <form
               onSubmit={(e) => {
                 e.preventDefault()
@@ -385,7 +385,7 @@ export default function EnhancedChatbot({
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder={locale === "zh" ? "输入您的问题..." : "Type your message..."}
-                className="flex-1 px-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:border-gray-400 text-sm"
+                className="flex-1 px-4 py-2 rounded-full border border-border bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-ring text-sm"
                 disabled={isLoading}
               />
               <button
@@ -404,4 +404,7 @@ export default function EnhancedChatbot({
       )}
     </>
   )
+}
+function createMessageId(prefix: string) {
+  return `${prefix}-${crypto.randomUUID()}`
 }

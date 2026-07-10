@@ -10,6 +10,9 @@ jest.mock('nodemailer', () => ({
 
 describe('EmailNotificationService', () => {
   let service: EmailNotificationService
+  type PaymentApprovedArgs = Parameters<EmailNotificationService['sendPaymentApprovedEmail']>
+  type PaymentRejectedArgs = Parameters<EmailNotificationService['sendPaymentRejectedEmail']>
+  type AutoApprovedArgs = Parameters<EmailNotificationService['sendAutoApprovedEmail']>
 
   beforeEach(() => {
     service = new EmailNotificationService()
@@ -20,7 +23,7 @@ describe('EmailNotificationService', () => {
     const order = { id: 'order-123', totalAmount: 100.50 }
     const user = { email: 'user@example.com', name: 'Test User' }
 
-    await service.sendPaymentApprovedEmail(order as any, user as any)
+    await service.sendPaymentApprovedEmail(order as unknown as PaymentApprovedArgs[0], user as PaymentApprovedArgs[1])
 
     expect(mockSendMail).toHaveBeenCalledTimes(1)
     expect(mockSendMail).toHaveBeenCalledWith(
@@ -35,7 +38,7 @@ describe('EmailNotificationService', () => {
     const order = { id: 'order-123', totalAmount: 100.50 }
     const user = { email: 'user@example.com', name: 'Test User' }
 
-    await service.sendPaymentRejectedEmail(order as any, user as any, '金额不符')
+    await service.sendPaymentRejectedEmail(order as unknown as PaymentRejectedArgs[0], user as PaymentRejectedArgs[1], '金额不符')
 
     expect(mockSendMail).toHaveBeenCalledTimes(1)
     expect(mockSendMail).toHaveBeenCalledWith(
@@ -50,7 +53,7 @@ describe('EmailNotificationService', () => {
     const order = { id: 'order-123', totalAmount: 100.50 }
     const user = { email: 'user@example.com', name: 'Test User' }
 
-    await service.sendAutoApprovedEmail(order as any, user as any)
+    await service.sendAutoApprovedEmail(order as unknown as AutoApprovedArgs[0], user as AutoApprovedArgs[1])
 
     expect(mockSendMail).toHaveBeenCalledTimes(1)
   })

@@ -79,7 +79,7 @@ export default function OrdersPage() {
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gradient-from to-brand-gradient-to flex items-center justify-center">
                       <span className="text-brand-foreground font-bold text-sm">S</span>
                     </div>
-                    <span className="text-xl font-bold text-foreground hidden sm:block">SoloSales</span>
+                    <span className="text-xl font-bold text-foreground hidden sm:block">Solo Sales</span>
                   </Link>
                 </div>
                 <div className="flex items-center gap-4">
@@ -118,7 +118,7 @@ export default function OrdersPage() {
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gradient-from to-brand-gradient-to flex items-center justify-center">
                     <span className="text-brand-foreground font-bold text-sm">S</span>
                   </div>
-                  <span className="text-xl font-bold text-foreground hidden sm:block">SoloSales</span>
+                  <span className="text-xl font-bold text-foreground hidden sm:block">Solo Sales</span>
                 </Link>
                 <nav className="hidden lg:flex items-center gap-6">
                   <Link

@@ -1,11 +1,13 @@
 'use client'
 
+/* eslint-disable react-hooks/static-components -- These payment subviews intentionally capture their shared page state. */
+
 import { useState } from 'react'
 import Image from 'next/image'
 import { Upload, Info, CheckCircle, Clock, Loader2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { Dialog, DialogContent, DialogClose } from '@/components/ui/dialog'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 
 interface QRCode {
   id: string
@@ -42,6 +44,13 @@ interface Props {
   qrCodes: QRCode[]
 }
 
+interface UploadProofResponse {
+  success?: boolean
+  status?: string
+  message?: string
+  error?: string
+}
+
 export function PaymentPageLayout({ order, qrCodes }: Props) {
   const [selectedQRCode, setSelectedQRCode] = useState(qrCodes[0])
   const [uploading, setUploading] = useState(false)
@@ -49,7 +58,7 @@ export function PaymentPageLayout({ order, qrCodes }: Props) {
   const [uploadStage, setUploadStage] = useState<string>('') // 上传阶段描述
   const [uploadedImage, setUploadedImage] = useState<string | null>(null)
   const [showPreview, setShowPreview] = useState(false)
-  const [uploadResult, setUploadResult] = useState<any>(null)
+  const [uploadResult, setUploadResult] = useState<UploadProofResponse | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
 
   async function handleUploadProof(file: File) {
@@ -131,7 +140,7 @@ export function PaymentPageLayout({ order, qrCodes }: Props) {
       setUploadStage('保存凭证信息...')
       setUploadProgress(90)
 
-      const result = await response.json()
+      const result = await response.json() as UploadProofResponse
       console.log('上传结果:', result)
 
       if (!response.ok) {
@@ -158,9 +167,9 @@ export function PaymentPageLayout({ order, qrCodes }: Props) {
         }
       }, 500)
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('上传错误:', error)
-      const errorMessage = error.message || '上传失败，请重试'
+      const errorMessage = error instanceof Error ? error.message : '上传失败，请重试'
       setUploadError(errorMessage)
       setUploadStage('')
       setUploadedImage(null)
@@ -497,7 +506,7 @@ export function PaymentPageLayout({ order, qrCodes }: Props) {
                 )}
                 {uploadError.includes('过大') && (
                   <p className="text-xs text-red-700 dark:text-red-300 mb-3 bg-red-100 dark:bg-red-900/30 rounded px-2 py-1">
-                    💡 提示：可以使用微信"图片编辑"功能压缩图片后再上传
+                    💡 提示：可以使用微信“图片编辑”功能压缩图片后再上传
                   </p>
                 )}
                 {uploadError.includes('已上传') && (
