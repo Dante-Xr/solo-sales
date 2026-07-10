@@ -6,7 +6,7 @@
     ".trae/specs"
   ],
   "source_count": 180,
-  "aggregate_sha256": "676869ce7e9bfd1038432d4a53158205f7e4dc93e3c2e422cc1be630d2f7b6ba",
+  "aggregate_sha256": "54714dd24f5e47065facce7d5ebf7306ff05eb62901dc52f273f30878736186f",
   "entries": [
     {
       "source": ".trae/documents/2026-03-23_v0.4.0_部署计划.md",
@@ -298,11 +298,11 @@
     },
     {
       "source": ".trae/documents/2026-03-25_v0.5.0_项目综合评估与优先级开发计划.md",
-      "sha256": "7efa64f9ca0976ca95bb4db62d30d34d1972a048f2c37dd43138a5df9608fd1e",
+      "sha256": "6aa626fb1bb73f3c0982960f0569ded88c8dc2f8cbf83c924536ddfaa7a5ccef",
       "title": "SoloSales 项目综合评估与优先级开发计划",
       "version": "v0.5.0",
       "kind": "document",
-      "lines": 289,
+      "lines": 290,
       "checkboxes": {
         "complete": 0,
         "incomplete": 9
@@ -468,7 +468,7 @@
     },
     {
       "source": ".trae/documents/2026-03-26_v0.5.9_项目全面测试与评估计划.md",
-      "sha256": "a5a9d205f3714a4c304bcbc461e3997b1a9cc1af86cd110ad7ada22d11650794",
+      "sha256": "207b530462d8c93799f48f6caa9465f500728948310c97ee7d838d51a4a79a30",
       "title": "v0.5.9 项目全面测试与评估计划",
       "version": "v0.5.9",
       "kind": "document",
@@ -771,11 +771,11 @@
     },
     {
       "source": ".trae/documents/2026-07-02_v1.7.3_PayPal Business集成.md",
-      "sha256": "7822c4329dfee60207d8468be1721808b91221781005bb31191f8c9ef63ff7e0",
+      "sha256": "ebe759a30e4b38d14f22fa6c7e5afade7544cf449e531289b2b19fe0eb639d24",
       "title": "SoloSales v1.7.3 PayPal Business 集成",
       "version": "v1.7.3",
       "kind": "document",
-      "lines": 229,
+      "lines": 228,
       "checkboxes": {
         "complete": 0,
         "incomplete": 0
@@ -788,11 +788,11 @@
     },
     {
       "source": ".trae/documents/2026-07-03_v1.7.6_类型安全修复.md",
-      "sha256": "7c9829667d61bf32de2cfa7a31fca5c32cc0a5d4416d462bd63e7c03db4045f5",
+      "sha256": "1a89952e8a98f2a692603f4259dac89d4cc243c2fa9f2b53aa886e827dd99cd5",
       "title": "SoloSales v1.7.6 类型安全修复",
       "version": "v1.7.6",
       "kind": "document",
-      "lines": 510,
+      "lines": 509,
       "checkboxes": {
         "complete": 0,
         "incomplete": 0
@@ -805,11 +805,11 @@
     },
     {
       "source": ".trae/documents/implements/2026-06-27_v1.7_多支付交易主链路闭环_实施计划.md",
-      "sha256": "193df39fbd32e569e2d6420837e6977fef911726a7f896bea2ed08af430916f2",
+      "sha256": "2a19b5f4b4fa49b9a8dda8fcf3a380d438ba76890ceaf4fade6dbf9a67d3cadb",
       "title": "SoloSales v1.7 多支付交易主链路闭环 实施计划",
       "version": "v1.7",
       "kind": "document",
-      "lines": 1085,
+      "lines": 1083,
       "checkboxes": {
         "complete": 4,
         "incomplete": 10
@@ -839,11 +839,11 @@
     },
     {
       "source": ".trae/documents/implements/2026-06-28_v1.7_最终交付报告.md",
-      "sha256": "034b45b2d45cfba8f1209af3fe3f8ae3d8673e9d32cbab37d386cf3ccb55da46",
+      "sha256": "d719e485c09b411c1390ccd7e93e4b7f9693b7a829a74fa7c2cbeb5d73b771a2",
       "title": "v1.7 多支付交易主链路闭环 - 最终交付报告",
       "version": "v1.7",
       "kind": "document",
-      "lines": 392,
+      "lines": 391,
       "checkboxes": {
         "complete": 4,
         "incomplete": 30
@@ -856,11 +856,11 @@
     },
     {
       "source": ".trae/documents/implements/2026-06-28_v1.7_Phase6验收报告.md",
-      "sha256": "4a547fdb3325aff942834ebb38fbcf5f58ab23b9afed75f9c2d03f6a1d50abec",
+      "sha256": "12aff6e1b20c623594492f2fe5d753a5a9f842f66e127169db4ab4223300e52b",
       "title": "v1.7 Phase 6 验收报告 - TDD验证完成",
       "version": "v1.7",
       "kind": "document",
-      "lines": 278,
+      "lines": 277,
       "checkboxes": {
         "complete": 43,
         "incomplete": 8
@@ -873,11 +873,11 @@
     },
     {
       "source": ".trae/documents/implements/2026-06-28_v1.7.0_发布完成.md",
-      "sha256": "2080877ec6937457b8f13036bd5105f75e6c42571d4b20675058211e62283a35",
+      "sha256": "366de8abd074231555ab072086840ad75e21c5f7c9d5b297e3d7c0124d2d0f18",
       "title": "✅ v1.7.0 发布完成",
       "version": "v1.7.0",
       "kind": "document",
-      "lines": 288,
+      "lines": 287,
       "checkboxes": {
         "complete": 22,
         "incomplete": 12
@@ -890,11 +890,11 @@
     },
     {
       "source": ".trae/documents/implements/2026-07-03_v1.7.6_进度报告.md",
-      "sha256": "fa5eddaa375c36d3cb068e87cc3d898d91ac4210404a6a177cb9c3f348f123ca",
+      "sha256": "7dd5963e264ecf3af22be02746930138f337ee6e4d0a4638e3d1cbd40660580e",
       "title": "SoloSales v1.7.6 类型安全修复 - 进度报告",
       "version": "v1.7.6",
       "kind": "document",
-      "lines": 253,
+      "lines": 252,
       "checkboxes": {
         "complete": 0,
         "incomplete": 0
@@ -975,11 +975,11 @@
     },
     {
       "source": ".trae/documents/v1.7.2_Progress.md",
-      "sha256": "60dcc8c61e7f7927b146414f37cbefb1650e55577c524872e239a7516e7812ff",
+      "sha256": "3f16f0b2c3830ca416942b08bcb473b671bb5845292ce4de47e13657d1fff7a8",
       "title": "v1.7.2 开发进度 - TDD执行记录",
       "version": "v1.7.2",
       "kind": "document",
-      "lines": 97,
+      "lines": 96,
       "checkboxes": {
         "complete": 15,
         "incomplete": 9
@@ -2621,11 +2621,11 @@
     },
     {
       "source": ".trae/specs/v1.6.5-playwright-theme-optimization/checklist.md",
-      "sha256": "4a5f7634a7d4702e8b2c3bf799e627c415e4820bb67f0e1114b580d944a5ab15",
+      "sha256": "052ed3d453a6295213e99afd2571b538d90fb2910ebde2200c7a72cb8e94671d",
       "title": "SoloSales v1.6.5 Playwright 测试与主题色优化 Checklist",
       "version": "v1.6.5",
       "kind": "checklist",
-      "lines": 286,
+      "lines": 285,
       "checkboxes": {
         "complete": 0,
         "incomplete": 189
@@ -2638,11 +2638,11 @@
     },
     {
       "source": ".trae/specs/v1.6.5-playwright-theme-optimization/spec.md",
-      "sha256": "046e552afb0fb55c37dedde1f39041ebe4064fd9e38199c1cf204573b6dde48e",
+      "sha256": "6c714fabff7c0b0e73bf57382cec44084c0253e474e9e1b2e17db8681910295e",
       "title": "SoloSales v1.6.5 Playwright 测试与主题色优化 Spec",
       "version": "v1.6.5",
       "kind": "spec",
-      "lines": 205,
+      "lines": 204,
       "checkboxes": {
         "complete": 0,
         "incomplete": 0
@@ -2655,11 +2655,11 @@
     },
     {
       "source": ".trae/specs/v1.6.5-playwright-theme-optimization/tasks.md",
-      "sha256": "b7c5dd2d35d6848466e10cf283f35be0a8baa6797e8daa589e65b69434d18b1b",
+      "sha256": "fa17715d7eb9268febe4df60e90ff627fdb340b664f47f2de74ad674ae5f069d",
       "title": "SoloSales v1.6.5 Playwright 测试与主题色优化 Tasks",
       "version": "v1.6.5",
       "kind": "tasks",
-      "lines": 245,
+      "lines": 244,
       "checkboxes": {
         "complete": 0,
         "incomplete": 149
@@ -2723,11 +2723,11 @@
     },
     {
       "source": ".trae/specs/v1.7.2-personal-qrcode-payment/design.md",
-      "sha256": "919618392b932b4f696cb588920f22097add2d34a2d2d0e41de6a1763b38d77d",
+      "sha256": "ab82ecf274636f8567421da3c08ef3f26bad17321cbb4a54f56d52197e2ae530",
       "title": "SoloSales v1.7.2 个人收款码支付方案 设计文档",
       "version": "v1.7.2",
       "kind": "document",
-      "lines": 547,
+      "lines": 545,
       "checkboxes": {
         "complete": 0,
         "incomplete": 0
@@ -2791,11 +2791,11 @@
     },
     {
       "source": ".trae/specs/v1.7.6-type-safety/checklist.md",
-      "sha256": "cfd91de25da1925775f987c9d1f833c024ecd113d7f22823833865873c7802d3",
+      "sha256": "5ebec42c4f3e8b32d40a795297938aeb33897342ffc6810e9abf61262d8a21ea",
       "title": "SoloSales v1.7.6 类型安全修复 Checklist",
       "version": "v1.7.6",
       "kind": "checklist",
-      "lines": 231,
+      "lines": 230,
       "checkboxes": {
         "complete": 0,
         "incomplete": 130
@@ -2825,11 +2825,11 @@
     },
     {
       "source": ".trae/specs/v1.7.6-type-safety/spec.md",
-      "sha256": "06f3f6634495d7473193010a081ea8bb21f403fa52dda08b03f25613f6667bea",
+      "sha256": "a82f77499c445c257eec8770312eda1dd24015ceb3210aeb8e79b40c1217556d",
       "title": "SoloSales v1.7.6 类型安全修复 Spec",
       "version": "v1.7.6",
       "kind": "spec",
-      "lines": 212,
+      "lines": 211,
       "checkboxes": {
         "complete": 0,
         "incomplete": 0
@@ -2842,11 +2842,11 @@
     },
     {
       "source": ".trae/specs/v1.7.6-type-safety/tasks.md",
-      "sha256": "00345a68ebeb11b0bea982143708f922384b1b41ac44a0fcf066ccc081d5046a",
+      "sha256": "cdaeeb90bc76a8ed1be786c899a88e287e870cafed2968d82f299ca51459cd9a",
       "title": "SoloSales v1.7.6 类型安全修复 Tasks",
       "version": "v1.7.6",
       "kind": "tasks",
-      "lines": 244,
+      "lines": 243,
       "checkboxes": {
         "complete": 0,
         "incomplete": 130

@@ -19,7 +19,7 @@ test("captures every .trae project document in the frozen source set", () => {
   assert.equal(inventory.entries.length, 180)
   assert.equal(
     inventory.aggregateSha256,
-    "676869ce7e9bfd1038432d4a53158205f7e4dc93e3c2e422cc1be630d2f7b6ba"
+    "54714dd24f5e47065facce7d5ebf7306ff05eb62901dc52f273f30878736186f"
   )
 })
 
