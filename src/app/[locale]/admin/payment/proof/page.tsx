@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { CheckCircle, XCircle } from 'lucide-react'
@@ -32,11 +32,7 @@ export default function PaymentProofReviewPage() {
   const [selectedProof, setSelectedProof] = useState<PaymentProof | null>(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetchPendingProofs()
-  }, [])
-
-  async function fetchPendingProofs() {
+  const fetchPendingProofs = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/payment/proof/pending')
       if (!response.ok) throw new Error('Failed to fetch')
@@ -48,7 +44,11 @@ export default function PaymentProofReviewPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    void fetchPendingProofs()
+  }, [fetchPendingProofs])
 
   async function handleReview(proofId: string, action: 'approve' | 'reject') {
     let rejectReason: string | null = null
@@ -73,8 +73,9 @@ export default function PaymentProofReviewPage() {
       alert('审核完成')
       setSelectedProof(null)
       fetchPendingProofs() // Reload list
-    } catch (error: any) {
-      alert('审核失败：' + error.message)
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Review failed'
+      alert('审核失败：' + message)
     }
   }
 

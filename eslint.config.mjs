@@ -22,11 +22,18 @@ const eslintConfig = defineConfig([
       "@next/next/no-img-element": "off",
     }
   },
+  {
+    files: ["scripts/**/*.js"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
   globalIgnores([
     ".next/**",
     ".venv/**",
     "out/**",
     "build/**",
+    "figma frontend enhance/**",
     "next-env.d.ts",
   ]),
 ]);

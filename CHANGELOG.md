@@ -10,6 +10,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.7.7] - 2026-07-14
+
+### Documentation Migration and Release Governance
+
+#### Added
+- 受版本控制的 `docs` 治理结构、当前规格、发布路线图和版本变更目录。
+- `.trae` 历史 Markdown 来源清单、迁移映射与 `npm run docs:check` 验证脚本。
+- v1.7.7 Issue #5 的规格和任务记录。
+
+#### Changed
+- 历史 `.trae` 文档由本地源资料转为可审计的 `docs/legacy` 迁移证据。
+- v1.7.7-v1.7.9 使用独立 Issue、路线图和发布状态记录。
+
 ## [1.7.6] - 2026-07-03
 
 ### Type Safety Refactor - 类型安全边界收紧

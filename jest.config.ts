@@ -20,7 +20,8 @@ const config: Config = {
   testPathIgnorePatterns: [
     "<rootDir>/node_modules/",
     "<rootDir>/.next/",
-    "<rootDir>/tests/e2e/"  // 排除E2E测试（使用Playwright）
+    "<rootDir>/tests/e2e/", // 排除E2E测试（使用Playwright）
+    "<rootDir>/scripts/node-tests/", // 使用 node --test 的原生测试
   ],
 }
 

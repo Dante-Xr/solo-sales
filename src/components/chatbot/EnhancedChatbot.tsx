@@ -74,12 +74,18 @@ export default function EnhancedChatbot({
   const [lastIntent, setLastIntent] = useState<Intent | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const messageSequence = useRef(0)
 
   const t = DEFAULT_MESSAGES
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [])
+
+  const nextMessageId = (prefix: "user" | "assistant" | "error") => {
+    messageSequence.current += 1
+    return `${prefix}-${messageSequence.current}`
+  }
 
   useEffect(() => {
     if (isOpen) {
@@ -103,7 +109,7 @@ export default function EnhancedChatbot({
     if (!content.trim() || isLoading) return
 
     const userMessage: ChatMessage = {
-      id: `user-${Date.now()}`,
+      id: nextMessageId("user"),
       role: "user",
       content: content.trim(),
       timestamp: new Date()
@@ -131,7 +137,7 @@ export default function EnhancedChatbot({
         const { response: ragResponse } = data.data
 
         const assistantMessage: ChatMessage = {
-          id: `assistant-${Date.now()}`,
+          id: nextMessageId("assistant"),
           role: "assistant",
           content: ragResponse.answer,
           intent: ragResponse.intent,
@@ -155,7 +161,7 @@ export default function EnhancedChatbot({
       }
     } catch {
       const errorMessage: ChatMessage = {
-        id: `error-${Date.now()}`,
+        id: nextMessageId("error"),
         role: "assistant",
         content: t.error[locale],
         timestamp: new Date()

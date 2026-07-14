@@ -72,20 +72,21 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ error: "PayPal 支付创建失败" }, { status: 500 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("PayPal checkout error:", error);
+    const details = error instanceof Error ? error.message : "Unknown error";
 
     // 友好的错误提示
     let errorMessage = "创建支付失败，请稍后重试";
 
-    if (error.message?.includes("not enabled")) {
+    if (details.includes("not enabled")) {
       errorMessage = "PayPal 支付未启用，请联系管理员";
-    } else if (error.message?.includes("not configured")) {
+    } else if (details.includes("not configured")) {
       errorMessage = "PayPal 配置不完整，请联系管理员";
     }
 
     return NextResponse.json(
-      { error: errorMessage, details: error.message },
+      { error: errorMessage, details },
       { status: 500 },
     );
   }

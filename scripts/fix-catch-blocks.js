@@ -7,7 +7,6 @@
  */
 
 const fs = require('fs');
-const path = require('path');
 const { execSync } = require('child_process');
 
 // 查找所有需要修复的文件
@@ -28,7 +27,6 @@ const findFilesWithCatchBlocks = () => {
 const fixFile = (filePath) => {
   try {
     let content = fs.readFileSync(filePath, 'utf-8');
-    let modified = false;
 
     // 检查是否已经有 error: unknown
     if (content.includes('catch (error: unknown)')) {
@@ -40,7 +38,6 @@ const fixFile = (filePath) => {
     if (/catch\s*\(\s*error\s*\)/.test(content)) {
       // 替换 catch (error) 为 catch (error: unknown)
       content = content.replace(/catch\s*\(\s*error\s*\)/g, 'catch (error: unknown)');
-      modified = true;
 
       // 检查是否需要添加 getErrorMessage 导入
       const needsGetErrorMessage = /error\.message/.test(content);

@@ -50,6 +50,77 @@ interface Conversation {
   messages: ChatMessage[]
 }
 
+const FALLBACK_CONVERSATIONS: Conversation[] = [
+  {
+    oderId: "user_1",
+    oderName: "TikTok User 1",
+    oderEmail: "user1@tiktok.com",
+    lastMessage: "请问这个商品什么时候发货？",
+    lastMessageTime: "2026-07-14T08:00:00.000Z",
+    unreadCount: 2,
+    messages: [
+      {
+        id: "msg_1",
+        content: "你好，我想问一下这个商品的物流情况",
+        isFromAdmin: false,
+        isRead: true,
+        createdAt: "2026-07-14T07:00:00.000Z",
+        user: { id: "user_1", name: "TikTok User 1", email: "user1@tiktok.com" },
+      },
+      {
+        id: "msg_2",
+        content: "您好，您的订单已发货，预计3-5天到达",
+        isFromAdmin: true,
+        isRead: true,
+        createdAt: "2026-07-14T07:30:00.000Z",
+        user: { id: "admin", name: "Admin", email: null },
+      },
+      {
+        id: "msg_3",
+        content: "请问这个商品什么时候发货？",
+        isFromAdmin: false,
+        isRead: false,
+        createdAt: "2026-07-14T08:00:00.000Z",
+        user: { id: "user_1", name: "TikTok User 1", email: "user1@tiktok.com" },
+      },
+    ],
+  },
+  {
+    oderId: "user_2",
+    oderName: "TikTok User 2",
+    oderEmail: "user2@tiktok.com",
+    lastMessage: "谢谢您的帮助",
+    lastMessageTime: "2026-07-14T06:00:00.000Z",
+    unreadCount: 0,
+    messages: [
+      {
+        id: "msg_4",
+        content: "我收到了，但尺码不对",
+        isFromAdmin: false,
+        isRead: true,
+        createdAt: "2026-07-13T08:00:00.000Z",
+        user: { id: "user_2", name: "TikTok User 2", email: "user2@tiktok.com" },
+      },
+      {
+        id: "msg_5",
+        content: "抱歉给您带来不便，我们可以提供换货服务",
+        isFromAdmin: true,
+        isRead: true,
+        createdAt: "2026-07-13T09:00:00.000Z",
+        user: { id: "admin", name: "Admin", email: null },
+      },
+      {
+        id: "msg_6",
+        content: "谢谢您的帮助",
+        isFromAdmin: false,
+        isRead: true,
+        createdAt: "2026-07-14T06:00:00.000Z",
+        user: { id: "user_2", name: "TikTok User 2", email: "user2@tiktok.com" },
+      },
+    ],
+  },
+]
+
 export default function ChatPage() {
   const t = useTranslations('admin.chat')
   const locale = useLocale()
@@ -68,83 +139,9 @@ export default function ChatPage() {
     },
   })
 
-  const conversations: Conversation[] = (() => {
-    const raw = messagesData?.data
-    // Refine 的 useList 在当前数据源下直接返回会话数组，这里做运行时守卫后再收窄类型。
-    if (Array.isArray(raw) && raw.length > 0) {
-      return raw as Conversation[]
-    }
-    return [
-      {
-        oderId: "user_1",
-        oderName: "TikTok User 1",
-        oderEmail: "user1@tiktok.com",
-        lastMessage: "请问这个商品什么时候发货？",
-        lastMessageTime: new Date().toISOString(),
-        unreadCount: 2,
-        messages: [
-          {
-            id: "msg_1",
-            content: "你好，我想问一下这个商品的物流情况",
-            isFromAdmin: false,
-            isRead: true,
-            createdAt: new Date(Date.now() - 3600000).toISOString(),
-            user: { id: "user_1", name: "TikTok User 1", email: "user1@tiktok.com" },
-          },
-          {
-            id: "msg_2",
-            content: "您好，您的订单已发货，预计3-5天到达",
-            isFromAdmin: true,
-            isRead: true,
-            createdAt: new Date(Date.now() - 1800000).toISOString(),
-            user: { id: "admin", name: "Admin", email: null },
-          },
-          {
-            id: "msg_3",
-            content: "请问这个商品什么时候发货？",
-            isFromAdmin: false,
-            isRead: false,
-            createdAt: new Date().toISOString(),
-            user: { id: "user_1", name: "TikTok User 1", email: "user1@tiktok.com" },
-          },
-        ],
-      },
-      {
-        oderId: "user_2",
-        oderName: "TikTok User 2",
-        oderEmail: "user2@tiktok.com",
-        lastMessage: "谢谢您的帮助",
-        lastMessageTime: new Date(Date.now() - 7200000).toISOString(),
-        unreadCount: 0,
-        messages: [
-          {
-            id: "msg_4",
-            content: "我收到了，但尺码不对",
-            isFromAdmin: false,
-            isRead: true,
-            createdAt: new Date(Date.now() - 86400000).toISOString(),
-            user: { id: "user_2", name: "TikTok User 2", email: "user2@tiktok.com" },
-          },
-          {
-            id: "msg_5",
-            content: "抱歉给您带来不便，我们可以提供换货服务",
-            isFromAdmin: true,
-            isRead: true,
-            createdAt: new Date(Date.now() - 82800000).toISOString(),
-            user: { id: "admin", name: "Admin", email: null },
-          },
-          {
-            id: "msg_6",
-            content: "谢谢您的帮助",
-            isFromAdmin: false,
-            isRead: true,
-            createdAt: new Date(Date.now() - 7200000).toISOString(),
-            user: { id: "user_2", name: "TikTok User 2", email: "user2@tiktok.com" },
-          },
-        ],
-      },
-    ]
-  })()
+  const conversations: Conversation[] = Array.isArray(messagesData?.data) && messagesData.data.length > 0
+    ? messagesData.data as Conversation[]
+    : FALLBACK_CONVERSATIONS
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })

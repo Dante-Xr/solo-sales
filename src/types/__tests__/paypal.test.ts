@@ -101,7 +101,7 @@ describe('PayPal SDK Types', () => {
   test('PayPalHttpClient.execute should return typed response', async () => {
     // 类型检查：确保 execute 方法返回正确类型
     const mockClient: Pick<PayPalHttpClient, 'execute'> = {
-      execute: async <T>(_request: any): Promise<{ result: T }> => {
+      execute: async <T>(_request: unknown): Promise<{ result: T }> => {
         return {
           result: {
             id: 'ORDER_ID',

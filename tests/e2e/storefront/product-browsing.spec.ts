@@ -90,8 +90,6 @@ test.describe('Product Browsing', () => {
     const categoryFilter = page.locator('[data-testid="category-filter"], button[class*="category"], a[class*="category"]').first();
 
     if (await categoryFilter.isVisible()) {
-      const initialProductCount = await page.locator('[data-testid="product-card"], .product-card').count();
-
       await categoryFilter.click();
       await page.waitForTimeout(1000);
 

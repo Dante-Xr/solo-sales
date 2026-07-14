@@ -16,10 +16,12 @@ const mockExec = jest.fn()
 const mockCheckNotifySign = jest.fn()
 
 jest.mock('alipay-sdk', () => {
-  return jest.fn().mockImplementation(() => ({
-    exec: mockExec,
-    checkNotifySign: mockCheckNotifySign
-  }))
+  return {
+    AlipaySdk: jest.fn().mockImplementation(() => ({
+      exec: mockExec,
+      checkNotifySign: mockCheckNotifySign,
+    })),
+  }
 })
 
 import { AlipayProvider } from '../alipay-provider'

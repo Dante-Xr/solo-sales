@@ -12,6 +12,7 @@
  */
 
 import crypto from 'crypto'
+import { Wechatpay as WechatpayConstructor } from 'wechatpay-axios-plugin'
 import {
   PaymentProvider,
   PaymentAction,
@@ -22,7 +23,12 @@ import {
 } from '../provider'
 import type { Wechatpay, WechatpayNotifyBody, WechatpayNotifyDecrypted, WechatpayNotifyResource } from '@/types/wechatpay'
 
-const { Wechatpay: WechatpayConstructor } = require('wechatpay-axios-plugin')
+const TypedWechatpayConstructor = WechatpayConstructor as unknown as new (config: {
+  mchid: string
+  serial: string
+  privateKey: string
+  apiv3Key: string
+}) => Wechatpay
 
 export class WeChatPayProvider implements PaymentProvider {
   readonly name = 'wechatpay' as const
@@ -43,7 +49,7 @@ export class WeChatPayProvider implements PaymentProvider {
         throw new Error('WECHATPAY_PRIVATE_KEY is not configured')
       }
 
-      this.client = new WechatpayConstructor({
+      this.client = new TypedWechatpayConstructor({
         mchid: process.env.WECHATPAY_MCHID,
         serial: process.env.WECHATPAY_SERIAL_NO,
         privateKey: process.env.WECHATPAY_PRIVATE_KEY,
@@ -92,8 +98,8 @@ export class WeChatPayProvider implements PaymentProvider {
 
   async verifyWebhook(
     rawBody: string | Buffer,
-    signature: string,
-    headers?: Record<string, string>
+    _signature: string,
+    _headers?: Record<string, string>
   ): Promise<WebhookEvent> {
     // Parse webhook body
     const body: WechatpayNotifyBody = typeof rawBody === 'string' ? JSON.parse(rawBody) : JSON.parse(rawBody.toString())

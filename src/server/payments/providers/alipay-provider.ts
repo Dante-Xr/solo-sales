@@ -18,10 +18,8 @@ import {
   WebhookEvent,
   PaymentResult
 } from '../provider'
+import { AlipaySdk as AlipaySdkConstructor } from 'alipay-sdk'
 import type { AlipaySdk, AlipayNotifyParams } from '@/types/alipay-sdk'
-
-// Use require for CommonJS module
-const AlipaySdkConstructor = require('alipay-sdk')
 
 export class AlipayProvider implements PaymentProvider {
   readonly name = 'alipay' as const
@@ -44,7 +42,7 @@ export class AlipayProvider implements PaymentProvider {
         privateKey: process.env.ALIPAY_PRIVATE_KEY,
         alipayPublicKey: process.env.ALIPAY_PUBLIC_KEY,
         gateway: process.env.ALIPAY_GATEWAY_URL || 'https://openapi.alipay.com/gateway.do'
-      }) as AlipaySdk
+      }) as unknown as AlipaySdk
     }
     return this.sdk
   }
@@ -73,7 +71,7 @@ export class AlipayProvider implements PaymentProvider {
 
   async verifyWebhook(
     rawBody: string | Buffer,
-    signature: string
+    _signature: string
   ): Promise<WebhookEvent> {
     const sdk = this.getSdk()
 

@@ -158,11 +158,12 @@ export async function POST(req: NextRequest) {
       success: true,
       message: "Event received but not processed",
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("PayPal webhook error:", error);
+    const details = error instanceof Error ? error.message : "Unknown error";
 
     // Webhook 验证失败
-    if (error.message?.includes("verification failed")) {
+    if (details.includes("verification failed")) {
       return NextResponse.json(
         { error: "Webhook verification failed" },
         { status: 401 },
@@ -170,7 +171,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: "Webhook processing failed", details: error.message },
+      { error: "Webhook processing failed", details },
       { status: 500 },
     );
   }

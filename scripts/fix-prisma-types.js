@@ -50,7 +50,6 @@ function detectPrismaModel(content, lineIndex) {
 function fixFile(filePath) {
   try {
     let content = fs.readFileSync(filePath, 'utf-8');
-    const originalContent = content;
     const lines = content.split('\n');
     let modified = false;
 

@@ -62,20 +62,6 @@ export default function OrderDetailPage() {
     CANCELLED: { label: t("orders.cancelled"), color: "bg-gray-500" },
   }
 
-  useEffect(() => {
-    if (isPending) return
-
-    if (!_session) {
-      setLoading(false)
-      router.push("/")
-      return
-    }
-
-    if (_session) {
-      fetchOrder()
-    }
-  }, [_session, isPending, router])
-
   const fetchOrder = async () => {
     try {
       const res = await fetch(`/api/orders?id=${params.id}`)
@@ -89,6 +75,20 @@ export default function OrderDetailPage() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (isPending) return
+
+    if (!_session) {
+      setLoading(false)
+      router.push("/")
+      return
+    }
+
+    if (_session) {
+      fetchOrder()
+    }
+  }, [_session, isPending, router])
 
   const copyTrackingNumber = () => {
     if (order?.trackingNumber) {

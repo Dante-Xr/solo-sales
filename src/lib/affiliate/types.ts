@@ -8,22 +8,22 @@ import { AffiliateStatus, CommissionStatus, PayoutStatus, Prisma } from '@prisma
 /**
  * Affiliate 数据库记录类型
  */
-export type AffiliateRecord = Prisma.AffiliateGetPayload<{}>
+export type AffiliateRecord = Prisma.AffiliateGetPayload<Record<string, never>>
 
 /**
  * AffiliateLink 数据库记录类型
  */
-export type AffiliateLinkRecord = Prisma.AffiliateLinkGetPayload<{}>
+export type AffiliateLinkRecord = Prisma.AffiliateLinkGetPayload<Record<string, never>>
 
 /**
  * Commission 数据库记录类型
  */
-export type CommissionRecord = Prisma.AffiliateCommissionGetPayload<{}>
+export type CommissionRecord = Prisma.AffiliateCommissionGetPayload<Record<string, never>>
 
 /**
  * Payout 数据库记录类型
  */
-export type PayoutRecord = Prisma.AffiliatePayoutGetPayload<{}>
+export type PayoutRecord = Prisma.AffiliatePayoutGetPayload<Record<string, never>>
 
 export interface AffiliateData {
   id: string

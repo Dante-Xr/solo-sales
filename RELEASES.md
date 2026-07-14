@@ -14,6 +14,7 @@ Comprehensive version history documenting all functional modules and features fr
 
 | Version | Release Date | Status |
 |---------|-------------|--------|
+| [1.7.7](#v177---2026-07-14) | 2026-07-14 | Released |
 | [1.7.6](#v176---2026-07-03) | 2026-07-03 | Latest |
 | [1.7.3](#v173---2026-07-02) | 2026-07-02 | Stable |
 | [1.7.0](#v170---2026-06-28) | 2026-06-28 | Stable |
@@ -26,6 +27,20 @@ Comprehensive version history documenting all functional modules and features fr
 | [1.2.0](#v120---2026-04-26) | 2026-04-26 | Stable |
 | [1.0.2](#v102---2026-04-23) | 2026-04-23 | Stable |
 | [1.0.0](#v100---2026-04-21) | 2026-04-21 | Stable |
+
+---
+
+## v1.7.7 - 2026-07-14
+
+### Documentation Migration and Release Governance
+
+**发布亮点**: 将历史 `.trae` 文档源迁移到受版本控制的 `docs` 结构，建立来源清单、迁移映射、当前规格和发布门禁。
+
+#### 验证说明
+
+- GitHub Issue: [#5](https://github.com/Dante-Xr/solo-sales/issues/5)
+- 发布前执行 `npm run docs:check`、文档测试、lint、类型检查、密钥审计和构建。
+- v1.7.7 不主动发布生产环境。
 
 ---
 

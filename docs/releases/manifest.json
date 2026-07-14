@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-14",
+  "versions": [
+    {
+      "version": "v1.7.0",
+      "code_version": "1.7.0",
+      "git_tag": "v1.7.0",
+      "release_status": "released",
+      "evidence": ["git tag", "RELEASES.md"]
+    },
+    {
+      "version": "v1.7.6",
+      "code_version": "1.7.6",
+      "git_tag": null,
+      "latest_git_tag": "v1.7.0",
+      "head": "414a972613b052d785d5a026fc1e85cde925ed46",
+      "release_status": "needs_release_verification",
+      "evidence": ["package.json", "CHANGELOG.md", "RELEASES.md"]
+    },
+    {
+      "version": "v1.7.7",
+      "code_version": "1.7.7",
+      "git_tag": "v1.7.7",
+      "release_status": "released",
+      "github_tracking_issue": 5,
+      "evidence": [
+        "docs/changes/v1.7.7/README.md",
+        "docs/changes/v1.7.7/5-docs-migration/spec.md",
+        "docs/changes/v1.7.7/5-docs-migration/tasks.md",
+        "docs/releases/v1.7.7.md"
+      ]
+    },
+    {
+      "version": "v1.7.8",
+      "code_version": "1.7.8",
+      "release_status": "planned",
+      "github_tracking_issue": 6,
+      "evidence": ["docs/changes/v1.7.8/README.md"]
+    },
+    {
+      "version": "v1.7.9",
+      "code_version": "1.7.9",
+      "release_status": "planned",
+      "github_tracking_issue": 7,
+      "evidence": ["docs/changes/v1.7.9/README.md"]
+    },
+    {
+      "version": "v1.8.0",
+      "release_status": "planned",
+      "github_milestone": 1,
+      "github_tracking_issue": 1
+    },
+    {
+      "version": "v1.9.0",
+      "release_status": "planned",
+      "github_milestone": 2,
+      "github_tracking_issue": 2
+    },
+    {
+      "version": "v2.0.0",
+      "release_status": "planned",
+      "github_milestone": 3,
+      "github_tracking_issue": 3
+    }
+  ]
+}

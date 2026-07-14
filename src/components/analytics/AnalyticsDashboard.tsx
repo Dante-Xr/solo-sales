@@ -105,10 +105,6 @@ export default function AnalyticsDashboard({ locale = "zh" }: AnalyticsDashboard
   const [error, setError] = useState<string | null>(null)
   const t = LABELS[locale]
 
-  useEffect(() => {
-    fetchAnalytics()
-  }, [timeRange])
-
   const fetchAnalytics = useCallback(async () => {
     setLoading(true)
     setError(null)
@@ -128,6 +124,10 @@ export default function AnalyticsDashboard({ locale = "zh" }: AnalyticsDashboard
       setLoading(false)
     }
   }, [timeRange])
+
+  useEffect(() => {
+    void fetchAnalytics()
+  }, [fetchAnalytics])
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat(locale === "zh" ? "zh-CN" : "en-US", {

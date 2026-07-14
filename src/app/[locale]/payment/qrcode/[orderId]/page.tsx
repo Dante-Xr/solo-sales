@@ -36,20 +36,17 @@ interface PageProps {
   params: Promise<{ orderId: string; locale: string }>
 }
 
-export default async function QRCodePaymentPage({ params }: PageProps) {
-  const { orderId } = await params
-
-  try {
-    // ✅ 服务端直接查询数据库（安全）
-    const orderData = await prisma.order.findUnique({
+async function loadPaymentData(orderId: string) {
+  const [orderData, qrCodesData] = await Promise.all([
+    prisma.order.findUnique({
       where: { id: orderId },
       include: {
         user: {
           select: {
             id: true,
             name: true,
-            email: true
-          }
+            email: true,
+          },
         },
         items: {
           include: {
@@ -58,91 +55,89 @@ export default async function QRCodePaymentPage({ params }: PageProps) {
                 id: true,
                 name: true,
                 images: true,
-                price: true
-              }
-            }
-          }
-        }
-      }
-    })
-
-    // 订单不存在返回 404
-    if (!orderData) {
-      notFound()
-    }
-
-    // 获取收款码列表
-    const qrCodesData = await prisma.paymentQRCode.findMany({
-      where: { isActive: true },
-      orderBy: { sortOrder: 'asc' }
-    })
-
-    // 收款码未配置
-    if (qrCodesData.length === 0) {
-      return (
-        <div className="container max-w-4xl py-8 px-4">
-          <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
-            <h2 className="text-yellow-800 dark:text-yellow-200 font-semibold text-lg mb-2">
-              收款码未配置
-            </h2>
-            <p className="text-sm text-yellow-600 dark:text-yellow-400">
-              系统尚未配置收款码，请联系管理员。
-            </p>
-          </div>
-        </div>
-      )
-    }
-
-    // 转换为客户端组件需要的格式
-    const order: Order = {
-      id: orderData.id,
-      totalAmount: Number(orderData.totalAmount),
-      status: orderData.status,
-      user: {
-        name: orderData.user.name,
-        email: orderData.user.email
+                price: true,
+              },
+            },
+          },
+        },
       },
-      items: orderData.items.map(item => ({
-        id: item.id,
-        quantity: item.quantity,
-        price: Number(item.price),
-        product: {
-          id: item.product.id,
-          name: item.product.name,
-          images: item.product.images,
-          price: Number(item.product.price)
-        }
-      }))
-    }
+    }),
+    prisma.paymentQRCode.findMany({
+      where: { isActive: true },
+      orderBy: { sortOrder: 'asc' },
+    }),
+  ])
 
-    const qrCodes: QRCode[] = qrCodesData.map(qr => ({
-      id: qr.id,
-      type: qr.type,
-      name: qr.name,
-      imageUrl: qr.imageUrl,
-      accountName: qr.accountName || '',
-      isTempSolution: qr.isTempSolution
-    }))
+  return { orderData, qrCodesData }
+}
 
-    return <PaymentPageLayout order={order} qrCodes={qrCodes} />
+function PaymentDataError({ message }: { message: string }) {
+  return (
+    <div className="container max-w-4xl py-8 px-4">
+      <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+        <h2 className="text-red-800 dark:text-red-200 font-semibold text-lg mb-2">加载失败</h2>
+        <p className="text-sm text-red-600 dark:text-red-400 mb-4">
+          无法加载订单信息，请稍后重试。如果问题持续存在，请联系客服。
+        </p>
+        <p className="text-xs text-red-500 dark:text-red-500 font-mono">{message}</p>
+      </div>
+    </div>
+  )
+}
+
+export default async function QRCodePaymentPage({ params }: PageProps) {
+  const { orderId } = await params
+
+  let paymentData: Awaited<ReturnType<typeof loadPaymentData>> | null = null
+  let errorMessage: string | null = null
+
+  try {
+    paymentData = await loadPaymentData(orderId)
   } catch (error: unknown) {
     console.error('支付页面数据加载失败:', error)
+    errorMessage = error instanceof Error ? error.message : '未知错误'
+  }
 
-    // 数据库连接失败或其他错误
+  if (errorMessage) return <PaymentDataError message={errorMessage} />
+  if (!paymentData?.orderData) notFound()
+
+  const { orderData, qrCodesData } = paymentData
+  if (qrCodesData.length === 0) {
     return (
       <div className="container max-w-4xl py-8 px-4">
-        <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
-          <h2 className="text-red-800 dark:text-red-200 font-semibold text-lg mb-2">
-            加载失败
-          </h2>
-          <p className="text-sm text-red-600 dark:text-red-400 mb-4">
-            无法加载订单信息，请稍后重试。如果问题持续存在，请联系客服。
-          </p>
-          <p className="text-xs text-red-500 dark:text-red-500 font-mono">
-            {error instanceof Error ? error.message : '未知错误'}
-          </p>
+        <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
+          <h2 className="text-yellow-800 dark:text-yellow-200 font-semibold text-lg mb-2">收款码未配置</h2>
+          <p className="text-sm text-yellow-600 dark:text-yellow-400">系统尚未配置收款码，请联系管理员。</p>
         </div>
       </div>
     )
   }
+
+  const order: Order = {
+    id: orderData.id,
+    totalAmount: Number(orderData.totalAmount),
+    status: orderData.status,
+    user: { name: orderData.user.name, email: orderData.user.email },
+    items: orderData.items.map((item) => ({
+      id: item.id,
+      quantity: item.quantity,
+      price: Number(item.price),
+      product: {
+        id: item.product.id,
+        name: item.product.name,
+        images: item.product.images,
+        price: Number(item.product.price),
+      },
+    })),
+  }
+  const qrCodes: QRCode[] = qrCodesData.map((qr) => ({
+    id: qr.id,
+    type: qr.type,
+    name: qr.name,
+    imageUrl: qr.imageUrl,
+    accountName: qr.accountName || '',
+    isTempSolution: qr.isTempSolution,
+  }))
+
+  return <PaymentPageLayout order={order} qrCodes={qrCodes} />
 }

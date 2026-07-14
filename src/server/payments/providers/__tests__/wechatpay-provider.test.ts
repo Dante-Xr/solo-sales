@@ -28,12 +28,17 @@ jest.mock('wechatpay-axios-plugin', () => ({
 
 import { WeChatPayProvider } from '../wechatpay-provider'
 
+type DecryptableProvider = {
+  decryptResource: (...args: unknown[]) => Promise<unknown>
+}
+
 describe('WeChatPayProvider', () => {
   let provider: WeChatPayProvider
 
   beforeEach(() => {
     // Set required environment variables
     process.env.WECHATPAY_MCHID = 'test_mchid'
+    process.env.WECHATPAY_APP_ID = 'test_appid'
     process.env.WECHATPAY_SERIAL_NO = 'test_serial'
     process.env.WECHATPAY_APIV3_KEY = 'test_apiv3_key_32_characters_'
     process.env.WECHATPAY_PRIVATE_KEY = '-----BEGIN PRIVATE KEY-----\ntest_key\n-----END PRIVATE KEY-----'
@@ -119,7 +124,7 @@ describe('WeChatPayProvider', () => {
       }
 
       // Mock the decryption (simplified for test)
-      jest.spyOn(provider as any, 'decryptResource').mockResolvedValue(decryptedData)
+      jest.spyOn(provider as unknown as DecryptableProvider, 'decryptResource').mockResolvedValue(decryptedData)
 
       // Act
       const result = await provider.verifyWebhook(encryptedData, 'signature')
@@ -146,7 +151,7 @@ describe('WeChatPayProvider', () => {
         success_time: '2026-06-28T00:10:00+08:00'
       }
 
-      jest.spyOn(provider as any, 'decryptResource').mockResolvedValue(decryptedData)
+      jest.spyOn(provider as unknown as DecryptableProvider, 'decryptResource').mockResolvedValue(decryptedData)
 
       // Act
       const result = await provider.verifyWebhook(encryptedData, 'signature')

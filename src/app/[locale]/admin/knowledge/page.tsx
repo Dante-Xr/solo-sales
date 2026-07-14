@@ -18,7 +18,7 @@
 
 "use client"
 
-import { useState, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useList } from "@refinedev/core"
 import {
   Plus,
@@ -149,11 +149,21 @@ export default function KnowledgePage() {
 
   const knowledgeList = useMemo<KnowledgeItem[]>(() => {
     const raw = knowledgeData?.data as KnowledgeListPayload | undefined
-    const list = raw?.list || []
-    if (raw?.pagination) {
-      setPagination(raw.pagination)
-    }
-    return list
+    return raw?.list || []
+  }, [knowledgeData])
+
+  useEffect(() => {
+    const nextPagination = (knowledgeData?.data as KnowledgeListPayload | undefined)?.pagination
+    if (!nextPagination) return
+
+    setPagination((current) => (
+      current.page === nextPagination.page &&
+      current.pageSize === nextPagination.pageSize &&
+      current.total === nextPagination.total &&
+      current.totalPages === nextPagination.totalPages
+        ? current
+        : nextPagination
+    ))
   }, [knowledgeData])
 
   const categories = useMemo<KnowledgeCategory[]>(() => {

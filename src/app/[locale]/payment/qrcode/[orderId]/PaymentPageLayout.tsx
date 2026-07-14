@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { Upload, Info, CheckCircle, Clock, Loader2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { Dialog, DialogContent, DialogClose } from '@/components/ui/dialog'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 
 interface QRCode {
   id: string
@@ -42,6 +42,13 @@ interface Props {
   qrCodes: QRCode[]
 }
 
+interface PaymentProofUploadResult {
+  success?: boolean
+  status?: string
+  message?: string
+  error?: string
+}
+
 export function PaymentPageLayout({ order, qrCodes }: Props) {
   const [selectedQRCode, setSelectedQRCode] = useState(qrCodes[0])
   const [uploading, setUploading] = useState(false)
@@ -49,7 +56,7 @@ export function PaymentPageLayout({ order, qrCodes }: Props) {
   const [uploadStage, setUploadStage] = useState<string>('') // 上传阶段描述
   const [uploadedImage, setUploadedImage] = useState<string | null>(null)
   const [showPreview, setShowPreview] = useState(false)
-  const [uploadResult, setUploadResult] = useState<any>(null)
+  const [uploadResult, setUploadResult] = useState<PaymentProofUploadResult | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
 
   async function handleUploadProof(file: File) {
@@ -131,7 +138,7 @@ export function PaymentPageLayout({ order, qrCodes }: Props) {
       setUploadStage('保存凭证信息...')
       setUploadProgress(90)
 
-      const result = await response.json()
+      const result = await response.json() as PaymentProofUploadResult
       console.log('上传结果:', result)
 
       if (!response.ok) {
@@ -158,9 +165,9 @@ export function PaymentPageLayout({ order, qrCodes }: Props) {
         }
       }, 500)
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('上传错误:', error)
-      const errorMessage = error.message || '上传失败，请重试'
+      const errorMessage = error instanceof Error ? error.message : '上传失败，请重试'
       setUploadError(errorMessage)
       setUploadStage('')
       setUploadedImage(null)
@@ -170,7 +177,7 @@ export function PaymentPageLayout({ order, qrCodes }: Props) {
   }
 
   // 临时方案提示组件
-  const TempNotice = () => selectedQRCode.isTempSolution ? (
+  const renderTempNotice = () => selectedQRCode.isTempSolution ? (
     <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
       <div className="flex items-start gap-3">
         <Info className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
@@ -183,7 +190,7 @@ export function PaymentPageLayout({ order, qrCodes }: Props) {
   ) : null
 
   // 订单信息卡片组件
-  const OrderInfoCard = ({ compact = false }: { compact?: boolean }) => (
+  const renderOrderInfoCard = (compact = false) => (
     <div className="bg-card border rounded-lg p-6">
       <h2 className={`font-semibold mb-4 ${compact ? 'text-base' : 'text-lg'}`}>订单信息</h2>
       <div className="space-y-4">
@@ -253,7 +260,7 @@ export function PaymentPageLayout({ order, qrCodes }: Props) {
   )
 
   // 收款码卡片组件
-  const QRCodeCard = ({ compact = false }: { compact?: boolean }) => (
+  const renderQRCodeCard = (compact = false) => (
     <div className="bg-card border rounded-lg p-6">
       <h2 className={`font-semibold mb-4 text-center ${compact ? 'text-base' : 'text-lg'}`}>
         扫码支付
@@ -304,7 +311,7 @@ export function PaymentPageLayout({ order, qrCodes }: Props) {
   )
 
   // 上传区域组件
-  const UploadSection = ({ inputId }: { inputId: string }) => {
+  const renderUploadSection = (inputId: string) => {
     if (uploadResult) {
       if (uploadResult.status === 'OCR_MATCHED') {
         return (
@@ -497,7 +504,7 @@ export function PaymentPageLayout({ order, qrCodes }: Props) {
                 )}
                 {uploadError.includes('过大') && (
                   <p className="text-xs text-red-700 dark:text-red-300 mb-3 bg-red-100 dark:bg-red-900/30 rounded px-2 py-1">
-                    💡 提示：可以使用微信"图片编辑"功能压缩图片后再上传
+                    💡 提示：可以使用微信&quot;图片编辑&quot;功能压缩图片后再上传
                   </p>
                 )}
                 {uploadError.includes('已上传') && (
@@ -604,15 +611,15 @@ export function PaymentPageLayout({ order, qrCodes }: Props) {
           <div className="grid grid-cols-3 gap-6">
             {/* 左侧：订单信息（占2列） */}
             <div className="col-span-2 space-y-6">
-              <TempNotice />
-              <OrderInfoCard />
-              <UploadSection inputId="proof-upload-pc" />
+              {renderTempNotice()}
+              {renderOrderInfoCard()}
+              {renderUploadSection("proof-upload-pc")}
             </div>
 
             {/* 右侧：收款码（占1列，固定在视口） */}
             <div className="col-span-1">
               <div className="sticky top-8">
-                <QRCodeCard />
+                {renderQRCodeCard()}
               </div>
             </div>
           </div>
@@ -623,10 +630,10 @@ export function PaymentPageLayout({ order, qrCodes }: Props) {
       <div className="lg:hidden">
         <div className="container max-w-2xl py-6 px-4 space-y-6">
           <h1 className="text-2xl font-bold">扫码支付</h1>
-          <TempNotice />
-          <OrderInfoCard compact />
-          <QRCodeCard compact />
-          <UploadSection inputId="proof-upload-mobile" />
+          {renderTempNotice()}
+          {renderOrderInfoCard(true)}
+          {renderQRCodeCard(true)}
+          {renderUploadSection("proof-upload-mobile")}
         </div>
       </div>
     </div>

@@ -7,7 +7,7 @@
  * 测试覆盖：移动端和桌面端显示
  * ============================================
  */
-import { test, expect, devices } from '@playwright/test'
+import { test, expect } from '@playwright/test'
 
 test.describe('Responsive Design', () => {
   test('should display mobile menu', async ({ page }) => {
