@@ -99,6 +99,13 @@ export type StorefrontProductItem = {
   image: string
   sales: number
   stock: number
+  categoryId?: string
+  categoryName?: string
+}
+
+export type StorefrontCategoryItem = {
+  id: string
+  name: string
 }
 
 type ProductListResult = {
@@ -340,6 +347,7 @@ type FeaturedProductSource = {
   images: string[]
   isPublished: boolean
   _count?: { orderItems: number }
+  category?: { id: string; name: string } | null
 }
 
 export function transformFeaturedProduct(product: FeaturedProductSource): StorefrontProductItem {
@@ -354,6 +362,8 @@ export function transformFeaturedProduct(product: FeaturedProductSource): Storef
     image: product.images[0] || "",
     sales: product._count?.orderItems ?? 0,
     stock: product.stock,
+    categoryId: product.category?.id,
+    categoryName: product.category?.name,
   }
 }
 
@@ -371,6 +381,7 @@ export async function getFeaturedProducts(): Promise<{
       where: { isPublished: true },
       orderBy: { createdAt: "desc" },
       include: {
+        category: { select: { id: true, name: true } },
         _count: {
           select: { orderItems: true },
         },
@@ -405,6 +416,7 @@ export async function getStorefrontProducts(
       where,
       orderBy: filter === "best" ? { orderItems: { _count: "desc" } } : { createdAt: "desc" },
       include: {
+        category: { select: { id: true, name: true } },
         _count: { select: { orderItems: true } },
       },
     })
@@ -462,6 +474,11 @@ export async function batchDeleteProducts(ids: string[]) {
 
 export async function listCategories() {
   return findCategories(prisma)
+}
+
+export async function getStorefrontCategories(): Promise<StorefrontCategoryItem[]> {
+  const categories = await withTransientPrismaRetry("storefront categories", () => findCategories(prisma))
+  return categories.map((category) => ({ id: category.id, name: category.name }))
 }
 
 export async function createCategoryFromInput(input: CreateCategoryInput) {

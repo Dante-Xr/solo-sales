@@ -18,6 +18,8 @@ export interface ProductItem {
   description?: string
   stock?: number
   saleEndsAt?: string
+  categoryId?: string
+  categoryName?: string
 }
 
 const AUTO_PLAY_INTERVAL = 8

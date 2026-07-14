@@ -1,12 +1,12 @@
 <!--
 修改时间：2026-07-06 00:00:00 +08:00
-修改内容：更新到 v1.7.7，同步文档迁移与发布治理版本标识。
+修改内容：更新到 v1.7.8，同步 Figma Enhance 用户端体验迁移版本标识。
 修改模型：gpt-5
 -->
 
 # SoloSales
 
-[![Version](https://img.shields.io/badge/version-1.7.7-blue.svg)](https://github.com/Dante-Xr/solo-sales)
+[![Version](https://img.shields.io/badge/version-1.7.8-blue.svg)](https://github.com/Dante-Xr/solo-sales)
 [![Next.js](https://img.shields.io/badge/Next.js-16.2.4-black.svg)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.2.4-61DAFB.svg)](https://react.dev/)
 [![Prisma](https://img.shields.io/badge/Prisma-5.22.0-2A52BE.svg)](https://www.prisma.io/)
@@ -14,9 +14,9 @@
 
 SoloSales 是一个基于 Next.js 16 App Router 的全栈独立站电商项目。它采用模块化单体架构，前台商城、后台管理、支付、订单、商品、营销、积分、联盟分销、数据分析、RAG 智能客服和运维验证脚本都在同一个代码库内交付。
 
-当前 README 反映 v1.7.7 状态：项目已完成多支付提供商抽象层（Stripe/Alipay/WeChatPay/PayPal）、订单状态机扩展、PayPal Business 集成和类型安全修复。v1.7.7 将历史 `.trae` 文档迁移到受版本控制的 `docs` 结构，并增加可验证的文档治理与发布记录。
+当前 README 反映 v1.7.8 状态：项目已完成多支付提供商抽象层（Stripe/Alipay/WeChatPay/PayPal）、订单状态机扩展、PayPal Business 集成和类型安全修复。v1.7.8 将 Figma Enhance 的暖灰、深海军蓝和酒红设计系统迁移到用户端，补齐首页分类筛选、商品卡和主题联动。
 
-说明：README badge、`CHANGELOG.md`、`RELEASES.md`、`package.json`、`package-lock.json` 与 `/api/health` fallback 的项目版本标识已统一为 `1.7.7`。
+说明：README badge、`CHANGELOG.md`、`RELEASES.md`、`package.json`、`package-lock.json` 与 `/api/health` fallback 的项目版本标识已统一为 `1.7.8`。
 
 ---
 

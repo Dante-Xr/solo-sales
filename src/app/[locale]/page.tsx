@@ -3,16 +3,18 @@
  * 修改内容：首页商品读取改为复用带 Prisma 断连重试的服务层，避免页面直接访问数据库绕过容错逻辑。
  * 修改模型：gpt-5.5
  */
-import { HomeCarouselClient } from "@/components/storefront/HomeCarouselClient"
 import type { ProductItem } from "@/components/storefront/HomeCarouselClient"
-import { ProductGridClient } from "@/components/storefront/ProductGridClient"
+import { EnhancedProductShowcase, type StorefrontCategory } from "@/components/storefront/EnhancedProductShowcase"
 import { StorefrontHeaderClient } from "@/components/storefront/StorefrontHeaderClient"
 import { HeroBanner } from "@/components/storefront/HeroBanner"
 import { FeatureSection } from "@/components/storefront/FeatureSection"
 import { StorefrontFooter } from "@/components/storefront/StorefrontFooter"
 import { ViewportWrapper } from "@/components/storefront/ViewportWrapper"
 import { WelcomeModalWrapper } from "@/components/storefront/WelcomeModalWrapper"
-import { getFeaturedProducts as getFeaturedProductsFromService } from "@/server/services/product-service"
+import {
+  getFeaturedProducts as getFeaturedProductsFromService,
+  getStorefrontCategories,
+} from "@/server/services/product-service"
 
 const FALLBACK_PRODUCTS: ProductItem[] = [
   {
@@ -24,6 +26,8 @@ const FALLBACK_PRODUCTS: ProductItem[] = [
     image: "https://picsum.photos/seed/earbuds/800/800",
     sales: 1250,
     stock: 100,
+    categoryId: "technology",
+    categoryName: "Technology",
   },
   {
     id: "2",
@@ -34,6 +38,8 @@ const FALLBACK_PRODUCTS: ProductItem[] = [
     image: "https://picsum.photos/seed/fitwatch/800/800",
     sales: 890,
     stock: 50,
+    categoryId: "lifestyle",
+    categoryName: "Lifestyle",
   },
   {
     id: "3",
@@ -44,6 +50,8 @@ const FALLBACK_PRODUCTS: ProductItem[] = [
     image: "https://picsum.photos/seed/speaker/800/800",
     sales: 2100,
     stock: 200,
+    categoryId: "technology",
+    categoryName: "Technology",
   },
   {
     id: "4",
@@ -54,6 +62,8 @@ const FALLBACK_PRODUCTS: ProductItem[] = [
     image: "https://picsum.photos/seed/usbhub/800/800",
     sales: 650,
     stock: 80,
+    categoryId: "technology",
+    categoryName: "Technology",
   },
   {
     id: "5",
@@ -64,6 +74,8 @@ const FALLBACK_PRODUCTS: ProductItem[] = [
     image: "https://picsum.photos/seed/seccam/800/800",
     sales: 430,
     stock: 60,
+    categoryId: "lifestyle",
+    categoryName: "Lifestyle",
   },
   {
     id: "6",
@@ -74,7 +86,14 @@ const FALLBACK_PRODUCTS: ProductItem[] = [
     image: "https://picsum.photos/seed/charger/800/800",
     sales: 3200,
     stock: 300,
+    categoryId: "technology",
+    categoryName: "Technology",
   },
+]
+
+const FALLBACK_CATEGORIES: StorefrontCategory[] = [
+  { id: "technology", name: "Technology" },
+  { id: "lifestyle", name: "Lifestyle" },
 ]
 
 async function getFeaturedProducts(): Promise<ProductItem[]> {
@@ -92,8 +111,17 @@ async function getFeaturedProducts(): Promise<ProductItem[]> {
 export default async function Storefront() {
   // Wrap everything in try-catch to prevent 502 errors
   let products: ProductItem[]
+  let categories: StorefrontCategory[] = FALLBACK_CATEGORIES
   try {
-    products = await getFeaturedProducts()
+    const [featuredProducts, storefrontCategories] = await Promise.all([
+      getFeaturedProducts(),
+      getStorefrontCategories().catch((error) => {
+        console.error("Error fetching storefront categories:", error)
+        return FALLBACK_CATEGORIES
+      }),
+    ])
+    products = featuredProducts
+    categories = storefrontCategories
   } catch (error) {
     console.error("Critical error in Storefront page:", error)
     // Use fallback products if everything fails
@@ -102,23 +130,14 @@ export default async function Storefront() {
 
   return (
     <ViewportWrapper>
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 relative overflow-hidden">
+    <div className="min-h-screen bg-background relative overflow-hidden">
       <div className="w-full max-w-[1440px] mx-auto relative">
         <StorefrontHeaderClient />
 
         <main className="flex flex-col pb-16">
-          {/* Hero Banner：轮播图上方 */}
           <HeroBanner />
 
-          <section className="w-full">
-            <div className="h-full">
-              <HomeCarouselClient products={products} />
-            </div>
-          </section>
-
-          <section className="w-full">
-            <ProductGridClient products={products} isLoading={false} />
-          </section>
+          <EnhancedProductShowcase products={products} categories={categories} />
 
           <section className="w-full">
             <FeatureSection />

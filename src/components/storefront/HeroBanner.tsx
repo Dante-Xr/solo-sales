@@ -1,7 +1,9 @@
 "use client"
 
-import Link from "next/link"
-import { Star, Shield, Truck, Package } from "lucide-react"
+import { motion } from "framer-motion"
+import { Link } from "@/i18n/navigation"
+import { PackageCheck, ShoppingBag, Star, Truck } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 interface HeroBannerProps {
   title?: string
@@ -11,140 +13,74 @@ interface HeroBannerProps {
 }
 
 export function HeroBanner({
-  title = "Discover Premium Products",
-  subtitle = "Curated selection of high-quality items at unbeatable prices. Shop now and elevate your everyday experience.",
-  ctaText = "Shop Now",
+  title,
+  subtitle,
+  ctaText,
   ctaHref = "#products",
 }: HeroBannerProps) {
+  const t = useTranslations("homeEnhance")
+  const heroTitle = title ?? t("heroTitle")
+  const heroSubtitle = subtitle ?? t("heroSubtitle")
+  const heroCtaText = ctaText ?? t("heroCta")
+
   return (
-    <section
-      className="relative overflow-hidden"
-      aria-label="Hero Banner"
-    >
-      {/* 蓝红交织图案背景 */}
-      <div className="absolute inset-0" aria-hidden="true">
-        {/* 基础深色底 */}
-        <div className="absolute inset-0 bg-slate-900" />
-        {/* 蓝色渐变区域 */}
-        <div className="absolute -top-1/4 -left-1/4 w-[80%] h-[150%] bg-gradient-to-br from-blue-600/60 via-blue-500/30 to-transparent rounded-full blur-3xl" />
-        {/* 红色渐变区域 */}
-        <div className="absolute -bottom-1/4 -right-1/4 w-[80%] h-[150%] bg-gradient-to-tl from-red-600/60 via-red-500/30 to-transparent rounded-full blur-3xl" />
-        {/* 交织叠加：蓝色偏移 */}
-        <div className="absolute top-1/4 right-1/3 w-[60%] h-[100%] bg-gradient-to-bl from-blue-400/25 via-transparent to-transparent rounded-full blur-3xl" />
-        {/* 交织叠加：红色偏移 */}
-        <div className="absolute bottom-1/4 left-1/3 w-[60%] h-[100%] bg-gradient-to-tr from-red-400/25 via-transparent to-transparent rounded-full blur-3xl" />
-        {/* 中央交汇光晕 */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[50%] h-[60%] bg-gradient-to-ellipse from-purple-500/20 via-pink-500/10 to-transparent rounded-full blur-3xl" />
-        {/* 网格纹理 */}
+    <section className="relative isolate overflow-hidden bg-[#0c1022] text-white" aria-label={heroTitle}>
+      <div className="absolute inset-0 bg-[linear-gradient(130deg,#080e28_0%,#141038_40%,#7b1025_80%,#9e0f2e_100%)]" aria-hidden="true" />
+      <div className="absolute inset-0 opacity-20" aria-hidden="true">
         <div
-          className="absolute inset-0 opacity-[0.06]"
+          className="absolute inset-0"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px)",
-            backgroundSize: "48px 48px",
+              "linear-gradient(rgba(255,255,255,.35) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.35) 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
           }}
         />
-        {/* 噪点纹理 */}
-        <div className="absolute inset-0 opacity-[0.15]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.5'/%3E%3C/svg%3E\")" }} />
       </div>
 
-      {/* 内容区域：左右双栏 */}
-      <div className="relative z-10 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
-        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
-          {/* 左侧：标题 + 副标题 + CTA */}
-          <div className="flex-1 max-w-xl">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight tracking-tight">
-              {title}
-            </h1>
-            <p className="mt-4 sm:mt-5 text-base sm:text-lg text-white/75 leading-relaxed">
-              {subtitle}
-            </p>
-            <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4">
+      <div className="relative mx-auto grid min-h-[540px] max-w-[1440px] items-center gap-12 px-6 py-16 sm:px-10 lg:grid-cols-[1.05fr_.95fr] lg:px-16 lg:py-24">
+        <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+          <span className="inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white/90">{t("heroEyebrow")}</span>
+          <h1 className="mt-7 max-w-2xl text-5xl font-bold leading-[1.04] tracking-normal sm:text-6xl lg:text-7xl">{heroTitle}</h1>
+          <p className="mt-6 max-w-xl text-base leading-8 text-white/75 sm:text-lg">{heroSubtitle}</p>
+          <div className="mt-9 flex flex-wrap gap-3">
               <Link
                 href={ctaHref}
-                className="inline-flex items-center justify-center rounded-xl bg-white/15 backdrop-blur-md border border-white/25 text-white px-6 py-3 text-sm font-semibold transition-all hover:bg-white/25 hover:border-white/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50"
+                className="inline-flex min-h-0 items-center justify-center rounded-lg bg-white px-5 py-3 text-sm font-bold text-[#0c1022] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
-                {ctaText}
+                {heroCtaText}
               </Link>
               <Link
                 href="#features"
-                className="inline-flex items-center justify-center rounded-xl bg-white/5 backdrop-blur-sm border border-white/15 text-white/80 px-6 py-3 text-sm font-semibold transition-all hover:bg-white/10 hover:text-white hover:border-white/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50"
+                className="inline-flex min-h-0 items-center justify-center rounded-lg border border-white/30 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
-                Learn More
+                {t("heroSecondaryCta")}
               </Link>
-            </div>
           </div>
-
-          {/* 右侧：玻璃态浮动卡片 */}
-          <div className="flex-1 w-full max-w-md lg:max-w-lg hidden sm:block">
-            <div className="relative">
-              {/* 浮动卡片：评分 */}
-              <div className="absolute -top-2 right-0 lg:right-8 bg-white/10 backdrop-blur-xl rounded-xl px-4 py-3 shadow-lg border border-white/20 animate-[float_6s_ease-in-out_infinite]">
-                <div className="flex items-center gap-2">
-                  <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-warning text-warning" />
-                    ))}
-                  </div>
-                  <span className="text-white text-sm font-semibold">4.9</span>
-                </div>
-                <p className="text-white/60 text-xs mt-0.5">10k+ Reviews</p>
+          <div className="mt-12 flex gap-8 border-t border-white/15 pt-7 text-white">
+            {["50k+", "4.9", "99%"].map((value, index) => (
+              <div key={value}>
+                <p className="text-2xl font-bold">{value}</p>
+                <p className="mt-1 text-sm text-white/60">{t(`stat${index + 1}`)}</p>
               </div>
-
-              {/* 浮动卡片：销量 */}
-              <div className="absolute top-16 -left-2 lg:left-0 bg-white/10 backdrop-blur-xl rounded-xl px-4 py-3 shadow-lg border border-white/20 animate-[float_6s_ease-in-out_1s_infinite]">
-                <div className="flex items-center gap-2">
-                  <Package className="w-5 h-5 text-white/90" />
-                  <div>
-                    <p className="text-white text-sm font-semibold">50k+ Sold</p>
-                    <p className="text-white/60 text-xs">Worldwide</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* 中央玻璃态卡片 */}
-              <div className="mx-auto w-56 lg:w-64 bg-white/8 backdrop-blur-xl rounded-2xl p-5 border border-white/15 shadow-2xl">
-                <div className="aspect-square rounded-xl bg-white/5 backdrop-blur-sm flex items-center justify-center mb-3 border border-white/10">
-                  <Package className="w-16 h-16 text-white/30" />
-                </div>
-                <div className="space-y-2">
-                  <div className="h-3 bg-white/15 rounded-full w-3/4" />
-                  <div className="h-3 bg-white/10 rounded-full w-1/2" />
-                  <div className="flex items-center justify-between mt-3">
-                    <span className="text-white font-bold text-lg">$29.99</span>
-                    <span className="text-white/40 text-sm line-through">$59.99</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* 浮动卡片：信任标识 */}
-              <div className="absolute -bottom-4 right-4 lg:right-12 bg-white/10 backdrop-blur-xl rounded-xl px-4 py-3 shadow-lg border border-white/20 animate-[float_6s_ease-in-out_2s_infinite]">
-                <div className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-emerald-400" />
-                  <div>
-                    <p className="text-white text-sm font-semibold">Secure Payment</p>
-                    <p className="text-white/60 text-xs">256-bit SSL</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* 浮动卡片：物流 */}
-              <div className="absolute bottom-12 -left-4 lg:left-2 bg-white/10 backdrop-blur-xl rounded-xl px-4 py-3 shadow-lg border border-white/20 animate-[float_6s_ease-in-out_0.5s_infinite]">
-                <div className="flex items-center gap-2">
-                  <Truck className="w-5 h-5 text-white/90" />
-                  <div>
-                    <p className="text-white text-sm font-semibold">Free Shipping</p>
-                    <p className="text-white/60 text-xs">Orders $50+</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
-        </div>
+        </motion.div>
+        <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55, delay: 0.1 }} className="relative hidden min-h-[380px] lg:block">
+          <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 5, repeat: Infinity }} className="absolute left-8 top-12 rounded-xl border border-white/20 bg-white px-4 py-3 text-[#0c1022] shadow-xl">
+            <div className="flex items-center gap-2"><PackageCheck className="size-5 text-brand" /><span className="font-bold">{t("badgeSold")}</span></div>
+            <p className="mt-1 text-xs text-slate-500">{t("badgeSoldHint")}</p>
+          </motion.div>
+          <motion.div animate={{ y: [0, 12, 0] }} transition={{ duration: 6, repeat: Infinity, delay: 0.8 }} className="absolute right-8 top-4 rounded-xl border border-white/20 bg-white px-4 py-3 text-[#0c1022] shadow-xl">
+            <div className="flex items-center gap-2"><Star className="size-5 fill-amber-400 text-amber-400" /><span className="font-bold">4.9</span></div>
+            <p className="mt-1 text-xs text-slate-500">{t("badgeReviews")}</p>
+          </motion.div>
+          <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 5.5, repeat: Infinity, delay: 0.4 }} className="absolute bottom-6 right-6 rounded-xl border border-white/20 bg-white px-4 py-3 text-[#0c1022] shadow-xl">
+            <div className="flex items-center gap-2"><Truck className="size-5 text-sky-600" /><span className="font-bold">{t("badgeShipping")}</span></div>
+            <p className="mt-1 text-xs text-slate-500">{t("badgeShippingHint")}</p>
+          </motion.div>
+          <div className="absolute left-1/2 top-1/2 grid size-56 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-[2rem] border border-white/20 bg-white/15 shadow-2xl backdrop-blur-sm"><ShoppingBag className="size-24 text-white" aria-hidden="true" /></div>
+        </motion.div>
       </div>
-
-      {/* 底部渐变过渡 */}
-      <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-background to-transparent" />
     </section>
   )
 }

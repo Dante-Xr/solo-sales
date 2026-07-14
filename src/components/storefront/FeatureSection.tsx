@@ -49,25 +49,25 @@ export function FeatureSection() {
   const t = useTranslations('feature')
 
   return (
-    <section className="bg-muted/30 py-8">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+    <section id="features" className="border-y border-border bg-muted/55 py-9 sm:py-11">
+      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 gap-7 lg:grid-cols-4 lg:gap-10">
           {features.map((feature, index) => (
             <div
               key={index}
-              className="flex flex-col items-center text-center p-3 md:p-4 bg-background rounded-xl border border-border hover:border-primary/50 hover:shadow-md transition-all duration-200 group"
+              className="group flex items-center gap-3 text-left"
             >
               <div
-                className={`p-2 md:p-3 rounded-full mb-2 md:mb-3 ${iconBgColors[index]} group-hover:scale-110 transition-transform duration-200`}
+                className={`grid size-12 shrink-0 place-items-center rounded-full ${iconBgColors[index]} transition-transform duration-200 group-hover:scale-110`}
               >
                 {feature.icon}
               </div>
-              <h3 className="text-xs md:text-sm font-semibold mb-1 md:mb-2">
-                {t(feature.titleKey)}
-              </h3>
-              <p className={`text-[10px] md:text-xs text-muted-foreground line-clamp-2 md:line-clamp-none`}>
-                {t(feature.descriptionKey)}
-              </p>
+              <div>
+                <h3 className="text-sm font-bold text-foreground sm:text-base">{t(feature.titleKey)}</h3>
+                <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
+                  {t(feature.descriptionKey)}
+                </p>
+              </div>
             </div>
           ))}
         </div>

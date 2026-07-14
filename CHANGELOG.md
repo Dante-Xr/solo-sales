@@ -10,6 +10,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.7.8] - 2026-07-14
+
+### Figma Enhance User Experience
+
+#### Added
+- 首页使用真实商品分类字段提供分类筛选；再次点击当前分类恢复全部商品，并覆盖空状态、收藏和加购交互。
+- 基于现有 `framer-motion` 的 Hero 与商品入场/重排动效，无新增视觉框架依赖。
+- 中英文分类显示映射，避免已知分类在中文界面回退为英文。
+
+#### Changed
+- 用户端全局 token 更新为暖灰画布、深海军蓝、酒红强调、12px 圆角和高对比度暗色 token。
+- 首页、头部、信任横幅、商品卡和页脚按 Figma Enhance 风格重新实现；页脚随日间/夜间主题切换。
+- 前台页脚只标示现有 Stripe 托管信用卡结账入口，不再展示未由前台结账启用的渠道。
+
 ## [1.7.7] - 2026-07-14
 
 ### Documentation Migration and Release Governance

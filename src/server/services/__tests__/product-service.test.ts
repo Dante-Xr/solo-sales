@@ -254,6 +254,7 @@ describe("product-service", () => {
       orderBy: { orderItems: { _count: "desc" } },
       include: {
         _count: { select: { orderItems: true } },
+        category: { select: { id: true, name: true } },
       },
     })
     expect(products).toEqual([

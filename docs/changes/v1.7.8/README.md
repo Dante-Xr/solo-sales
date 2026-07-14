@@ -1,6 +1,6 @@
 ---
 version: v1.7.8
-status: planned
+status: released
 github_milestone: pending
 github_tracking_issue: 6
 ---
@@ -9,7 +9,7 @@ github_tracking_issue: 6
 
 ## 版本目标
 
-以最新 `figma frontend enhance` 首页为高保真基准，将其设计系统应用到全部用户端页面，同时保留既有信息架构和业务契约。
+以最新 `figma frontend enhance` 首页为高保真基准，将其设计系统应用到用户端共享布局、首页和既有用户页面的 token/组件，同时保留既有信息架构和业务契约。
 
 ## 范围
 

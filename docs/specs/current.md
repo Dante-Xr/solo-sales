@@ -1,6 +1,6 @@
 ---
 status: current
-code_version: 1.7.7
+code_version: 1.7.8
 evidence: package.json, prisma/schema.prisma, src/server, tests, README.md
 ---
 
@@ -42,3 +42,5 @@ evidence: package.json, prisma/schema.prisma, src/server, tests, README.md
 - REQ-0016：v1.5 的高并发资料只证明准备与门禁，不构成特定 QPS 容量承诺。
 - REQ-0017：后台任务消费者、生产告警和完整 RAG 对外能力属于未来版本验收范围，不能由旧计划或 UI 表象证明已完成。
 - REQ-0018：`.trae/documents`、`.trae/plans` 和 `.trae/specs` 的 Markdown 源必须在 `docs/legacy/inventory.json` 中有可校验的迁移记录；`npm run docs:check` 必须验证来源哈希、覆盖度和文档链接。
+- REQ-0019：用户端界面必须使用暖灰、深海军蓝、酒红色和语义化日/夜间 token；页脚不得与当前主题脱节。
+- REQ-0020：首页商品项可携带 `categoryId` 与 `categoryName`；已知分类在中英文界面分别显示对应语言，重复点击当前分类必须恢复全部商品。

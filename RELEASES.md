@@ -14,6 +14,7 @@ Comprehensive version history documenting all functional modules and features fr
 
 | Version | Release Date | Status |
 |---------|-------------|--------|
+| [1.7.8](#v178---2026-07-14) | 2026-07-14 | Released |
 | [1.7.7](#v177---2026-07-14) | 2026-07-14 | Released |
 | [1.7.6](#v176---2026-07-03) | 2026-07-03 | Latest |
 | [1.7.3](#v173---2026-07-02) | 2026-07-02 | Stable |
@@ -27,6 +28,20 @@ Comprehensive version history documenting all functional modules and features fr
 | [1.2.0](#v120---2026-04-26) | 2026-04-26 | Stable |
 | [1.0.2](#v102---2026-04-23) | 2026-04-23 | Stable |
 | [1.0.0](#v100---2026-04-21) | 2026-04-21 | Stable |
+
+---
+
+## v1.7.8 - 2026-07-14
+
+### Figma Enhance User Experience
+
+**发布亮点**: 用户端采用 Figma Enhance 的暖灰、深海军蓝和酒红视觉系统；首页提供真实分类筛选、收藏、加购、响应式商品卡和主题联动页脚。
+
+#### 验证说明
+
+- GitHub Issue: [#6](https://github.com/Dante-Xr/solo-sales/issues/6)
+- 已覆盖分类筛选、重复点击取消筛选和加购状态的组件测试，并完成桌面、移动和夜间模式浏览器截图检查。
+- 本版本只进行代码与 Git 发布流程，不主动部署生产环境。
 
 ---
 
