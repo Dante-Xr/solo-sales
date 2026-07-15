@@ -132,26 +132,26 @@ export function generateMockAlerts(count = 15): InventoryAlertItem[] {
 const LEVEL_CONFIG: Record<AlertLevel, { label: string; color: string; bg: string; icon: typeof AlertTriangle }> = {
   critical: {
     label: "alertCritical",
-    color: "text-red-600 dark:text-red-400",
-    bg: "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900",
+    color: "text-destructive",
+    bg: "border-destructive/30 bg-destructive/10",
     icon: AlertTriangle,
   },
   warning: {
     label: "alertWarning",
-    color: "text-accent dark:text-accent",
-    bg: "bg-orange-50 dark:bg-orange-950/20 border-orange-200 dark:border-orange-900",
+    color: "text-warning",
+    bg: "border-warning/30 bg-warning/10",
     icon: AlertCircle,
   },
   notice: {
     label: "alertNotice",
-    color: "text-warning dark:text-warning",
-    bg: "bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-900",
+    color: "text-info",
+    bg: "border-info/30 bg-info/10",
     icon: Bell,
   },
   safe: {
     label: "alertSafe",
-    color: "text-success dark:text-success",
-    bg: "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900",
+    color: "text-success",
+    bg: "border-success/30 bg-success/10",
     icon: AlertTriangle,
   },
 }

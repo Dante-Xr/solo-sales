@@ -121,11 +121,12 @@
   --brand-hover: #252b3d;
   --brand-gradient-from: #0c1022;
   --brand-gradient-to: #b8132a;
-  --accent: #b8132a;
-  --accent-foreground: #ffffff;
-  --accent-hover: #971024;
+  --accent: #efedea;
+  --accent-foreground: #0c1022;
+  --accent-hover: #e5e2dc;
   --price: #b8132a;
   --price-foreground: inherit;
+  --destructive: #b42318;
   --success: oklch(0.52 0.17 145);
   --warning: oklch(0.6 0.16 75);
   --info: oklch(0.5 0.18 250);
@@ -168,11 +169,12 @@
   --brand-hover: #ffffff;
   --brand-gradient-from: #f8f7f5;
   --brand-gradient-to: #ff7c8f;
-  --accent: #ff7c8f;
-  --accent-foreground: #0c1022;
-  --accent-hover: #ff9eab;
+  --accent: #242b43;
+  --accent-foreground: #f8f7f5;
+  --accent-hover: #303954;
   --price: #ff7c8f;
   --price-foreground: inherit;
+  --destructive: #ff7a8a;
   --success: oklch(0.65 0.17 145);
   --warning: oklch(0.7 0.16 75);
   --info: oklch(0.65 0.18 250);
@@ -195,7 +197,7 @@
   /* 移动端可交互元素最小触控区域 44x44px */
   button,
   [role="button"],
-  input,
+  input:not([type="checkbox"]):not([type="radio"]),
   select,
   textarea,
   a,
@@ -392,7 +394,7 @@
 /* 触控区域优化 - 在 mobile viewport 模式下也生效 */
 [data-viewport="mobile"] button,
 [data-viewport="mobile"] [role="button"],
-[data-viewport="mobile"] input,
+[data-viewport="mobile"] input:not([type="checkbox"]):not([type="radio"]),
 [data-viewport="mobile"] select,
 [data-viewport="mobile"] textarea,
 [data-viewport="mobile"] a,

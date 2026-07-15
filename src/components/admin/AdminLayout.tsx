@@ -201,10 +201,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-muted/50">
+    <div className="min-h-screen bg-background">
       {/* 移动端顶部栏 */}
       {isMobile && (
-        <header className="fixed top-0 left-0 right-0 h-14 bg-background border-b z-40 flex items-center justify-between px-4">
+        <header className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center justify-between border-b border-border/80 bg-card/95 px-4 shadow-sm backdrop-blur-xl">
           <button
             onClick={() => setSidebarOpen(true)}
             className="p-2 -ml-2 rounded-md hover:bg-muted active:bg-muted/80"
@@ -246,7 +246,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             className="fixed inset-0 bg-black/50 z-40 animate-in fade-in duration-200"
             onClick={closeSidebar}
           />
-          <aside className="fixed left-0 top-0 bottom-0 w-72 bg-background z-50 transform transition-transform duration-200 ease-out animate-in slide-in-from-left duration-200">
+          <aside className="fixed left-0 top-0 bottom-0 z-50 w-72 border-r border-border bg-card shadow-2xl transform transition-transform duration-200 ease-out animate-in slide-in-from-left duration-200">
             <div className="h-14 border-b flex items-center justify-between px-4">
               <span className="font-semibold">{t('shopName')}</span>
               <button
@@ -267,10 +267,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     href={item.href}
                     onClick={closeSidebar}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 transition-colors",
+                      "mb-1 flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                       isActive
-                        ? "bg-primary text-primary-foreground"
-                        : "hover:bg-muted active:bg-muted/80"
+                        ? "bg-foreground text-background shadow-sm"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground active:bg-muted"
                     )}
                   >
                     <item.icon className="w-5 h-5 shrink-0" />
@@ -287,10 +287,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     href={item.href}
                     onClick={closeSidebar}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 transition-colors",
+                      "mb-1 flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                       isActive
-                        ? "bg-primary text-primary-foreground"
-                        : "hover:bg-muted active:bg-muted/80"
+                        ? "bg-foreground text-background shadow-sm"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground active:bg-muted"
                     )}
                   >
                     <item.icon className="w-5 h-5 shrink-0" />
@@ -309,9 +309,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* PC 端侧边栏 */}
       {!isMobile && (
-        <aside className="fixed left-0 top-0 bottom-0 w-64 bg-background border-r z-30">
-          <div className="h-16 border-b flex items-center justify-between px-4">
-            <span className="font-semibold text-lg">{t('shopName')}</span>
+        <aside className="fixed left-0 top-0 bottom-0 z-30 w-64 border-r border-border bg-card">
+          <div className="flex h-16 items-center justify-between border-b border-border px-4">
+            <span className="text-lg font-bold tracking-normal">{t('shopName')}</span>
             <div className="flex items-center gap-1">
               <button
                 onClick={() => router.push(pathname, { locale: locale === 'zh' ? 'en' : 'zh' })}
@@ -356,7 +356,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                       <div className="py-1">
                         <button
                           onClick={() => handleMenuClick("profile")}
-                          className="w-full px-4 py-2.5 text-left text-sm hover:bg-accent flex items-center gap-3 text-foreground"
+                          className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                         >
                           <UserCircle className="w-4 h-4 text-muted-foreground" />
                           {t('profileLabel')}
@@ -364,7 +364,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                         <div className="border-t border-border my-1" />
                         <button
                           onClick={() => handleMenuClick("logout")}
-                          className="w-full px-4 py-2.5 text-left text-sm hover:bg-accent flex items-center gap-3 text-destructive"
+                          className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-destructive transition-colors hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                         >
                           <LogOut className="w-4 h-4" />
                           {t('logout')}
@@ -385,10 +385,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 transition-colors",
+                    "mb-1 flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-muted"
+                      ? "bg-foreground text-background shadow-sm"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   )}
                 >
                   <item.icon className="w-5 h-5 shrink-0" />
@@ -404,10 +404,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 transition-colors",
+                    "mb-1 flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-muted"
+                      ? "bg-foreground text-background shadow-sm"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   )}
                 >
                   <item.icon className="w-5 h-5 shrink-0" />
@@ -443,7 +443,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             <div className="py-1">
               <button
                 onClick={() => handleMenuClick("profile")}
-                className="w-full px-4 py-2.5 text-left text-sm hover:bg-accent flex items-center gap-3 text-foreground"
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
               >
                 <UserCircle className="w-4 h-4 text-muted-foreground" />
                 {t('profileLabel')}
@@ -451,7 +451,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               <div className="border-t border-border my-1" />
               <button
                 onClick={() => handleMenuClick("logout")}
-                className="w-full px-4 py-2.5 text-left text-sm hover:bg-accent flex items-center gap-3 text-destructive"
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-destructive transition-colors hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
               >
                 <LogOut className="w-4 h-4" />
                 {t('logout')}
@@ -470,12 +470,12 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       >
         {/* 全局搜索触发按钮 (仅PC端) */}
         {!isMobile && (
-          <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-sm border-b border-border px-4 lg:px-6">
+          <div className="sticky top-0 z-30 border-b border-border/80 bg-card/90 px-4 shadow-sm backdrop-blur-xl lg:px-6">
             <div className="flex items-center justify-between gap-4">
               <Breadcrumb />
               <button
                 onClick={() => setSearchOpen(true)}
-                className="flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground bg-muted/50 hover:bg-muted border border-border rounded-md transition-colors"
+                className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-xs text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
               >
                 <Search className="h-3.5 w-3.5" />
                 <span className="hidden md:inline">{t("search.placeholder")}</span>

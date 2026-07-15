@@ -41,7 +41,7 @@ const features: Feature[] = [
 const iconBgColors = [
   "bg-brand/10 text-brand",
   "bg-success/10 text-success",
-  "bg-accent/10 text-accent",
+  "bg-warning/10 text-warning",
   "bg-info/10 text-info",
 ]
 

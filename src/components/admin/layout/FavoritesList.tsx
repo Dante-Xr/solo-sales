@@ -52,7 +52,7 @@ export function FavoritesList() {
             {/* 移除收藏按钮（悬浮显示） */}
             <button
               onClick={() => toggleFavorite(fav)}
-              className="absolute right-1 top-1/2 -translate-y-1/2 p-0.5 rounded opacity-0 group-hover:opacity-100 hover:bg-accent transition-all text-muted-foreground hover:text-destructive"
+              className="absolute right-1 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground opacity-0 transition-all hover:bg-destructive/10 hover:text-destructive focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring group-hover:opacity-100"
               title={t("favorites.remove")}
             >
               <X className="h-3 w-3" />

@@ -627,7 +627,7 @@ export default function ProductsPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => handleOpenBatchAction("discount")}
-                  className="text-blue-600 hover:text-blue-700"
+                  className="text-info hover:opacity-80"
                 >
                   <Percent className="w-4 h-4 mr-1" />
                   {isZh ? "批量折扣" : "Discount"}
@@ -807,7 +807,7 @@ export default function ProductsPage() {
                             checked={product.isPublished}
                             onCheckedChange={() => handleToggleStatus(product)}
                           />
-                          <span className={`text-sm ${product.isPublished ? "text-green-600" : "text-muted-foreground"}`}>
+                          <span className={`text-sm ${product.isPublished ? "text-success" : "text-muted-foreground"}`}>
                             {product.isPublished
                               ? (isZh ? "上架" : "Active")
                               : (isZh ? "下架" : "Inactive")}

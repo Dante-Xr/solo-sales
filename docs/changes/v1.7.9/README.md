@@ -1,6 +1,6 @@
 ---
 version: v1.7.9
-status: planned
+status: in_progress
 github_milestone: pending
 github_tracking_issue: 7
 ---
@@ -29,3 +29,8 @@ github_tracking_issue: 7
 ## 发布门禁
 
 完成桌面端和移动端浏览器截图验收，并通过 `npm run docs:check`、完整测试、lint、type-check、secret audit 和 build。
+
+## 当前验证边界
+
+- 未认证桌面端和 390px 移动端已完成本地渲染检查，移动抽屉和暗色切换均已验证。
+- 实际仪表盘、列表、知识库及导入/支付凭证页仍需在具备管理员会话与数据库连接的环境中完成验收；该限制不应通过伪造会话绕过。

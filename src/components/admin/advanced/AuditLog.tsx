@@ -52,10 +52,10 @@ export interface AuditLogEntry {
 const ACTION_CONFIG: Record<AuditAction, { label: string; color: string }> = {
   CREATE: { label: "actionCreate", color: "text-success bg-success/10 dark:text-success dark:bg-success/20" },
   UPDATE: { label: "actionUpdate", color: "text-brand bg-brand/10 dark:text-brand dark:bg-brand/20" },
-  DELETE: { label: "actionDelete", color: "text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-950/20" },
-  LOGIN: { label: "actionLogin", color: "text-purple-600 bg-purple-50 dark:text-purple-400 dark:bg-purple-950/20" },
-  LOGOUT: { label: "actionLogout", color: "text-gray-600 bg-gray-50 dark:text-gray-400 dark:bg-gray-950/20" },
-  EXPORT: { label: "actionExport", color: "text-accent bg-accent/10 dark:text-accent dark:bg-accent/20" },
+  DELETE: { label: "actionDelete", color: "text-destructive bg-destructive/10" },
+  LOGIN: { label: "actionLogin", color: "text-info bg-info/10" },
+  LOGOUT: { label: "actionLogout", color: "text-muted-foreground bg-muted" },
+  EXPORT: { label: "actionExport", color: "text-warning bg-warning/10" },
 }
 
 // ==================== 模拟数据 ====================
@@ -340,7 +340,7 @@ export function AuditLog({ logs: propLogs, loading = false }: AuditLogProps) {
                           {log.beforeData && (
                             <div>
                               <h4 className="text-xs font-medium text-muted-foreground mb-1.5">{t("beforeChange")}</h4>
-                              <pre className="text-xs bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded p-2 overflow-x-auto">
+                              <pre className="overflow-x-auto rounded border border-destructive/30 bg-destructive/10 p-2 text-xs">
                                 {JSON.stringify(log.beforeData, null, 2)}
                               </pre>
                             </div>
@@ -348,7 +348,7 @@ export function AuditLog({ logs: propLogs, loading = false }: AuditLogProps) {
                           {log.afterData && (
                             <div>
                               <h4 className="text-xs font-medium text-muted-foreground mb-1.5">{t("afterChange")}</h4>
-                              <pre className="text-xs bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 rounded p-2 overflow-x-auto">
+                              <pre className="overflow-x-auto rounded border border-success/30 bg-success/10 p-2 text-xs">
                                 {JSON.stringify(log.afterData, null, 2)}
                               </pre>
                             </div>

@@ -257,7 +257,7 @@ export default function ChatPage() {
                       <p className="text-sm text-muted-foreground truncate">{conv.lastMessage}</p>
                     </div>
                     {conv.unreadCount > 0 && (
-                      <Badge className="bg-red-500 text-white">{conv.unreadCount}</Badge>
+                      <Badge className="bg-destructive text-white dark:text-[#0c1022]">{conv.unreadCount}</Badge>
                     )}
                   </div>
                 </div>

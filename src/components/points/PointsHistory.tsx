@@ -29,11 +29,11 @@ interface PointsHistoryProps {
 
 const typeConfig = {
   EARN: { icon: TrendingUp, color: "text-success", bg: "bg-success/10" },
-  REDEEM: { icon: TrendingDown, color: "text-red-600", bg: "bg-red-100" },
-  BONUS: { icon: Gift, color: "text-purple-600", bg: "bg-purple-100" },
-  EXPIRE: { icon: Clock, color: "text-gray-600", bg: "bg-gray-100" },
+  REDEEM: { icon: TrendingDown, color: "text-destructive", bg: "bg-destructive/10" },
+  BONUS: { icon: Gift, color: "text-info", bg: "bg-info/10" },
+  EXPIRE: { icon: Clock, color: "text-muted-foreground", bg: "bg-muted" },
   ADJUST: { icon: Coins, color: "text-brand", bg: "bg-brand/10" },
-  REFUND: { icon: TrendingUp, color: "text-accent", bg: "bg-accent/10" },
+  REFUND: { icon: TrendingUp, color: "text-price", bg: "bg-price/10" },
 }
 
 export function PointsHistory({ userId, isZh = false }: PointsHistoryProps) {

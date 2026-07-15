@@ -115,15 +115,15 @@ export default function CustomersPage() {
 
   // 获取订单状态标签
   const getOrderStatusBadge = (status: string) => {
-    const config: Record<string, { color: string; key: string }> = {
-      PENDING: { color: "bg-yellow-500", key: 'orderStatus.pending' },
-      PAID: { color: "bg-blue-500", key: 'orderStatus.paid' },
-      SHIPPED: { color: "bg-purple-500", key: 'orderStatus.shipped' },
-      DELIVERED: { color: "bg-green-500", key: 'orderStatus.delivered' },
-      CANCELLED: { color: "bg-red-500", key: 'orderStatus.cancelled' },
+    const config: Record<string, { className: string; key: string }> = {
+      PENDING: { className: "bg-warning text-[#0c1022]", key: 'orderStatus.pending' },
+      PAID: { className: "bg-info text-white dark:text-[#0c1022]", key: 'orderStatus.paid' },
+      SHIPPED: { className: "bg-info text-white dark:text-[#0c1022]", key: 'orderStatus.shipped' },
+      DELIVERED: { className: "bg-success text-white dark:text-[#0c1022]", key: 'orderStatus.delivered' },
+      CANCELLED: { className: "bg-destructive text-white dark:text-[#0c1022]", key: 'orderStatus.cancelled' },
     }
-    const { color, key } = config[status] || { color: "bg-gray-500", key: status }
-    return <Badge className={`${color} text-white`}>{t(key)}</Badge>
+    const { className, key } = config[status] || { className: "bg-muted text-muted-foreground", key: status }
+    return <Badge className={className}>{t(key)}</Badge>
   }
 
   return (
@@ -298,27 +298,27 @@ export default function CustomersPage() {
                     {t('totalOrders')}
                   </div>
                 </div>
-                <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-green-600">
+                <div className="rounded-lg bg-success/10 p-4 text-center">
+                  <div className="text-2xl font-bold text-success">
                     {selectedCustomer.orders.filter((o) => o.status === "DELIVERED").length}
                   </div>
-                  <div className="text-sm text-green-600">
+                  <div className="text-sm text-success">
                     {t('completed')}
                   </div>
                 </div>
-                <div className="p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-yellow-600">
+                <div className="rounded-lg bg-warning/10 p-4 text-center">
+                  <div className="text-2xl font-bold text-warning">
                     {selectedCustomer.orders.filter((o) => o.status === "PENDING" || o.status === "PAID").length}
                   </div>
-                  <div className="text-sm text-yellow-600">
+                  <div className="text-sm text-warning">
                     {t('processing')}
                   </div>
                 </div>
-                <div className="p-4 bg-red-50 dark:bg-red-950/20 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-red-600">
+                <div className="rounded-lg bg-destructive/10 p-4 text-center">
+                  <div className="text-2xl font-bold text-destructive">
                     {selectedCustomer.orders.filter((o) => o.status === "CANCELLED").length}
                   </div>
-                  <div className="text-sm text-red-600">
+                  <div className="text-sm text-destructive">
                     {t('cancelled')}
                   </div>
                 </div>

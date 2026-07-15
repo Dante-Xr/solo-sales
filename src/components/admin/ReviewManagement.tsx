@@ -193,12 +193,12 @@ export function ReviewManagement({ isZh = false }: ReviewManagementProps) {
                     <TableCell>
                       <div className="flex gap-1">
                         {review.isApproved && (
-                          <Badge variant="default" className="bg-green-500">
+                          <Badge variant="default" className="bg-success text-white dark:text-[#0c1022]">
                             {isZh ? "已通过" : "Approved"}
                           </Badge>
                         )}
                         {review.isFeatured && (
-                          <Badge variant="default" className="bg-yellow-500">
+                          <Badge variant="default" className="bg-warning text-[#0c1022]">
                             <Star size={12} className="mr-1" />
                             {isZh ? "精选" : "Featured"}
                           </Badge>

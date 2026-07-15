@@ -81,7 +81,7 @@ export function SocialProof({
           </span>
         )}
         {displayViewing > 0 && (
-          <span className="inline-flex items-center gap-1 px-2 py-1 bg-accent/10 text-accent rounded-full text-xs font-medium">
+          <span className="inline-flex items-center gap-1 rounded-full bg-price/10 px-2 py-1 text-xs font-medium text-price">
             <Users size={12} />
             {displayViewing} 人正在浏览
           </span>
@@ -126,7 +126,7 @@ export function SocialProof({
 
             {todaySales !== undefined && todaySales > 0 && (
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-price/10">
                   <Flame size={16} className="text-price" />
                 </div>
                 <div>
@@ -190,7 +190,7 @@ export function HotSellingBadge({
 
   return (
     <span
-      className={`inline-flex items-center gap-1 px-2 py-1 bg-accent/10 text-accent rounded-full text-xs font-medium ${className}`}
+      className={`inline-flex items-center gap-1 rounded-full bg-price/10 px-2 py-1 text-xs font-medium text-price ${className}`}
     >
       <Flame size={12} />
       热销第 {rank} 名

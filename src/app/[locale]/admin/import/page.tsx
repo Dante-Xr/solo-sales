@@ -133,32 +133,32 @@ export default function ImportPage() {
   const getStatusBadge = (status: ImportLog["status"]) => {
     const config: Record<
       ImportLog["status"],
-      { icon: React.ReactNode; color: string; key: string }
+      { icon: React.ReactNode; className: string; key: string }
     > = {
       PENDING: {
         icon: <Clock className="w-4 h-4" />,
-        color: "bg-gray-500",
+        className: "bg-muted text-muted-foreground",
         key: 'status.pending',
       },
       RUNNING: {
         icon: <RefreshCw className="w-4 h-4 animate-spin" />,
-        color: "bg-blue-500",
+        className: "bg-info text-white dark:text-[#0c1022]",
         key: 'status.running',
       },
       COMPLETED: {
         icon: <CheckCircle className="w-4 h-4" />,
-        color: "bg-green-500",
+        className: "bg-success text-white dark:text-[#0c1022]",
         key: 'status.completed',
       },
       FAILED: {
         icon: <XCircle className="w-4 h-4" />,
-        color: "bg-red-500",
+        className: "bg-destructive text-white dark:text-[#0c1022]",
         key: 'status.failed',
       },
     }
-    const { icon, color, key } = config[status]
+    const { icon, className, key } = config[status]
     return (
-      <Badge className={`${color} text-white flex items-center gap-1`}>
+      <Badge className={`flex items-center gap-1 ${className}`}>
         {icon}
         {t(key)}
       </Badge>
@@ -201,15 +201,15 @@ export default function ImportPage() {
         </div>
 
         {/* 提示信息 */}
-        <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-800">
+        <Card className="border-info/30 bg-info/10">
           <CardContent className="pt-6">
             <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
+              <AlertCircle className="mt-0.5 h-5 w-5 text-info" />
               <div className="text-sm">
-                <p className="font-medium text-blue-900 dark:text-blue-100">
+                <p className="font-medium text-foreground">
                   {t('importInstructions')}
                 </p>
-                <ul className="mt-1 text-blue-700 dark:text-blue-300 space-y-1">
+                <ul className="mt-1 space-y-1 text-muted-foreground">
                   <li>
                     {t('instruction1')}
                   </li>
@@ -264,11 +264,11 @@ export default function ImportPage() {
                     <div className="flex items-center gap-6">
                       <div className="text-right">
                         <div className="text-sm">
-                          <span className="text-green-600 font-medium">
+                          <span className="font-medium text-success">
                             +{log.successCount}
                           </span>
                           {log.failCount > 0 && (
-                            <span className="text-red-600 font-medium ml-2">
+                            <span className="ml-2 font-medium text-destructive">
                               -{log.failCount}
                             </span>
                           )}
@@ -340,14 +340,14 @@ export default function ImportPage() {
           <div className="py-4">
             {importResult?.success ? (
               <div className="space-y-3">
-                <div className="flex items-center gap-2 text-green-600">
+                <div className="flex items-center gap-2 text-success">
                   <CheckCircle className="w-5 h-5" />
                   <span>{importResult.message}</span>
                 </div>
                 {importResult.data && (
                   <div className="grid grid-cols-2 gap-4 mt-4">
                     <div className="p-3 bg-muted rounded-lg">
-                      <div className="text-2xl font-bold text-green-600">
+                      <div className="text-2xl font-bold text-success">
                         {importResult.data.successCount}
                       </div>
                       <div className="text-sm text-muted-foreground">
@@ -355,7 +355,7 @@ export default function ImportPage() {
                       </div>
                     </div>
                     <div className="p-3 bg-muted rounded-lg">
-                      <div className="text-2xl font-bold text-orange-600">
+                      <div className="text-2xl font-bold text-warning">
                         {importResult.data.skipped}
                       </div>
                       <div className="text-sm text-muted-foreground">
@@ -366,7 +366,7 @@ export default function ImportPage() {
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-2 text-red-600">
+              <div className="flex items-center gap-2 text-destructive">
                 <XCircle className="w-5 h-5" />
                 <span>{importResult?.message || t('unknownError')}</span>
               </div>
@@ -424,19 +424,19 @@ export default function ImportPage() {
                     {t('total')}
                   </div>
                 </div>
-                <div className="p-3 bg-green-50 dark:bg-green-950/20 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-green-600">
+                <div className="rounded-lg bg-success/10 p-3 text-center">
+                  <div className="text-2xl font-bold text-success">
                     {selectedLog.successCount}
                   </div>
-                  <div className="text-sm text-green-600">
+                  <div className="text-sm text-success">
                     {t('success')}
                   </div>
                 </div>
-                <div className="p-3 bg-red-50 dark:bg-red-950/20 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-red-600">
+                <div className="rounded-lg bg-destructive/10 p-3 text-center">
+                  <div className="text-2xl font-bold text-destructive">
                     {selectedLog.failCount}
                   </div>
-                  <div className="text-sm text-red-600">
+                  <div className="text-sm text-destructive">
                     {t('failed')}
                   </div>
                 </div>
@@ -451,7 +451,7 @@ export default function ImportPage() {
                     {selectedLog.errorDetails.map((error, index) => (
                       <div
                         key={index}
-                        className="text-sm text-red-600 p-2 bg-red-50 dark:bg-red-950/20 rounded"
+                        className="rounded bg-destructive/10 p-2 text-sm text-destructive"
                       >
                         {error}
                       </div>

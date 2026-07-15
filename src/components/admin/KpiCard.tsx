@@ -36,7 +36,7 @@ export function KpiCard({ title, value, delta, deltaType, icon: IconComponent }:
     deltaType === "increase"
       ? "text-success bg-success/10 dark:text-success dark:bg-success/10"
       : deltaType === "decrease"
-        ? "text-accent bg-accent/10 dark:text-accent dark:bg-accent/10"
+        ? "text-destructive bg-destructive/10 dark:text-destructive dark:bg-destructive/10"
         : "text-muted-foreground bg-muted dark:text-muted-foreground dark:bg-muted"
 
   return (

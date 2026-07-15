@@ -71,10 +71,10 @@ export function Breadcrumb() {
   if (crumbs.length <= 1) return null
 
   return (
-    <nav aria-label="breadcrumb" className="flex items-center gap-1 text-sm text-muted-foreground py-2 overflow-x-auto">
+    <nav aria-label="breadcrumb" className="flex min-h-11 items-center gap-1 overflow-x-auto py-2 text-sm text-muted-foreground">
       <Link
         href="/admin"
-        className="flex items-center gap-1 hover:text-foreground transition-colors shrink-0"
+        className="flex shrink-0 items-center gap-1 rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <Home className="h-3.5 w-3.5" />
         <span className="sr-only">{t("dashboard")}</span>
@@ -92,7 +92,7 @@ export function Breadcrumb() {
             ) : (
               <Link
                 href={crumb.href}
-                className="hover:text-foreground transition-colors truncate max-w-[120px]"
+                className="max-w-[120px] truncate rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {t(crumb.label)}
               </Link>

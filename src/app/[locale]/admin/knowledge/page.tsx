@@ -280,13 +280,13 @@ export default function KnowledgePage() {
   }
 
   const getStatusBadge = (status: KnowledgeStatus) => {
-    const config: Record<KnowledgeStatus, { color: string; key: string }> = {
-      DRAFT: { color: "bg-gray-500", key: 'status.draft' },
-      PUBLISHED: { color: "bg-green-500", key: 'status.published' },
-      ARCHIVED: { color: "bg-yellow-500", key: 'status.archived' },
+    const config: Record<KnowledgeStatus, { className: string; key: string }> = {
+      DRAFT: { className: "bg-muted text-muted-foreground", key: 'status.draft' },
+      PUBLISHED: { className: "bg-success text-white dark:text-[#0c1022]", key: 'status.published' },
+      ARCHIVED: { className: "bg-warning text-[#0c1022]", key: 'status.archived' },
     }
-    const { color, key } = config[status]
-    return <Badge className={`${color} text-white`}>{t(key)}</Badge>
+    const { className, key } = config[status]
+    return <Badge className={className}>{t(key)}</Badge>
   }
 
   const formatDate = (dateStr: string) => {

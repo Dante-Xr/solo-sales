@@ -62,7 +62,7 @@ const colorStyles = {
   green: "bg-success/10 text-success border-success/20",
   blue: "bg-brand/10 text-brand border-brand/20",
   purple: "bg-info/10 text-info border-info/20",
-  orange: "bg-accent/10 text-accent border-accent/20",
+  orange: "bg-warning/10 text-warning border-warning/20",
 }
 
 interface TrustBadgesProps {

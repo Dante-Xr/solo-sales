@@ -139,12 +139,12 @@ export function PageTabs() {
   if (tabs.length === 0) return null
 
   return (
-    <div className="relative border-b bg-card">
+    <div className="relative border-b border-border/80 bg-card">
       {/* 左滚动箭头 */}
       {showLeftArrow && (
         <button
           onClick={scrollLeft}
-          className="absolute left-0 top-0 bottom-0 w-8 flex items-center justify-center bg-gradient-to-r from-card to-transparent z-10 hover:text-foreground transition-colors"
+          className="absolute top-0 bottom-0 left-0 z-10 flex w-8 items-center justify-center bg-gradient-to-r from-card to-transparent transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
@@ -166,10 +166,10 @@ export function PageTabs() {
               onClick={() => handleTabClick(tab.id)}
               onContextMenu={(e) => handleContextMenu(e, tab.id)}
               className={cn(
-                "group relative flex items-center gap-1.5 py-2 px-3 text-sm cursor-pointer border-r border-border whitespace-nowrap select-none min-w-0 max-w-[180px]",
+                "group relative flex min-w-0 max-w-[180px] cursor-pointer select-none items-center gap-1.5 border-r border-border px-3 py-2 text-sm whitespace-nowrap",
                 "transition-colors duration-150",
                 isActive
-                  ? "bg-background text-foreground border-t-2 border-t-primary -mt-[1px]"
+                  ? "-mt-px border-t-2 border-t-foreground bg-background text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               )}
             >
@@ -180,7 +180,7 @@ export function PageTabs() {
                     e.stopPropagation()
                     refreshTab(tab.id)
                   }}
-                  className="p-0.5 rounded hover:bg-muted transition-colors"
+                  className="rounded p-0.5 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   title={t("tabs.refresh")}
                 >
                   <RefreshCw className="h-3 w-3" />
@@ -197,7 +197,7 @@ export function PageTabs() {
                     "p-0.5 rounded transition-all flex-shrink-0",
                     "opacity-0 group-hover:opacity-100",
                     isActive ? "hover:bg-muted" : "hover:bg-muted-foreground/20",
-                    "focus:opacity-100"
+                    "focus:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   )}
                   title={t("tabs.close")}
                 >
@@ -213,7 +213,7 @@ export function PageTabs() {
       {showRightArrow && (
         <button
           onClick={scrollRight}
-          className="absolute right-0 top-0 bottom-0 w-8 flex items-center justify-center bg-gradient-to-l from-card to-transparent z-10 hover:text-foreground transition-colors"
+          className="absolute top-0 right-0 bottom-0 z-10 flex w-8 items-center justify-center bg-gradient-to-l from-card to-transparent transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
         >
           <ChevronRight className="h-4 w-4" />
         </button>
@@ -231,12 +231,12 @@ export function PageTabs() {
             }}
           />
           <div
-            className="fixed z-50 w-48 bg-card rounded-lg shadow-lg border border-border py-1 overflow-hidden"
+            className="fixed z-50 w-48 overflow-hidden rounded-lg border border-border bg-card py-1 shadow-xl"
             style={{ left: contextMenu.x, top: contextMenu.y }}
           >
             <button
               onClick={handleRefresh}
-              className="w-full px-3 py-2 text-left text-sm hover:bg-accent transition-colors flex items-center gap-2"
+              className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
             >
               <RefreshCw className="h-3.5 w-3.5" />
               {t("tabs.refresh")}
@@ -246,13 +246,13 @@ export function PageTabs() {
                 <div className="border-t border-border my-1" />
                 <button
                   onClick={handleCloseOthers}
-                  className="w-full px-3 py-2 text-left text-sm hover:bg-accent transition-colors"
+                  className="w-full px-3 py-2 text-left text-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                 >
                   {t("tabs.closeOthers")}
                 </button>
                 <button
                   onClick={handleCloseRight}
-                  className="w-full px-3 py-2 text-left text-sm hover:bg-accent transition-colors"
+                  className="w-full px-3 py-2 text-left text-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                 >
                   {t("tabs.closeRight")}
                 </button>

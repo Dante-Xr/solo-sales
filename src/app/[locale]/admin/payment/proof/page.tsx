@@ -91,7 +91,7 @@ export default function PaymentProofReviewPage() {
     <div className="container py-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold mb-2">支付凭证审核</h1>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           ⚠️ 当前为人工审核模式，建议尽快升级为自动化支付
         </p>
       </div>
@@ -102,15 +102,15 @@ export default function PaymentProofReviewPage() {
           <h2 className="font-semibold">待审核 ({proofs.length})</h2>
 
           {proofs.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">暂无待审核凭证</div>
+            <div className="py-8 text-center text-muted-foreground">暂无待审核凭证</div>
           ) : (
             proofs.map((proof) => (
               <div
                 key={proof.id}
-                className={`border rounded-lg p-4 cursor-pointer transition ${
+                className={`cursor-pointer rounded-lg border bg-card p-4 shadow-sm transition-colors ${
                   selectedProof?.id === proof.id
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'hover:bg-gray-50'
+                    ? 'border-info/60 bg-info/10'
+                    : 'hover:bg-muted/70'
                 }`}
                 onClick={() => setSelectedProof(proof)}
               >
@@ -129,25 +129,25 @@ export default function PaymentProofReviewPage() {
                         <p
                           className={
                             proof.isOcrMatched
-                              ? 'text-green-600'
-                              : 'text-orange-600'
+                              ? 'text-success'
+                              : 'text-warning'
                           }
                         >
                           OCR识别：¥{proof.ocrAmount}
                           {proof.isOcrMatched ? ' ✓ 匹配' : ' ⚠ 不匹配'}
                         </p>
                         {proof.ocrConfidence !== null && (
-                          <p className="text-gray-500">
+                          <p className="text-muted-foreground">
                             置信度：{(proof.ocrConfidence * 100).toFixed(0)}%
                           </p>
                         )}
                       </div>
                     )}
 
-                    <p className="text-xs text-gray-500 mt-2">
+                    <p className="mt-2 text-xs text-muted-foreground">
                       用户：{proof.order.user.name || proof.order.user.email}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       {new Date(proof.createdAt).toLocaleString('zh-CN')}
                     </p>
                   </div>
@@ -159,11 +159,11 @@ export default function PaymentProofReviewPage() {
 
         {/* 凭证详情 */}
         {selectedProof ? (
-          <div className="border rounded-lg p-6 sticky top-4">
+          <div className="sticky top-4 rounded-lg border bg-card p-6 shadow-sm">
             <h2 className="font-semibold mb-4">凭证详情</h2>
 
             {/* 支付凭证图片 */}
-            <div className="relative w-full h-96 mb-4 bg-gray-100 rounded border">
+            <div className="relative mb-4 h-96 w-full rounded border bg-muted">
               <Image
                 src={selectedProof.proofImageUrl}
                 alt="支付凭证"
@@ -173,7 +173,7 @@ export default function PaymentProofReviewPage() {
             </div>
 
             {/* 订单信息 */}
-            <div className="mb-4 p-3 bg-gray-50 rounded text-sm space-y-1">
+            <div className="mb-4 space-y-1 rounded bg-muted p-3 text-sm">
               <p>
                 <strong>订单金额：</strong>¥{selectedProof.order.totalAmount}
               </p>
@@ -193,8 +193,8 @@ export default function PaymentProofReviewPage() {
                     <span
                       className={
                         selectedProof.isOcrMatched
-                          ? 'text-green-600'
-                          : 'text-orange-600'
+                          ? 'text-success'
+                          : 'text-warning'
                       }
                     >
                       {selectedProof.isOcrMatched ? '✓ 匹配' : '⚠ 不匹配'}
@@ -208,7 +208,7 @@ export default function PaymentProofReviewPage() {
             <div className="flex gap-4">
               <Button
                 onClick={() => handleReview(selectedProof.id, 'approve')}
-                className="flex-1 bg-green-600 hover:bg-green-700"
+                className="flex-1 bg-success text-white hover:bg-success/90 dark:text-[#0c1022]"
               >
                 <CheckCircle className="mr-2 h-4 w-4" />
                 审核通过
@@ -216,7 +216,7 @@ export default function PaymentProofReviewPage() {
               <Button
                 onClick={() => handleReview(selectedProof.id, 'reject')}
                 variant="outline"
-                className="flex-1 border-red-600 text-red-600 hover:bg-red-50"
+                className="flex-1 border-destructive text-destructive hover:bg-destructive/10"
               >
                 <XCircle className="mr-2 h-4 w-4" />
                 审核拒绝
@@ -224,7 +224,7 @@ export default function PaymentProofReviewPage() {
             </div>
           </div>
         ) : (
-          <div className="border rounded-lg p-6 flex items-center justify-center text-gray-500">
+          <div className="flex items-center justify-center rounded-lg border bg-card p-6 text-muted-foreground shadow-sm">
             请选择一个凭证查看详情
           </div>
         )}

@@ -134,16 +134,16 @@ export default function AdminDashboard() {
   }
 
   const getOrderStatusBadge = (status: string) => {
-    const config: Record<string, { color: string; label: string }> = {
-      PENDING: { color: "bg-yellow-500", label: t('orderStatus.pending') || "待处理" },
-      PAID: { color: "bg-blue-500", label: t('orderStatus.paid') || "已支付" },
-      SHIPPED: { color: "bg-purple-500", label: t('orderStatus.shipped') || "已发货" },
-      DELIVERED: { color: "bg-green-500", label: t('orderStatus.delivered') || "已完成" },
-      CANCELLED: { color: "bg-red-500", label: t('orderStatus.cancelled') || "已取消" },
+    const config: Record<string, { className: string; label: string }> = {
+      PENDING: { className: "bg-warning text-[#0c1022]", label: t('orderStatus.pending') || "待处理" },
+      PAID: { className: "bg-info text-white dark:text-[#0c1022]", label: t('orderStatus.paid') || "已支付" },
+      SHIPPED: { className: "bg-info text-white dark:text-[#0c1022]", label: t('orderStatus.shipped') || "已发货" },
+      DELIVERED: { className: "bg-success text-white dark:text-[#0c1022]", label: t('orderStatus.delivered') || "已完成" },
+      CANCELLED: { className: "bg-destructive text-white dark:text-[#0c1022]", label: t('orderStatus.cancelled') || "已取消" },
     }
-    const { color, label } = config[status] || { color: "bg-gray-500", label: status }
+    const { className, label } = config[status] || { className: "bg-muted text-muted-foreground", label: status }
     return (
-      <span className={`${color} text-white text-xs px-2 py-0.5 rounded-full`}>
+      <span className={`${className} rounded-full px-2 py-0.5 text-xs`}>
         {label}
       </span>
     )
