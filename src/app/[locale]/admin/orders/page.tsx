@@ -37,7 +37,7 @@ import { useTranslations } from "next-intl"
 
 interface Order {
   id: string
-  totalAmount: number
+  totalAmount: number | string
   status: string
   createdAt: string
   shippingAddress?: string
@@ -173,7 +173,7 @@ export default function AdminOrdersPage() {
                     </div>
                   </TableCell>
                   <TableCell className="font-bold text-price">
-                    ${order.totalAmount.toFixed(2)}
+                    ${Number(order.totalAmount).toFixed(2)}
                   </TableCell>
                   <TableCell>
                     <select

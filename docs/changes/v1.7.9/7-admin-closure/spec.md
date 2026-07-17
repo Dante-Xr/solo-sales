@@ -1,7 +1,7 @@
 ---
 issue: 7
 version: v1.7.9
-status: in_progress
+status: complete
 ---
 
 # #7 Figma Enhance 后台与全站收口

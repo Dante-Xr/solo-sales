@@ -9,7 +9,7 @@
  * 功能说明：
  *   - 支持导出 CSV、Excel (xlsx) 和 PDF 格式
  *   - 导出当前页/全部/选中行
- *   - 使用 xlsx 库生成 Excel 文件
+ *   - 使用 ExcelJS 浏览器构建生成 Excel 文件
  *   - v1.2 Phase 4: 增加 PDF 导出（jsPDF + autoTable）
  * ============================================
  */
@@ -20,7 +20,6 @@ import { useState, useRef, useEffect } from "react"
 import { useTranslations } from "next-intl"
 import { Download, FileSpreadsheet, FileText, FileType } from "lucide-react"
 import { cn } from "@/lib/utils"
-import * as XLSX from "xlsx"
 import { jsPDF } from "jspdf"
 import "jspdf-autotable"
 
@@ -87,7 +86,7 @@ export function DataExporter({
   }, [isOpen])
 
   /** 执行导出 */
-  const doExport = (format: ExportFormat, scope: ExportScope) => {
+  const doExport = async (format: ExportFormat, scope: ExportScope) => {
     let data: Record<string, unknown>[]
 
     switch (scope) {
@@ -106,7 +105,7 @@ export function DataExporter({
 
     if (!data || data.length === 0) return
 
-    exportData(data, columns, format, `${filename}_${new Date().toISOString().slice(0, 10)}`)
+    await exportData(data, columns, format, `${filename}_${new Date().toISOString().slice(0, 10)}`)
     setIsOpen(false)
   }
 
@@ -217,7 +216,7 @@ export function DataExporter({
 }
 
 /** 导出数据到文件 */
-export function exportData(
+export async function exportData(
   data: Record<string, unknown>[],
   columns: { key: string; label: string }[],
   format: ExportFormat,
@@ -235,7 +234,7 @@ export function exportData(
   if (format === "csv") {
     exportCSV(exportRows, filename)
   } else if (format === "xlsx") {
-    exportExcel(exportRows, filename)
+    await exportExcel(exportRows, filename)
   } else {
     exportPDF(data, columns, filename)
   }
@@ -274,14 +273,18 @@ function exportCSV(data: Record<string, unknown>[], filename: string) {
 }
 
 /** 导出 Excel (xlsx) 格式 */
-function exportExcel(data: Record<string, unknown>[], filename: string) {
+async function exportExcel(data: Record<string, unknown>[], filename: string) {
   if (data.length === 0) return
 
-  const worksheet = XLSX.utils.json_to_sheet(data)
-  const workbook = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1")
+  const excelJS = (await import("exceljs/dist/exceljs.min.js")) as typeof import("exceljs")
+  const workbook = new excelJS.Workbook()
+  const worksheet = workbook.addWorksheet("Sheet1")
+  const headers = Object.keys(data[0])
 
-  const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" })
+  worksheet.columns = headers.map((header) => ({ header, key: header, width: 20 }))
+  worksheet.addRows(data)
+
+  const excelBuffer = await workbook.xlsx.writeBuffer()
   const blob = new Blob([excelBuffer], {
     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   })

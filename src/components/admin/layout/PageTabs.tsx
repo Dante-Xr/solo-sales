@@ -139,7 +139,7 @@ export function PageTabs() {
   if (tabs.length === 0) return null
 
   return (
-    <div className="relative border-b border-border/80 bg-card">
+    <div className="relative hidden border-b border-border/80 bg-card md:block">
       {/* 左滚动箭头 */}
       {showLeftArrow && (
         <button

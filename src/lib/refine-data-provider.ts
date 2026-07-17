@@ -19,6 +19,18 @@ import type { DataProvider } from "@refinedev/core"
 
 const API_URL = "/api/admin"
 
+const RESOURCE_API_PATHS: Record<string, string> = {
+  products: "/api/products",
+  categories: "/api/categories",
+  knowledge: "/api/knowledge",
+  "knowledge-categories": "/api/knowledge/categories",
+  "import-logs": "/api/import/logs",
+}
+
+function getResourceUrl(resource: string): string {
+  return RESOURCE_API_PATHS[resource] ?? `${API_URL}/${resource}`
+}
+
 interface StandardApiResponse<T = unknown> {
   success: boolean
   data?: T
@@ -125,7 +137,7 @@ const getList: NonNullable<DataProvider["getList"]> = async ({
     })
   }
 
-  const result = await fetchApi<ListPayload | unknown[]>(`${API_URL}/${resource}?${params.toString()}`)
+  const result = await fetchApi<ListPayload | unknown[]>(`${getResourceUrl(resource)}?${params.toString()}`)
   const normalized = normalizeListPayload(result)
 
   return {
@@ -135,14 +147,14 @@ const getList: NonNullable<DataProvider["getList"]> = async ({
 }
 
 const getOne: NonNullable<DataProvider["getOne"]> = async ({ resource, id }) => {
-  const result = await fetchApi(`${API_URL}/${resource}/${id}`)
+  const result = await fetchApi(`${getResourceUrl(resource)}/${id}`)
   return {
     data: result as never,
   }
 }
 
 const create: NonNullable<DataProvider["create"]> = async ({ resource, variables }) => {
-  const result = await fetchApi(`${API_URL}/${resource}`, {
+  const result = await fetchApi(getResourceUrl(resource), {
     method: "POST",
     body: JSON.stringify(variables),
   })
@@ -152,7 +164,7 @@ const create: NonNullable<DataProvider["create"]> = async ({ resource, variables
 }
 
 const update: NonNullable<DataProvider["update"]> = async ({ resource, id, variables }) => {
-  const result = await fetchApi(`${API_URL}/${resource}/${id}`, {
+  const result = await fetchApi(`${getResourceUrl(resource)}/${id}`, {
     method: "PATCH",
     body: JSON.stringify(variables),
   })
@@ -162,7 +174,7 @@ const update: NonNullable<DataProvider["update"]> = async ({ resource, id, varia
 }
 
 const deleteOne: NonNullable<DataProvider["deleteOne"]> = async ({ resource, id }) => {
-  const result = await fetchApi(`${API_URL}/${resource}/${id}`, {
+  const result = await fetchApi(`${getResourceUrl(resource)}/${id}`, {
     method: "DELETE",
   })
   return {

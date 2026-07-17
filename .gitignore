@@ -12,6 +12,10 @@
 
 # testing
 /coverage
+/.playwright-cli/
+/output/playwright/
+/test-results/
+/.codex/
 
 # next.js
 /.next/
@@ -60,5 +64,5 @@ ao-output/
 # Local documentation
 DEPLOYMENT.mdv1.6.5/Progress/
 
-# figma
-figma frontend echance/
+# Figma reference project (not part of SoloSales)
+figma frontend enhance/

@@ -57,6 +57,23 @@ describe("refine-data-provider", () => {
     expect(result.data).toEqual([{ id: "role_1" }, { id: "role_2" }])
   })
 
+  it("uses the real public API path for mapped admin resources", async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ success: true, data: [] }),
+    })
+
+    await dataProvider.getList({
+      resource: "knowledge-categories",
+      pagination: { currentPage: 1, pageSize: 100, mode: "server" },
+    })
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      "/api/knowledge/categories?page=1&pageSize=100",
+      expect.any(Object)
+    )
+  })
+
   it("extracts structured error messages", async () => {
     mockFetch.mockResolvedValue({
       ok: false,

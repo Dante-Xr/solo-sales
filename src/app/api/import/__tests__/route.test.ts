@@ -74,6 +74,7 @@ describe("/api/import", () => {
       status: "QUEUED",
     })
     expect(body.meta).toEqual({ execution: "async" })
+    expect(requireAdminPermission).toHaveBeenCalledWith(expect.anything(), "import.execute")
     expect(runWholesalerImport).not.toHaveBeenCalled()
   })
 

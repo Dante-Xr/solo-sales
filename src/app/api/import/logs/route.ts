@@ -10,7 +10,7 @@ import { listImportLogs, parseImportLogsQuery } from "@/server/services/inventor
 
 export async function GET(request: NextRequest) {
   try {
-    await requireAdminPermission(request, "products.import")
+    await requireAdminPermission(request, "import.view")
     // 分页参数统一交给 service schema 校验，避免 route 内散落 parseInt 默认值。
     const query = parseImportLogsQuery(request.nextUrl.searchParams)
     const result = await listImportLogs(query)

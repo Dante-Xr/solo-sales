@@ -225,14 +225,17 @@ export async function POST(request: NextRequest) {
     }
 
     // 已有 Account：尝试使用 Better Auth 登录
+    let signInHeaders: Headers | undefined
     try {
-      await auth.api.signInEmail({
+      const signInResult = await auth.api.signInEmail({
         body: {
           email: admin.email,
           password: password,
         },
         headers: request.headers,
+        returnHeaders: true,
       })
+      signInHeaders = signInResult.headers
     } catch {
       if (isProductionRuntime()) {
         throw internalError("登录失败，请稍后重试", "Better Auth sign-in failed")
@@ -273,7 +276,7 @@ export async function POST(request: NextRequest) {
 
     // Better Auth 登录成功
     await auditAdminLogin(request, admin.id, "ADMIN_LOGIN_SUCCESS")
-    return successResponse(adminSessionPayload(admin))
+    return successResponse(adminSessionPayload(admin), { headers: signInHeaders })
   } catch (error: unknown) {
     return handleApiError(
       error instanceof Error && error.name !== "AppError"

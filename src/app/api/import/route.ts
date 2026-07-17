@@ -14,7 +14,7 @@ import {
 
 export async function POST(request: NextRequest) {
   try {
-    await requireAdminPermission(request, "products.import")
+    await requireAdminPermission(request, "import.execute")
     // route 只解析请求体，批发商连接、商品映射、去重和入库统一由 service 控制。
     const input = parseImportRequest(await request.json())
     if (input.execution === "async") {

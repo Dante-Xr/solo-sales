@@ -47,9 +47,15 @@
     {
       "version": "v1.7.9",
       "code_version": "1.7.9",
-      "release_status": "planned",
+      "git_tag": "v1.7.9",
+      "release_status": "released",
       "github_tracking_issue": 7,
-      "evidence": ["docs/changes/v1.7.9/README.md"]
+      "evidence": [
+        "docs/changes/v1.7.9/README.md",
+        "docs/changes/v1.7.9/7-admin-closure/spec.md",
+        "docs/changes/v1.7.9/7-admin-closure/tasks.md",
+        "docs/releases/v1.7.9.md"
+      ]
     },
     {
       "version": "v1.8.0",

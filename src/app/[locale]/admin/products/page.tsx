@@ -32,7 +32,7 @@ import {
   ToggleRight,
   Percent,
 } from "lucide-react"
-import { useList, useOne } from "@refinedev/core"
+import { useList } from "@refinedev/core"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -161,17 +161,17 @@ export default function ProductsPage() {
     },
   })
 
-  const { query: { data: categoryData } } = useOne({
+  const { query: { data: categoryData } } = useList({
     resource: "categories",
-    id: "list",
+    pagination: { currentPage: 1, pageSize: 100 },
     queryOptions: {
       enabled: true,
     },
   })
 
   const productList = useMemo<Product[]>(() => {
-    const raw = productListData?.data as ProductListPayload | undefined
-    // 产品列表 API 返回分页对象，页面统一从 list 字段读取 Product[]。
+    const raw = productListData?.data as Product[] | ProductListPayload | undefined
+    if (Array.isArray(raw)) return raw
     return raw?.list || []
   }, [productListData])
 
@@ -181,12 +181,15 @@ export default function ProductsPage() {
   }, [categoryData])
 
   useEffect(() => {
-    if (productListData?.total !== undefined) {
-      const raw = productListData?.data as ProductListPayload | undefined
-      if (raw?.pagination) {
-        setPagination(raw.pagination)
-      }
-    }
+    if (productListData?.total === undefined) return
+
+    setPagination((current) => {
+      const total = productListData.total
+      const totalPages = Math.ceil(total / current.pageSize)
+      return current.total === total && current.totalPages === totalPages
+        ? current
+        : { ...current, total, totalPages }
+    })
   }, [productListData])
 
   // 批量选择状态
@@ -557,7 +560,7 @@ export default function ProductsPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  placeholder={adminT("searchProductPlaceholder")}
+                  placeholder={adminT("products.searchPlaceholder")}
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -575,7 +578,7 @@ export default function ProductsPage() {
               }}
               className="px-3 py-2 border rounded-md bg-background min-w-[150px]"
             >
-              <option value="">{adminT("allCategories")}</option>
+              <option value="">{adminT("products.allCategories")}</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.name}
@@ -585,7 +588,7 @@ export default function ProductsPage() {
 
             <Button variant="outline" onClick={handleSearch}>
               <Search className="w-4 h-4 mr-2" />
-              {adminT("search")}
+              {adminT("products.search")}
             </Button>
           </div>
         </CardContent>
@@ -596,7 +599,7 @@ export default function ProductsPage() {
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              {adminT("products")}
+              {adminT("products.listTitle")}
               <span className="text-sm font-normal text-muted-foreground ml-2">
                 ({pagination.total} {isZh ? "件商品" : "items"})
               </span>

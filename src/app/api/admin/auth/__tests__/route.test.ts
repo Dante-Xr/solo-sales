@@ -3,6 +3,7 @@ jest.mock("next/server", () => ({
     json: (body: unknown, init?: ResponseInit) => ({
       status: init?.status ?? 200,
       cookies: { set: jest.fn() },
+      headers: new Headers(init?.headers),
       json: async () => body,
     }),
   },
@@ -84,7 +85,7 @@ describe("/api/admin/auth", () => {
     mockedPrisma.adminUser.update.mockResolvedValue({})
     mockedPrisma.user.findUnique.mockResolvedValue({ id: "user_1", email: "admin@example.com", role: "admin" })
     mockedPrisma.account.findFirst.mockResolvedValue({ id: "account_1" })
-    mockedAuth.api.signInEmail.mockResolvedValue({})
+    mockedAuth.api.signInEmail.mockResolvedValue({ headers: new Headers(), response: {} })
     mockedAuth.api.signUpEmail.mockResolvedValue({})
     mockedPrisma.permissionLog.create.mockResolvedValue({})
   })
@@ -147,6 +148,20 @@ describe("/api/admin/auth", () => {
         }),
       })
     )
+  })
+
+  it("forwards the Better Auth session cookie after successful login", async () => {
+    mockedAuth.api.signInEmail.mockResolvedValue({
+      headers: new Headers({ "set-cookie": "better-auth.session_token=session-token; Path=/; HttpOnly" }),
+      response: {},
+    })
+
+    const response = await POST(loginRequest({ email: "admin@example.com", password: "password123" }))
+
+    expect(mockedAuth.api.signInEmail).toHaveBeenCalledWith(
+      expect.objectContaining({ returnHeaders: true })
+    )
+    expect(response.headers.get("set-cookie")).toContain("better-auth.session_token=session-token")
   })
 
   it("rejects login with incorrect password", async () => {

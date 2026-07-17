@@ -5,7 +5,7 @@
 | v1.7.6 | needs_release_verification | 类型安全修复后的当前代码状态 | [登记](v1.7.6.md) |
 | v1.7.7 | released | 文档迁移与发布治理 | [发布记录](v1.7.7.md) |
 | v1.7.8 | released | Figma Enhance 用户端体验迁移 | [发布记录](v1.7.8.md) |
-| v1.7.9 | planned | Figma Enhance 后台与全站收口 | [Issue #7](https://github.com/Dante-Xr/solo-sales/issues/7) |
+| v1.7.9 | released | Figma Enhance 后台与全站收口 | [发布记录](v1.7.9.md) |
 | v1.8.0 | planned | 后台、知识库和客服去演示化 | [计划](../changes/v1.8.0/README.md) |
 | v1.9.0 | planned | 生产部署、运行时配置和质量门禁 | [计划](../changes/v1.9.0/README.md) |
 | v2.0.0 | planned | 范围冻结后的上线验收与发布 | [计划](../changes/v2.0.0/README.md) |

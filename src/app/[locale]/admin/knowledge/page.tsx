@@ -148,21 +148,27 @@ export default function KnowledgePage() {
   })
 
   const knowledgeList = useMemo<KnowledgeItem[]>(() => {
-    const raw = knowledgeData?.data as KnowledgeListPayload | undefined
+    const raw = knowledgeData?.data as KnowledgeItem[] | KnowledgeListPayload | undefined
+    if (Array.isArray(raw)) return raw
     return raw?.list || []
   }, [knowledgeData])
 
   useEffect(() => {
     const nextPagination = (knowledgeData?.data as KnowledgeListPayload | undefined)?.pagination
-    if (!nextPagination) return
+    if (!nextPagination && knowledgeData?.total === undefined) return
 
     setPagination((current) => (
-      current.page === nextPagination.page &&
-      current.pageSize === nextPagination.pageSize &&
-      current.total === nextPagination.total &&
-      current.totalPages === nextPagination.totalPages
+      current.page === (nextPagination?.page ?? current.page) &&
+      current.pageSize === (nextPagination?.pageSize ?? current.pageSize) &&
+      current.total === (nextPagination?.total ?? knowledgeData?.total ?? current.total) &&
+      current.totalPages === (nextPagination?.totalPages ?? Math.ceil((knowledgeData?.total ?? current.total) / current.pageSize))
         ? current
-        : nextPagination
+        : {
+            page: nextPagination?.page ?? current.page,
+            pageSize: nextPagination?.pageSize ?? current.pageSize,
+            total: nextPagination?.total ?? knowledgeData?.total ?? current.total,
+            totalPages: nextPagination?.totalPages ?? Math.ceil((knowledgeData?.total ?? current.total) / current.pageSize),
+          }
     ))
   }, [knowledgeData])
 

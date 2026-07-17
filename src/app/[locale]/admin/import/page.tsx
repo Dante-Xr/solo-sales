@@ -69,7 +69,7 @@ interface ImportResult {
 }
 
 export default function ImportPage() {
-  const t = useTranslations('admin.import')
+  const t = useTranslations('admin.importPage')
   const locale = useLocale()
 
   const [importing, setImporting] = useState(false)
@@ -399,7 +399,7 @@ export default function ImportPage() {
                 </div>
                 <div>
                   <div className="text-sm text-muted-foreground">
-                    {t('status')}
+                    {t('statusLabel')}
                   </div>
                   <div>{getStatusBadge(selectedLog.status)}</div>
                 </div>

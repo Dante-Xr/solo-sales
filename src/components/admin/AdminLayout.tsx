@@ -95,6 +95,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const locale = useLocale()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [themeMounted, setThemeMounted] = useState(false)
   const { resolvedTheme, setTheme } = useTheme()
 
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null)
@@ -146,6 +147,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     setActiveTab(tab.id)
     addVisit(tab)
   }, [pathname])
+
+  useEffect(() => {
+    setThemeMounted(true)
+  }, [])
 
   useEffect(() => {
     const fetchAdminUser = async () => {
@@ -233,7 +238,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               className="p-2 rounded-md hover:bg-muted"
               aria-label={t('switchTheme')}
             >
-              {resolvedTheme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {themeMounted && resolvedTheme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
           </div>
         </header>
@@ -325,7 +330,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 className="p-2 rounded-md hover:bg-muted"
                 aria-label={t('switchTheme')}
               >
-                {resolvedTheme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                {themeMounted && resolvedTheme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </button>
               <div className="relative">
                 <button
