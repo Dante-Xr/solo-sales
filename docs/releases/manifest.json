@@ -60,6 +60,11 @@
     {
       "version": "v1.8.0",
       "release_status": "planned",
+      "github_tracking_issue": 8
+    },
+    {
+      "version": "v1.8.1",
+      "release_status": "planned",
       "github_milestone": 1,
       "github_tracking_issue": 1
     },

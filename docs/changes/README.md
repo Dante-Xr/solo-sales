@@ -6,6 +6,7 @@
 - [v1.7.8](v1.7.8/README.md)
 - [v1.7.9](v1.7.9/README.md)
 - [v1.8.0](v1.8.0/README.md)
+- [v1.8.1](v1.8.1/README.md)
 - [v1.9.0](v1.9.0/README.md)
 - [v2.0.0](v2.0.0/README.md)
 - [历史 archive](archive/)
