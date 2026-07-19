@@ -1,0 +1,4 @@
+import { NextRequest, NextResponse } from "next/server"
+import { verifyAdminToken } from "@/lib/adminAuth"
+import { requestAdminActivation } from "@/server/services/admin-activation-service"
+export async function POST(request: NextRequest) { const admin = await verifyAdminToken(request); const body = await request.json() as { username?: unknown; email?: unknown; password?: unknown; roleId?: unknown }; if (!admin || admin.role.name !== "super_admin" || ![body.username,body.email,body.password,body.roleId].every((v) => typeof v === "string")) return NextResponse.json({ message: "invalid" }, { status: 400 }); const operationId = await requestAdminActivation({ operatorId: admin.id, operatorEmail: admin.email, username: body.username as string, email: body.email as string, password: body.password as string, roleId: body.roleId as string }); return NextResponse.json({ operationId }, { status: 202 }) }

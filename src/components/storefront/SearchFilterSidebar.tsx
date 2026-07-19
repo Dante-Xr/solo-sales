@@ -63,26 +63,17 @@ export function SearchFilterSidebar({
     className: string,
     children: React.ReactNode
   ) => {
-    if (!getFilterHref) {
-      return (
-        <button
-          type="button"
-          className={className}
-          onClick={() => onFilterChange(nextFilters)}
-        >
-          {children}
-        </button>
-      )
-    }
-
     return (
-      <a
-        href={getFilterHref(nextFilters)}
+      <button
+        type="button"
         className={className}
-        onClick={() => onFilterChange(nextFilters)}
+        onClick={() => {
+          onFilterChange(nextFilters)
+          replaceFilterUrl(nextFilters)
+        }}
       >
         {children}
-      </a>
+      </button>
     )
   }
 
@@ -98,30 +89,14 @@ export function SearchFilterSidebar({
     checked: boolean,
     label: string
   ) => {
-    if (!getFilterHref) {
-      return (
-        <div className="flex items-center gap-2.5 text-sm">
-          <Checkbox
-            aria-label={label}
-            checked={checked}
-            onCheckedChange={() => onFilterChange(nextFilters)}
-          />
-          <button
-            type="button"
-            className="text-left"
-            onClick={() => onFilterChange(nextFilters)}
-          >
-            {label}
-          </button>
-        </div>
-      )
-    }
-
     return (
-      <a
-        href={getFilterHref(nextFilters)}
+      <button
+        type="button"
         className="flex items-center gap-2.5 text-sm"
-        onClick={() => onFilterChange(nextFilters)}
+        onClick={() => {
+          onFilterChange(nextFilters)
+          replaceFilterUrl(nextFilters)
+        }}
       >
         <span
           aria-hidden="true"
@@ -134,7 +109,7 @@ export function SearchFilterSidebar({
           {checked && <Check className="h-3.5 w-3.5 text-primary-foreground stroke-[3]" />}
         </span>
         <span>{label}</span>
-      </a>
+      </button>
     )
   }
 
@@ -171,6 +146,7 @@ export function SearchFilterSidebar({
   /** 重置所有筛选 */
   const handleReset = () => {
     onFilterChange(DEFAULT_FILTERS)
+    replaceFilterUrl(DEFAULT_FILTERS)
   }
 
   return (
@@ -194,7 +170,7 @@ export function SearchFilterSidebar({
       {/* 价格区间 */}
       <section>
         <h3 className="text-sm font-semibold mb-3">{t("filterPrice")}</h3>
-        <form method="get" className="flex flex-col gap-2">
+        <form className="flex flex-col gap-2" onSubmit={(event) => event.preventDefault()}>
           {searchQuery && <input type="hidden" name="q" value={searchQuery} />}
           {filters.categories.map((category) => (
             <input key={category} type="hidden" name="category" value={category} />
@@ -276,26 +252,16 @@ export function SearchFilterSidebar({
       </section>
 
       {/* 重置按钮 */}
-      {getFilterHref ? (
-        <a
-          href={getFilterHref(DEFAULT_FILTERS)}
-          onClick={handleReset}
-          className="inline-flex h-7 w-full items-center justify-center rounded-md border border-border bg-background px-2.5 text-[0.8rem] font-medium hover:bg-muted hover:text-foreground"
-        >
-          <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
-          {t("filterReset")}
-        </a>
-      ) : (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleReset}
-          className="w-full"
-        >
-          <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
-          {t("filterReset")}
-        </Button>
-      )}
+      <Button
+        variant="outline"
+        size="sm"
+        type="button"
+        onClick={handleReset}
+        className="w-full"
+      >
+        <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+        {t("filterReset")}
+      </Button>
     </div>
   )
 }

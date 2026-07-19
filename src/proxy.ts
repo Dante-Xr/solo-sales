@@ -21,6 +21,7 @@ const intlMiddleware = createMiddleware(routing)
 
 const PUBLIC_PATHS = [
   "/admin/login",
+  "/admin/reset-password",
   "/api/admin/auth",
   "/api/auth",
 ]

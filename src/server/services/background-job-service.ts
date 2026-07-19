@@ -41,6 +41,11 @@ export const BACKGROUND_JOB_DEFINITIONS: Record<
     asynchronousBoundary: "邮件、积分、营销序列等可延后副作用",
     resourceIsolation: "失败副作用进入可恢复任务，不影响支付主链路确认",
   },
+  AUTH_EMAIL_DISPATCH: {
+    synchronousBoundary: "请求内仅持久化加密认证邮件任务",
+    asynchronousBoundary: "SMTP 接受后才推进验证码或恢复链接状态",
+    resourceIsolation: "投递失败进入退避重试和死信队列，不泄漏账号状态",
+  },
   NOTIFICATION_DISPATCH: {
     synchronousBoundary: "请求内只记录待发送通知",
     asynchronousBoundary: "邮件、站内信或其他外部通知派发",

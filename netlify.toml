@@ -10,6 +10,10 @@
   # UPSTASH_REDIS_REST_TOKEN - 在 Netlify 环境变量中配置
   # STRIPE_SECRET_KEY - 在 Netlify 环境变量中配置
   # STRIPE_WEBHOOK_SECRET - 在 Netlify 环境变量中配置
+  # AUTH_RECOVERY_HMAC_SECRET - 账号恢复审计和验证码 HMAC 密钥
+  # AUTH_RECOVERY_ENCRYPTION_KEY - 32 字节认证邮件队列加密密钥
+  # AUTH_RECOVERY_ENCRYPTION_OLD_KEYS - JSON old key-id to key mapping for queued messages
+  # AUTH_EMAIL_WORKER_TOKEN - 内部认证邮件消费者 Bearer Token
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"

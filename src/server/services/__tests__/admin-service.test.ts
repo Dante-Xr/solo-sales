@@ -36,6 +36,7 @@ jest.mock("@/lib/prisma", () => ({
 jest.mock("@/lib/auth", () => ({
   auth: {
     api: {
+      changePassword: jest.fn(),
       getSession: jest.fn(),
     },
   },
@@ -76,7 +77,7 @@ const { prisma } = jest.requireMock("@/lib/prisma") as {
 }
 
 const { auth } = jest.requireMock("@/lib/auth") as {
-  auth: { api: { getSession: jest.Mock } }
+  auth: { api: { changePassword: jest.Mock; getSession: jest.Mock } }
 }
 
 const { hasPermission, verifyAdminToken } = jest.requireMock("@/lib/adminAuth") as {
@@ -223,10 +224,10 @@ describe("admin-service", () => {
       id: "admin_1",
       username: "admin",
       email: "admin@example.com",
-      password: "stored-hash",
+      userId: "user_1",
       isActive: true,
     })
-    bcrypt.compare.mockResolvedValue(false)
+    auth.api.changePassword.mockRejectedValue(new Error("invalid password"))
 
     await expect(
       updateAdminProfile(mockRequest, {

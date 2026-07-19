@@ -20,7 +20,7 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { useList } from "@refinedev/core"
-import { Users, UserPlus, Search, Pencil, Trash2, RefreshCw } from "lucide-react"
+import { Users, UserPlus, Search, Pencil, Trash2, RefreshCw, KeyRound } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { PasswordInput } from "@/components/ui/password-input"
@@ -148,10 +148,17 @@ export default function UsersPage() {
   const [formData, setFormData] = useState<UserFormData>({ username: "", email: "", password: "", roleId: "" })
   const [formLoading, setFormLoading] = useState(false)
   const [switchLoading, setSwitchLoading] = useState<string | null>(null)
+  const [activationOperationId, setActivationOperationId] = useState<string | null>(null)
+  const [activationOtp, setActivationOtp] = useState("")
+  const [delegatedResetUser, setDelegatedResetUser] = useState<AdminUser | null>(null)
+  const [delegatedResetOperationId, setDelegatedResetOperationId] = useState<string | null>(null)
+  const [delegatedResetOtp, setDelegatedResetOtp] = useState("")
 
   const handleOpenCreateDialog = () => {
     setEditingUser(null)
     setFormData({ username: "", email: "", password: "", roleId: roles[0]?.id || "" })
+    setActivationOperationId(null)
+    setActivationOtp("")
     setDialogOpen(true)
   }
 
@@ -171,6 +178,40 @@ export default function UsersPage() {
     setDeleteDialogOpen(true)
   }
 
+  const handleOpenDelegatedReset = async (user: AdminUser) => {
+    setDelegatedResetUser(user)
+    setDelegatedResetOperationId(null)
+    setDelegatedResetOtp("")
+    setFormLoading(true)
+    try {
+      const response = await fetch(`/api/admin/users/${user.id}/delegated-reset/request`, { method: "POST" })
+      const result = await response.json()
+      if (!response.ok || !result.operationId) throw new Error("request failed")
+      setDelegatedResetOperationId(result.operationId)
+    } catch {
+      setDelegatedResetUser(null)
+      toast.error(isZh ? "无法发起委派重置" : "Unable to start delegated reset")
+    } finally {
+      setFormLoading(false)
+    }
+  }
+
+  const handleConfirmDelegatedReset = async () => {
+    if (!delegatedResetUser || !delegatedResetOperationId || delegatedResetOtp.length !== 6) return
+    setFormLoading(true)
+    try {
+      const response = await fetch(`/api/admin/users/${delegatedResetUser.id}/delegated-reset/confirm`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ operationId: delegatedResetOperationId, otp: delegatedResetOtp }) })
+      const result = await response.json()
+      if (!response.ok || !result.success) throw new Error("confirm failed")
+      setDelegatedResetUser(null)
+      toast.success(isZh ? "已向该管理员发送密码重置验证码" : "Password reset code sent to the administrator")
+    } catch {
+      toast.error(isZh ? "验证码无效或已过期" : "Invalid or expired verification code")
+    } finally {
+      setFormLoading(false)
+    }
+  }
+
   const handleSubmit = async () => {
     if (!formData.username || !formData.email || (!editingUser && !formData.password) || !formData.roleId) {
       return
@@ -178,7 +219,7 @@ export default function UsersPage() {
 
     setFormLoading(true)
     try {
-      const url = editingUser ? `/api/admin/users/${editingUser.id}` : "/api/admin/users"
+      const url = editingUser ? `/api/admin/users/${editingUser.id}` : "/api/admin/users/activation/request"
       const method = editingUser ? "PATCH" : "POST"
       const body: Record<string, string> = {
         username: formData.username,
@@ -196,7 +237,10 @@ export default function UsersPage() {
       })
       const result = await response.json()
 
-      if (result.success) {
+      if (!editingUser && response.ok && result.operationId) {
+        setActivationOperationId(result.operationId)
+        toast.success(isZh ? "确认验证码已发送到您的邮箱" : "Confirmation code sent to your email")
+      } else if (result.success) {
         setDialogOpen(false)
         refetchUsers()
       } else {
@@ -207,6 +251,17 @@ export default function UsersPage() {
     } finally {
       setFormLoading(false)
     }
+  }
+
+  const handleConfirmActivation = async () => {
+    if (!activationOperationId || activationOtp.length !== 6) return
+    setFormLoading(true)
+    try {
+      const response = await fetch("/api/admin/users/activation/confirm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ operationId: activationOperationId, otp: activationOtp }) })
+      const result = await response.json()
+      if (result.success) { setDialogOpen(false); setActivationOperationId(null); setActivationOtp(""); refetchUsers(); toast.success(isZh ? "管理员已创建" : "Administrator created") }
+      else toast.error(result.error || (isZh ? "验证码无效或已过期" : "Invalid or expired verification code"))
+    } finally { setFormLoading(false) }
   }
 
   const handleToggleActive = async (user: AdminUser) => {
@@ -354,9 +409,18 @@ export default function UsersPage() {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleOpenEditDialog(user)}
+                            title={isZh ? "编辑管理员" : "Edit administrator"}
                           >
                             <Pencil className="w-4 h-4" />
                           </Button>
+                          {user.role.name !== "super_admin" && user.isActive ? <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleOpenDelegatedReset(user)}
+                            title={isZh ? "委派密码重置" : "Delegated password reset"}
+                          >
+                            <KeyRound className="w-4 h-4" />
+                          </Button> : null}
                           <Button
                             variant="ghost"
                             size="icon"
@@ -384,7 +448,10 @@ export default function UsersPage() {
                 : t("createUser")}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          {activationOperationId ? <div className="space-y-4 py-4">
+            <p className="text-sm text-muted-foreground">{isZh ? "请输入发送到当前超级管理员邮箱的 6 位确认验证码。" : "Enter the six-digit confirmation code sent to the current super administrator email."}</p>
+            <div className="space-y-2"><Label htmlFor="activation-otp">{isZh ? "确认验证码" : "Confirmation code"}</Label><Input id="activation-otp" inputMode="numeric" maxLength={6} value={activationOtp} onChange={(event) => setActivationOtp(event.target.value.replace(/\D/g, ""))} /></div>
+          </div> : <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="username">{t("username")}</Label>
               <Input
@@ -431,16 +498,35 @@ export default function UsersPage() {
                 </SelectContent>
               </Select>
             </div>
-          </div>
+          </div>}
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
               {commonT("cancel")}
             </Button>
-            <Button onClick={handleSubmit} disabled={formLoading}>
+            <Button onClick={activationOperationId ? handleConfirmActivation : handleSubmit} disabled={formLoading || Boolean(activationOperationId && activationOtp.length !== 6)}>
               {formLoading ? (
                 <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
               ) : null}
-              {commonT("save")}
+              {activationOperationId ? (isZh ? "确认并创建" : "Confirm and create") : commonT("save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={Boolean(delegatedResetUser)} onOpenChange={(open) => { if (!open) setDelegatedResetUser(null) }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{isZh ? "委派密码重置" : "Delegated password reset"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <p className="text-sm text-muted-foreground">{isZh ? `确认后将向 ${delegatedResetUser?.username ?? ""} 的邮箱发送密码重置验证码。请输入发送到当前超级管理员邮箱的 6 位确认验证码。` : `Confirm the six-digit code sent to the current super administrator before sending a reset code to ${delegatedResetUser?.username ?? ""}.`}</p>
+            <div className="space-y-2"><Label htmlFor="delegated-reset-otp">{isZh ? "确认验证码" : "Confirmation code"}</Label><Input id="delegated-reset-otp" inputMode="numeric" maxLength={6} value={delegatedResetOtp} onChange={(event) => setDelegatedResetOtp(event.target.value.replace(/\D/g, ""))} /></div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDelegatedResetUser(null)}>{commonT("cancel")}</Button>
+            <Button onClick={handleConfirmDelegatedReset} disabled={formLoading || !delegatedResetOperationId || delegatedResetOtp.length !== 6}>
+              {formLoading ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : null}
+              {isZh ? "确认并发送" : "Confirm and send"}
             </Button>
           </DialogFooter>
         </DialogContent>

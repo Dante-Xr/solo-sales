@@ -4,14 +4,13 @@
  * 修改模型：gpt-5.5
  */
 import { NextRequest } from "next/server"
-import { createdResponse, handleApiError, successResponse } from "@/server/contracts/api"
+import { handleApiError, successResponse } from "@/server/contracts/api"
 import {
-  createAdminUserFromInput,
   listAdminUsers,
-  parseCreateAdminUserInput,
   parseListAdminUsersQuery,
   requireAdminPermission,
 } from "@/server/services/admin-service"
+import { badRequest, forbidden } from "@/server/contracts/errors"
 
 export async function GET(request: NextRequest) {
   try {
@@ -29,12 +28,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const admin = await requireAdminPermission(request, "users.create")
-
-    // 创建用户涉及密码哈希、唯一性检查和审计日志，全部集中在 service 保持 route 简洁。
-    const input = parseCreateAdminUserInput(await request.json())
-    const user = await createAdminUserFromInput(request, admin.id, input)
-
-    return createdResponse(user)
+    if (admin.role.name !== "super_admin") throw forbidden("仅超级管理员可以创建管理员")
+    throw badRequest("请先调用 /api/admin/users/activation/request 并完成 OTP 确认")
   } catch (error: unknown) {
     return handleApiError(error)
   }

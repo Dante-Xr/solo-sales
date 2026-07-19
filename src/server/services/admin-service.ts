@@ -463,7 +463,8 @@ export async function updateAdminProfile(request: NextRequest, input: UpdateProf
   const admin = await findAdminUserByEmail(prisma, email)
   if (!admin || !admin.isActive) throw unauthorized("账号不存在或已被禁用")
 
-  const updateData: { username?: string; password?: string } = {}
+  const updateData: { username?: string } = {}
+  let changedPassword = false
 
   if (input.username && input.username !== admin.username) {
     const existingUser = await findAdminUserByUsername(prisma, input.username)
@@ -473,16 +474,24 @@ export async function updateAdminProfile(request: NextRequest, input: UpdateProf
 
   if (input.newPassword) {
     if (!input.oldPassword) throw badRequest("请提供旧密码")
-
-    const isOldPasswordValid = await bcrypt.compare(input.oldPassword, admin.password)
-    if (!isOldPasswordValid) throw badRequest("旧密码错误")
-
-    updateData.password = await bcrypt.hash(input.newPassword, 10)
+    if (!admin.userId) throw badRequest("管理员身份迁移尚未完成")
+    try {
+      await auth.api.changePassword({
+        body: { currentPassword: input.oldPassword, newPassword: input.newPassword, revokeOtherSessions: true },
+        headers: request.headers,
+      })
+      changedPassword = true
+    } catch {
+      throw badRequest("旧密码错误")
+    }
   }
 
-  if (Object.keys(updateData).length === 0) throw badRequest("没有需要更新的字段")
+  if (Object.keys(updateData).length === 0 && !changedPassword) throw badRequest("没有需要更新的字段")
 
-  const updatedAdmin = await updateAdminUser(prisma, admin.id, updateData)
+  const updatedAdmin = Object.keys(updateData).length > 0
+    ? await updateAdminUser(prisma, admin.id, updateData)
+    : await findAdminUserById(prisma, admin.id)
+  if (!updatedAdmin) throw notFound("用户")
   return sanitizeAdminUser(updatedAdmin)
 }
 

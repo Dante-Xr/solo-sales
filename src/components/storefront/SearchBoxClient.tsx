@@ -6,8 +6,10 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Search, X, History, Flame } from "lucide-react"
 import { useTranslations, useLocale } from "next-intl"
+import { useSession } from "@/lib/auth-client"
 
-const MAX_HISTORY = 3
+const MAX_HISTORY = 5
+const HISTORY_STORAGE_PREFIX = "solo_search_history_v3"
 
 const DEFAULT_HOT_TERMS = {
   zh: ["#网红爆款", "#限时秒杀", "#抖音同款", "#ins风"],
@@ -24,22 +26,30 @@ export function SearchBoxClient({ onSearch, compact = false }: SearchBoxClientPr
   const router = useRouter()
   const t = useTranslations('nav')
   const locale = useLocale()
+  const { data: session } = useSession()
   const [query, setQuery] = useState("")
   const [history, setHistory] = useState<string[]>([])
   const [showHistory, setShowHistory] = useState(false)
   const [hotTerms, setHotTerms] = useState<string[]>([])
   const [_loading, setLoading] = useState(false)
+  const historyStorageKey = `${HISTORY_STORAGE_PREFIX}:${session?.user?.id ?? "guest"}`
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("solo_search_history_v2")
+      const saved = localStorage.getItem(historyStorageKey)
       if (saved) {
-        setHistory(JSON.parse(saved))
+        const parsed = JSON.parse(saved)
+        const normalizedHistory = Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string").slice(0, MAX_HISTORY) : []
+        localStorage.setItem(historyStorageKey, JSON.stringify(normalizedHistory))
+        setHistory(normalizedHistory)
+      } else {
+        setHistory([])
       }
     } catch {
       // Ignore localStorage errors
+      setHistory([])
     }
-  }, [t])
+  }, [historyStorageKey])
 
   useEffect(() => {
     const fetchTrending = async () => {
@@ -60,7 +70,7 @@ export function SearchBoxClient({ onSearch, compact = false }: SearchBoxClientPr
 
   const saveHistory = (newHistory: string[]) => {
     try {
-      localStorage.setItem("solo_search_history_v2", JSON.stringify(newHistory))
+      localStorage.setItem(historyStorageKey, JSON.stringify(newHistory))
       setHistory(newHistory)
     } catch {
       // Ignore localStorage errors

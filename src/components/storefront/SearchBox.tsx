@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Search, X, History, Flame } from "lucide-react"
 import { useTranslations, useLocale } from "next-intl"
 
-const MAX_HISTORY = 3
+const MAX_HISTORY = 5
 
 const DEFAULT_HOT_TERMS = {
   zh: ["#网红爆款", "#限时秒杀", "#抖音同款", "#ins风"],
@@ -33,7 +33,10 @@ export function SearchBox({ onSearch }: SearchBoxProps) {
     try {
       const saved = localStorage.getItem("solo_search_history_v2")
       if (saved) {
-        setHistory(JSON.parse(saved))
+        const parsed = JSON.parse(saved)
+        const normalizedHistory = Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string").slice(0, MAX_HISTORY) : []
+        localStorage.setItem("solo_search_history_v2", JSON.stringify(normalizedHistory))
+        setHistory(normalizedHistory)
       }
     } catch {
       // Ignore localStorage errors

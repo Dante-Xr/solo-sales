@@ -18,6 +18,7 @@
 
 import { useState } from "react"
 import { useRouter } from "@/i18n/navigation"
+import { Link } from "@/i18n/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { PasswordInput } from "@/components/ui/password-input"
@@ -165,6 +166,7 @@ export default function AdminLoginPage() {
                   <>{t('login')}</>
                 )}
               </Button>
+              <Link href="/admin/reset-password" className="block text-right text-sm text-primary hover:underline">忘记密码？</Link>
             </form>
           </CardContent>
         </Card>

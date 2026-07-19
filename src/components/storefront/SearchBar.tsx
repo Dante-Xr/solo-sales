@@ -54,8 +54,8 @@ export function SearchBar({ onSearch }: SearchBarProps) {
     const trimmedQuery = query.trim()
     if (!trimmedQuery) return
 
-    // 更新搜索历史（最多保留 8 条，去重）
-    const newHistory = [trimmedQuery, ...history.filter(h => h !== trimmedQuery)].slice(0, 8)
+    // 更新搜索历史（最多保留 5 条，去重）
+    const newHistory = [trimmedQuery, ...history.filter(h => h !== trimmedQuery)].slice(0, 5)
     saveHistory(newHistory)
     
     onSearch(trimmedQuery)

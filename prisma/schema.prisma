@@ -29,11 +29,12 @@ model User {
   reviews        Review[]
   customerPoints CustomerPoints?
   affiliate      Affiliate?
-  banned         Boolean?   @default(false)
+  banned         Boolean?        @default(false)
   banReason      String?
   banExpires     DateTime?
   sessions       Session[]
   accounts       Account[]
+  adminProfile   AdminUser?
 
   @@map("user")
 }
@@ -147,6 +148,7 @@ model Payment {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
+  @@unique([provider, transactionId])
   // v0.4.3 添加数据库索引 - 优化支付查询性能
   // 按订单查支付记录
   // 按支付流水号查询
@@ -154,7 +156,6 @@ model Payment {
   @@index([orderId])
   @@index([transactionId])
   @@index([status])
-  @@unique([provider, transactionId])
 }
 
 enum PaymentStatus {
@@ -324,13 +325,13 @@ enum MessageRole {
 model DailySnapshot {
   id                 String   @id @default(cuid())
   date               DateTime @db.Date // 日期（不含时间）
-  totalRevenue       Decimal  @db.Decimal(12, 2) @default(0) // 总收入
+  totalRevenue       Decimal  @default(0) @db.Decimal(12, 2) // 总收入
   totalOrders        Int      @default(0) // 总订单数
   totalVisitors      Int      @default(0) // 访问人数
   newCustomers       Int      @default(0) // 新客户数
   returningCustomers Int      @default(0) // 回头客数
-  avgOrderValue      Decimal  @db.Decimal(10, 2) @default(0) // 平均订单金额
-  conversionRate     Decimal  @db.Decimal(5, 4) @default(0) // 转化率
+  avgOrderValue      Decimal  @default(0) @db.Decimal(10, 2) // 平均订单金额
+  conversionRate     Decimal  @default(0) @db.Decimal(5, 4) // 转化率
   topProducts        Json? // 热销商品 [{"productId": "x", "count": 10}]
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
@@ -402,18 +403,20 @@ enum ImportStatus {
 // ============================================
 
 model BackgroundJob {
-  id          String              @id @default(cuid())
-  type        BackgroundJobType
-  status      BackgroundJobStatus @default(QUEUED)
-  payload     Json
-  attempts    Int                 @default(0)
-  maxAttempts Int                 @default(3)
-  lastError   String?
-  lockedAt    DateTime?
-  availableAt DateTime            @default(now())
-  completedAt DateTime?
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
+  id            String              @id @default(cuid())
+  type          BackgroundJobType
+  status        BackgroundJobStatus @default(QUEUED)
+  payload       Json
+  attempts      Int                 @default(0)
+  maxAttempts   Int                 @default(3)
+  lastError     String?
+  lockedAt      DateTime?
+  lockToken     String?
+  lockExpiresAt DateTime?
+  availableAt   DateTime            @default(now())
+  completedAt   DateTime?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
 
   @@index([status, availableAt])
   @@index([type, status])
@@ -425,6 +428,7 @@ enum BackgroundJobType {
   ANALYTICS_REFRESH
   STRIPE_WEBHOOK_POST_PROCESS
   NOTIFICATION_DISPATCH
+  AUTH_EMAIL_DISPATCH
 }
 
 enum BackgroundJobStatus {
@@ -484,9 +488,11 @@ model Role {
 
 model AdminUser {
   id          String    @id @default(cuid())
+  userId      String?   @unique // v1.8.0 staged identity link to Better Auth User
+  user        User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
   username    String    @unique // 用户名 (唯一)
   email       String    @unique // 邮箱 (唯一)
-  password    String // 加密密码
+  password    String? // v1.8.0 migration clears legacy credentials after Account ownership is established
   roleId      String // 关联角色 ID
   role        Role      @relation(fields: [roleId], references: [id])
   isActive    Boolean   @default(true) // 是否启用
@@ -830,7 +836,7 @@ model OrderCurrency {
   orderId         String  @unique
   baseCurrency    String  @default("USD") // 订单原始币种
   displayCurrency String  @default("USD") // 显示币种
-  exchangeRate    Decimal @db.Decimal(12, 6) @default(1) // 结算时的汇率
+  exchangeRate    Decimal @default(1) @db.Decimal(12, 6) // 结算时的汇率
   baseAmount      Decimal @db.Decimal(10, 2) // 原始金额
   displayAmount   Decimal @db.Decimal(10, 2) // 转换后显示金额
 
@@ -1074,10 +1080,10 @@ model Affiliate {
   id             String          @id @default(cuid())
   userId         String          @unique
   status         AffiliateStatus @default(PENDING)
-  commissionRate Decimal         @db.Decimal(5, 2) @default(10) // 佣金比例 %
-  balance        Decimal         @db.Decimal(12, 2) @default(0) // 可用余额
-  totalEarned    Decimal         @db.Decimal(12, 2) @default(0) // 累计收益
-  totalPaid      Decimal         @db.Decimal(12, 2) @default(0) // 已支付
+  commissionRate Decimal         @default(10) @db.Decimal(5, 2) // 佣金比例 %
+  balance        Decimal         @default(0) @db.Decimal(12, 2) // 可用余额
+  totalEarned    Decimal         @default(0) @db.Decimal(12, 2) // 累计收益
+  totalPaid      Decimal         @default(0) @db.Decimal(12, 2) // 已支付
   payoutMethod   String? // 支付方式
   payoutInfo     Json? // 支付信息详情
   approvedAt     DateTime?
@@ -1245,35 +1251,81 @@ model Verification {
   @@map("verification")
 }
 
+// Account recovery audit records store only standardized codes and HMAC fingerprints.
+model AccountRecoveryAudit {
+  id                 String               @id @default(cuid())
+  scope              RecoveryAuditScope
+  result             RecoveryAuditResult
+  failureCode        RecoveryFailureCode?
+  accountFingerprint String
+  ipFingerprint      String?
+  jobId              String?
+  createdAt          DateTime             @default(now())
+
+  @@index([createdAt])
+  @@index([scope, result, createdAt])
+  @@index([accountFingerprint, createdAt])
+  @@index([jobId])
+  @@map("account_recovery_audit")
+}
+
+enum RecoveryAuditScope {
+  USER_PASSWORD_RESET
+  ADMIN_PASSWORD_RESET
+  ADMIN_DELEGATED_RESET
+  ADMIN_EMAIL_CHANGE
+  ADMIN_ACTIVATION
+  CLI_ADMIN_RECOVERY
+}
+
+enum RecoveryAuditResult {
+  ACCEPTED
+  REJECTED
+  FAILED
+}
+
+enum RecoveryFailureCode {
+  ACCOUNT_NOT_FOUND
+  ACCOUNT_SCOPE_MISMATCH
+  ACCOUNT_DISABLED
+  OTP_INVALID
+  OTP_EXPIRED
+  OTP_ATTEMPTS_EXHAUSTED
+  TOKEN_REPLAYED
+  RATE_LIMITED
+  DEPENDENCY_UNAVAILABLE
+  DELIVERY_NOT_ACCEPTED
+}
+
 // ==========================================
 // v1.7.2 个人收款码支付方案（临时过渡）
 // ==========================================
 
 // ⚠️ v1.7.2 临时方案 - 个人收款码配置
 model PaymentQRCode {
-  id          String   @id @default(cuid())
-  name        String   // "支付宝商家收钱码" | "微信个人收款码"
-  type        String   // "merchant_alipay" | "personal_wechat"
-  imageUrl    String   // 收款码图片路径
-  accountName String   // 收款人姓名
-  accountInfo String?  // 账号信息
-  isActive    Boolean  @default(true)
-  sortOrder   Int      @default(0)
-  isTempSolution Boolean @default(true) // 标记为临时方案
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             String   @id @default(cuid())
+  name           String // "支付宝商家收钱码" | "微信个人收款码"
+  type           String // "merchant_alipay" | "personal_wechat"
+  imageUrl       String // 收款码图片路径
+  accountName    String // 收款人姓名
+  accountInfo    String? // 账号信息
+  isActive       Boolean  @default(true)
+  sortOrder      Int      @default(0)
+  isTempSolution Boolean  @default(true) // 标记为临时方案
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   @@index([isActive, sortOrder])
 }
 
 // 支付凭证状态
 enum ProofStatus {
-  PENDING         // 待审核
-  OCR_PROCESSING  // OCR识别中
-  OCR_MATCHED     // OCR金额匹配，自动通过
-  OCR_MISMATCHED  // OCR金额不匹配，需人工审核
-  APPROVED        // 人工审核通过
-  REJECTED        // 人工审核拒绝
+  PENDING // 待审核
+  OCR_PROCESSING // OCR识别中
+  OCR_MATCHED // OCR金额匹配，自动通过
+  OCR_MISMATCHED // OCR金额不匹配，需人工审核
+  APPROVED // 人工审核通过
+  REJECTED // 人工审核拒绝
 }
 
 // ⚠️ v1.7.2 临时方案 - 支付凭证（人工审核）
@@ -1281,31 +1333,31 @@ model PaymentProof {
   id            String      @id @default(cuid())
   orderId       String      @unique
   order         Order       @relation(fields: [orderId], references: [id])
-  proofImageUrl String      // 用户上传的支付截图
+  proofImageUrl String // 用户上传的支付截图
   amount        Decimal     @db.Decimal(10, 2)
-  paymentMethod String      // 支付方式
+  paymentMethod String // 支付方式
   status        ProofStatus @default(PENDING)
 
   // OCR识别结果
-  ocrAmount     Decimal?    @db.Decimal(10, 2)
+  ocrAmount     Decimal?  @db.Decimal(10, 2)
   ocrTimestamp  DateTime?
   ocrConfidence Float?
   ocrRawText    String?
 
   // 重复检测
-  imageHash     String
+  imageHash String
 
   // 审核字段
-  reviewedBy    String?
-  reviewedAt    DateTime?
-  rejectReason  String?
+  reviewedBy   String?
+  reviewedAt   DateTime?
+  rejectReason String?
 
   // 自动删除
   imageDeletedAt DateTime?
   autoDeleteAt   DateTime
 
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([status, createdAt])
   @@index([imageHash])

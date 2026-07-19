@@ -78,7 +78,7 @@ describe("/api/admin/auth", () => {
       id: "admin_1",
       username: "Admin",
       email: "admin@example.com",
-      password: "hash",
+      userId: "user_1",
       isActive: true,
       role: { id: "role_1", name: "admin", label: "Admin", permissions: [] },
     })
@@ -164,15 +164,14 @@ describe("/api/admin/auth", () => {
     expect(response.headers.get("set-cookie")).toContain("better-auth.session_token=session-token")
   })
 
-  it("rejects login with incorrect password", async () => {
-    ;(bcrypt.compare as jest.Mock).mockResolvedValue(false)
+  it("uses Better Auth as the sole administrator credential verifier", async () => {
+    const response = await POST(loginRequest({ email: "ADMIN@EXAMPLE.COM", password: "password123" }))
 
-    const response = await POST(loginRequest({ email: "admin@example.com", password: "wrongpass" }))
-    const body = await response.json()
-
-    expect(response.status).toBe(401)
-    expect(body.success).toBe(false)
-    expect(mockedAuth.api.signInEmail).not.toHaveBeenCalled()
+    expect(response.status).toBe(200)
+    expect(mockedAuth.api.signInEmail).toHaveBeenCalledWith(expect.objectContaining({
+      body: expect.objectContaining({ email: "admin@example.com", password: "password123" }),
+    }))
+    expect(bcrypt.compare).not.toHaveBeenCalled()
   })
 
   it("rejects inactive admin user", async () => {

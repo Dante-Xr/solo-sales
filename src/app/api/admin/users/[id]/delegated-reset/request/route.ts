@@ -1,0 +1,4 @@
+import { NextRequest, NextResponse } from "next/server"
+import { verifyAdminToken } from "@/lib/adminAuth"
+import { requestDelegatedAdminReset } from "@/server/services/admin-delegated-reset-service"
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) { const admin = await verifyAdminToken(request); if (!admin || admin.role.name !== "super_admin") return NextResponse.json({ message: "invalid" }, { status: 400 }); const { id } = await params; const operationId = await requestDelegatedAdminReset({ operatorId: admin.id, operatorEmail: admin.email, targetAdminId: id, ipAddress: request.headers.get("x-forwarded-for") }); return operationId ? NextResponse.json({ operationId }, { status: 202 }) : NextResponse.json({ message: "invalid" }, { status: 400 }) }

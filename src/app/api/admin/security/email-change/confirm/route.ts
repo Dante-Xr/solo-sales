@@ -1,0 +1,4 @@
+import { NextRequest, NextResponse } from "next/server"
+import { verifyAdminToken } from "@/lib/adminAuth"
+import { confirmAdminEmailChange } from "@/server/services/admin-email-change-service"
+export async function POST(request: NextRequest) { const admin = await verifyAdminToken(request); const body = await request.json() as { operationId?: unknown; oldOtp?: unknown; newOtp?: unknown }; if (!admin || typeof body.operationId !== "string" || typeof body.oldOtp !== "string" || typeof body.newOtp !== "string") return NextResponse.json({ message: "invalid" }, { status: 400 }); const success = await confirmAdminEmailChange({ adminId: admin.id, email: admin.email, operationId: body.operationId, oldOtp: body.oldOtp, newOtp: body.newOtp, ipAddress: request.headers.get("x-forwarded-for") }); return success ? NextResponse.json({ success: true }) : NextResponse.json({ message: "invalid" }, { status: 400 }) }

@@ -21,19 +21,15 @@
 import { NextRequest } from "next/server"
 import { LogAction, TargetType } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
-import bcrypt from "bcryptjs"
 import { auth } from "@/lib/auth"
+import { normalizeIdentityEmail } from "@/lib/auth/admin-identity-migration"
 import { headers } from "next/headers"
-import { randomUUID } from "crypto"
 import { handleApiError, successResponse } from "@/server/contracts/api"
 import { badRequest, internalError, unauthorized } from "@/server/contracts/errors"
 import { adminLoginRateLimiter } from "@/middleware/rate-limit"
 
 /** Better Auth Session Cookie 名称 */
 const SESSION_COOKIE_NAME = "better-auth.session_token"
-/** Session 有效期：7 天 */
-const SESSION_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000
-
 function isProductionRuntime() {
   return process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production" || process.env.NETLIFY === "true"
 }
@@ -94,11 +90,9 @@ function adminSessionPayload(admin: {
  * POST: 管理员登录
  *
  * 登录流程：
- *   1. 验证管理员邮箱密码（bcrypt 比较）
- *   2. 更新最后登录时间
- *   3. 确保管理员在 User 表中有对应记录（role = "admin"）
- *   4. 尝试使用 Better Auth 创建会话
- *   5. 如果 Better Auth 失败，手动创建 Session 记录并设置 Cookie
+ *   1. 验证已迁移的管理员身份
+ *   2. 委托 Better Auth 校验 Account 中唯一凭据并创建会话
+ *   3. 更新最后登录时间与审计记录
  */
 export async function POST(request: NextRequest) {
   try {
@@ -116,8 +110,9 @@ export async function POST(request: NextRequest) {
     }
 
     // 查询管理员记录（包含角色信息）
+    const normalizedEmail = normalizeIdentityEmail(email)
     const admin = await prisma.adminUser.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
       include: {
         role: {
           include: {
@@ -137,10 +132,8 @@ export async function POST(request: NextRequest) {
       throw unauthorized("账号已被禁用")
     }
 
-    // 使用 bcrypt 验证密码
-    const isPasswordValid = await bcrypt.compare(password, admin.password)
-    if (!isPasswordValid) {
-      await auditAdminLogin(request, admin.id, "ADMIN_LOGIN_FAILED", "INVALID_PASSWORD")
+    if (!admin.userId) {
+      await auditAdminLogin(request, admin.id, "ADMIN_LOGIN_FAILED", "IDENTITY_MIGRATION_REQUIRED")
       throw unauthorized("邮箱或密码错误")
     }
 
@@ -150,128 +143,23 @@ export async function POST(request: NextRequest) {
       data: { lastLoginAt: new Date() },
     })
 
-    // 确保管理员在 User 表中有对应记录
-    let user = await prisma.user.findUnique({
-      where: { email: admin.email },
-    })
-
-    if (!user) {
-      // 创建对应的 User 记录
-      user = await prisma.user.create({
-        data: {
-          email: admin.email,
-          name: admin.username,
-          role: "admin",
-        },
-      })
-    } else if (user.role !== "admin") {
-      // 更新现有用户的角色
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { role: "admin" },
-      })
-    }
-
-    // 检查是否已有 Better Auth Account
-    const existingAccount = await prisma.account.findFirst({
-      where: {
-        userId: user.id,
-        providerId: "credential",
-      },
-    })
-
-    // 首次登录：尝试使用 Better Auth 注册
-    if (!existingAccount) {
-      try {
-        await auth.api.signUpEmail({
-          body: {
-            email: admin.email,
-            password: password,
-            name: admin.username,
-          },
-          headers: request.headers,
-        })
-      } catch {
-        if (isProductionRuntime()) {
-          throw internalError("登录失败，请稍后重试", "Better Auth sign-up failed")
-        }
-
-        // Better Auth 注册失败，手动创建 Session
-        const token = randomUUID()
-        const expiresAt = new Date(Date.now() + SESSION_EXPIRY_MS)
-        await prisma.session.create({
-          data: {
-            id: randomUUID(),
-            userId: user.id,
-            token,
-            expiresAt,
-          },
-        })
-
-        const response = successResponse(adminSessionPayload(admin))
-
-        // 设置 HTTP-Only Cookie（防 XSS）
-        response.cookies.set(SESSION_COOKIE_NAME, token, {
-          httpOnly: true,
-          secure: isProductionRuntime(),
-          sameSite: "lax",
-          path: "/",
-          maxAge: 7 * 24 * 60 * 60,
-        })
-
-        await auditAdminLogin(request, admin.id, "ADMIN_LOGIN_SUCCESS")
-        return response
-      }
-    }
-
-    // 已有 Account：尝试使用 Better Auth 登录
     let signInHeaders: Headers | undefined
     try {
       const signInResult = await auth.api.signInEmail({
         body: {
-          email: admin.email,
+          email: normalizedEmail,
           password: password,
         },
         headers: request.headers,
         returnHeaders: true,
       })
       signInHeaders = signInResult.headers
-    } catch {
-      if (isProductionRuntime()) {
+    } catch (error) {
+      await auditAdminLogin(request, admin.id, "ADMIN_LOGIN_FAILED", "INVALID_PASSWORD_OR_AUTH_FAILURE")
+      if (isProductionRuntime() && !isCredentialFailure(error)) {
         throw internalError("登录失败，请稍后重试", "Better Auth sign-in failed")
       }
-
-      // Better Auth 登录失败，手动创建 Session
-      const token = randomUUID()
-      const expiresAt = new Date(Date.now() + SESSION_EXPIRY_MS)
-
-      // 清除旧 Session
-      await prisma.session.deleteMany({
-        where: { userId: user.id },
-      })
-
-      // 创建新 Session
-      await prisma.session.create({
-        data: {
-          id: randomUUID(),
-          userId: user.id,
-          token,
-          expiresAt,
-        },
-      })
-
-      const response = successResponse(adminSessionPayload(admin))
-
-      response.cookies.set(SESSION_COOKIE_NAME, token, {
-        httpOnly: true,
-        secure: isProductionRuntime(),
-        sameSite: "lax",
-        path: "/",
-        maxAge: 7 * 24 * 60 * 60,
-      })
-
-      await auditAdminLogin(request, admin.id, "ADMIN_LOGIN_SUCCESS")
-      return response
+      throw unauthorized("邮箱或密码错误")
     }
 
     // Better Auth 登录成功
@@ -284,6 +172,11 @@ export async function POST(request: NextRequest) {
         : error
     )
   }
+}
+
+function isCredentialFailure(error: unknown) {
+  const status = typeof error === "object" && error !== null && "status" in error ? (error as { status?: unknown }).status : undefined
+  return status === 400 || status === 401 || status === 403
 }
 
 /**

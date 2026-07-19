@@ -90,6 +90,7 @@ interface AdminUser {
 
 export function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname()
+  const isAuthPage = pathname.endsWith("/admin/login") || pathname.endsWith("/admin/reset-password")
   const router = useRouter()
   const t = useTranslations('admin')
   const locale = useLocale()
@@ -142,17 +143,22 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
   /** 路径变化时同步标签页和访问记录 */
   useEffect(() => {
+    if (isAuthPage) return
     const tab = getTabFromPath()
     addTab(tab)
     setActiveTab(tab.id)
     addVisit(tab)
-  }, [pathname])
+  }, [pathname, isAuthPage, addTab, setActiveTab, addVisit])
 
   useEffect(() => {
     setThemeMounted(true)
   }, [])
 
   useEffect(() => {
+    if (isAuthPage) {
+      setLoading(false)
+      return
+    }
     const fetchAdminUser = async () => {
       try {
         const res = await fetch("/api/admin/auth/me")
@@ -167,7 +173,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       }
     }
     fetchAdminUser()
-  }, [t])
+  }, [isAuthPage, t])
 
   useEffect(() => {
     const checkMobile = () => {
@@ -204,6 +210,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         break
     }
   }
+
+  // The login and recovery pages live below /admin for URL consistency, but must
+  // not inherit the authenticated workspace chrome.
+  if (isAuthPage) return <>{children}</>
 
   return (
     <div className="min-h-screen bg-background">

@@ -14,7 +14,7 @@
 
 import { useState } from "react"
 import { authClient } from "@/lib/auth-client"
-import { useRouter } from "@/i18n/navigation"
+import { Link, useRouter } from "@/i18n/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -129,6 +129,7 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
         )}
       </Button>
 
+      <p className="text-right text-sm"><Link href="/reset-password" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">忘记密码？</Link></p>
       {/* 切换到注册链接 */}
       <p className="text-center text-sm text-gray-500">
         {t('auth.noAccount')}{" "}
