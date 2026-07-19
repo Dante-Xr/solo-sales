@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { processAuthEmailJobs } from "@/server/services/auth-email-job-service"
+import { dispatchAuthEmailJobs } from "@/server/services/auth-email-job-service"
+import { runAuthEmailWorker } from "@/server/services/auth-email-worker-service"
 
 export async function POST(request: NextRequest) {
   const expected = process.env.AUTH_EMAIL_WORKER_TOKEN
@@ -8,6 +9,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "not found" }, { status: 404 })
   }
 
-  await processAuthEmailJobs()
-  return NextResponse.json({ processed: true })
+  const result = await runAuthEmailWorker({ trigger: "HTTP", dispatch: dispatchAuthEmailJobs })
+  return NextResponse.json(result)
 }

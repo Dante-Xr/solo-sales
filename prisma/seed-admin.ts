@@ -112,6 +112,8 @@ const PERMISSIONS = [
   // Settings 系统设置
   { name: "settings.view", label: "查看设置", description: "访问系统设置", type: PermissionType.PAGE },
   { name: "settings.edit", label: "编辑设置", description: "修改系统设置", type: PermissionType.ACTION },
+  { name: "worker.view", label: "查看任务调度", description: "查看认证邮件 worker 状态、运行记录与死信", type: PermissionType.PAGE },
+  { name: "worker.manage", label: "管理任务调度", description: "配置、启停和手动执行认证邮件 worker", type: PermissionType.ACTION },
 ]
 
 async function main() {

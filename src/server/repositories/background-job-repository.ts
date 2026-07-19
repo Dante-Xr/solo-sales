@@ -34,8 +34,11 @@ export function findRunnableBackgroundJobRecords(
 ) {
   return db.backgroundJob.findMany({
     where: {
-      status: { in: ["QUEUED", "FAILED"] },
       availableAt: { lte: args.now },
+      OR: [
+        { status: { in: ["QUEUED", "FAILED"] } },
+        { status: "RUNNING", lockExpiresAt: { lte: args.now } },
+      ],
     },
     orderBy: [{ availableAt: "asc" }, { createdAt: "asc" }],
     take: args.limit,
@@ -67,6 +70,8 @@ export function markBackgroundJobCompleted(
       status: "COMPLETED",
       completedAt,
       lockedAt: null,
+      lockToken: null,
+      lockExpiresAt: null,
     },
   })
 }
@@ -89,6 +94,8 @@ export function markBackgroundJobFailed(
       lastError: data.lastError,
       availableAt: data.availableAt,
       lockedAt: null,
+      lockToken: null,
+      lockExpiresAt: null,
     },
   })
 }

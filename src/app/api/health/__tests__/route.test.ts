@@ -27,6 +27,10 @@ jest.mock("@/lib/redis", () => ({
   },
 }))
 
+jest.mock("@/server/services/auth-email-worker-service", () => ({
+  isAuthEmailWorkerDegraded: jest.fn().mockResolvedValue(false),
+}))
+
 const { prisma } = jest.requireMock("@/lib/prisma") as {
   prisma: {
     $queryRaw: jest.Mock

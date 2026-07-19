@@ -18,7 +18,7 @@
 "use client"
 
 import { useState } from "react"
-import { Settings, Bell, Key, Globe, Save, RefreshCw } from "lucide-react"
+import { Settings, Bell, Key, Globe, Save, RefreshCw, Timer } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -28,6 +28,7 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useTranslations, useLocale } from "next-intl"
 import { useRouter, usePathname } from "@/i18n/navigation"
+import { AuthEmailWorkerPanel } from "@/components/admin/AuthEmailWorkerPanel"
 
 export default function SettingsPage() {
   const t = useTranslations('admin')
@@ -116,7 +117,7 @@ export default function SettingsPage() {
 
         {/* 设置选项卡 */}
         <Tabs defaultValue="general" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="general" className="flex items-center gap-2">
               <Globe className="w-4 h-4" />
               {t("general")}
@@ -128,6 +129,10 @@ export default function SettingsPage() {
             <TabsTrigger value="api" className="flex items-center gap-2">
               <Key className="w-4 h-4" />
               {t("apiConfig")}
+            </TabsTrigger>
+            <TabsTrigger value="scheduler" className="flex items-center gap-2">
+              <Timer className="w-4 h-4" />
+              任务调度
             </TabsTrigger>
           </TabsList>
 
@@ -383,6 +388,10 @@ export default function SettingsPage() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="scheduler" className="space-y-6">
+            <AuthEmailWorkerPanel />
           </TabsContent>
         </Tabs>
       </div>

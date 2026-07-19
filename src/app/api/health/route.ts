@@ -18,18 +18,20 @@ import { prisma } from "@/lib/prisma"
 import redis from "@/lib/redis"
 import { successResponse } from "@/server/contracts/api"
 import { withDependencyGuard } from "@/server/services/dependency-guard"
+import { isAuthEmailWorkerDegraded } from "@/server/services/auth-email-worker-service"
 
 /**
  * 健康检查响应数据结构
  */
 interface HealthCheckResponse {
-  status: "healthy" | "unhealthy"
+  status: "healthy" | "degraded" | "unhealthy"
   timestamp: string
   version: string
   uptime: number
   checks: {
     database: HealthCheckItem
     redis: HealthCheckItem
+    authEmailWorker: HealthCheckItem
   }
 }
 
@@ -51,12 +53,23 @@ export async function GET() {
   const response: HealthCheckResponse = {
     status: "healthy",
     timestamp: new Date().toISOString(),
-    version: process.env.npm_package_version || "1.7.8",
+    version: process.env.npm_package_version || "1.8.0",
     uptime: process.uptime(),
     checks: {
       database: { status: "ok" },
       redis: { status: "ok" },
+      authEmailWorker: { status: "ok" },
     },
+  }
+
+  try {
+    if (await isAuthEmailWorkerDegraded()) {
+      response.checks.authEmailWorker = { status: "error", error: "认证邮件 worker 未正常运行" }
+      if (response.status === "healthy") response.status = "degraded"
+    }
+  } catch (error: unknown) {
+    response.checks.authEmailWorker = { status: "error", error: error instanceof Error ? error.message : "认证邮件 worker 状态不可用" }
+    if (response.status === "healthy") response.status = "degraded"
   }
 
   // 检查数据库连接
@@ -100,7 +113,7 @@ export async function GET() {
   }
 
   // HTTP 状态码仍按健康状态返回；响应体同时提供标准 data 和旧顶层字段，兼容负载均衡器探针。
-  const statusCode = response.status === "healthy" ? 200 : 503
+  const statusCode = response.status === "unhealthy" ? 503 : 200
   return successResponse(response, {
     status: statusCode,
     topLevel: response,

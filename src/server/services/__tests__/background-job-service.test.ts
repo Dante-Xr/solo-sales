@@ -80,8 +80,11 @@ describe("background-job-service", () => {
     expect(prisma.backgroundJob.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: {
-          status: { in: ["QUEUED", "FAILED"] },
           availableAt: { lte: now },
+          OR: [
+            { status: { in: ["QUEUED", "FAILED"] } },
+            { status: "RUNNING", lockExpiresAt: { lte: now } },
+          ],
         },
         take: 10,
       })

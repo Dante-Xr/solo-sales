@@ -1,6 +1,6 @@
 {
   "name": "solo_sales",
-  "version": "1.7.9",
+  "version": "1.8.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -80,6 +80,7 @@
   },
   "devDependencies": {
     "@jest/types": "^30.4.1",
+    "@netlify/functions": "^5.3.0",
     "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",

@@ -423,6 +423,60 @@ model BackgroundJob {
   @@index([createdAt])
 }
 
+// Authentication email delivery is controlled by one persisted worker configuration.
+// The lease is shared by scheduled, manual and emergency HTTP triggers.
+model AuthEmailWorkerConfig {
+  id                  String   @id
+  enabled             Boolean  @default(false)
+  intervalMinutes     Int      @default(5)
+  batchSize           Int      @default(5)
+  lastHeartbeatAt     DateTime?
+  lastStartedAt       DateTime?
+  lastCompletedAt     DateTime?
+  leaseToken          String?
+  leaseExpiresAt      DateTime?
+  consecutiveFailures Int      @default(0)
+  lastError           String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  runs AuthEmailWorkerRun[]
+
+  @@index([leaseExpiresAt])
+  @@map("auth_email_worker_config")
+}
+
+model AuthEmailWorkerRun {
+  id          String                    @id @default(cuid())
+  configId    String
+  config      AuthEmailWorkerConfig     @relation(fields: [configId], references: [id], onDelete: Cascade)
+  trigger     AuthEmailWorkerRunTrigger
+  status      AuthEmailWorkerRunStatus
+  processed   Int                       @default(0)
+  delivered   Int                       @default(0)
+  deadLettered Int                      @default(0)
+  error       String?
+  initiatedById String?
+  startedAt   DateTime                  @default(now())
+  completedAt DateTime?
+
+  @@index([configId, startedAt])
+  @@index([startedAt])
+  @@map("auth_email_worker_run")
+}
+
+enum AuthEmailWorkerRunTrigger {
+  SCHEDULED
+  MANUAL
+  HTTP
+}
+
+enum AuthEmailWorkerRunStatus {
+  SUCCEEDED
+  SKIPPED
+  FAILED
+}
+
 enum BackgroundJobType {
   WHOLESALER_IMPORT
   ANALYTICS_REFRESH
@@ -598,6 +652,7 @@ enum TargetType {
   PERMISSION // 权限
   ROLE // 角色
   ADMIN_USER // 管理员用户
+  SYSTEM_CONFIG // 系统运行配置
 }
 
 // 权限变更日志模型

@@ -3,42 +3,57 @@ import nodemailer from "nodemailer"
 import { decryptRecoveryPayload, encryptRecoveryPayload, type EncryptedRecoveryPayload } from "@/lib/auth/recovery-crypto"
 import { prisma } from "@/lib/prisma"
 import { enqueueBackgroundJob, completeBackgroundJob, failBackgroundJob, listRunnableBackgroundJobs } from "./background-job-service"
+import { assertAuthEmailWorkerEnabled, getAuthEmailWorkerKeyring } from "./auth-email-worker-service"
 
 type AuthEmailPayload = EncryptedRecoveryPayload
 type AuthEmailMessage = { email: string; otp: string; subject: string; text: string; verificationJson?: string }
 type AuthEmailBatch = { messages: AuthEmailMessage[]; verificationJson: string }
+type QueuedVerification = { id: string; identifier: string; value: string; expiresAt?: string; ttlSeconds?: number }
+const OTP_TTL_SECONDS = 5 * 60
+const JOB_STALE_MS = 15 * 60 * 1000
 
 export async function enqueueAuthEmail(input: AuthEmailMessage) {
-  const payload = encryptRecoveryPayload(input, keyring())
+  await assertAuthEmailWorkerEnabled()
+  const payload = encryptRecoveryPayload({ ...input, requestedAt: new Date().toISOString(), ttlSeconds: String(OTP_TTL_SECONDS) }, keyring())
   return enqueueBackgroundJob({ type: "AUTH_EMAIL_DISPATCH", payload, maxAttempts: 3 })
 }
 
 export async function enqueueAuthEmailBatch(input: AuthEmailBatch) {
-  const payload = encryptRecoveryPayload({ kind: "batch", messages: JSON.stringify(input.messages), verificationJson: input.verificationJson }, keyring())
+  await assertAuthEmailWorkerEnabled()
+  const payload = encryptRecoveryPayload({ kind: "batch", messages: JSON.stringify(input.messages), verificationJson: input.verificationJson, requestedAt: new Date().toISOString(), ttlSeconds: String(OTP_TTL_SECONDS) }, keyring())
   return enqueueBackgroundJob({ type: "AUTH_EMAIL_DISPATCH", payload, maxAttempts: 3 })
 }
 
-export async function processAuthEmailJobs(now = new Date()) {
-  const jobs = await listRunnableBackgroundJobs({ now, limit: 20 })
+export async function dispatchAuthEmailJobs(args: { now?: Date; limit?: number; staleAfterMs?: number } = {}) {
+  const now = args.now ?? new Date()
+  const jobs = await listRunnableBackgroundJobs({ now, limit: args.limit ?? 20 })
   const authJobs = jobs.filter((job) => job.type === "AUTH_EMAIL_DISPATCH")
+  let delivered = 0
+  let deadLettered = 0
   for (const job of authJobs) {
+    if (isAuthEmailJobStale(job.createdAt, now, args.staleAfterMs ?? JOB_STALE_MS)) {
+      await prisma.backgroundJob.update({ where: { id: job.id }, data: { status: "DEAD_LETTER", lastError: "AUTH_EMAIL_JOB_STALE", completedAt: now, lockedAt: null, lockToken: null, lockExpiresAt: null } })
+      deadLettered += 1
+      continue
+    }
     const lockToken = randomUUID()
     const claimed = await prisma.backgroundJob.updateMany({
-      where: { id: job.id, status: { in: ["QUEUED", "FAILED"] }, availableAt: { lte: now } },
+      where: { id: job.id, availableAt: { lte: now }, OR: [{ status: { in: ["QUEUED", "FAILED"] } }, { status: "RUNNING", lockExpiresAt: { lte: now } }] },
       data: { status: "RUNNING", lockedAt: now, lockToken, lockExpiresAt: new Date(now.getTime() + 60_000) },
     })
     if (claimed.count !== 1) continue
     try {
-      const message = decryptRecoveryPayload(job.payload as unknown as AuthEmailPayload, keyring()) as AuthEmailMessage & { kind?: string; messages?: string }
+      const message = decryptRecoveryPayload(job.payload as unknown as AuthEmailPayload, keyring()) as AuthEmailMessage & { kind?: string; messages?: string; ttlSeconds?: string }
       const messages = message.kind === "batch" ? JSON.parse(message.messages || "[]") as AuthEmailMessage[] : [message]
       for (const item of messages) await send(item)
+      delivered += messages.length
       const verificationJson = message.verificationJson
       if (verificationJson) {
-        const verification = JSON.parse(verificationJson) as { id: string; identifier: string; value: string; expiresAt: string }
+        const verification = buildDeliveredVerification({ ...JSON.parse(verificationJson) as QueuedVerification, ttlSeconds: Number(message.ttlSeconds) || undefined }, new Date())
         await prisma.verification.upsert({
           where: { id: verification.id },
-          create: { id: verification.id, identifier: verification.identifier, value: verification.value, expiresAt: new Date(verification.expiresAt) },
-          update: { identifier: verification.identifier, value: verification.value, expiresAt: new Date(verification.expiresAt) },
+          create: verification,
+          update: verification,
         })
       }
       await completeBackgroundJob(job.id, new Date())
@@ -46,14 +61,25 @@ export async function processAuthEmailJobs(now = new Date()) {
       await failBackgroundJob(job, error, new Date())
     }
   }
+  return { processed: authJobs.length, delivered, deadLettered }
 }
 
 function keyring() {
-  const key = process.env.AUTH_RECOVERY_ENCRYPTION_KEY
-  if (!key) throw new Error("AUTH_RECOVERY_ENCRYPTION_KEY is required")
-  const keyId = process.env.AUTH_RECOVERY_ENCRYPTION_KEY_ID || "current"
-  const oldKeys = process.env.AUTH_RECOVERY_ENCRYPTION_OLD_KEYS ? JSON.parse(process.env.AUTH_RECOVERY_ENCRYPTION_OLD_KEYS) as Record<string, string> : {}
-  return { activeKeyId: keyId, keys: { ...oldKeys, [keyId]: key } }
+  return getAuthEmailWorkerKeyring()
+}
+
+export function isAuthEmailJobStale(createdAt: Date, now = new Date(), staleAfterMs = JOB_STALE_MS) {
+  return now.getTime() - createdAt.getTime() > staleAfterMs
+}
+
+export function buildDeliveredVerification(input: QueuedVerification, acceptedAt = new Date()) {
+  const ttlSeconds = input.ttlSeconds ?? 0
+  return {
+    id: input.id,
+    identifier: input.identifier,
+    value: input.value,
+    expiresAt: ttlSeconds > 0 ? new Date(acceptedAt.getTime() + ttlSeconds * 1000) : new Date(input.expiresAt || acceptedAt),
+  }
 }
 
 async function send(message: AuthEmailMessage) {
