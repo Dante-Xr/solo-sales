@@ -4,4 +4,4 @@
 
 运行依赖：PostgreSQL/Neon、Upstash Redis、Better Auth、支付 provider、邮件服务、可选 AI 客服服务和 Sentry。生产变量必须由托管平台的 Secret Manager 提供；详见 [部署 runbook](../runbooks/deploy-netlify.md)。
 
-后台重任务可以记录为 `BackgroundJob`。当前资料证明了入队和状态模型；实际消费者、重试和告警能力必须以 v1.9 验收为准。
+后台重任务记录为 `BackgroundJob`。认证邮件 `AUTH_EMAIL_DISPATCH` 由加密持久化队列承载：`netlify/functions/auth-email-worker.mts` 每分钟触发共享 worker 服务，后台手动执行与 token 保护的应急 HTTP 入口竞争同一数据库租约。worker 默认停用，启用前预检数据库、Redis、恢复密钥和 SMTP；任务超过十五分钟进入死信，SMTP 接受后才创建五分钟 OTP。运行记录保留三十天，失败或心跳陈旧会将 `/api/health` 标记为 `degraded`。Netlify Published deploy 和真实依赖验收仍是发布门禁，详见 [v1.8 验收 runbook](../runbooks/v1.8-password-recovery-acceptance.md)。

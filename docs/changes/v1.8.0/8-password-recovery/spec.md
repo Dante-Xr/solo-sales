@@ -15,6 +15,9 @@ status: in_progress
 - 管理员身份一对一关联 Better Auth User，凭据只存 Account；普通与管理员邮箱全局唯一并强制小写。
 - 超级管理员经本人邮箱 OTP 才能创建同级、代重置低权限管理员或执行敏感角色变更；最后一个有效超级管理员不可删除、停用或降级。
 - 邮件任务持久化、AES-GCM 加密并支持 key ID 轮换；SMTP 至少一次投递，重试复用同一验证码。
+- Netlify Scheduled Function 固定每分钟唤醒；后台配置实际执行间隔（1/2/5/10 分钟）和批量（1/3/5/10），所有触发方式竞争数据库租约。
+- worker 默认停用；启用前验证数据库、Redis、32 字节队列密钥和 SMTP 登录。停用时新的认证邮件请求统一 `503` 且不入队；任务排队超过 15 分钟进入死信。
+- `worker.view` 允许只读查看状态、运行记录和死信；`worker.manage` 才能启停、配置和手动执行。密钥与 token 不持久化、不返回给浏览器。
 - 公开响应不得枚举账号；内部安全审计记录脱敏失败原因，保留一年。
 
 ## 验收
@@ -22,3 +25,4 @@ status: in_progress
 - 单元、API、浏览器与并发队列测试覆盖恢复、迁移、限流、会话撤销、审计和权限边界。
 - Preview 使用隔离数据库、Redis 与真实 SMTP 验收普通自助、管理员自助、代重置和 CLI 恢复。
 - 管理员邮箱变更使用 SMTP 模拟。
+- Netlify Published deploy 必须识别 `auth-email-worker` 为 Scheduled；Preview 不依赖定时触发，使用授权管理员手动执行进行验证。

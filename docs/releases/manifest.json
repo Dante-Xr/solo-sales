@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-07-14",
+  "generated_at": "2026-07-20",
   "versions": [
     {
       "version": "v1.7.0",
@@ -59,8 +59,19 @@
     },
     {
       "version": "v1.8.0",
-      "release_status": "planned",
-      "github_tracking_issue": 8
+      "code_version": "1.8.0",
+      "git_tag": null,
+      "latest_git_tag": "v1.7.9",
+      "head": "27c56ff30ace95bc0ae27ed63d2557b52a9d08a4",
+      "release_status": "in_progress",
+      "github_tracking_issue": 8,
+      "evidence": [
+        "docs/changes/v1.8.0/README.md",
+        "docs/changes/v1.8.0/8-password-recovery/spec.md",
+        "docs/changes/v1.8.0/8-password-recovery/tasks.md",
+        "docs/releases/v1.8.0.md",
+        "docs/runbooks/v1.8-password-recovery-acceptance.md"
+      ]
     },
     {
       "version": "v1.8.1",

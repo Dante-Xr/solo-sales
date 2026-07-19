@@ -1,6 +1,6 @@
 <!--
-修改时间：2026-07-06 00:00:00 +08:00
-修改内容：同步 v1.7.6 类型安全修复版本标识和更新日志。
+修改时间：2026-07-20 00:00:00 +08:00
+修改内容：新增 v1.8.0 认证邮件恢复与 worker 发布门禁记录。
 修改模型：gpt-5
 -->
 
@@ -9,6 +9,16 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+## [1.8.0] - In Progress
+
+### Added
+- 普通用户和管理员分域的邮箱 OTP 密码恢复、管理员激活、委派重置、CLI 恢复、邮箱变更确认和恢复审计。
+- AES-256-GCM 加密认证邮件队列、SMTP 接受后 OTP 起算、重试、15 分钟死信、运行历史和健康降级。
+- Netlify 每分钟 Scheduled Function、后台“任务调度”页签，以及 `worker.view` / `worker.manage` 权限和启用前依赖预检。
+
+### Release Gate
+- v1.8.0 尚未创建 Git tag；真实 Netlify Scheduled Function、Redis、SMTP 和 OTP 端到端验收仍为发布门禁。
 
 ## [1.7.8] - 2026-07-14
 

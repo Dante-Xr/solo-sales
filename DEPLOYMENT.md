@@ -33,6 +33,14 @@ Add the following environment variables in Netlify project settings:
 | `BETTER_AUTH_SECRET` | Better Auth 加密密钥 / Better Auth encryption secret | `openssl rand -base64 32` |
 | `UPSTASH_REDIS_REST_URL` | Upstash Redis REST URL / Upstash Redis REST URL | `https://...upstash.io` |
 | `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST Token / Upstash Redis REST Token | `<set-in-deployment-secret-manager>` |
+| `SMTP_HOST` / `SMTP_PORT` | 认证邮件 SMTP 主机与端口（仅 465 / 587） | `smtp.example.com` / `465` |
+| `SMTP_USER` / `SMTP_PASS` | SMTP 登录名与授权密码 | `<set-in-deployment-secret-manager>` |
+| `SMTP_FROM` | 可选发件人；未设置时使用 `SMTP_USER` | `noreply@example.com` |
+| `AUTH_RECOVERY_HMAC_SECRET` | 恢复审计、OTP 与指纹 HMAC 密钥 | `<set-in-deployment-secret-manager>` |
+| `AUTH_RECOVERY_ENCRYPTION_KEY_ID` | 当前认证邮件队列密钥 ID | `2026-07` |
+| `AUTH_RECOVERY_ENCRYPTION_KEY` | 恰好 32 UTF-8 字节的队列加密密钥 | `<set-in-deployment-secret-manager>` |
+| `AUTH_RECOVERY_ENCRYPTION_OLD_KEYS` | 可选旧 key ID 到密钥 JSON 映射，用于轮换期间消费旧任务 | `<set-in-deployment-secret-manager>` |
+| `AUTH_EMAIL_WORKER_TOKEN` | 应急 worker HTTP 入口 bearer token | `<set-in-deployment-secret-manager>` |
 | `STRIPE_SECRET_KEY` | Stripe 私钥 / Stripe secret key | `sk_live_...` |
 | `STRIPE_WEBHOOK_SECRET` | Stripe Webhook 签名密钥 / Stripe webhook signing secret | `whsec_...` |
 
@@ -46,6 +54,7 @@ Add the following environment variables in Netlify project settings:
    - 发布目录 / Publish directory: `.next`
 5. 配置环境变量 / Configure environment variables
 6. 点击 Deploy / Click Deploy
+7. 仅在 Published deploy 后，到 Netlify Functions 确认 `auth-email-worker` 显示为 Scheduled；Scheduled Function 不在 Preview 自动运行。
 
 #### 5. 运行数据库迁移 / Run Database Migration
 
@@ -85,6 +94,18 @@ BETTER_AUTH_SECRET="<generated-random-secret>"
 # Redis 限速和后台能力 / Redis for rate limiting and background capabilities
 UPSTASH_REDIS_REST_URL="<set-in-deployment-secret-manager>"
 UPSTASH_REDIS_REST_TOKEN="<set-in-deployment-secret-manager>"
+
+# 认证邮件恢复（所有值在 Netlify Secret Manager 配置）
+SMTP_HOST="smtp.example.com"
+SMTP_PORT="465"
+SMTP_USER="<set-in-deployment-secret-manager>"
+SMTP_PASS="<set-in-deployment-secret-manager>"
+SMTP_FROM="noreply@example.com"
+AUTH_RECOVERY_HMAC_SECRET="<set-in-deployment-secret-manager>"
+AUTH_RECOVERY_ENCRYPTION_KEY_ID="2026-07"
+AUTH_RECOVERY_ENCRYPTION_KEY="<exactly-32-UTF-8-byte-key>"
+AUTH_RECOVERY_ENCRYPTION_OLD_KEYS="<optional-json-keyring>"
+AUTH_EMAIL_WORKER_TOKEN="<set-in-deployment-secret-manager>"
 ```
 
 ### 支付配置 / Payment Configuration
@@ -129,6 +150,9 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 - `/` - 首页 / Homepage
 - `/demo` - 演示页面（无需登录）/ Demo page (no login required)
 - `/cart` - 购物车页面 / Shopping cart page
+- `/api/health` - 数据库、Redis 与认证邮件 worker 健康状态
+
+认证邮件验收：使用拥有 `worker.manage` 的管理员在“系统设置 > 任务调度”启用 worker。启用预检必须通过；随后执行真实 OTP 重置并确认 Netlify Functions、运行历史、死信和 `/api/health` 状态。应急 bearer endpoint 仅用于故障恢复，不替代 Scheduled Function。
 
 ---
 

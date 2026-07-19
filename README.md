@@ -1,22 +1,22 @@
 <!--
-修改时间：2026-07-06 00:00:00 +08:00
-修改内容：更新到 v1.7.8，同步 Figma Enhance 用户端体验迁移版本标识。
+修改时间：2026-07-20 00:00:00 +08:00
+修改内容：同步 v1.8.0 认证邮件 worker、密码恢复和发布门禁说明。
 修改模型：gpt-5
 -->
 
 # SoloSales
 
-[![Version](https://img.shields.io/badge/version-1.7.8-blue.svg)](https://github.com/Dante-Xr/solo-sales)
-[![Next.js](https://img.shields.io/badge/Next.js-16.2.4-black.svg)](https://nextjs.org/)
+[![Version](https://img.shields.io/badge/version-1.8.0-blue.svg)](https://github.com/Dante-Xr/solo-sales)
+[![Next.js](https://img.shields.io/badge/Next.js-16.2.10-black.svg)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.2.4-61DAFB.svg)](https://react.dev/)
 [![Prisma](https://img.shields.io/badge/Prisma-5.22.0-2A52BE.svg)](https://www.prisma.io/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6.svg)](https://www.typescriptlang.org/)
 
 SoloSales 是一个基于 Next.js 16 App Router 的全栈独立站电商项目。它采用模块化单体架构，前台商城、后台管理、支付、订单、商品、营销、积分、联盟分销、数据分析、RAG 智能客服和运维验证脚本都在同一个代码库内交付。
 
-当前 README 反映 v1.7.8 状态：项目已完成多支付提供商抽象层（Stripe/Alipay/WeChatPay/PayPal）、订单状态机扩展、PayPal Business 集成和类型安全修复。v1.7.8 将 Figma Enhance 的暖灰、深海军蓝和酒红设计系统迁移到用户端，补齐首页分类筛选、商品卡和主题联动。
+当前 README 反映 v1.8.0 代码状态：项目包含多支付提供商抽象层、订单状态机、后台 RBAC，以及普通用户和管理员分域的邮箱验证码密码恢复。认证邮件使用加密持久化队列，由 Netlify Scheduled Function 唤醒并受后台任务调度配置控制；v1.8.0 尚待真实生产依赖验收和 Git tag。
 
-说明：README badge、`CHANGELOG.md`、`RELEASES.md`、`package.json`、`package-lock.json` 与 `/api/health` fallback 的项目版本标识已统一为 `1.7.8`。
+说明：当前代码版本为 `1.8.0`；最新发布 Git tag 仍为 `v1.7.9`。发布状态、验收边界和证据见 [`docs/releases/manifest.json`](docs/releases/manifest.json)。
 
 ---
 
@@ -79,6 +79,7 @@ SoloSales 是一个基于 Next.js 16 App Router 的全栈独立站电商项目�
 - 支持仪表盘、商品、订单、客户、导入、知识库、客服、角色、权限、管理员用户、个人资料和系统设置。
 - 后台 RBAC 包含 `Permission`、`Role`、`AdminUser` 和 `PermissionLog`。
 - 后台 dashboard 高频聚合已接入缓存和依赖故障保护。
+- 系统设置的“任务调度”页签可由拥有 `worker.view` / `worker.manage` 权限的管理员查看状态、配置认证邮件 worker 或手动执行；默认停用，启用前验证数据库、Redis、加密密钥和 SMTP 登录。
 - 高级组件：`VariantManager`（变体笛卡尔积）、`InventoryAlert`（四级预警）、`AuditLog`（操作日志）、`DataExporter`（CSV/JSON/Excel/PDF）、`BatchActionBar`（批量操作）、`KpiCard`、`GlobalSearch`、`FavoriteButton`、`RecentVisits`。
 
 ### 营销与增长
@@ -366,6 +367,12 @@ npm install
 | `BETTER_AUTH_SECRET` | Better Auth 密钥（`openssl rand -base64 32`） |
 | `UPSTASH_REDIS_REST_URL` | Upstash Redis REST URL |
 | `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST Token |
+| `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` | SMTP TLS 投递配置；端口仅支持 465 或 587 |
+| `AUTH_RECOVERY_HMAC_SECRET` | 恢复审计、OTP 与邮箱指纹 HMAC 密钥 |
+| `AUTH_RECOVERY_ENCRYPTION_KEY_ID` | 当前认证邮件队列加密密钥 ID |
+| `AUTH_RECOVERY_ENCRYPTION_KEY` | 恰好 32 UTF-8 字节的 AES-256-GCM 队列加密密钥 |
+| `AUTH_RECOVERY_ENCRYPTION_OLD_KEYS` | 可选旧 key ID 到密钥的 JSON 映射，用于队列轮换 |
+| `AUTH_EMAIL_WORKER_TOKEN` | 应急 `POST /api/internal/auth-email-jobs` Bearer token；不是定时调度凭据 |
 | `STRIPE_SECRET_KEY` | Stripe Secret Key |
 | `STRIPE_PUBLIC_KEY` | Stripe Publishable Key |
 | `STRIPE_WEBHOOK_SECRET` | Stripe Webhook Secret |
@@ -512,6 +519,7 @@ $env:BASELINE_BASE_URL="http://127.0.0.1:3000"; npm run perf:baseline
 
 最近版本：
 
+- **v1.8.0**（进行中）— 已实现邮件 OTP 恢复、管理员身份安全收敛、加密认证邮件队列和后台可管理的 Netlify worker；待 Published Scheduled Function 与真实 SMTP/Redis 验收、合并和 tag。
 - **v1.7.6**（2026-07-03）— 类型安全修复：补齐 Alipay / WeChat Pay / PayPal 类型声明，收紧支付、缓存、Bundle、Affiliate 和 Prisma 类型边界，新增 `npm run type-check`。
 - **v1.7.3**（2026-07-02）— PayPal Business 集成：支持独立站 PayPal Checkout、capture、webhook 和环境变量检查。
 - **v1.7.0**（2026-06-28）— 多支付提供商抽象层完成：支持Stripe/Alipay/WeChatPay，统一CheckoutService，OrderStateMachine状态机，Webhook幂等性保证。使用TDD方法开发，327个测试100%通过。
@@ -527,6 +535,7 @@ $env:BASELINE_BASE_URL="http://127.0.0.1:3000"; npm run perf:baseline
 
 - v1.5 不承诺 10 万 QPS，只建立高并发准备能力和验证门禁。
 - v1.7 多支付抽象（Alipay / WeChatPay）已在 `main` 分支合并，生产就绪。需配置相应环境变量启用。
+- v1.8.0 的认证邮件 worker 默认停用。仅在 Netlify Published deploy 已识别 Scheduled Function、依赖预检通过并完成真实邮箱验收后，由授权管理员在“系统设置 > 任务调度”启用。
 - `.trae/documents`、`.trae/specs`、`.trae/plans` 为本地规划资料，默认被 git 忽略。
 - `.codex/agents` 是本地 agent 配置，不属于项目运行必需文件。
 - `.agents/skills` 包含 Stripe 相关 agent skill，仅用于开发辅助。

@@ -6,7 +6,7 @@
 | v1.7.7 | released | 文档迁移与发布治理 | [发布记录](v1.7.7.md) |
 | v1.7.8 | released | Figma Enhance 用户端体验迁移 | [发布记录](v1.7.8.md) |
 | v1.7.9 | released | Figma Enhance 后台与全站收口 | [发布记录](v1.7.9.md) |
-| v1.8.0 | planned | 邮箱验证码账号恢复与管理员身份安全收敛 | [Issue #8](https://github.com/Dante-Xr/solo-sales/issues/8) |
+| v1.8.0 | in_progress | 邮箱验证码账号恢复、认证邮件 worker 与管理员身份安全收敛；待真实环境验收和 tag | [发布草案](v1.8.0.md) |
 | v1.8.1 | planned | 后台、知识库和客服去演示化 | [Issue #1](https://github.com/Dante-Xr/solo-sales/issues/1) |
 | v1.9.0 | planned | 生产部署、运行时配置和质量门禁 | [计划](../changes/v1.9.0/README.md) |
 | v2.0.0 | planned | 范围冻结后的上线验收与发布 | [计划](../changes/v2.0.0/README.md) |

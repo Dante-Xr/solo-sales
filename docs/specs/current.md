@@ -1,7 +1,7 @@
 ---
 status: current
-code_version: 1.7.9
-evidence: package.json, prisma/schema.prisma, src/server, tests, README.md
+code_version: 1.8.0
+evidence: package.json, prisma/schema.prisma, netlify/functions, src/server, tests, README.md
 ---
 
 # 当前规格
@@ -25,6 +25,9 @@ evidence: package.json, prisma/schema.prisma, src/server, tests, README.md
 - REQ-0008：后台 API、RBAC、商品、订单、评论、营销、导入、分析和知识库能力共享统一契约与错误映射。
 - REQ-0009：知识库包含草稿、已发布、归档状态；公开读取不得把草稿或归档内容当成可公开内容。
 - REQ-0010：Redis 可用于缓存和限流；外部依赖失败应通过 dependency guard 显式映射，而不是伪造成功。
+- REQ-0021：普通用户与管理员密码恢复必须使用分域 API；OTP 为 6 位，SMTP 接受成功后才开始五分钟有效期，连续三次错误后失效。
+- REQ-0022：认证邮件任务必须加密持久化；worker 停用时新的恢复请求统一返回 `503` 且不得入队，排队超过十五分钟的认证邮件必须进入死信而不得投递。
+- REQ-0023：认证邮件 worker 的配置、运行记录和全局租约必须持久化；仅拥有 `worker.view` / `worker.manage` 的管理员可查看或管理，默认停用，启用前必须预检数据库、Redis、恢复密钥和 SMTP 登录。
 
 ## 跨领域不变量
 
@@ -36,11 +39,12 @@ evidence: package.json, prisma/schema.prisma, src/server, tests, README.md
 
 - REQ-0014：认证使用 Better Auth，生产必须配置 `BETTER_AUTH_URL` 和 `BETTER_AUTH_SECRET`。
 - REQ-0015：数据库使用 `DATABASE_URL`；支付 provider 仅在相应密钥完整时可启用。
+- REQ-0024：认证邮件依赖 `UPSTASH_REDIS_REST_URL`、`UPSTASH_REDIS_REST_TOKEN`、SMTP TLS 凭据、`AUTH_RECOVERY_HMAC_SECRET`、32 字节 `AUTH_RECOVERY_ENCRYPTION_KEY` 与其 key ID；密钥不得经后台页面、API 响应或数据库配置返回。
 
 ## 已知限制与弃用行为
 
 - REQ-0016：v1.5 的高并发资料只证明准备与门禁，不构成特定 QPS 容量承诺。
-- REQ-0017：后台任务消费者、生产告警和完整 RAG 对外能力属于未来版本验收范围，不能由旧计划或 UI 表象证明已完成。
+- REQ-0017：认证邮件 worker 已具备 Scheduled、手动与应急 HTTP 触发、重试、死信和健康降级代码；Netlify Published Scheduled Function 与真实 SMTP/Redis 端到端运行状态仍须独立验收。完整 RAG 对外能力仍属于未来版本验收范围。
 - REQ-0018：`.trae/documents`、`.trae/plans` 和 `.trae/specs` 的 Markdown 源必须在 `docs/legacy/inventory.json` 中有可校验的迁移记录；`npm run docs:check` 必须验证来源哈希、覆盖度和文档链接。
 - REQ-0019：用户端界面必须使用暖灰、深海军蓝、酒红色和语义化日/夜间 token；页脚不得与当前主题脱节。
 - REQ-0020：首页商品项可携带 `categoryId` 与 `categoryName`；已知分类在中英文界面分别显示对应语言，重复点击当前分类必须恢复全部商品。

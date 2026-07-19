@@ -1,6 +1,6 @@
 # SoloSales 技术文档
 
-当前代码版本：**v1.7.7**。当前代码的最新 Git tag：**v1.7.0**；v1.7.7 正在执行文档迁移与发布治理，见 [发布登记表](releases/manifest.json)。
+当前代码版本：**v1.8.0**。当前代码的最新 Git tag：**v1.7.9**；v1.8.0 代码与迁移已实施，仍待 Netlify Published Scheduled Function 和真实 SMTP/Redis 验收，见 [发布登记表](releases/manifest.json)。
 
 ## 开发入口
 
