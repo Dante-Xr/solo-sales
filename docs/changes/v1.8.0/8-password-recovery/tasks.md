@@ -13,4 +13,4 @@ status: in_progress
 - [x] 实施 Netlify 每分钟 Scheduled Function、数据库租约、`worker.view` / `worker.manage` 和后台任务调度页签。
 - [x] 应用认证恢复与 worker Prisma 迁移，并完成 Jest、TypeScript 和生产构建验证。
 - [ ] 在 Netlify Preview 完成隔离数据库、真实 Redis/SMTP 的普通、管理员、代重置和 CLI 恢复验收。
-- [ ] 在 Netlify Published deploy 确认 Scheduled Function、启用 worker、验证 OTP 与故障恢复；合并 main、创建 v1.8.0 tag 和 GitHub Release。
+- [ ] 在 Netlify Published deploy 确认 Scheduled Function、启用 worker、验证 OTP 与故障恢复；创建 v1.8.0 tag 和 GitHub Release。（已合并 `main`；当前被 Netlify `account credit usage exceeded` 阻塞。）
