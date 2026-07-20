@@ -26,10 +26,6 @@ jest.mock("@/server/services/payment-service", () => ({
   createStripeCheckoutSession: jest.fn(),
 }))
 
-jest.mock("@/server/payments/stripe", () => ({
-  isStripeTestMode: jest.fn(() => true),
-}))
-
 const { csrfGuard } = jest.requireMock("@/middleware/csrf-guard") as {
   csrfGuard: jest.Mock
 }

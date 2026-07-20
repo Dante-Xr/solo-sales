@@ -6,10 +6,12 @@ export default async function PaymentFailurePage({
   params,
   searchParams
 }: {
-  params: { locale: string }
-  searchParams: { reason?: string; order_id?: string }
+  params: Promise<{ locale: string }>
+  searchParams: Promise<{ reason?: string; order_id?: string }>
 }) {
-  const reason = searchParams.reason || 'unknown'
+  const { locale } = await params
+  const search = await searchParams
+  const reason = search.reason || 'unknown'
 
   return (
     <div className="container max-w-2xl py-16">
@@ -27,13 +29,13 @@ export default async function PaymentFailurePage({
           </p>
         </div>
 
-        {searchParams.order_id && (
+        {search.order_id && (
           <div className="bg-muted/50 rounded-lg p-4">
             <div className="text-sm text-muted-foreground">
               Order Number
             </div>
             <div className="text-lg font-mono font-medium">
-              {searchParams.order_id}
+              {search.order_id}
             </div>
           </div>
         )}
@@ -49,13 +51,13 @@ export default async function PaymentFailurePage({
         </Alert>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-          <a href={`/${params.locale}/cart`}>
+          <a href={`/${locale}/cart`}>
             <Button size="lg">
               Retry Payment
             </Button>
           </a>
 
-          <a href={`/${params.locale}`}>
+          <a href={`/${locale}`}>
             <Button variant="outline" size="lg">
               Back to Home
             </Button>

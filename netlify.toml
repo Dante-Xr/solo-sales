@@ -1,5 +1,8 @@
 [build]
-  command = "npx prisma generate && next build"
+  # Netlify's Next runtime currently cannot package the Next 16 Turbopack
+  # middleware output. Keep local development on Turbopack, but build deploys
+  # with webpack until the runtime supports that output format.
+  command = "npx prisma generate && next build --webpack"
   publish = ".next"
 
 [build.environment]

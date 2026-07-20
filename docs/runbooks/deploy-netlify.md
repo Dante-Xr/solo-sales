@@ -4,3 +4,4 @@
 2. 确认 `BETTER_AUTH_URL` 与实际部署域名一致，并设置 `BETTER_AUTH_SECRET`。
 3. 部署前运行质量门禁；部署后执行健康检查、认证、支付通知和关键读取路径验证。
 4. 记录 deploy ID、环境变量变更、Prisma migration、验证结果和回滚点。
+5. 本项目的 Netlify 生产构建使用 `next build --webpack`。Next.js 16 默认的 Turbopack 产物目前不能被已配置的 Netlify Next runtime 打包为 Edge middleware；本地开发不受影响，仍可使用默认 Turbopack。

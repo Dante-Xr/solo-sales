@@ -9,9 +9,6 @@ import { getServerSessionUser } from "@/server/auth/session"
 import { handleApiError, successResponse } from "@/server/contracts/api"
 import { unauthorized, validationError } from "@/server/contracts/errors"
 import { createStripeCheckoutSession } from "@/server/services/payment-service"
-import { isStripeTestMode } from "@/server/payments/stripe"
-
-export { isStripeTestMode }
 
 function getOrigin(request: Request) {
   return request.headers.get("origin") || "http://localhost:3000"
