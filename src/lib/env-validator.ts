@@ -9,7 +9,7 @@
 
 /**
  * 2026-07-06: 规范化公开站点 URL
- * 支持 Netlify 裸域名输入，并统一返回 origin 形式。
+ * 支持部署平台裸域名输入，并统一返回 origin 形式。
  */
 export function normalizePublicBaseUrl(value: string) {
   const trimmed = value.trim()
@@ -24,13 +24,13 @@ export function normalizePublicBaseUrl(value: string) {
 
     return url.origin
   } catch {
-    throw new Error("请提供有效 URL，例如 https://your-site.netlify.app")
+    throw new Error("请提供有效 URL，例如 https://your-domain.com")
   }
 }
 
 /**
  * 2026-07-06: 解析公开站点 URL
- * Netlify UI 中经常误填裸域名，这里统一补 HTTPS，避免认证库初始化失败。
+ * 部署平台 UI 中经常误填裸域名，这里统一补 HTTPS，避免认证库初始化失败。
  */
 export function resolvePublicBaseUrl() {
   const rawUrl =

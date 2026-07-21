@@ -7,11 +7,11 @@ This document describes how to deploy SoloSales independent website to the inter
 
 ## 快速开始 / Quick Start
 
-### 方案一：Netlify + Neon（推荐）/ Option 1: Netlify + Neon (Recommended)
+### 方案一：Vercel + Neon（当前部署）/ Option 1: Vercel + Neon (Current Deployment)
 
 #### 1. 注册必要服务 / Register Required Services
 
-- [Netlify](https://netlify.com) - 静态网站和 Next.js 部署平台 / Static site and Next.js deployment platform
+- [Vercel](https://vercel.com) - Next.js 部署平台 / Next.js deployment platform
 - [Neon](https://neon.tech) - Serverless PostgreSQL 数据库 / Serverless PostgreSQL database
 
 #### 2. 创建 Neon 数据库 / Create Neon Database
@@ -23,13 +23,13 @@ This document describes how to deploy SoloSales independent website to the inter
 
 #### 3. 配置环境变量 / Configure Environment Variables
 
-在 Netlify 项目设置中添加以下环境变量：
-Add the following environment variables in Netlify project settings:
+在 Vercel 项目 Settings > Environment Variables 中添加以下环境变量：
+Add the following environment variables in Vercel project Settings > Environment Variables:
 
 | 变量名 / Variable | 说明 / Description | 示例值 / Example |
 |-------------------|---------------------|------------------|
 | `DATABASE_URL` | Neon PostgreSQL 连接字符串 / Neon PostgreSQL connection string | `postgresql://...` |
-| `BETTER_AUTH_URL` | 生产环境 URL / Production environment URL | `https://your-site.netlify.app` |
+| `BETTER_AUTH_URL` | 生产环境 URL / Production environment URL | `https://solo-sales.vercel.app` |
 | `BETTER_AUTH_SECRET` | Better Auth 加密密钥 / Better Auth encryption secret | `openssl rand -base64 32` |
 | `UPSTASH_REDIS_REST_URL` | Upstash Redis REST URL / Upstash Redis REST URL | `https://...upstash.io` |
 | `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST Token / Upstash Redis REST Token | `<set-in-deployment-secret-manager>` |
@@ -44,17 +44,17 @@ Add the following environment variables in Netlify project settings:
 | `STRIPE_SECRET_KEY` | Stripe 私钥 / Stripe secret key | `sk_live_...` |
 | `STRIPE_WEBHOOK_SECRET` | Stripe Webhook 签名密钥 / Stripe webhook signing secret | `whsec_...` |
 
-#### 4. 部署到 Netlify / Deploy to Netlify
+#### 4. 部署到 Vercel / Deploy to Vercel
 
 1. 将代码推送到 GitHub 仓库 / Push code to GitHub repository
-2. 在 Netlify 中导入项目 / Import project in Netlify
+2. 在 Vercel 中导入项目 / Import project in Vercel
 3. 选择 GitHub 仓库 / Select GitHub repository
-4. 配置构建命令和发布目录 / Configure build command and publish directory
+4. 使用 Next.js 默认构建配置 / Use the default Next.js build configuration
    - 构建命令 / Build command: `npm run build`
-   - 发布目录 / Publish directory: `.next`
+   - Framework Preset: `Next.js`
 5. 配置环境变量 / Configure environment variables
 6. 点击 Deploy / Click Deploy
-7. 仅在 Published deploy 后，到 Netlify Functions 确认 `auth-email-worker` 显示为 Scheduled；Scheduled Function 不在 Preview 自动运行。
+7. 访问 `https://solo-sales.vercel.app/zh` 验证生产站点。
 
 #### 5. 运行数据库迁移 / Run Database Migration
 
@@ -88,14 +88,14 @@ Or manually execute migration SQL in Neon SQL Editor.
 DATABASE_URL="<set-in-deployment-secret-manager>"
 
 # Better Auth 配置 / Better Auth configuration
-BETTER_AUTH_URL="https://your-domain.netlify.app"
+BETTER_AUTH_URL="https://solo-sales.vercel.app"
 BETTER_AUTH_SECRET="<generated-random-secret>"
 
 # Redis 限速和后台能力 / Redis for rate limiting and background capabilities
 UPSTASH_REDIS_REST_URL="<set-in-deployment-secret-manager>"
 UPSTASH_REDIS_REST_TOKEN="<set-in-deployment-secret-manager>"
 
-# 认证邮件恢复（所有值在 Netlify Secret Manager 配置）
+# 认证邮件恢复（所有值在 Vercel Environment Variables 配置）
 SMTP_HOST="smtp.example.com"
 SMTP_PORT="465"
 SMTP_USER="<set-in-deployment-secret-manager>"
@@ -152,7 +152,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 - `/cart` - 购物车页面 / Shopping cart page
 - `/api/health` - 数据库、Redis 与认证邮件 worker 健康状态
 
-认证邮件验收：使用拥有 `worker.manage` 的管理员在“系统设置 > 任务调度”启用 worker。启用预检必须通过；随后执行真实 OTP 重置并确认 Netlify Functions、运行历史、死信和 `/api/health` 状态。应急 bearer endpoint 仅用于故障恢复，不替代 Scheduled Function。
+认证邮件验收：使用拥有 `worker.manage` 的管理员在“系统设置 > 任务调度”启用 worker。Vercel 不会自动执行仓库中的 Netlify Scheduled Function；如需自动发送认证邮件，必须另行配置 Vercel Cron 或外部定时器调用受保护的 worker 入口。启用预检必须通过，随后执行真实 OTP 重置并确认运行历史、死信和 `/api/health` 状态。
 
 ---
 
@@ -164,15 +164,15 @@ A: 检查 `DATABASE_URL` 是否正确，确保包含 `?sslmode=require` / Check 
 
 ### Q: BETTER_AUTH_URL 应该填什么？/ What should I fill in for BETTER_AUTH_URL?
 
-A: 填入 Netlify 分配给你的域名，例如 / Fill in the domain assigned by Netlify, e.g., `https://solo-sales-xxx.netlify.app`
+A: 填入 Vercel 生产域名：`https://solo-sales.vercel.app`
 
 ### Q: 如何更新生产环境代码？/ How to update production code?
 
-A: 只需将代码推送到 GitHub，Netlify 会自动重新部署 / Simply push code to GitHub, Netlify will automatically redeploy
+A: 只需将代码推送到 GitHub，Vercel 会自动重新部署 / Simply push code to GitHub, Vercel will automatically redeploy
 
 ### Q: 如何配置自定义域名？/ How to configure custom domain?
 
-A: 在 Netlify Domain Settings 中添加自定义域名，并配置 DNS 记录 / Add custom domain in Netlify Domain Settings and configure DNS records
+A: 在 Vercel Project Settings > Domains 中添加自定义域名，并配置 DNS 记录 / Add a custom domain in Vercel Project Settings > Domains and configure DNS records
 
 ---
 

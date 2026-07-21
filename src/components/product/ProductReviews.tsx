@@ -8,6 +8,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useTranslations } from "next-intl"
+import { useRouter } from "@/i18n/navigation"
 import { PenLine } from "lucide-react"
 import { useCsrfToken } from "@/hooks/useCsrfToken"
 import { ReviewSummary } from "./ReviewSummary"
@@ -30,6 +31,7 @@ interface ProductReviewsProps {
 
 export function ProductReviews({ productId }: ProductReviewsProps) {
   const t = useTranslations("reviews")
+  const router = useRouter()
   const { csrfHeaders } = useCsrfToken()
   const [stats, setStats] = useState({
     averageRating: 0,
@@ -133,9 +135,7 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
                 <Button
                   variant="outline"
                   className="mt-3"
-                  onClick={() => {
-                    window.location.href = "/login"
-                  }}
+                  onClick={() => router.push("/login")}
                 >
                   {t("goLogin")}
                 </Button>

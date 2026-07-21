@@ -60,9 +60,9 @@ describe("env-validator production gates", () => {
     expect(validateStripeConfig()).toEqual({ secretKey: process.env.STRIPE_SECRET_KEY })
   })
 
-  it("normalizes bare Netlify domains to HTTPS base URLs", () => {
-    expect(normalizePublicBaseUrl("solo-sales-xxx.netlify.app")).toBe(
-      "https://solo-sales-xxx.netlify.app"
+  it("normalizes bare Vercel domains to HTTPS base URLs", () => {
+    expect(normalizePublicBaseUrl("solo-sales.vercel.app")).toBe(
+      "https://solo-sales.vercel.app"
     )
   })
 

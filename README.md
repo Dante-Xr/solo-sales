@@ -478,7 +478,7 @@ $env:BASELINE_BASE_URL="http://127.0.0.1:3000"; npm run perf:baseline
 
 ## 部署说明
 
-项目包含 `netlify.toml`，可部署到 Netlify，也可部署到支持 Next.js 16 的平台。生产环境需要确保：
+项目当前部署在 Vercel，生产地址为 `https://solo-sales.vercel.app/zh`。仓库仍保留 `netlify.toml` 和 Netlify worker 代码作为兼容部署资产；Vercel 不会自动执行 Netlify Scheduled Function。生产环境需要确保：
 
 - `DATABASE_URL` 可访问。
 - Prisma migration 已执行。
@@ -535,7 +535,7 @@ $env:BASELINE_BASE_URL="http://127.0.0.1:3000"; npm run perf:baseline
 
 - v1.5 不承诺 10 万 QPS，只建立高并发准备能力和验证门禁。
 - v1.7 多支付抽象（Alipay / WeChatPay）已在 `main` 分支合并，生产就绪。需配置相应环境变量启用。
-- v1.8.0 的认证邮件 worker 默认停用。仅在 Netlify Published deploy 已识别 Scheduled Function、依赖预检通过并完成真实邮箱验收后，由授权管理员在“系统设置 > 任务调度”启用。
+- v1.8.0 的认证邮件 worker 默认停用。Vercel 部署需要另行配置 Cron 或外部定时器调用 worker 入口，完成依赖预检和真实邮箱验收后，再由授权管理员在“系统设置 > 任务调度”启用。
 - `.trae/documents`、`.trae/specs`、`.trae/plans` 为本地规划资料，默认被 git 忽略。
 - `.codex/agents` 是本地 agent 配置，不属于项目运行必需文件。
 - `.agents/skills` 包含 Stripe 相关 agent skill，仅用于开发辅助。

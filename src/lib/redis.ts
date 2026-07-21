@@ -45,7 +45,7 @@ function initRedis(): Redis {
     // 生产环境运行时有配置缺失：使用 Mock 但警告
     // 注意：这允许构建通过，但运行时功能可能降级
     logger.error("⚠️  生产环境 Redis 配置缺失，缓存功能将降级", error instanceof Error ? error : new Error(String(error)))
-    logger.error("💡 请在 Netlify 环境变量中配置 UPSTASH_REDIS_REST_URL 和 UPSTASH_REDIS_REST_TOKEN")
+    logger.error("💡 请在部署平台环境变量中配置 UPSTASH_REDIS_REST_URL 和 UPSTASH_REDIS_REST_TOKEN")
 
     return new Redis({
       url: "https://mock.upstash.io",

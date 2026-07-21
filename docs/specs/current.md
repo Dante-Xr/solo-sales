@@ -44,7 +44,7 @@ evidence: package.json, prisma/schema.prisma, netlify/functions, src/server, tes
 ## 已知限制与弃用行为
 
 - REQ-0016：v1.5 的高并发资料只证明准备与门禁，不构成特定 QPS 容量承诺。
-- REQ-0017：认证邮件 worker 已具备 Scheduled、手动与应急 HTTP 触发、重试、死信和健康降级代码；Netlify Published Scheduled Function 与真实 SMTP/Redis 端到端运行状态仍须独立验收。完整 RAG 对外能力仍属于未来版本验收范围。
+- REQ-0017：认证邮件 worker 已具备 Scheduled、手动与应急 HTTP 触发、重试、死信和健康降级代码；Vercel Scheduled/外部定时触发与真实 SMTP/Redis 端到端运行状态仍须独立验收。完整 RAG 对外能力仍属于未来版本验收范围。
 - REQ-0018：`.trae/documents`、`.trae/plans` 和 `.trae/specs` 的 Markdown 源必须在 `docs/legacy/inventory.json` 中有可校验的迁移记录；`npm run docs:check` 必须验证来源哈希、覆盖度和文档链接。
 - REQ-0019：用户端界面必须使用暖灰、深海军蓝、酒红色和语义化日/夜间 token；页脚不得与当前主题脱节。
 - REQ-0020：首页商品项可携带 `categoryId` 与 `categoryName`；已知分类在中英文界面分别显示对应语言，重复点击当前分类必须恢复全部商品。

@@ -21,7 +21,7 @@ export default function HealthPage() {
       <ol>
         <li>Click the API link above to check environment variables</li>
         <li>If all variables show ✅, try visiting the <Link href="/">home page</Link></li>
-        <li>If variables show ❌, configure them in Netlify dashboard</li>
+        <li>If variables show ❌, configure them in the Vercel project settings</li>
       </ol>
     </div>
   )

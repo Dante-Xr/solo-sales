@@ -5,6 +5,10 @@
 import { render, screen, waitFor } from "@testing-library/react"
 import { ProductReviews } from "../ProductReviews"
 
+jest.mock("@/i18n/navigation", () => ({
+  useRouter: () => ({ push: jest.fn() }),
+}))
+
 jest.mock("next-intl", () => ({
   useTranslations: () => (key: string) => {
     const map: Record<string, string> = {
