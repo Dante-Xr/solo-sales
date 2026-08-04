@@ -14,7 +14,7 @@
 
 SoloSales 是一个基于 Next.js 16 App Router 的全栈独立站电商项目。它采用模块化单体架构，前台商城、后台管理、支付、订单、商品、营销、积分、联盟分销、数据分析、RAG 智能客服和运维验证脚本都在同一个代码库内交付。
 
-当前 README 反映 v1.8.0 代码状态：项目包含多支付提供商抽象层、订单状态机、后台 RBAC，以及普通用户和管理员分域的邮箱验证码密码恢复。认证邮件使用加密持久化队列，由 Netlify Scheduled Function 唤醒并受后台任务调度配置控制；v1.8.0 尚待真实生产依赖验收和 Git tag。
+当前 README 反映 v1.8.0 代码状态：项目包含多支付提供商抽象层、订单状态机、后台 RBAC，以及普通用户和管理员分域的邮箱验证码密码恢复。认证邮件使用加密持久化队列，由外部定时器调用受保护的 Vercel Route Handler 唤醒，并受后台任务调度配置控制；v1.8.0 尚待真实生产依赖验收和 Git tag。
 
 说明：当前代码版本为 `1.8.0`；最新发布 Git tag 仍为 `v1.7.9`。发布状态、验收边界和证据见 [`docs/releases/manifest.json`](docs/releases/manifest.json)。
 
@@ -372,7 +372,7 @@ npm install
 | `AUTH_RECOVERY_ENCRYPTION_KEY_ID` | 当前认证邮件队列加密密钥 ID |
 | `AUTH_RECOVERY_ENCRYPTION_KEY` | 恰好 32 UTF-8 字节的 AES-256-GCM 队列加密密钥 |
 | `AUTH_RECOVERY_ENCRYPTION_OLD_KEYS` | 可选旧 key ID 到密钥的 JSON 映射，用于队列轮换 |
-| `AUTH_EMAIL_WORKER_TOKEN` | 应急 `POST /api/internal/auth-email-jobs` Bearer token；不是定时调度凭据 |
+| `AUTH_EMAIL_WORKER_TOKEN` | 外部定时器 `POST /api/internal/auth-email-jobs/scheduled` 和应急 `POST /api/internal/auth-email-jobs` 共用的 Bearer token |
 | `STRIPE_SECRET_KEY` | Stripe Secret Key |
 | `STRIPE_PUBLIC_KEY` | Stripe Publishable Key |
 | `STRIPE_WEBHOOK_SECRET` | Stripe Webhook Secret |
@@ -535,7 +535,7 @@ $env:BASELINE_BASE_URL="http://127.0.0.1:3000"; npm run perf:baseline
 
 - v1.5 不承诺 10 万 QPS，只建立高并发准备能力和验证门禁。
 - v1.7 多支付抽象（Alipay / WeChatPay）已在 `main` 分支合并，生产就绪。需配置相应环境变量启用。
-- v1.8.0 的认证邮件 worker 默认停用。Vercel 部署需要另行配置 Cron 或外部定时器调用 worker 入口，完成依赖预检和真实邮箱验收后，再由授权管理员在“系统设置 > 任务调度”启用。
+- v1.8.0 的认证邮件 worker 默认停用。Vercel 部署需要配置外部定时器每分钟 `POST /api/internal/auth-email-jobs/scheduled` 并携带 `AUTH_EMAIL_WORKER_TOKEN`，完成依赖预检和真实邮箱验收后，再由授权管理员在“系统设置 > 任务调度”启用。
 - `.trae/documents`、`.trae/specs`、`.trae/plans` 为本地规划资料，默认被 git 忽略。
 - `.codex/agents` 是本地 agent 配置，不属于项目运行必需文件。
 - `.agents/skills` 包含 Stripe 相关 agent skill，仅用于开发辅助。

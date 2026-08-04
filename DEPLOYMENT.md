@@ -40,7 +40,7 @@ Add the following environment variables in Vercel project Settings > Environment
 | `AUTH_RECOVERY_ENCRYPTION_KEY_ID` | 当前认证邮件队列密钥 ID | `2026-07` |
 | `AUTH_RECOVERY_ENCRYPTION_KEY` | 恰好 32 UTF-8 字节的队列加密密钥 | `<set-in-deployment-secret-manager>` |
 | `AUTH_RECOVERY_ENCRYPTION_OLD_KEYS` | 可选旧 key ID 到密钥 JSON 映射，用于轮换期间消费旧任务 | `<set-in-deployment-secret-manager>` |
-| `AUTH_EMAIL_WORKER_TOKEN` | 应急 worker HTTP 入口 bearer token | `<set-in-deployment-secret-manager>` |
+| `AUTH_EMAIL_WORKER_TOKEN` | 外部定时器和应急 worker HTTP 入口 bearer token | `<set-in-deployment-secret-manager>` |
 | `STRIPE_SECRET_KEY` | Stripe 私钥 / Stripe secret key | `sk_live_...` |
 | `STRIPE_WEBHOOK_SECRET` | Stripe Webhook 签名密钥 / Stripe webhook signing secret | `whsec_...` |
 
@@ -152,7 +152,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 - `/cart` - 购物车页面 / Shopping cart page
 - `/api/health` - 数据库、Redis 与认证邮件 worker 健康状态
 
-认证邮件验收：使用拥有 `worker.manage` 的管理员在“系统设置 > 任务调度”启用 worker。Vercel 不会自动执行仓库中的 Netlify Scheduled Function；如需自动发送认证邮件，必须另行配置 Vercel Cron 或外部定时器调用受保护的 worker 入口。启用预检必须通过，随后执行真实 OTP 重置并确认运行历史、死信和 `/api/health` 状态。
+认证邮件验收：使用拥有 `worker.manage` 的管理员在“系统设置 > 任务调度”启用 worker。Vercel 不会自动执行仓库中的 Netlify Scheduled Function；如需自动发送认证邮件，必须配置外部定时器每分钟向 `https://solo-sales.vercel.app/api/internal/auth-email-jobs/scheduled` 发起 `POST`，并携带 `Authorization: Bearer <AUTH_EMAIL_WORKER_TOKEN>`。原 `POST /api/internal/auth-email-jobs` 仅用于人工应急调用。启用预检必须通过，随后执行真实 OTP 重置并确认运行历史、死信和 `/api/health` 状态。
 
 ---
 
