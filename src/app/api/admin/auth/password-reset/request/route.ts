@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getAdminPasswordResetEligibility, requestAdminPasswordReset } from "@/server/services/admin-password-reset-request-service"
-import { enforceRecoveryRequestRateLimit } from "@/lib/auth/recovery-rate-limit"
-import { assertAuthEmailWorkerEnabled } from "@/server/services/auth-email-worker-service"
+import { enforceRecoveryRequestRateLimit, RecoveryRateLimitDependencyError, RecoveryRateLimitExceededError } from "@/lib/auth/recovery-rate-limit"
+import { assertAuthEmailWorkerEnabled, AuthEmailWorkerDisabledError } from "@/server/services/auth-email-worker-service"
 
 function ip(request: NextRequest) { return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null }
 
@@ -29,7 +29,22 @@ export async function POST(request: NextRequest) {
     await enforceRecoveryRequestRateLimit({ scope: "admin", email, ipAddress: ip(request), hmacSecret })
     await requestAdminPasswordReset({ email, ipAddress: ip(request) })
     return NextResponse.json({ accepted: true }, { status: 202 })
-  } catch {
-    return NextResponse.json({ message: "发送验证码失败，请稍后重试" }, { status: 503 })
+  } catch (error) {
+    const failureCode = recoveryFailureCode(error)
+    console.error("[admin-password-reset-request]", {
+      failureCode,
+      errorName: error instanceof Error ? error.constructor.name : "UnknownError",
+    })
+    const message = failureCode === "WORKER_DISABLED"
+      ? "认证邮件服务暂时不可用"
+      : "发送验证码失败，请稍后重试"
+    return NextResponse.json({ message }, { status: 503 })
   }
+}
+
+function recoveryFailureCode(error: unknown) {
+  if (error instanceof AuthEmailWorkerDisabledError) return "WORKER_DISABLED"
+  if (error instanceof RecoveryRateLimitDependencyError) return "RATE_LIMIT_DEPENDENCY"
+  if (error instanceof RecoveryRateLimitExceededError) return "RATE_LIMIT_EXCEEDED"
+  return "REQUEST_FAILED"
 }
