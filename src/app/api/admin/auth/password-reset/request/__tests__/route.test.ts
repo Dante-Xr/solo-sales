@@ -21,9 +21,13 @@ import { POST } from "../route"
 
 const { assertAuthEmailWorkerEnabled } = jest.requireMock("@/server/services/auth-email-worker-service") as { assertAuthEmailWorkerEnabled: jest.Mock }
 const { enforceRecoveryRequestRateLimit } = jest.requireMock("@/lib/auth/recovery-rate-limit") as { enforceRecoveryRequestRateLimit: jest.Mock }
+const { getAdminPasswordResetEligibility } = jest.requireMock("@/server/services/admin-password-reset-request-service") as { getAdminPasswordResetEligibility: jest.Mock }
 
 describe("/api/admin/auth/password-reset/request", () => {
-  beforeEach(() => jest.clearAllMocks())
+  beforeEach(() => {
+    jest.clearAllMocks()
+    getAdminPasswordResetEligibility.mockResolvedValue({ status: "accepted" })
+  })
 
   it("reports a safe worker-disabled code without exposing the account", async () => {
     const { AuthEmailWorkerDisabledError } = jest.requireMock("@/server/services/auth-email-worker-service") as { AuthEmailWorkerDisabledError: typeof Error }
