@@ -519,7 +519,7 @@ $env:BASELINE_BASE_URL="http://127.0.0.1:3000"; npm run perf:baseline
 
 最近版本：
 
-- **v1.8.0**（进行中）— 已实现邮件 OTP 恢复、管理员身份安全收敛、加密认证邮件队列和后台可管理的 Netlify worker；待 Published Scheduled Function 与真实 SMTP/Redis 验收、合并和 tag。
+- **v1.8.0**（进行中）— 已实现邮件 OTP 恢复、管理员身份安全收敛、加密认证邮件队列和后台可管理的 worker；待 Vercel 外部定时器与真实 SMTP/Redis 验收、发布证据更新和 tag。
 - **v1.7.6**（2026-07-03）— 类型安全修复：补齐 Alipay / WeChat Pay / PayPal 类型声明，收紧支付、缓存、Bundle、Affiliate 和 Prisma 类型边界，新增 `npm run type-check`。
 - **v1.7.3**（2026-07-02）— PayPal Business 集成：支持独立站 PayPal Checkout、capture、webhook 和环境变量检查。
 - **v1.7.0**（2026-06-28）— 多支付提供商抽象层完成：支持Stripe/Alipay/WeChatPay，统一CheckoutService，OrderStateMachine状态机，Webhook幂等性保证。使用TDD方法开发，327个测试100%通过。
