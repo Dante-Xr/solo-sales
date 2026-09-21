@@ -186,6 +186,17 @@ function isCredentialFailure(error: unknown) {
 function authFailureCode(error: unknown) {
   const status = authFailureStatus(error)
   if (status === 400 || status === 401 || status === 403) return "CREDENTIAL_REJECTED"
+
+  const message = error instanceof Error ? error.message : ""
+  if (/(?:base\s*url|allowed\s*hosts|trusted\s*origin|origin)/i.test(message)) {
+    return "AUTH_CONTEXT_FAILURE"
+  }
+  if (/invalid password hash/i.test(message)) return "CREDENTIAL_HASH_INVALID"
+
+  if (authFailureBodyCode(error) === "FAILED_TO_CREATE_SESSION") {
+    return "SESSION_CREATION_FAILED"
+  }
+
   return "AUTH_SERVICE_FAILURE"
 }
 
@@ -193,6 +204,14 @@ function authFailureStatus(error: unknown) {
   if (typeof error !== "object" || error === null) return undefined
   const candidate = error as { status?: unknown; statusCode?: unknown }
   return candidate.status ?? candidate.statusCode
+}
+
+function authFailureBodyCode(error: unknown) {
+  if (typeof error !== "object" || error === null) return undefined
+  const body = (error as { body?: unknown }).body
+  if (typeof body !== "object" || body === null) return undefined
+  const code = (body as { code?: unknown }).code
+  return typeof code === "string" ? code : undefined
 }
 
 /**

@@ -134,6 +134,42 @@ describe("/api/admin/auth", () => {
     errorSpy.mockRestore()
   })
 
+  it("records a safe session creation failure code in production", async () => {
+    process.env.VERCEL_ENV = "production"
+    const failure = Object.assign(new Error("session write failed"), {
+      statusCode: 500,
+      body: { code: "FAILED_TO_CREATE_SESSION" },
+    })
+    mockedAuth.api.signInEmail.mockRejectedValue(failure)
+    const errorSpy = jest.spyOn(console, "error").mockImplementation()
+
+    const response = await POST(loginRequest({ email: "admin@example.com", password: "password123" }))
+
+    expect(response.status).toBe(500)
+    expect(errorSpy).toHaveBeenCalledWith("[admin-auth-sign-in]", {
+      errorName: "Error",
+      failureCode: "SESSION_CREATION_FAILED",
+    })
+    errorSpy.mockRestore()
+  })
+
+  it("records a safe auth context failure code in production", async () => {
+    process.env.VERCEL_ENV = "production"
+    mockedAuth.api.signInEmail.mockRejectedValue(
+      new Error("Could not resolve base URL from request. Check your allowedHosts config.")
+    )
+    const errorSpy = jest.spyOn(console, "error").mockImplementation()
+
+    const response = await POST(loginRequest({ email: "admin@example.com", password: "password123" }))
+
+    expect(response.status).toBe(500)
+    expect(errorSpy).toHaveBeenCalledWith("[admin-auth-sign-in]", {
+      errorName: "Error",
+      failureCode: "AUTH_CONTEXT_FAILURE",
+    })
+    errorSpy.mockRestore()
+  })
+
   it("treats Better Auth statusCode credential failures as invalid credentials", async () => {
     process.env.VERCEL_ENV = "production"
     mockedAuth.api.signInEmail.mockRejectedValue({ statusCode: 401 })
