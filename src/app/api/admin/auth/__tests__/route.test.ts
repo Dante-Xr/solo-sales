@@ -39,16 +39,11 @@ jest.mock("@/middleware/rate-limit", () => ({
   adminLoginRateLimiter: jest.fn(),
 }))
 
-jest.mock("bcryptjs", () => ({
-  compare: jest.fn(),
-}))
-
 import { POST } from "../route"
 import { GET } from "../me/route"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { adminLoginRateLimiter } from "@/middleware/rate-limit"
-import bcrypt from "bcryptjs"
 
 const mockedPrisma = prisma as unknown as {
   account: { findFirst: jest.Mock }
@@ -73,7 +68,6 @@ describe("/api/admin/auth", () => {
   beforeEach(() => {
     jest.clearAllMocks()
     ;(adminLoginRateLimiter as jest.Mock).mockReturnValue({ allowed: true })
-    ;(bcrypt.compare as jest.Mock).mockResolvedValue(true)
     mockedPrisma.adminUser.findUnique.mockResolvedValue({
       id: "admin_1",
       username: "Admin",
@@ -124,13 +118,31 @@ describe("/api/admin/auth", () => {
   it("fails closed in production when Better Auth sign-in fails", async () => {
     process.env.VERCEL_ENV = "production"
     mockedAuth.api.signInEmail.mockRejectedValue(new Error("auth unavailable"))
+    const errorSpy = jest.spyOn(console, "error").mockImplementation()
 
     const response = await POST(loginRequest({ email: "admin@example.com", password: "password123" }))
     const body = await response.json()
 
     expect(response.status).toBe(500)
     expect(body.success).toBe(false)
+    expect(body.error).toMatchObject({ message: "认证服务暂时不可用，请稍后重试" })
+    expect(errorSpy).toHaveBeenCalledWith("[admin-auth-sign-in]", {
+      errorName: "Error",
+      failureCode: "AUTH_SERVICE_FAILURE",
+    })
     expect(mockedPrisma.session.create).not.toHaveBeenCalled()
+    errorSpy.mockRestore()
+  })
+
+  it("treats Better Auth statusCode credential failures as invalid credentials", async () => {
+    process.env.VERCEL_ENV = "production"
+    mockedAuth.api.signInEmail.mockRejectedValue({ statusCode: 401 })
+
+    const response = await POST(loginRequest({ email: "admin@example.com", password: "password123" }))
+    const body = await response.json()
+
+    expect(response.status).toBe(401)
+    expect(body.error).toMatchObject({ message: "邮箱或密码错误" })
   })
 
   it("records an audit log after successful admin login", async () => {
@@ -171,7 +183,6 @@ describe("/api/admin/auth", () => {
     expect(mockedAuth.api.signInEmail).toHaveBeenCalledWith(expect.objectContaining({
       body: expect.objectContaining({ email: "admin@example.com", password: "password123" }),
     }))
-    expect(bcrypt.compare).not.toHaveBeenCalled()
   })
 
   it("rejects inactive admin user", async () => {

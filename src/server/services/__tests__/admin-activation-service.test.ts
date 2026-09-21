@@ -7,6 +7,7 @@ jest.mock("@/lib/prisma", () => ({
 
 jest.mock("@/lib/auth/password-policy", () => ({ validatePassword: jest.fn() }))
 jest.mock("../auth-email-job-service", () => ({ enqueueAuthEmail: jest.fn() }))
+jest.mock("better-auth/crypto", () => ({ hashPassword: jest.fn().mockResolvedValue("better-auth-scrypt-hash") }))
 
 import { validatePassword } from "@/lib/auth/password-policy"
 import { prisma } from "@/lib/prisma"

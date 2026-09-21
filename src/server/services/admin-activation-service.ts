@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto"
-import bcrypt from "bcryptjs"
+import { hashPassword } from "better-auth/crypto"
 import { normalizeEmail, RecoveryFailureCode } from "@/lib/auth/recovery-audit"
 import { validatePassword } from "@/lib/auth/password-policy"
 import { encryptRecoveryPayload, decryptRecoveryPayload, generateOtp, hashRecoverySecret, verifyRecoverySecret } from "@/lib/auth/recovery-crypto"
@@ -30,7 +30,7 @@ export async function confirmAdminActivation(input: { operatorId: string; operat
   await prisma.$transaction(async (tx) => {
     const duplicate = await tx.adminUser.findFirst({ where: { OR: [{ email: payload.email }, { username: payload.username }] } }); if (duplicate) throw new Error("管理员已存在")
     const user = await tx.user.create({ data: { email: payload.email, name: payload.username, role: "admin" } })
-    await tx.account.create({ data: { id: randomUUID(), accountId: user.id, providerId: "credential", userId: user.id, password: await bcrypt.hash(payload.password, 12) } })
+    await tx.account.create({ data: { id: randomUUID(), accountId: user.id, providerId: "credential", userId: user.id, password: await hashPassword(payload.password) } })
     await tx.adminUser.create({ data: { id: randomUUID(), userId: user.id, username: payload.username, email: payload.email, password: null, roleId: payload.roleId, isActive: true } })
     await tx.verification.delete({ where: { id: verification.id } })
   });

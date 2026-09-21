@@ -1,4 +1,4 @@
-jest.mock("bcryptjs", () => ({ hash: jest.fn().mockResolvedValue("new-account-hash") }))
+jest.mock("better-auth/crypto", () => ({ hashPassword: jest.fn().mockResolvedValue("new-account-hash") }))
 
 import { completeCliAdminRecovery } from "../cli-admin-recovery-service"
 

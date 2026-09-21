@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs"
+import { hashPassword } from "better-auth/crypto"
 import { RecoveryFailureCode } from "@/lib/auth/recovery-audit"
 import { recordAccountRecoveryAudit, type RecoveryAuditDatabase } from "./account-recovery-audit-service"
 
@@ -49,7 +49,7 @@ export async function completeCliAdminRecovery(input: {
 
     const updated = await tx.account.updateMany({
       where: { userId: admin.userId, providerId: "credential" },
-      data: { password: await bcrypt.hash(input.password, 12) },
+      data: { password: await hashPassword(input.password) },
     })
     if (updated.count !== 1) throw new Error("Missing credential account for super administrator")
 

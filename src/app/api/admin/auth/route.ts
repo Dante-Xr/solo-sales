@@ -157,7 +157,11 @@ export async function POST(request: NextRequest) {
     } catch (error) {
       await auditAdminLogin(request, admin.id, "ADMIN_LOGIN_FAILED", "INVALID_PASSWORD_OR_AUTH_FAILURE")
       if (isProductionRuntime() && !isCredentialFailure(error)) {
-        throw internalError("登录失败，请稍后重试", "Better Auth sign-in failed")
+        console.error("[admin-auth-sign-in]", {
+          errorName: error instanceof Error ? error.constructor.name : "UnknownError",
+          failureCode: authFailureCode(error),
+        })
+        throw internalError("认证服务暂时不可用，请稍后重试", "Better Auth sign-in failed")
       }
       throw unauthorized("邮箱或密码错误")
     }
@@ -175,8 +179,20 @@ export async function POST(request: NextRequest) {
 }
 
 function isCredentialFailure(error: unknown) {
-  const status = typeof error === "object" && error !== null && "status" in error ? (error as { status?: unknown }).status : undefined
+  const status = authFailureStatus(error)
   return status === 400 || status === 401 || status === 403
+}
+
+function authFailureCode(error: unknown) {
+  const status = authFailureStatus(error)
+  if (status === 400 || status === 401 || status === 403) return "CREDENTIAL_REJECTED"
+  return "AUTH_SERVICE_FAILURE"
+}
+
+function authFailureStatus(error: unknown) {
+  if (typeof error !== "object" || error === null) return undefined
+  const candidate = error as { status?: unknown; statusCode?: unknown }
+  return candidate.status ?? candidate.statusCode
 }
 
 /**
