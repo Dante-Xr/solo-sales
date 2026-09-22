@@ -180,6 +180,9 @@ export async function POST(request: NextRequest) {
 }
 
 function isCredentialFailure(error: unknown) {
+  if (authFailureBodyCode(error) === "FAILED_TO_CREATE_SESSION") return false
+  if (authFailurePrismaCode(error)) return false
+
   const status = authFailureStatus(error)
   return status === 400 || status === 401 || status === 403
 }

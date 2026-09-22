@@ -157,6 +157,26 @@ describe("/api/admin/auth", () => {
     errorSpy.mockRestore()
   })
 
+  it("does not treat a session creation failure with only statusCode as invalid credentials", async () => {
+    process.env.VERCEL_ENV = "production"
+    mockedAuth.api.signInEmail.mockRejectedValue({
+      statusCode: 401,
+      body: { code: "FAILED_TO_CREATE_SESSION" },
+    })
+    const errorSpy = jest.spyOn(console, "error").mockImplementation()
+
+    const response = await POST(loginRequest({ email: "admin@example.com", password: "password123" }))
+
+    expect(response.status).toBe(500)
+    expect(errorSpy).toHaveBeenCalledWith("[admin-auth-sign-in]", {
+      errorName: "UnknownError",
+      failureCode: "SESSION_CREATION_FAILED",
+      statusCode: 401,
+      betterAuthCode: "FAILED_TO_CREATE_SESSION",
+    })
+    errorSpy.mockRestore()
+  })
+
   it("records a safe auth context failure code in production", async () => {
     process.env.VERCEL_ENV = "production"
     mockedAuth.api.signInEmail.mockRejectedValue(
