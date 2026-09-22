@@ -17,6 +17,9 @@ export async function POST(request: NextRequest) {
     const email = body.email.trim().toLowerCase()
     const eligibility = await getAdminPasswordResetEligibility(email)
     if (eligibility.status !== "accepted") {
+      console.warn("[admin-password-reset-eligibility]", {
+        status: eligibility.status,
+      })
       // Reuse the request service so rejected attempts are persisted in the recovery audit log.
       await requestAdminPasswordReset({ email, ipAddress: ip(request) })
       const message = eligibility.status === "not_found"

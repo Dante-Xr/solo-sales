@@ -54,4 +54,17 @@ describe("/api/admin/auth/password-reset/request", () => {
     expect(errorSpy).toHaveBeenCalledWith("[admin-password-reset-request]", { failureCode: "RATE_LIMIT_DEPENDENCY", errorName: "RecoveryRateLimitDependencyError" })
     errorSpy.mockRestore()
   })
+
+  it("records the safe eligibility status for a rejected administrator reset request", async () => {
+    getAdminPasswordResetEligibility.mockResolvedValue({ status: "scope_mismatch" })
+    const warnSpy = jest.spyOn(console, "warn").mockImplementation()
+
+    const response = await POST({ headers: new Headers(), json: async () => ({ email: "admin@example.com" }) } as never)
+
+    expect(response.status).toBe(400)
+    expect(warnSpy).toHaveBeenCalledWith("[admin-password-reset-eligibility]", {
+      status: "scope_mismatch",
+    })
+    warnSpy.mockRestore()
+  })
 })
