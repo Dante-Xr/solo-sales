@@ -42,8 +42,8 @@ export const BACKGROUND_JOB_DEFINITIONS: Record<
     resourceIsolation: "失败副作用进入可恢复任务，不影响支付主链路确认",
   },
   AUTH_EMAIL_DISPATCH: {
-    synchronousBoundary: "请求内仅持久化加密认证邮件任务",
-    asynchronousBoundary: "SMTP 接受后才推进验证码或恢复链接状态",
+    synchronousBoundary: "持久化加密认证邮件任务；单封邮件在请求内立即尝试投递，SMTP 最长等待 20 秒",
+    asynchronousBoundary: "定时 worker 处理失败重试和批量邮件；SMTP 接受后才推进验证码或恢复链接状态",
     resourceIsolation: "投递失败进入退避重试和死信队列，不泄漏账号状态",
   },
   NOTIFICATION_DISPATCH: {

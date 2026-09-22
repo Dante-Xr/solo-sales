@@ -15,7 +15,9 @@ const JOB_STALE_MS = 15 * 60 * 1000
 export async function enqueueAuthEmail(input: AuthEmailMessage) {
   await assertAuthEmailWorkerEnabled()
   const payload = encryptRecoveryPayload({ ...input, requestedAt: new Date().toISOString(), ttlSeconds: String(OTP_TTL_SECONDS) }, keyring())
-  return enqueueBackgroundJob({ type: "AUTH_EMAIL_DISPATCH", payload, maxAttempts: 3 })
+  const job = await enqueueBackgroundJob({ type: "AUTH_EMAIL_DISPATCH", payload, maxAttempts: 3 })
+  await dispatchAuthEmailJobs({ jobId: job.id })
+  return job
 }
 
 export async function enqueueAuthEmailBatch(input: AuthEmailBatch) {
@@ -24,24 +26,26 @@ export async function enqueueAuthEmailBatch(input: AuthEmailBatch) {
   return enqueueBackgroundJob({ type: "AUTH_EMAIL_DISPATCH", payload, maxAttempts: 3 })
 }
 
-export async function dispatchAuthEmailJobs(args: { now?: Date; limit?: number; staleAfterMs?: number } = {}) {
+export async function dispatchAuthEmailJobs(args: { now?: Date; limit?: number; staleAfterMs?: number; jobId?: string } = {}) {
   const now = args.now ?? new Date()
-  const jobs = await listRunnableBackgroundJobs({ now, limit: args.limit ?? 20 })
-  const authJobs = jobs.filter((job) => job.type === "AUTH_EMAIL_DISPATCH")
+  const jobs = args.jobId
+    ? await prisma.backgroundJob.findMany({ where: { id: args.jobId, type: "AUTH_EMAIL_DISPATCH" } })
+    : await listRunnableBackgroundJobs({ now, limit: args.limit ?? 20 })
+  const authJobs = jobs.filter((job) => job.type === "AUTH_EMAIL_DISPATCH" && job.attempts < job.maxAttempts)
   let delivered = 0
   let deadLettered = 0
   for (const job of authJobs) {
-    if (isAuthEmailJobStale(job.createdAt, now, args.staleAfterMs ?? JOB_STALE_MS)) {
-      await prisma.backgroundJob.update({ where: { id: job.id }, data: { status: "DEAD_LETTER", lastError: "AUTH_EMAIL_JOB_STALE", completedAt: now, lockedAt: null, lockToken: null, lockExpiresAt: null } })
-      deadLettered += 1
-      continue
-    }
     const lockToken = randomUUID()
     const claimed = await prisma.backgroundJob.updateMany({
       where: { id: job.id, availableAt: { lte: now }, OR: [{ status: { in: ["QUEUED", "FAILED"] } }, { status: "RUNNING", lockExpiresAt: { lte: now } }] },
       data: { status: "RUNNING", lockedAt: now, lockToken, lockExpiresAt: new Date(now.getTime() + 60_000) },
     })
     if (claimed.count !== 1) continue
+    if (isAuthEmailJobStale(job.createdAt, now, args.staleAfterMs ?? JOB_STALE_MS)) {
+      await prisma.backgroundJob.update({ where: { id: job.id }, data: { status: "DEAD_LETTER", lastError: "AUTH_EMAIL_JOB_STALE", completedAt: now, lockedAt: null, lockToken: null, lockExpiresAt: null } })
+      deadLettered += 1
+      continue
+    }
     try {
       const message = decryptRecoveryPayload(job.payload as unknown as AuthEmailPayload, keyring()) as AuthEmailMessage & { kind?: string; messages?: string; ttlSeconds?: string }
       const messages = message.kind === "batch" ? JSON.parse(message.messages || "[]") as AuthEmailMessage[] : [message]
@@ -85,6 +89,21 @@ export function buildDeliveredVerification(input: QueuedVerification, acceptedAt
 async function send(message: AuthEmailMessage) {
   const port = Number(process.env.SMTP_PORT)
   if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS || ![465, 587].includes(port)) throw new Error("SMTP recovery delivery is not configured")
-  const transporter = nodemailer.createTransport({ host: process.env.SMTP_HOST, port, secure: port === 465, requireTLS: port === 587, tls: { rejectUnauthorized: true }, auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } })
-  await transporter.sendMail({ from: process.env.SMTP_FROM || process.env.SMTP_USER, to: message.email, subject: message.subject, text: message.text })
+  const transporter = nodemailer.createTransport({ host: process.env.SMTP_HOST, port, secure: port === 465, requireTLS: port === 587, tls: { rejectUnauthorized: true }, auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }, connectionTimeout: 10_000, greetingTimeout: 10_000, socketTimeout: 10_000 })
+  let timer: ReturnType<typeof setTimeout> | undefined
+  try {
+    // Bound the request-time attempt; the durable queue handles subsequent retries.
+    await Promise.race([
+      transporter.sendMail({ from: process.env.SMTP_FROM || process.env.SMTP_USER, to: message.email, subject: message.subject, text: message.text }),
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => {
+          transporter.close()
+          reject(new Error("AUTH_EMAIL_SMTP_TIMEOUT"))
+        }, 20_000)
+      }),
+    ])
+  } finally {
+    if (timer) clearTimeout(timer)
+    transporter.close()
+  }
 }
