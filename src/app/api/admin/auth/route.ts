@@ -160,6 +160,7 @@ export async function POST(request: NextRequest) {
         console.error("[admin-auth-sign-in]", {
           errorName: error instanceof Error ? error.constructor.name : "UnknownError",
           failureCode: authFailureCode(error),
+          ...authFailureDiagnostics(error),
         })
         throw internalError("认证服务暂时不可用，请稍后重试", "Better Auth sign-in failed")
       }
@@ -184,6 +185,15 @@ function isCredentialFailure(error: unknown) {
 }
 
 function authFailureCode(error: unknown) {
+  const betterAuthCode = authFailureBodyCode(error)
+  if (betterAuthCode === "FAILED_TO_CREATE_SESSION") return "SESSION_CREATION_FAILED"
+
+  const prismaCode = authFailurePrismaCode(error)
+  if (prismaCode === "P2021" || prismaCode === "P2022") return "AUTH_DATABASE_SCHEMA_FAILURE"
+  if (prismaCode === "P1001" || prismaCode === "P1017" || prismaCode === "P2024") {
+    return "AUTH_DATABASE_CONNECTIVITY_FAILURE"
+  }
+
   const status = authFailureStatus(error)
   if (status === 400 || status === 401 || status === 403) return "CREDENTIAL_REJECTED"
 
@@ -192,10 +202,6 @@ function authFailureCode(error: unknown) {
     return "AUTH_CONTEXT_FAILURE"
   }
   if (/invalid password hash/i.test(message)) return "CREDENTIAL_HASH_INVALID"
-
-  if (authFailureBodyCode(error) === "FAILED_TO_CREATE_SESSION") {
-    return "SESSION_CREATION_FAILED"
-  }
 
   return "AUTH_SERVICE_FAILURE"
 }
@@ -212,6 +218,36 @@ function authFailureBodyCode(error: unknown) {
   if (typeof body !== "object" || body === null) return undefined
   const code = (body as { code?: unknown }).code
   return typeof code === "string" ? code : undefined
+}
+
+function authFailurePrismaCode(error: unknown) {
+  if (typeof error !== "object" || error === null) return undefined
+  const code = (error as { code?: unknown }).code
+  return typeof code === "string" && /^P\d{4}$/.test(code) ? code : undefined
+}
+
+function authFailureDiagnostics(error: unknown) {
+  const details: Record<string, string | number> = {}
+  const status = authFailureStatus(error)
+  if (typeof status === "string" && /^[A-Z_]{1,64}$/.test(status)) {
+    details.betterAuthStatus = status
+  }
+
+  if (typeof error === "object" && error !== null) {
+    const statusCode = (error as { statusCode?: unknown }).statusCode
+    if (typeof statusCode === "number" && statusCode >= 100 && statusCode <= 599) {
+      details.statusCode = statusCode
+    }
+  }
+
+  const betterAuthCode = authFailureBodyCode(error)
+  if (betterAuthCode && /^[A-Z][A-Z0-9_]{0,63}$/.test(betterAuthCode)) {
+    details.betterAuthCode = betterAuthCode
+  }
+
+  const prismaCode = authFailurePrismaCode(error)
+  if (prismaCode) details.prismaCode = prismaCode
+  return details
 }
 
 /**

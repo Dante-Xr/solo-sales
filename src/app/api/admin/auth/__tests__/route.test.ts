@@ -137,6 +137,7 @@ describe("/api/admin/auth", () => {
   it("records a safe session creation failure code in production", async () => {
     process.env.VERCEL_ENV = "production"
     const failure = Object.assign(new Error("session write failed"), {
+      status: "UNAUTHORIZED",
       statusCode: 500,
       body: { code: "FAILED_TO_CREATE_SESSION" },
     })
@@ -149,6 +150,9 @@ describe("/api/admin/auth", () => {
     expect(errorSpy).toHaveBeenCalledWith("[admin-auth-sign-in]", {
       errorName: "Error",
       failureCode: "SESSION_CREATION_FAILED",
+      betterAuthStatus: "UNAUTHORIZED",
+      statusCode: 500,
+      betterAuthCode: "FAILED_TO_CREATE_SESSION",
     })
     errorSpy.mockRestore()
   })
@@ -166,6 +170,24 @@ describe("/api/admin/auth", () => {
     expect(errorSpy).toHaveBeenCalledWith("[admin-auth-sign-in]", {
       errorName: "Error",
       failureCode: "AUTH_CONTEXT_FAILURE",
+    })
+    errorSpy.mockRestore()
+  })
+
+  it("records a safe Prisma schema failure code in production", async () => {
+    process.env.VERCEL_ENV = "production"
+    mockedAuth.api.signInEmail.mockRejectedValue(
+      Object.assign(new Error("The column does not exist"), { code: "P2022" })
+    )
+    const errorSpy = jest.spyOn(console, "error").mockImplementation()
+
+    const response = await POST(loginRequest({ email: "admin@example.com", password: "password123" }))
+
+    expect(response.status).toBe(500)
+    expect(errorSpy).toHaveBeenCalledWith("[admin-auth-sign-in]", {
+      errorName: "Error",
+      failureCode: "AUTH_DATABASE_SCHEMA_FAILURE",
+      prismaCode: "P2022",
     })
     errorSpy.mockRestore()
   })
