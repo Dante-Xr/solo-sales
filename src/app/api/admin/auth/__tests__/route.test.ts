@@ -223,6 +223,21 @@ describe("/api/admin/auth", () => {
     expect(body.error).toMatchObject({ message: "邮箱或密码错误" })
   })
 
+  it("treats Better Auth UNAUTHORIZED invalid credential errors as invalid credentials", async () => {
+    process.env.VERCEL_ENV = "production"
+    mockedAuth.api.signInEmail.mockRejectedValue({
+      status: "UNAUTHORIZED",
+      statusCode: 401,
+      body: { code: "INVALID_EMAIL_OR_PASSWORD" },
+    })
+
+    const response = await POST(loginRequest({ email: "admin@example.com", password: "password123" }))
+    const body = await response.json()
+
+    expect(response.status).toBe(401)
+    expect(body.error).toMatchObject({ message: "邮箱或密码错误" })
+  })
+
   it("records an audit log after successful admin login", async () => {
     const response = await POST(loginRequest({ email: "admin@example.com", password: "password123" }))
 

@@ -180,11 +180,24 @@ export async function POST(request: NextRequest) {
 }
 
 function isCredentialFailure(error: unknown) {
-  if (authFailureBodyCode(error) === "FAILED_TO_CREATE_SESSION") return false
+  const betterAuthCode = authFailureBodyCode(error)
+  if (betterAuthCode === "FAILED_TO_CREATE_SESSION") return false
   if (authFailurePrismaCode(error)) return false
+  if (
+    betterAuthCode === "INVALID_EMAIL_OR_PASSWORD" ||
+    betterAuthCode === "INVALID_PASSWORD" ||
+    betterAuthCode === "INVALID_EMAIL" ||
+    betterAuthCode === "CREDENTIAL_ACCOUNT_NOT_FOUND"
+  ) {
+    return true
+  }
 
   const status = authFailureStatus(error)
-  return status === 400 || status === 401 || status === 403
+  if (status === 400 || status === 401 || status === 403) return true
+  if (status === "BAD_REQUEST" || status === "UNAUTHORIZED" || status === "FORBIDDEN") return true
+
+  const statusCode = authFailureStatusCode(error)
+  return statusCode === 400 || statusCode === 401 || statusCode === 403
 }
 
 function authFailureCode(error: unknown) {
@@ -197,8 +210,7 @@ function authFailureCode(error: unknown) {
     return "AUTH_DATABASE_CONNECTIVITY_FAILURE"
   }
 
-  const status = authFailureStatus(error)
-  if (status === 400 || status === 401 || status === 403) return "CREDENTIAL_REJECTED"
+  if (isCredentialFailure(error)) return "CREDENTIAL_REJECTED"
 
   const message = error instanceof Error ? error.message : ""
   if (/(?:base\s*url|allowed\s*hosts|trusted\s*origin|origin)/i.test(message)) {
@@ -211,8 +223,12 @@ function authFailureCode(error: unknown) {
 
 function authFailureStatus(error: unknown) {
   if (typeof error !== "object" || error === null) return undefined
-  const candidate = error as { status?: unknown; statusCode?: unknown }
-  return candidate.status ?? candidate.statusCode
+  return (error as { status?: unknown }).status
+}
+
+function authFailureStatusCode(error: unknown) {
+  if (typeof error !== "object" || error === null) return undefined
+  return (error as { statusCode?: unknown }).statusCode
 }
 
 function authFailureBodyCode(error: unknown) {
@@ -237,7 +253,7 @@ function authFailureDiagnostics(error: unknown) {
   }
 
   if (typeof error === "object" && error !== null) {
-    const statusCode = (error as { statusCode?: unknown }).statusCode
+    const statusCode = authFailureStatusCode(error)
     if (typeof statusCode === "number" && statusCode >= 100 && statusCode <= 599) {
       details.statusCode = statusCode
     }
